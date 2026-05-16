@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX — Priority Roadmap & Sprint Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--bg2:#0c0f18;--bg3:#111520;--bg4:#171c2c;--bg5:#1d2235;
+  --line:rgba(255,255,255,.055);--line2:rgba(255,255,255,.1);
+  --text:#e2e6f3;--sub:#8892a8;--dim:#45506a;--dimmer:#2a3348;
+  --p1:#22d47e;--p1d:#0d7a46;--p1bg:rgba(34,212,126,.08);--p1line:rgba(34,212,126,.2);
+  --p2:#4d9fff;--p2d:#1a5fb5;--p2bg:rgba(77,159,255,.08);--p2line:rgba(77,159,255,.2);
+  --p3:#ffb830;--p3d:#916600;--p3bg:rgba(255,184,48,.08);--p3line:rgba(255,184,48,.2);
+  --p4:#c27aff;--p4d:#6b2ea8;--p4bg:rgba(194,122,255,.08);--p4line:rgba(194,122,255,.2);
+  --p5:#6b7a99;--p5bg:rgba(107,122,153,.08);--p5line:rgba(107,122,153,.2);
+  --crit:#ff5252;--critbg:rgba(255,82,82,.1);
+  --warn:#ffb830;
+  --mono:'JetBrains Mono',monospace;
+  --display:'Syne',sans-serif;
+  --body:'Noto Sans Thai',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{color:var(--text);font-family:var(--body);font-size:13.5px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+/* ── GRID NOISE TEXTURE ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;opacity:.5;pointer-events:none;z-index:0}
+
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px 60px}
+
+/* ── HEADER ── */
+.hdr{padding:40px 0 32px;border-bottom:1px solid var(--line);margin-bottom:36px}
+.hdr-eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.hdr-eyebrow::before{content:'';width:20px;height:1px;background:var(--dim)}
+.hdr-title{font-family:var(--display);font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-.04em;line-height:1.1;color:var(--text);margin-bottom:10px}
+.hdr-title span{color:var(--p1)}
+.hdr-sub{font-size:13px;color:var(--sub);max-width:580px;line-height:1.7}
+.hdr-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+.hdr-chip{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--line2);color:var(--sub)}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:28px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:4px}
+.tab-btn{flex:1;padding:8px 12px;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--sub);transition:all .15s;text-align:center}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.on{background:var(--bg4);color:var(--text);border:1px solid var(--line2)}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.on{display:block}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}
+.stat-card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sc-p1::after{background:var(--p1)}
+.sc-p2::after{background:var(--p2)}
+.sc-p3::after{background:var(--p3)}
+.sc-p4::after{background:var(--p4)}
+.sc-p5::after{background:var(--p5)}
+.stat-n{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.04em}
+.stat-l{font-size:10.5px;color:var(--sub);margin-top:2px;line-height:1.4}
+
+/* ── PHASE SECTION ── */
+.phase-sec{margin-bottom:20px}
+.phase-hdr{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:10px 10px 0 0;border:1px solid;border-bottom:none;cursor:pointer;user-select:none;transition:opacity .12s}
+.phase-hdr:hover{opacity:.9}
+.ph-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:800;flex-shrink:0}
+.ph-info{flex:1}
+.ph-label{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:-.02em}
+.ph-meta{font-size:11px;color:var(--sub);margin-top:1px}
+.ph-count{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;flex-shrink:0}
+.ph-toggle{color:var(--dim);font-size:12px;transition:transform .2s;flex-shrink:0}
+.ph-toggle.open{transform:rotate(180deg)}
+.phase-body{border:1px solid;border-top:none;border-radius:0 0 10px 10px;overflow:hidden}
+
+/* ── CASE CARDS ── */
+.case-card{background:var(--bg2);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;transition:background .12s;cursor:pointer;text-decoration:none;color:inherit}
+.case-card:hover{background:var(--bg3)}
+.case-card:last-child{border-bottom:none}
+.cc-rank{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--dim);min-width:20px;padding-top:2px;flex-shrink:0}
+.cc-id{font-family:var(--mono);font-size:10.5px;font-weight:600;min-width:72px;padding-top:2px;flex-shrink:0}
+.cc-body{flex:1;min-width:0}
+.cc-name{font-size:13.5px;font-weight:600;font-family:var(--display);letter-spacing:-.02em;margin-bottom:3px;line-height:1.3}
+.cc-why{font-size:12px;color:var(--sub);line-height:1.6}
+.cc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.cc-tag{font-family:var(--mono);font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px}
+.cc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:100px}
+.cc-dep{font-family:var(--mono);font-size:9.5px;color:var(--dim);text-align:right}
+.cc-effort{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid var(--line2);color:var(--sub);text-align:center}
+.crit-badge{background:var(--critbg);color:var(--crit);border:1px solid rgba(255,82,82,.25);font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px}
+.freq-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:5px}
+
+/* ── GANTT VIEW ── */
+.gantt-wrap{overflow-x:auto;padding-bottom:8px}
+.gantt{min-width:700px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg2)}
+.gantt-hdr{display:flex;background:var(--bg3);border-bottom:1px solid var(--line)}
+.gh-label{width:280px;flex-shrink:0;padding:10px 14px;font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-right:1px solid var(--line)}
+.gh-weeks{flex:1;display:grid;border-right:none}
+.gh-week{padding:10px 6px;font-family:var(--mono);font-size:9.5px;color:var(--dim);text-align:center;border-right:1px solid var(--line)}
+.gh-week:last-child{border-right:none}
+.gantt-row{display:flex;border-bottom:1px solid var(--line);align-items:center;min-height:44px;transition:background .1s}
+.gantt-row:last-child{border-bottom:none}
+.gantt-row:hover{background:var(--bg4)}
+.gr-label{width:280px;flex-shrink:0;padding:8px 14px;border-right:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.gr-id{font-family:var(--mono);font-size:9.5px;font-weight:600;flex-shrink:0}
+.gr-name{font-size:11.5px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--display);font-weight:600;letter-spacing:-.01em}
+.gr-grid{flex:1;display:grid;position:relative;height:44px}
+.gr-bar{position:absolute;top:50%;transform:translateY(-50%);height:20px;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden}
+.gr-cell{border-right:1px solid var(--line);height:100%}
+.gr-cell:last-child{border-right:none}
+.gantt-phase-sep{display:flex;align-items:center;background:var(--bg3);border-bottom:1px solid var(--line);min-height:28px}
+.gps-label{width:280px;flex-shrink:0;padding:6px 14px;font-family:var(--mono);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-right:1px solid var(--line)}
+.gps-line{flex:1;height:1px;background:var(--line2);margin:0 14px}
+
+/* ── DEP GRAPH VIEW ── */
+.dep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.dep-card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.dep-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dc-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.dc-id{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;flex-shrink:0}
+.dc-rank{font-family:var(--display);font-size:22px;font-weight:800;color:var(--dim);letter-spacing:-.04em;margin-left:auto;line-height:1}
+.dc-name{font-size:12px;font-weight:600;font-family:var(--display);letter-spacing:-.02em;margin-bottom:8px;line-height:1.3}
+.dc-deps{font-size:11px;color:var(--sub)}
+.dc-dep-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.dc-dep-items{display:flex;gap:4px;flex-wrap:wrap}
+.dc-dep-item{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;background:var(--bg4);color:var(--sub);border:1px solid var(--line)}
+.dc-unlocks{margin-top:6px}
+.dc-unlock-item{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(34,212,126,.08);color:var(--p1);border:1px solid rgba(34,212,126,.2)}
+
+/* ── SPRINT VIEW ── */
+.sprint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.sprint-card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.sprint-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.sprint-num{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:-.04em}
+.sprint-label{font-size:11px;color:var(--sub);font-family:var(--mono)}
+.sprint-body{padding:12px}
+.sprint-item{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line)}
+.sprint-item:last-child{border-bottom:none}
+.si-ph{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.si-id{font-family:var(--mono);font-size:9.5px;font-weight:600;min-width:60px;flex-shrink:0;padding-top:1px}
+.si-name{font-size:12px;color:var(--text);flex:1;font-family:var(--display);font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.si-note{font-size:10.5px;color:var(--sub);margin-top:2px;line-height:1.4}
+.sprint-footer{padding:8px 16px;border-top:1px solid var(--line);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
+.sf-label{font-family:var(--mono);font-size:10px;color:var(--dim)}
+.sf-goal{font-size:11.5px;color:var(--text);font-weight:500}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .stat-row{grid-template-columns:repeat(3,1fr)}
+  .stat-row .stat-card:nth-child(n+4){display:none}
+  .tab-btn span.full{display:none}
+  .cc-right{display:none}
+  .dep-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-eyebrow">B1DX OMS/WMS · Planning Document</div>
+  <h1 class="hdr-title">Priority <span>Roadmap</span><br>& Sprint Plan</h1>
+  <p class="hdr-sub">22 Simulation Cases เรียงตาม Business Impact × Dependency × Risk — ใช้สำหรับ Sprint Planning และ Go-live Checklist</p>
+  <div class="hdr-meta">
+    <span class="hdr-chip">22 Use Cases</span>
+    <span class="hdr-chip">5 Phases</span>
+    <span class="hdr-chip">4 Sprints</span>
+    <span class="hdr-chip">อ้างอิง: b1dx_sequence_flow.html</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="switchTab('priority',this)">⬛ Priority List</button>
+  <button class="tab-btn" onclick="switchTab('gantt',this)">📅 Timeline</button>
+  <button class="tab-btn" onclick="switchTab('deps',this)">🔗 Dependencies</button>
+  <button class="tab-btn" onclick="switchTab('sprint',this)">🏃 Sprint Plan</button>
+</div>
+
+<!-- ═══ VIEW: PRIORITY LIST ═══ -->
+<div class="view on" id="v-priority">
+
+<div class="stat-row">
+  <div class="stat-card sc-p1"><div class="stat-n" style="color:var(--p1)">6</div><div class="stat-l">Phase 1<br>Must Have</div></div>
+  <div class="stat-card sc-p2"><div class="stat-n" style="color:var(--p2)">5</div><div class="stat-l">Phase 2<br>Should Have</div></div>
+  <div class="stat-card sc-p3"><div class="stat-n" style="color:var(--p3)">4</div><div class="stat-l">Phase 3<br>Return Flow</div></div>
+  <div class="stat-card sc-p4"><div class="stat-n" style="color:var(--p4)">6</div><div class="stat-l">Phase 4<br>Value Add</div></div>
+  <div class="stat-card sc-p5"><div class="stat-n" style="color:var(--p5)">1</div><div class="stat-l">Phase 5<br>Nice to Have</div></div>
+</div>
+
+<div id="priorityList"></div>
+
+</div>
+
+<!-- ═══ VIEW: GANTT TIMELINE ═══ -->
+<div class="view" id="v-gantt">
+<p style="font-size:12px;color:var(--sub);margin-bottom:14px;font-family:var(--mono)">แต่ละแถบแสดงช่วง Sprint ที่ควรทำ — ขึ้นกับ team size 3-4 dev</p>
+<div class="gantt-wrap">
+<div class="gantt">
+  <div class="gantt-hdr">
+    <div class="gh-label">Use Case</div>
+    <div class="gh-weeks" id="ganttWeekHdr"></div>
+  </div>
+  <div id="ganttRows"></div>
+</div>
+</div>
+</div>
+
+<!-- ═══ VIEW: DEPENDENCY GRAPH ═══ -->
+<div class="view" id="v-deps">
+<p style="font-size:12px;color:var(--sub);margin-bottom:16px;font-family:var(--mono)">แต่ละ card แสดงว่าต้องรอ case ใดก่อน และปลดบล็อก case ใดได้</p>
+<div class="dep-grid" id="depGrid"></div>
+</div>
+
+<!-- ═══ VIEW: SPRINT PLAN ═══ -->
+<div class="view" id="v-sprint">
+<p style="font-size:12px;color:var(--sub);margin-bottom:16px;font-family:var(--mono)">แนะนำ Sprint 2 สัปดาห์ · Team 3-4 dev (1 BE, 1-2 FE, 1 QA)</p>
+<div class="sprint-grid" id="sprintGrid"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const C = {
+  p1:{color:'var(--p1)',bg:'var(--p1bg)',border:'var(--p1line)',dark:'var(--p1d)'},
+  p2:{color:'var(--p2)',bg:'var(--p2bg)',border:'var(--p2line)',dark:'var(--p2d)'},
+  p3:{color:'var(--p3)',bg:'var(--p3bg)',border:'var(--p3line)',dark:'var(--p3d)'},
+  p4:{color:'var(--p4)',bg:'var(--p4bg)',border:'var(--p4line)',dark:'var(--p4d)'},
+  p5:{color:'var(--p5)',bg:'var(--p5bg)',border:'var(--p5line)'},
+};
+
+const PHASES=[
+  {id:'p1',num:'01',label:'Phase 1 — Must Have (MVP Blocker)',meta:'ต้องมีก่อน Go-live — ระบบยังเปิดไม่ได้ถ้าขาด',sprint:'Sprint 1-2'},
+  {id:'p2',num:'02',label:'Phase 2 — Should Have (สัปดาห์ 1-2)',meta:'ระบบทำงานได้แต่มี gap อันตราย — ต้องปิดก่อน volume จริง',sprint:'Sprint 2-3'},
+  {id:'p3',num:'03',label:'Phase 3 — Return Flow Complete (สัปดาห์ 2-4)',meta:'COD Return Rate สูง — ต้องปิด Return flow ทุก case',sprint:'Sprint 3-4'},
+  {id:'p4',num:'04',label:'Phase 4 — Value Add (เดือน 1-2)',meta:'Feature เพิ่มมูลค่า ไม่ block core แต่ต้องมีก่อน Campaign season',sprint:'Sprint 5-7'},
+  {id:'p5',num:'05',label:'Phase 5 — Nice to Have (เดือน 2+)',meta:'ไม่ block production แต่ช่วย B2B',sprint:'Sprint 8+'},
+];
+
+const CASES=[
+  // ── PHASE 1 ──
+  {rank:1,id:'B1-10001',phase:'p1',name:'Happy Path — ไหลปกติ',
+   why:'Foundation ของทุก case ทั้งหมด State Machine ทุก path เริ่มที่นี่ ถ้าไม่ผ่านไม่มีอะไรทำงานได้',
+   tags:['Baseline','ทุก Order ผ่าน'],tagC:['p1','p1'],
+   crit:false,freq:'ทุก Order',effort:'L',deps:[],unlocks:['10002','10003','10011','10012','10013','10014','10022'],
+   gantt:{s:0,e:2}},
+
+  {rank:2,id:'B1-10003',phase:'p1',name:'COD Auto-confirm (5 sub)',
+   why:'COD คือ 60-70% ของ Order ใน Thailand ต้องทำคู่กับ Happy Path Label Amount ผิด = เก็บเงินผิด',
+   tags:['60-70% Order','Label Risk','COD'],tagC:['p1','warn','p1'],
+   crit:false,freq:'ทุก Order COD',effort:'M',deps:['B1-10001'],unlocks:['B1-10003 sub-cases'],
+   gantt:{s:0,e:2}},
+
+  {rank:3,id:'B1-10011',phase:'p1',name:'Cancel ก่อน Pick (ST 100-400)',
+   why:'Cancel เกิดทุกวัน ถ้าไม่มี Stock ไม่คืน Platform sync error ยอดพร้อมขายพัง',
+   tags:['Stock Integrity','Platform Sync'],tagC:['crit','p2'],
+   crit:false,freq:'ทุกวัน',effort:'S',deps:['B1-10001'],unlocks:['B1-10012'],
+   gantt:{s:0,e:2}},
+
+  {rank:4,id:'B1-10002',phase:'p1',name:'Waiting Stock ST 200 (4 sub)',
+   why:'Stock ไม่พอเกิดบ่อยมาก โดยเฉพาะ Brand ใหม่ FIFO Logic + ปลด Order อัตโนมัติ',
+   tags:['เกิดบ่อย','FIFO','Stock Engine'],tagC:['warn','p1','p1'],
+   crit:false,freq:'ทุกวัน',effort:'M',deps:['B1-10001'],unlocks:['B1-10010'],
+   gantt:{s:1,e:3}},
+
+  {rank:5,id:'B1-10004',phase:'p1',name:'Pre-pay ตรวจสลิป (Happy)',
+   why:'Pre-pay ใช้กับ Manual Order และ Sale Page ต้องมีก่อนเปิด Billing',
+   tags:['Manual Order','Billing Link'],tagC:['p2','p3'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'M',deps:['B1-10001'],unlocks:['B1-10005'],
+   gantt:{s:1,e:3}},
+
+  {rank:6,id:'B1-10019',phase:'p1',name:'Virtual Bundle Decompose SKU',
+   why:'ถ้าไม่มีตั้งแต่วันแรก Stock count จะผิดพลาดทุก Order ที่มี Bundle — Data corrupt',
+   tags:['⚡ Critical','Stock Integrity','SKU Engine'],tagC:['crit','crit','p1'],
+   crit:true,freq:'ทุก Bundle Order',effort:'L',deps:['B1-10001'],unlocks:['B1-10020'],
+   gantt:{s:1,e:3}},
+
+  // ── PHASE 2 ──
+  {rank:7,id:'B1-10012',phase:'p2',name:'Cancel ระหว่าง Pack ST 450 (4 sub)',
+   why:'Cancel ขณะ Pack เกิดทุกสัปดาห์ WH Worker ไม่รู้ทำอะไร Stock ค้างในระบบ Video SOP',
+   tags:['WH Ops Critical','Video Required','Checklist'],tagC:['crit','p4','p4'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'L',deps:['B1-10001','B1-10011'],unlocks:[],
+   gantt:{s:2,e:4}},
+
+  {rank:8,id:'B1-10013',phase:'p2',name:'Cancel หลัง Label ST 490 (Void)',
+   why:'ถ้าไม่มี Void API Courier มารับของที่ Cancel แล้ว ส่งถึงลูกค้า เสียค่าส่ง 2 รอบ',
+   tags:['⚡ Critical','Courier API','Void Label'],tagC:['crit','p2','warn'],
+   crit:true,freq:'ทุกสัปดาห์',effort:'M',deps:['B1-10001','B1-10012'],unlocks:[],
+   gantt:{s:2,e:4}},
+
+  {rank:9,id:'B1-10014',phase:'p2',name:'Full Return — สภาพดีครบ (Happy Return)',
+   why:'Return เกิดทุกวัน โดยเฉพาะ COD Stock ที่กลับมาไม่ถูกนับ ยอดหายออกจากระบบ',
+   tags:['ทุกวัน COD','Stock Recovery','Video'],tagC:['warn','p1','p4'],
+   crit:false,freq:'ทุกวัน',effort:'M',deps:['B1-10001'],unlocks:['B1-10015','B1-10016','B1-10017','B1-10018'],
+   gantt:{s:2,e:4}},
+
+  {rank:10,id:'B1-10005',phase:'p2',name:'สลิปปลอม 4 Fraud Patterns',
+   why:'Fraud เกิดทุกสัปดาห์ใน Pre-pay Type 2 (Ref ซ้ำ) ต้องเป็น Auto-block ระดับ System',
+   tags:['Fraud Risk','Auto-block','Ref ซ้ำ'],tagC:['crit','p1','p1'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'M',deps:['B1-10004'],unlocks:[],
+   gantt:{s:2,e:4}},
+
+  {rank:11,id:'B1-10022',phase:'p2',name:'Courier API Error → Fallback',
+   why:'Courier API down เกิดได้ตลอด ถ้าไม่มี Fallback WH Worker stuck ทั้ง shift',
+   tags:['WH Blocker','Retry Policy','Standard Label'],tagC:['crit','p1','p3'],
+   crit:false,freq:'ทุกเดือน',effort:'S',deps:['B1-10001'],unlocks:[],
+   gantt:{s:2,e:3}},
+
+  // ── PHASE 3 ──
+  {rank:12,id:'B1-10017',phase:'p3',name:'Return รอตรวจ ST 620 — 5 Types',
+   why:'ทุก Return ผ่าน ST 620 ต้องจัดการทั้ง 5 outcomes ไม่งั้น WH ติดงาน',
+   tags:['ทุก Return','5 Outcomes','NC Module'],tagC:['warn','p4','p3'],
+   crit:false,freq:'ทุกวัน',effort:'L',deps:['B1-10014'],unlocks:[],
+   gantt:{s:4,e:6}},
+
+  {rank:13,id:'B1-10015',phase:'p3',name:'Return เสียหาย / NC Report',
+   why:'สินค้าเสียหายเกิดบ่อยใน COD ถ้าไม่มี NC Flow Brand ไม่รู้ว่าสินค้าหายหรือเสียที่ไหน',
+   tags:['Financial','NC Module','Brand Action'],tagC:['crit','p3','p4'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'M',deps:['B1-10014','B1-10017'],unlocks:[],
+   gantt:{s:4,e:6}},
+
+  {rank:14,id:'B1-10016',phase:'p3',name:'Return แล้วส่งใหม่ (Resend)',
+   why:'ที่อยู่ผิดเกิดบ่อยใน Manual Order Resend ลดต้นทุน Return loop',
+   tags:['UX','ลดต้นทุน','Hold Area'],tagC:['p2','p1','p4'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'M',deps:['B1-10014'],unlocks:[],
+   gantt:{s:4,e:6}},
+
+  {rank:15,id:'B1-10018',phase:'p3',name:'Return ระหว่างทาง (Intercept)',
+   why:'ลูกค้า Cancel ขณะของอยู่บน van ถ้าไม่มี ของถึงลูกค้าแม้ Cancel แล้ว Return ซ้ำ',
+   tags:['Courier API','UX','Intercept'],tagC:['p2','p2','p4'],
+   crit:false,freq:'ทุกเดือน',effort:'M',deps:['B1-10014'],unlocks:[],
+   gantt:{s:5,e:7}},
+
+  // ── PHASE 4 ──
+  {rank:16,id:'B1-10007',phase:'p4',name:'Pre-order Happy Path',
+   why:'Brand ที่ขาย Scheduled delivery ต้องการ Feature นี้ — Baseline ของ Pre-order',
+   tags:['Scheduled','ST 300'],tagC:['p4','p4'],
+   crit:false,freq:'ต่อ Brand',effort:'M',deps:['B1-10001'],unlocks:['B1-10008','B1-10009','B1-10010'],
+   gantt:{s:6,e:8}},
+
+  {rank:17,id:'B1-10008',phase:'p4',name:'Pre-order + Cancel ขณะรอ',
+   why:'Cancel ใน Pre-order ง่ายที่สุด ต้องมีพร้อม 10007',
+   tags:['ทำพร้อม 10007'],tagC:['p4'],
+   crit:false,freq:'ต่อ Brand',effort:'S',deps:['B1-10007'],unlocks:[],
+   gantt:{s:6,e:8}},
+
+  {rank:18,id:'B1-10009',phase:'p4',name:'Pre-order + เลื่อนวันนัด',
+   why:'เลื่อนวันเกิดบ่อยใน Scheduled ต้องมีพร้อม 10007',
+   tags:['ทำพร้อม 10007'],tagC:['p4'],
+   crit:false,freq:'ต่อ Brand',effort:'S',deps:['B1-10007'],unlocks:[],
+   gantt:{s:6,e:8}},
+
+  {rank:19,id:'B1-10010',phase:'p4',name:'Pre-order + Stock ไม่พอ',
+   why:'Edge case ของ Pre-order ต้องมีก่อน Brand ใช้ Limited Stock',
+   tags:['Edge Case','Limited Stock'],tagC:['p4','warn'],
+   crit:false,freq:'ต่อ Brand',effort:'M',deps:['B1-10007','B1-10002'],unlocks:[],
+   gantt:{s:7,e:9}},
+
+  {rank:20,id:'B1-10020',phase:'p4',name:'Promotion — Free Gift หมด Stock',
+   why:'Promotion เกิดทุก Campaign ถ้าของแถมหมดแล้วไม่มี Flow ลูกค้า complain',
+   tags:['Campaign','Promo Engine','UX'],tagC:['p4','p4','p2'],
+   crit:false,freq:'ต่อ Campaign',effort:'M',deps:['B1-10019'],unlocks:[],
+   gantt:{s:7,e:9}},
+
+  {rank:21,id:'B1-10021',phase:'p4',name:'น้ำหนักเกินเกณฑ์ / Label ไม่ผ่าน',
+   why:'WH Admin handle manually ได้ชั่วคราว ทำให้ครบก่อน Volume สูง',
+   tags:['Ops','Override Audit'],tagC:['p2','p4'],
+   crit:false,freq:'ทุกสัปดาห์',effort:'S',deps:['B1-10001'],unlocks:[],
+   gantt:{s:7,e:8}},
+
+  // ── PHASE 5 ──
+  {rank:22,id:'B1-10006',phase:'p5',name:'Partial Payment + Credit Term (B2B)',
+   why:'ใช้เฉพาะ B2B ซึ่ง Volume น้อยกว่ามาก FF Manager handle manually ได้ชั่วคราว',
+   tags:['B2B Only','Credit Term','Manual OK'],tagC:['p5','p5','p1'],
+   crit:false,freq:'ต่อ B2B Client',effort:'L',deps:['B1-10004'],unlocks:[],
+   gantt:{s:10,e:14}},
+];
+
+const TAG_COLORS={
+  crit:{bg:'rgba(255,82,82,.1)',color:'#ff5252',border:'rgba(255,82,82,.25)'},
+  warn:{bg:'rgba(255,184,48,.1)',color:'#ffb830',border:'rgba(255,184,48,.25)'},
+  p1:{bg:'rgba(34,212,126,.08)',color:'#22d47e',border:'rgba(34,212,126,.2)'},
+  p2:{bg:'rgba(77,159,255,.08)',color:'#4d9fff',border:'rgba(77,159,255,.2)'},
+  p3:{bg:'rgba(255,184,48,.08)',color:'#ffb830',border:'rgba(255,184,48,.2)'},
+  p4:{bg:'rgba(194,122,255,.08)',color:'#c27aff',border:'rgba(194,122,255,.2)'},
+  p5:{bg:'rgba(107,122,153,.08)',color:'#6b7a99',border:'rgba(107,122,153,.2)'},
+};
+function tagStyle(c){const t=TAG_COLORS[c]||TAG_COLORS.p5;return`background:${t.bg};color:${t.color};border:1px solid ${t.border}`;}
+
+const EFFORT_COLOR={S:'rgba(34,212,126,.15)',M:'rgba(77,159,255,.15)',L:'rgba(255,184,48,.15)'};
+const EFFORT_TC={S:'#22d47e',M:'#4d9fff',L:'#ffb830'};
+const FREQ_MAP={
+  'ทุก Order':'#22d47e','ทุก Order COD':'#22d47e','ทุกวัน':'#ffb830','ทุกวัน COD':'#ffb830',
+  'ทุกสัปดาห์':'#4d9fff','ทุกเดือน':'#6b7a99','ต่อ Brand':'#c27aff','ต่อ Campaign':'#c27aff',
+  'ต่อ B2B Client':'#6b7a99','ทุก Bundle Order':'#ffb830','ทุก Return':'#ffb830',
+};
+
+// ═══════════════════════════════════════════════════════
+// RENDER: PRIORITY LIST
+// ═══════════════════════════════════════════════════════
+function renderPriority(){
+  const el=document.getElementById('priorityList');
+  let html='';
+  PHASES.forEach(ph=>{
+    const cases=CASES.filter(c=>c.phase===ph.id);
+    const col=C[ph.id];
+    html+=`<div class="phase-sec">
+      <div class="phase-hdr" style="background:${col.bg};border-color:${col.border}" onclick="togglePhase(this)">
+        <div class="ph-num" style="background:${col.color};color:#0a0a12">${ph.num}</div>
+        <div class="ph-info">
+          <div class="ph-label" style="color:${col.color}">${ph.label}</div>
+          <div class="ph-meta">${ph.meta} · <span style="color:${col.color}">${ph.sprint}</span></div>
+        </div>
+        <div class="ph-count" style="background:${col.bg};color:${col.color};border:1px solid ${col.border}">${cases.length} cases</div>
+        <div class="ph-toggle open">▾</div>
+      </div>
+      <div class="phase-body" style="border-color:${col.border}">`;
+    cases.forEach(c=>{
+      const fc=FREQ_MAP[c.freq]||'#6b7a99';
+      const depStr=c.deps.length?c.deps.map(d=>`<span style="font-family:var(--mono);font-size:9.5px;background:var(--bg4);padding:1px 5px;border-radius:4px;color:var(--sub)">→${d.replace('B1-','')}</span>`).join(' '):'<span style="color:var(--dim);font-size:9.5px;font-family:var(--mono)">No deps</span>';
+      html+=`<div class="case-card" onclick="openSeqFlow('${c.id}')">
+        <div class="cc-rank" style="color:${col.color}">#${c.rank}</div>
+        <div class="cc-id" style="color:${col.color}">${c.id}</div>
+        <div class="cc-body">
+          <div class="cc-name">${c.name}${c.crit?` <span class="crit-badge">⚡ CRITICAL</span>`:''}</div>
+          <div class="cc-why">${c.why}</div>
+          <div class="cc-tags">
+            ${c.tags.map((t,i)=>`<span class="cc-tag" style="${tagStyle(c.tagC[i])}">${t}</span>`).join('')}
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <span style="font-family:var(--mono);font-size:9px;color:var(--dim)">Deps:</span>
+            ${depStr}
+          </div>
+        </div>
+        <div class="cc-right">
+          <span class="freq-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}33">${c.freq}</span>
+          <span class="cc-effort" style="background:${EFFORT_COLOR[c.effort]||'var(--bg4)'};color:${EFFORT_TC[c.effort]||'var(--sub)'}">Effort: ${c.effort}</span>
+        </div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  el.innerHTML=html;
+}
+
+function togglePhase(hdr){
+  const body=hdr.nextElementSibling;
+  const tog=hdr.querySelector('.ph-toggle');
+  const isOpen=tog.classList.contains('open');
+  body.style.display=isOpen?'none':'block';
+  tog.classList.toggle('open',!isOpen);
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER: GANTT
+// ═══════════════════════════════════════════════════════
+const WEEKS=14;
+function renderGantt(){
+  // header weeks
+  let wh='';
+  for(let i=0;i<WEEKS;i++) wh+=`<div class="gh-week" style="grid-column:${i+1}">W${i+1}</div>`;
+  document.getElementById('ganttWeekHdr').style.display='grid';
+  document.getElementById('ganttWeekHdr').style.gridTemplateColumns=`repeat(${WEEKS},1fr)`;
+  document.getElementById('ganttWeekHdr').innerHTML=wh;
+
+  let html='';
+  let lastPh='';
+  CASES.forEach(c=>{
+    const col=C[c.phase];
+    if(c.phase!==lastPh){
+      const ph=PHASES.find(p=>p.id===c.phase);
+      html+=`<div class="gantt-phase-sep">
+        <div class="gps-label" style="color:${col.color}">${ph.label.split(' — ')[0]}</div>
+        <div class="gps-line" style="background:${col.border}"></div>
+      </div>`;
+      lastPh=c.phase;
+    }
+    // bar position
+    const pct=100/WEEKS;
+    const left=(c.gantt.s*pct).toFixed(1)+'%';
+    const width=((c.gantt.e-c.gantt.s)*pct).toFixed(1)+'%';
+    // grid cells
+    let cells='';
+    for(let i=0;i<WEEKS;i++) cells+=`<div class="gr-cell"></div>`;
+    html+=`<div class="gantt-row">
+      <div class="gr-label">
+        <span class="gr-id" style="color:${col.color}">${c.id.replace('B1-','')}</span>
+        <span class="gr-name">${c.name.split(' — ')[0]}</span>
+      </div>
+      <div class="gr-grid" style="display:grid;grid-template-columns:repeat(${WEEKS},1fr)">
+        ${cells}
+        <div class="gr-bar" style="left:${left};width:${width};background:${col.color};opacity:.88">
+          #${c.rank} ${c.effort}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('ganttRows').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER: DEPENDENCY GRAPH
+// ═══════════════════════════════════════════════════════
+function renderDeps(){
+  const el=document.getElementById('depGrid');
+  let html='';
+  CASES.forEach(c=>{
+    const col=C[c.phase];
+    const unlocks=CASES.filter(x=>x.deps.includes(c.id));
+    html+=`<div class="dep-card" style="border-color:${col.border}">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${col.color}"></div>
+      <div class="dc-top">
+        <span class="dc-id" style="${tagStyle(c.phase)}">${c.id}</span>
+        <span class="dc-rank" style="color:${col.color}">#${c.rank}</span>
+      </div>
+      <div class="dc-name">${c.name}</div>
+      <div class="dc-deps">
+        <div class="dc-dep-label">Depends on</div>
+        <div class="dc-dep-items">
+          ${c.deps.length?c.deps.map(d=>`<span class="dc-dep-item">${d.replace('B1-','')}</span>`).join(''):'<span style="color:var(--dim);font-size:9.5px;font-family:var(--mono)">ไม่มี — เริ่มได้เลย</span>'}
+        </div>
+        ${unlocks.length?`<div class="dc-unlocks" style="margin-top:6px">
+          <div class="dc-dep-label">Unlocks</div>
+          <div class="dc-dep-items">${unlocks.map(u=>`<span class="dc-unlock-item">${u.id.replace('B1-','')}</span>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER: SPRINT PLAN
+// ═══════════════════════════════════════════════════════
+const SPRINTS=[
+  {num:1,label:'Sprint 1 (Week 1-2)',goal:'Core State Machine ใช้งานได้',
+   items:[
+    {id:'B1-10001',name:'Happy Path ปกติ',note:'Foundation — ทุก case ต้องอาศัย path นี้',phase:'p1'},
+    {id:'B1-10003',name:'COD Auto-confirm (5 sub)',note:'60-70% ของ Order ต้องไหลผ่านนี้ได้',phase:'p1'},
+    {id:'B1-10011',name:'Cancel ก่อน Pick',note:'Stock คืน + Platform sync',phase:'p1'},
+   ]},
+  {num:2,label:'Sprint 2 (Week 3-4)',goal:'Stock + Payment + Bundle พร้อม Go-live',
+   items:[
+    {id:'B1-10002',name:'Waiting Stock ST 200 (4 sub)',note:'FIFO + ปลด Order อัตโนมัติ',phase:'p1'},
+    {id:'B1-10004',name:'Pre-pay ตรวจสลิป',note:'Happy Path เท่านั้น ก่อน',phase:'p1'},
+    {id:'B1-10019',name:'Virtual Bundle Decompose',note:'⚡ Critical — ต้องมีก่อน Go-live',phase:'p1'},
+    {id:'B1-10022',name:'Courier API Fallback',note:'Retry + Standard Label',phase:'p2'},
+   ]},
+  {num:3,label:'Sprint 3 (Week 5-6)',goal:'Cancel + Fraud + Return ปิด gap หลัก',
+   items:[
+    {id:'B1-10012',name:'Cancel ระหว่าง Pack (4 sub)',note:'Video SOP + Unpack Session',phase:'p2'},
+    {id:'B1-10013',name:'Cancel หลัง Label (Void)',note:'⚡ Critical — Void Courier API',phase:'p2'},
+    {id:'B1-10005',name:'สลิปปลอม 4 Patterns',note:'Ref ซ้ำ = Auto-block ก่อน',phase:'p2'},
+    {id:'B1-10014',name:'Full Return Happy Path',note:'Stock Recovery flow พื้นฐาน',phase:'p2'},
+   ]},
+  {num:4,label:'Sprint 4 (Week 7-8)',goal:'Return Flow ครบสมบูรณ์',
+   items:[
+    {id:'B1-10017',name:'Return รอตรวจ ST 620 (5 types)',note:'ทุก Return ผ่านนี้',phase:'p3'},
+    {id:'B1-10015',name:'Return เสียหาย / NC',note:'NC Report + Brand Action',phase:'p3'},
+    {id:'B1-10016',name:'Return แล้วส่งใหม่',note:'Resend flow',phase:'p3'},
+    {id:'B1-10018',name:'In-Transit Intercept',note:'Courier Intercept API',phase:'p3'},
+   ]},
+  {num:5,label:'Sprint 5 (Week 9-10)',goal:'Pre-order + Promotion features',
+   items:[
+    {id:'B1-10007',name:'Pre-order Happy Path',note:'Baseline ก่อน sub-cases',phase:'p4'},
+    {id:'B1-10008',name:'Pre-order + Cancel',note:'ทำพร้อม 10007',phase:'p4'},
+    {id:'B1-10009',name:'Pre-order + เลื่อนวัน',note:'ทำพร้อม 10007',phase:'p4'},
+    {id:'B1-10021',name:'น้ำหนักเกินเกณฑ์',note:'Weight Override + Audit',phase:'p4'},
+   ]},
+  {num:6,label:'Sprint 6 (Week 11-12)',goal:'ครบทุก Edge Case',
+   items:[
+    {id:'B1-10010',name:'Pre-order + Stock ไม่พอ',note:'Edge case ต้อง 10007+10002 ก่อน',phase:'p4'},
+    {id:'B1-10020',name:'Promotion Free Gift',note:'ของแถมหมด + Brand Decision',phase:'p4'},
+   ]},
+  {num:'7+',label:'Sprint 7+ (เดือน 2+)',goal:'B2B + Long-tail features',
+   items:[
+    {id:'B1-10006',name:'Partial Payment B2B',note:'Credit Term Module',phase:'p5'},
+   ]},
+];
+
+function renderSprints(){
+  const el=document.getElementById('sprintGrid');
+  let html='';
+  SPRINTS.forEach(sp=>{
+    const phases=new Set(sp.items.map(i=>i.phase));
+    const mainPh=[...phases][0];
+    const col=C[mainPh]||C.p5;
+    html+=`<div class="sprint-card">
+      <div class="sprint-hdr" style="background:${col.bg};border-color:${col.border}">
+        <div>
+          <div class="sprint-num" style="color:${col.color}">Sprint ${sp.num}</div>
+          <div class="sprint-label">${sp.label}</div>
+        </div>
+      </div>
+      <div class="sprint-body">
+        ${sp.items.map(item=>{
+          const ic=C[item.phase]||C.p5;
+          return `<div class="sprint-item">
+            <div class="si-ph" style="background:${ic.color}"></div>
+            <div class="si-id" style="color:${ic.color}">${item.id.replace('B1-','')}</div>
+            <div>
+              <div class="si-name">${item.name}</div>
+              <div class="si-note">${item.note}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="sprint-footer">
+        <span class="sf-label">Goal:</span>
+        <span class="sf-goal">${sp.goal}</span>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB SWITCH
+// ═══════════════════════════════════════════════════════
+const VIEW_MAP={priority:'v-priority',gantt:'v-gantt',deps:'v-deps',sprint:'v-sprint'};
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(VIEW_MAP[id]).classList.add('on');
+  if(id==='gantt' && !document.getElementById('ganttRows').innerHTML) renderGantt();
+  if(id==='deps'  && !document.getElementById('depGrid').innerHTML)   renderDeps();
+  if(id==='sprint'&& !document.getElementById('sprintGrid').innerHTML) renderSprints();
+}
+
+function openSeqFlow(id){
+  // Link to b1dx_sequence_flow.html anchor
+  const url='b1dx_sequence_flow.html#'+id;
+  window.open(url,'_blank');
+}
+
+// ═══ INIT ═══
+renderPriority();
+</script>
+</body>
+</html>

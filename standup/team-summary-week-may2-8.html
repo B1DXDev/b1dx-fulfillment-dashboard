@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปงานทีม - สัปดาห์ที่ผ่านมา</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-gradient-srattha {
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+        }
+        .card-gradient-wat {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .card-gradient-nuchit {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        .status-done {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .status-active {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .status-review {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        .wave-complete { @apply bg-green-100 border-green-300; }
+        .wave-active { @apply bg-amber-100 border-amber-300; }
+        .wave-todo { @apply bg-gray-100 border-gray-300; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900">📊 สรุปงานทีม</h1>
+                    <p class="text-gray-500 text-sm mt-1">สัปดาห์ที่ผ่านมา: 2 - 8 พฤษภาคม 2026</p>
+                </div>
+                <div class="text-right">
+                    <div class="inline-block bg-gradient-to-r from-green-100 to-blue-100 px-4 py-2 rounded-lg">
+                        <p class="text-2xl font-bold text-gray-900">3 👥</p>
+                        <p class="text-sm text-gray-600">Dev ออนไลน์</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Overall Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+                <p class="text-sm text-gray-600 font-semibold">PRs Merged</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">43+</p>
+                <p class="text-xs text-gray-500 mt-1">across 3 devs</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+                <p class="text-sm text-gray-600 font-semibold">Features Completed</p>
+                <p class="text-3xl font-bold text-blue-600 mt-2">2</p>
+                <p class="text-xs text-gray-500 mt-1">major tracks</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-orange-500">
+                <p class="text-sm text-gray-600 font-semibold">In Progress</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">1</p>
+                <p class="text-xs text-gray-500 mt-1">major track</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+                <p class="text-sm text-gray-600 font-semibold">Total Hours</p>
+                <p class="text-3xl font-bold text-purple-600 mt-2">80+</p>
+                <p class="text-xs text-gray-500 mt-1">dev effort</p>
+            </div>
+        </div>
+
+        <!-- Srattha Section -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="card-gradient-srattha px-6 py-4 text-white">
+                <h2 class="text-2xl font-bold">👩‍💻 Srattha</h2>
+                <p class="text-sm opacity-90 mt-1">Fullstack (BE + FE)</p>
+            </div>
+
+            <div class="p-6">
+                <!-- Status Badge -->
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="status-done text-white px-4 py-2 rounded-full text-sm font-bold">✅ COMPLETED</div>
+                    <p class="text-gray-700">GROUP — Profile Settings v3</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-pink-50 p-4 rounded border border-pink-200">
+                        <p class="text-sm text-gray-600 font-semibold">PRs Merged</p>
+                        <p class="text-2xl font-bold text-pink-600 mt-1">19</p>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded border border-pink-200">
+                        <p class="text-sm text-gray-600 font-semibold">Tasks Completed</p>
+                        <p class="text-2xl font-bold text-pink-600 mt-1">16/16</p>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded border border-pink-200">
+                        <p class="text-sm text-gray-600 font-semibold">Hours Invested</p>
+                        <p class="text-2xl font-bold text-pink-600 mt-1">27.5h</p>
+                    </div>
+                </div>
+
+                <!-- Task Breakdown -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">🎯 Task Waves</h3>
+                    <div class="space-y-3">
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 1 — Types + MSW</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ merged</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">FE-PRFSETTINGS-11 (1h) — types v3 + MSW handlers</p>
+                        </div>
+
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 2-6 — Components (6 tasks)</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ merged</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">ProfileHeader, PermissionCard, Avatar, Security tabs, Danger zone — all merged 2026-05-07</p>
+                        </div>
+
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 7 — Container + i18n + Theme + E2E</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ merged</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">Container refactor, 162 i18n keys (TH/EN), Theme global apply, E2E tests — all merged by 2026-05-08</p>
+                        </div>
+
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🔄 Reassigned Tasks (8 from v1)</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ merged</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">FE-PRFSETTINGS-01~09, BE-PRFSETTINGS-06 — ported from v1 to v3, all merged by 2026-05-06</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="bg-pink-50 border border-pink-200 rounded p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">🏆 Key Achievements</h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✓ Delivered complete Profile Settings v3 feature (16 tasks)</li>
+                        <li>✓ 100% visual fidelity match with mockup</li>
+                        <li>✓ Full internationalization (Thai + English)</li>
+                        <li>✓ E2E test coverage complete</li>
+                        <li>✓ Theme system (Light/Dark mode) verified</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wat Section -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="card-gradient-wat px-6 py-4 text-white">
+                <h2 class="text-2xl font-bold">👨‍💻 Wat</h2>
+                <p class="text-sm opacity-90 mt-1">Fullstack (BE + FE + E2E)</p>
+            </div>
+
+            <div class="p-6">
+                <!-- Status Badge -->
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="status-active text-white px-4 py-2 rounded-full text-sm font-bold">⚙️ IN PROGRESS</div>
+                    <p class="text-gray-700">GROUP — Order List Full Improve (OAD)</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                        <p class="text-sm text-gray-600 font-semibold">PRs Merged</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-1">24</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                        <p class="text-sm text-gray-600 font-semibold">Wave Progress</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-1">4/5 waves</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                        <p class="text-sm text-gray-600 font-semibold">Estimated Hours</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-1">32-38h</p>
+                    </div>
+                </div>
+
+                <!-- Wave Breakdown -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">🚀 Wave Progress</h3>
+                    <div class="space-y-3">
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 0 (Schema)</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ 100%</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-BE-01/01b, FE-01, FE-10 — DB schema, types, i18n keys</p>
+                        </div>
+
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 1 (Foundation)</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ 100%</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-BE-02/03, FE-02 — Transitions, Print, Tracking, MSW mocks</p>
+                        </div>
+
+                        <div class="wave-complete border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 2 (Hooks + BE)</p>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded">✓ 100%</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-BE-04, FE-03 — availableTransitions, custom hooks (useOrderTransition, etc.)</p>
+                        </div>
+
+                        <div class="wave-active border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 3 (Components)</p>
+                                <span class="text-xs bg-orange-600 text-white px-2 py-1 rounded">⏳ ~80%</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-FE-04/05 done; OAD-FE-06 in review (OrderActionDialog) — critical component</p>
+                        </div>
+
+                        <div class="wave-todo border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 4 (Dialogs)</p>
+                                <span class="text-xs bg-gray-400 text-white px-2 py-1 rounded">⏰ Pending</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-FE-07/08 — OrderTrackingDialog, PrintJobDialog</p>
+                        </div>
+
+                        <div class="wave-todo border rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-gray-900">🌊 Wave 5 (Integration)</p>
+                                <span class="text-xs bg-gray-400 text-white px-2 py-1 rounded">⏰ Pending</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">OAD-FE-09, INT-01 — Table wiring, E2E scaffold</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Notes -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 rounded p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">⚠️ Critical Notes</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li>🔴 <strong>Wave 3 blocker:</strong> OAD-FE-06 (OrderActionDialog) has complex form logic — pending push + PR</li>
+                        <li>✓ <strong>Bug fixes completed:</strong> Order state codes alignment (PR #128)</li>
+                        <li>✓ <strong>Table fidelity fixed:</strong> 4 visual issues resolved (PR #114)</li>
+                        <li>📋 <strong>Doc task pending:</strong> DOC-PRFSETTINGS-11 (update spec v3)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nuchit Section -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="card-gradient-nuchit px-6 py-4 text-white">
+                <h2 class="text-2xl font-bold">👨‍🔧 Nuchit</h2>
+                <p class="text-sm opacity-90 mt-1">Backend + Sync Worker</p>
+            </div>
+
+            <div class="p-6">
+                <!-- Status Badge -->
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="status-active text-white px-4 py-2 rounded-full text-sm font-bold">⚙️ IN PROGRESS</div>
+                    <p class="text-gray-700">TRACK 7 — On-Demand Sync Orders</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-purple-50 p-4 rounded border border-purple-200">
+                        <p class="text-sm text-gray-600 font-semibold">Git Commits</p>
+                        <p class="text-2xl font-bold text-purple-600 mt-1">8</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded border border-purple-200">
+                        <p class="text-sm text-gray-600 font-semibold">Backend Complete</p>
+                        <p class="text-2xl font-bold text-purple-600 mt-1">4/4 ✅</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded border border-purple-200">
+                        <p class="text-sm text-gray-600 font-semibold">Frontend Pending</p>
+                        <p class="text-2xl font-bold text-purple-600 mt-1">0/9 ⏳</p>
+                    </div>
+                </div>
+
+                <!-- Completed Backend -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">✅ Backend — 100% Complete (4 Tasks)</h3>
+                    <div class="space-y-2">
+                        <div class="bg-green-50 border-l-4 border-green-500 rounded p-3">
+                            <p class="font-semibold text-gray-900">ODS-BE-01: Domain Entity</p>
+                            <p class="text-xs text-gray-600 mt-1">OndemandSyncJob + State Machine (1h)</p>
+                        </div>
+                        <div class="bg-green-50 border-l-4 border-green-500 rounded p-3">
+                            <p class="font-semibold text-gray-900">ODS-BE-02: Application Layer</p>
+                            <p class="text-xs text-gray-600 mt-1">Command + Handler + Mediator (3-4h)</p>
+                        </div>
+                        <div class="bg-green-50 border-l-4 border-green-500 rounded p-3">
+                            <p class="font-semibold text-gray-900">ODS-BE-03: Infrastructure</p>
+                            <p class="text-xs text-gray-600 mt-1">EF Core, Migration, HttpClient, Webhook (3-4h)</p>
+                        </div>
+                        <div class="bg-green-50 border-l-4 border-green-500 rounded p-3">
+                            <p class="font-semibold text-gray-900">ODS-BE-04: API Endpoint</p>
+                            <p class="text-xs text-gray-600 mt-1">POST /api/oms/orders/ondemand-sync (1-2h)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frontend Pending -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">⏳ Frontend — In Progress (9 Tasks)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-00: Gateway</p>
+                            <p class="text-xs text-gray-600">OMS upstream setup (0.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-01: Types + Zod</p>
+                            <p class="text-xs text-gray-600">Schema validation (0.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-02: i18n</p>
+                            <p class="text-xs text-gray-600">Thai + English keys (0.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-03: MSW Mocks</p>
+                            <p class="text-xs text-gray-600">API handlers (0.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-04: Hook</p>
+                            <p class="text-xs text-gray-600">useOndemandSync (2-3h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-05: Banner</p>
+                            <p class="text-xs text-gray-600">SyncJobBanner (1-1.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-06: Dialog</p>
+                            <p class="text-xs text-gray-600">SyncOrdersDialog (2-3h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-07: Badge</p>
+                            <p class="text-xs text-gray-600">HealthBadge (1-1.5h)</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p class="text-sm font-semibold text-gray-900">ODS-FE-08: Integration</p>
+                            <p class="text-xs text-gray-600">OrderAll wiring (1h)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="bg-purple-50 border border-purple-200 rounded p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">📅 Expected Timeline</h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✓ <strong>Backend:</strong> Completed 2026-05-04</li>
+                        <li>⏳ <strong>Frontend:</strong> Est. 2026-05-13 to 2026-05-15</li>
+                        <li>⏳ <strong>E2E Tests:</strong> Est. 2026-05-16 to 2026-05-17</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg shadow p-6 border border-pink-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">👩‍💻 Srattha</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Status</span>
+                        <span class="font-bold text-green-600">✅ DONE</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Effort</span>
+                        <span class="font-bold">27.5h</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">PRs</span>
+                        <span class="font-bold">19</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Tasks</span>
+                        <span class="font-bold">16/16 ✓</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow p-6 border border-blue-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">👨‍💻 Wat</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Status</span>
+                        <span class="font-bold text-orange-600">⚙️ ACTIVE</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Effort</span>
+                        <span class="font-bold">32-38h</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">PRs</span>
+                        <span class="font-bold">24</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Waves</span>
+                        <span class="font-bold">4/5 (80%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow p-6 border border-purple-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">👨‍🔧 Nuchit</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Status</span>
+                        <span class="font-bold text-orange-600">⚙️ ACTIVE</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Effort</span>
+                        <span class="font-bold">21h+ (21-32h)</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">Commits</span>
+                        <span class="font-bold">8</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700">BE/FE</span>
+                        <span class="font-bold">4/9 (44%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blockers & Risks -->
+        <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">⚠️ Blockers & Risks</h2>
+            <div class="space-y-3">
+                <div class="flex gap-3">
+                    <span class="text-red-600 text-lg">🔴</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">(WAT) OAD-FE-06 — OrderActionDialog complexity</p>
+                        <p class="text-sm text-gray-600">Complex form logic with per-transition forms; pending push + PR review</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <span class="text-yellow-600 text-lg">🟡</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">(NUCHIT) Frontend is next phase</p>
+                        <p class="text-sm text-gray-600">9 tasks remaining (10-11h est.); depends on BE completion ✓</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <span class="text-yellow-600 text-lg">🟡</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">(WAT) DOC-PRFSETTINGS-11 — Spec update pending</p>
+                        <p class="text-sm text-gray-600">Profile Settings v3 spec update needed; low priority but needed for reference</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Week Outlook -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">🎯 Next Week Outlook (May 12-18)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded p-4 border border-blue-200">
+                    <p class="font-semibold text-gray-900">Srattha</p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        ✓ Profile Settings v3 shipped<br/>
+                        → Ready for new task assignment
+                    </p>
+                </div>
+                <div class="bg-white rounded p-4 border border-blue-200">
+                    <p class="font-semibold text-gray-900">Wat</p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        ⏳ Complete OAD Wave 4-5<br/>
+                        → Finish OrderActionDialog, dialogs, integration
+                    </p>
+                </div>
+                <div class="bg-white rounded p-4 border border-blue-200">
+                    <p class="font-semibold text-gray-900">Nuchit</p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        ⏳ Start FE for On-Demand Sync<br/>
+                        → 9 FE tasks + E2E tests (10-11h)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-500 text-xs pb-6">
+            <p>📊 Generated on 2026-05-09 | B1DX Fulfillment Team</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Workflow Summary — b1dx-fulfillment-workspace</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Sarabun", sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f7f8fa;
+    color: #1f2328;
+    line-height: 1.6;
+  }
+  h1 { border-bottom: 3px solid #0969da; padding-bottom: .5rem; color: #0969da; }
+  h2 { color: #1f2328; margin-top: 2.5rem; border-left: 4px solid #0969da; padding-left: .75rem; }
+  h3 { color: #424a53; margin-top: 1.5rem; }
+  code, pre {
+    font-family: "Cascadia Code", "Consolas", monospace;
+    background: #eaeef2;
+    border-radius: 4px;
+  }
+  code { padding: 2px 6px; font-size: .9em; }
+  pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border: 1px solid #d0d7de;
+    background: #1f2328;
+    color: #e6edf3;
+    font-size: .85em;
+  }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  .phase {
+    background: white;
+    border: 1px solid #d0d7de;
+    border-left: 5px solid #0969da;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .phase.gate { border-left-color: #bf8700; background: #fff8c5; }
+  .phase.build { border-left-color: #1a7f37; }
+  .phase.verify { border-left-color: #8250df; }
+  .arrow { text-align: center; font-size: 1.5rem; color: #6e7781; margin: -.25rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin: 1rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  th, td {
+    padding: .6rem .9rem;
+    text-align: left;
+    border-bottom: 1px solid #d0d7de;
+  }
+  th { background: #f6f8fa; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: .8em;
+    font-weight: 600;
+  }
+  .pill-todo { background: #eaeef2; color: #424a53; }
+  .pill-active { background: #ddf4ff; color: #0969da; }
+  .pill-review { background: #fff1e7; color: #bc4c00; }
+  .pill-done { background: #dafbe1; color: #1a7f37; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .card {
+    background: white;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 1rem;
+  }
+  .card h4 { margin: 0 0 .5rem; color: #0969da; font-size: .95em; }
+  .warn {
+    background: #fff8c5;
+    border-left: 4px solid #bf8700;
+    padding: .75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+  }
+  ul { padding-left: 1.5rem; }
+  li { margin: .25rem 0; }
+</style>
+</head>
+<body>
+
+<h1>📋 Workflow Summary — b1dx-fulfillment-workspace</h1>
+<p><em>สรุป workflow, lifecycle, และ commands ของ solution นี้</em></p>
+
+<h2>1. Workflow Diagram</h2>
+
+<div class="phase">
+  <h3>🎨 PHASE 1 — Design</h3>
+  <ol>
+    <li>อ่าน <code>be-repo/CLAUDE.md</code> + <code>web-repo/CLAUDE.md</code></li>
+    <li>อ่าน mockup ที่ spec ระบุ (fallback: <code>docs/mockups/b1dx_full_app_v0.html</code>)</li>
+    <li>ออกแบบ data model + API contract</li>
+    <li>เขียน spec → <code>docs/specs/{feature}.md</code></li>
+    <li>แสดง test plan + รับ confirm จาก user</li>
+  </ol>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="phase gate">
+  <h3>🚦 Pre-Build Confirmation Gate (บังคับ)</h3>
+  <ul>
+    <li><strong>Step 1</strong> — present 4 รายการ: Plan &amp; Scope / Summary of changes / SIT Impact / Test Plan</li>
+    <li><strong>Step 2</strong> — สร้าง <code>tasks/plans/{TICKET-ID}/plan.md</code> (Status: Draft)</li>
+    <li><strong>Step 3</strong> — รอ user พิมพ์ <code>"confirm"</code> / <code>"go"</code> / <code>"ยืนยัน"</code> → Status: Confirmed</li>
+  </ul>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="phase">
+  <h3>🧪 PHASE 1.5 — Scaffold Tests</h3>
+  <p>UI Tester subagent → <code>e2e/{feature}/{feature}.spec.ts</code> (test.skip ทุกตัว)</p>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="phase build">
+  <h3>⚙️ PHASE 2 — Build (parallel)</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>BE Subagent</h4>
+      <p>Domain entity+test → Application command/query+test → Infrastructure migration → Api endpoint → integration test</p>
+      <p><code>dotnet build &amp;&amp; dotnet test</code></p>
+    </div>
+    <div class="card">
+      <h4>FE Subagent</h4>
+      <p>types → zod schema → MSW mock → hook+test → component+test → page</p>
+      <p><code>pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test</code></p>
+    </div>
+    <div class="card">
+      <h4>Sync Worker (ถ้าเกี่ยว sync)</h4>
+      <p>Domain entity+test → Application service+test → Infrastructure → BackgroundJob</p>
+      <p><code>dotnet build &amp;&amp; dotnet test</code></p>
+    </div>
+  </div>
+  <p style="margin-top:1rem;">ทุกตัวต้อง: <code>git status --short</code> → <code>git checkout main &amp;&amp; git pull &amp;&amp; git checkout -b {branch}</code> → TDD → push → <code>node scripts/gen-progress.mjs</code></p>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="phase verify">
+  <h3>✅ PHASE 3 — Verify &amp; Report</h3>
+  <ul>
+    <li>UI Tester un-skip + run <code>playwright test e2e/{feature}/</code> → ผ่านทั้งหมด</li>
+    <li>รัน <code>node scripts/gen-progress.mjs</code></li>
+    <li>รายงาน user: ไฟล์ที่สร้าง/แก้ + test result</li>
+  </ul>
+</div>
+
+<h2>2. Lifecycle</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h4>Task Lifecycle</h4>
+    <p>
+      <span class="pill pill-todo">[ ] Todo</span> →
+      <span class="pill pill-active">[~] Active</span> →
+      <span class="pill pill-review">[👀] In Review</span> →
+      <span class="pill pill-done">[x] Done</span>
+    </p>
+  </div>
+  <div class="card">
+    <h4>Plan Status</h4>
+    <p>
+      <span class="pill pill-todo">Draft</span> →
+      <span class="pill pill-active">Confirmed</span> →
+      <span class="pill pill-active">In Progress</span> →
+      <span class="pill pill-review">In Review</span> →
+      <span class="pill pill-done">Done</span>
+    </p>
+  </div>
+</div>
+
+<div class="warn">
+  <strong>⚠️ 3 ไฟล์ต้อง sync พร้อมกันเมื่อ assign task</strong>
+  <ol>
+    <li><code>tasks/backlog.md</code> § Issues Backlog</li>
+    <li><code>tasks/current-sprint.md</code></li>
+    <li><code>tasks/assignments/YYYY-MM-{name}.md</code> § Active</li>
+  </ol>
+</div>
+
+<h2>3. Agent Roles</h2>
+
+<table>
+  <thead><tr><th>Agent</th><th>หน้าที่</th><th>ใช้เมื่อ</th></tr></thead>
+  <tbody>
+    <tr><td>Orchestrator</td><td>วางแผน / แบ่งงาน / ติดตาม</td><td>ทุก pipeline run</td></tr>
+    <tr><td>Architect</td><td>data model + API contract</td><td>ก่อน build feature</td></tr>
+    <tr><td>Spec Writer</td><td>แตก task checklist</td><td>หลัง Architect</td></tr>
+    <tr><td>BE Coder</td><td>.NET 10 API code</td><td>Phase 2</td></tr>
+    <tr><td>Sync Worker Coder</td><td>.NET 10 Worker (ERP→OMS sync)</td><td>Phase 2 (feature sync)</td></tr>
+    <tr><td>FE Coder</td><td>Next.js code</td><td>Phase 2 (parallel กับ BE)</td></tr>
+    <tr><td>UI Tester</td><td>scaffold E2E (1.5) + run tests (3)</td><td>2 ครั้ง / task</td></tr>
+    <tr><td>Reviewer</td><td>review code ก่อน merge</td><td>Phase 3 (optional)</td></tr>
+    <tr><td>Sprint Planner</td><td>groom backlog + plan sprint</td><td>สิ้น sprint / มี request ใหม่</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Commands</h2>
+
+<h3>🚀 Pipeline / Build</h3>
+<pre><code># Full pipeline ทุก phase
+claude "อ่าน agents/orchestrator.md + tasks/current-sprint.md แล้ว build ตาม Working Protocol ทุก Phase"
+
+# Feature ใหม่
+claude "อ่าน agents/orchestrator.md แล้ว build feature {ชื่อ}: {อธิบาย}"
+
+# ฝั่งเดียว
+claude "build BE for {feature} — อ่าน be-repo/CLAUDE.md"
+claude "build FE for {feature} — อ่าน docs/specs/{feature}.md และ web-repo/CLAUDE.md"</code></pre>
+
+<h3>📌 Task Assignment</h3>
+<pre><code>claude "assign next task: role=be"                      # role=be / fe / fullstack
+claude "pr: S2-BE-01 — https://github.com/.../pull/42"  # → In Review
+claude "merged: S2-BE-01"                               # → Done
+claude "handoff S2-BE-01 from nuchit to wat"
+claude "suggest parallel task: role=fe — waiting for S2-BE-01"
+
+# dev ใหม่ / เดือนใหม่
+cp tasks/assignments/_template.md tasks/assignments/$(date +%Y-%m)-{name}.md</code></pre>
+
+<h3>📅 Sprint Planning</h3>
+<pre><code>claude "อ่าน agents/sprint-planner.md แล้ว plan sprint ถัดไป — capacity: {X} วัน, {N} dev"
+claude "อ่าน agents/sprint-planner.md แล้ว groom tasks/backlog.md"</code></pre>
+
+<h3>📊 Standup / Report / Progress</h3>
+<pre><code>claude "สร้าง daily standup วันนี้"
+claude "สร้าง daily standup วันที่ 2026-03-28"   # ย้อนหลัง
+
+npm run weekly                                  # weekly report (ทุกศุกร์)
+node scripts/gen-weekly-report.mjs
+
+npm run progress                                # generate dashboard
+npm run progress:serve                          # http://localhost:3939
+npm run progress:watch                          # auto-regenerate
+node scripts/gen-progress.mjs                   # บังคับรันหลัง push ทุกครั้ง</code></pre>
+
+<h3>🔧 BE (.NET 10) — รันใน <code>be_repo_path</code></h3>
+<pre><code>dotnet build
+dotnet test
+dotnet run --project src/Api
+dotnet ef migrations add &lt;Name&gt; -p src/Infrastructure -s src/Api
+dotnet ef database update  -p src/Infrastructure -s src/Api
+dotnet format</code></pre>
+
+<h3>🎨 FE (Next.js 15) — รันใน <code>fe_repo_path</code></h3>
+<pre><code>pnpm lint
+pnpm typecheck
+pnpm test
+pnpm playwright test e2e/{feature}/</code></pre>
+
+<h3>🚩 Flags</h3>
+<pre><code>--verbose                       # ดู Claude คิดอะไร
+--dangerously-skip-permissions  # ข้าม confirm
+--continue                      # ต่อ session เดิม</code></pre>
+
+<hr style="margin-top:3rem; border:none; border-top:1px solid #d0d7de;">
+<p style="text-align:center; color:#6e7781; font-size:.85em;">
+  Generated 2026-05-09 · b1dx-fulfillment-workspace
+</p>
+
+</body>
+</html>

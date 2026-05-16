@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Agent Team Architecture — b1dx-fulfillment-workspace</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Sarabun", "Noto Sans Thai", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .container { max-width: 1280px; margin: 0 auto; padding: 3rem 2rem; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, rgba(59,130,246,.15) 0%, rgba(139,92,246,.15) 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(148,163,184,.2);
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(59,130,246,.1) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(1.1); } }
+  .badge {
+    display: inline-block;
+    padding: .4rem 1rem;
+    background: rgba(59,130,246,.2);
+    border: 1px solid rgba(59,130,246,.4);
+    border-radius: 20px;
+    font-size: .85rem;
+    color: #60a5fa;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .hero .subtitle { color: #94a3b8; font-size: 1.1rem; position: relative; }
+
+  /* Section */
+  section { margin: 4rem 0; }
+  h2 {
+    font-size: 1.8rem;
+    color: #f1f5f9;
+    margin-bottom: 1.5rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid rgba(96,165,250,.3);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+  h2 .icon {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  h3 { color: #cbd5e1; margin: 1.5rem 0 .75rem; font-size: 1.2rem; }
+
+  /* Stats grid */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+  .stat-card {
+    background: rgba(30,41,59,.6);
+    border: 1px solid rgba(148,163,184,.15);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: transform .2s, border-color .2s;
+  }
+  .stat-card:hover { transform: translateY(-4px); border-color: rgba(96,165,250,.5); }
+  .stat-num {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { color: #94a3b8; font-size: .85rem; margin-top: .25rem; }
+
+  /* Architecture diagram */
+  .arch {
+    background: rgba(15,23,42,.8);
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: 16px;
+    padding: 2.5rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .arch-row { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+  .node {
+    background: linear-gradient(135deg, rgba(59,130,246,.2), rgba(139,92,246,.2));
+    border: 1.5px solid rgba(96,165,250,.5);
+    border-radius: 12px;
+    padding: .9rem 1.4rem;
+    color: #e0f2fe;
+    font-weight: 600;
+    text-align: center;
+    min-width: 140px;
+    box-shadow: 0 4px 20px rgba(59,130,246,.15);
+  }
+  .node.user { background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(20,184,166,.25)); border-color: rgba(74,222,128,.6); }
+  .node.orchestrator { background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(239,68,68,.25)); border-color: rgba(251,191,36,.6); min-width: 200px; padding: 1.1rem 1.6rem; }
+  .node.subagent { background: linear-gradient(135deg, rgba(139,92,246,.2), rgba(236,72,153,.2)); border-color: rgba(167,139,250,.5); font-size: .9em; min-width: 110px; padding: .7rem 1rem; }
+  .arrow-down {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #60a5fa;
+    margin: -.25rem 0;
+  }
+  .branch-lines {
+    display: flex; justify-content: center;
+    color: #60a5fa; font-size: 1.5rem; margin: -.5rem 0 -.25rem;
+  }
+  .arch-label { text-align: center; color: #94a3b8; font-size: .85rem; margin-top: 1rem; font-style: italic; }
+
+  /* Properties table */
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(30,41,59,.5);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(148,163,184,.15);
+  }
+  th, td { padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid rgba(148,163,184,.1); }
+  th { background: rgba(15,23,42,.7); color: #f1f5f9; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td:nth-child(2) { text-align: center; }
+  .check { color: #4ade80; font-weight: 700; font-size: 1.2em; }
+  .x { color: #f87171; font-weight: 700; font-size: 1.2em; }
+
+  /* Compare cards */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .compare-card {
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148,163,184,.2);
+  }
+  .compare-card.bad { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.3); }
+  .compare-card.good { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.3); }
+  .compare-card h4 { font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+  .compare-card.bad h4 { color: #fca5a5; }
+  .compare-card.good h4 { color: #86efac; }
+  .compare-card ul { list-style: none; }
+  .compare-card li { padding: .4rem 0; padding-left: 1.5rem; position: relative; color: #cbd5e1; }
+  .compare-card.bad li::before { content: '✗'; color: #f87171; position: absolute; left: 0; font-weight: 700; }
+  .compare-card.good li::before { content: '✓'; color: #4ade80; position: absolute; left: 0; font-weight: 700; }
+
+  /* Agents grid */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .agent-card {
+    background: rgba(30,41,59,.6);
+    border: 1px solid rgba(148,163,184,.15);
+    border-left: 4px solid #60a5fa;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    transition: all .2s;
+  }
+  .agent-card:hover { transform: translateX(4px); border-left-color: #a78bfa; }
+  .agent-card .name { font-weight: 700; color: #f1f5f9; font-size: 1rem; margin-bottom: .3rem; }
+  .agent-card .role { color: #94a3b8; font-size: .85rem; }
+  .agent-card.coordinator { border-left-color: #fbbf24; }
+  .agent-card.specialist { border-left-color: #a78bfa; }
+  .agent-card.qa { border-left-color: #4ade80; }
+
+  /* Conclusion */
+  .conclusion {
+    background: linear-gradient(135deg, rgba(59,130,246,.1), rgba(139,92,246,.1));
+    border: 1px solid rgba(96,165,250,.3);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  .conclusion p {
+    font-size: 1.1rem;
+    color: #e0f2fe;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Benefits */
+  .benefits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .benefit {
+    background: rgba(30,41,59,.5);
+    border: 1px solid rgba(148,163,184,.15);
+    border-radius: 10px;
+    padding: 1.2rem;
+  }
+  .benefit-title { color: #60a5fa; font-weight: 600; margin-bottom: .4rem; display: flex; align-items: center; gap: .5rem; }
+  .benefit-desc { color: #cbd5e1; font-size: .9rem; }
+
+  footer {
+    text-align: center;
+    color: #64748b;
+    font-size: .85rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(148,163,184,.1);
+  }
+
+  @media (max-width: 768px) {
+    .stats, .agents-grid { grid-template-columns: repeat(2, 1fr); }
+    .compare, .benefits { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <span class="badge">Executive Report · 2026-05-09</span>
+    <h1>🤖 Agent Team Architecture</h1>
+    <p class="subtitle">Multi-Agent System ผ่าน Subagent Delegation Pattern<br><strong style="color:#cbd5e1">b1dx-fulfillment-workspace</strong></p>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">9</div>
+      <div class="stat-label">Specialized Agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Parallel Build Tracks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Lifecycle Phases</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Context Isolation</div>
+    </div>
+  </div>
+
+  <!-- TL;DR -->
+  <section>
+    <h2><span class="icon">💡</span> Executive Summary</h2>
+    <div class="conclusion">
+      <p>
+        Solution นี้คือ <strong style="color:#60a5fa">Hierarchical Multi-Agent System</strong> ที่ใช้
+        <strong style="color:#a78bfa">Subagent Delegation Pattern</strong> — ไม่ใช่ single AI agent ทำทุกอย่าง
+        แต่เป็น <strong style="color:#86efac">"ทีม AI"</strong> ที่มี Orchestrator เป็นหัวหน้าทีม
+        แล้วกระจายงานให้ specialist subagents (BE / FE / Sync / Tester / Reviewer)
+        ทำงาน <strong style="color:#fbbf24">พร้อมกันแบบ parallel</strong> โดยแต่ละ agent มี context แยกกัน
+      </p>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section>
+    <h2><span class="icon">🏗️</span> System Architecture</h2>
+    <div class="arch">
+      <div class="arch-row">
+        <div class="node user">👤 USER (Product Owner / Dev)</div>
+      </div>
+      <div class="arrow-down">▼</div>
+      <div class="arch-row">
+        <div class="node orchestrator">🎯 Orchestrator Agent<br><span style="font-size:.8em; opacity:.85; font-weight:400">Coordinator · Main Context</span></div>
+      </div>
+      <div class="arrow-down">▼ spawn (parallel)</div>
+      <div class="branch-lines">┌─────┬─────┬─────┬─────┬─────┐</div>
+      <div class="arch-row">
+        <div class="node subagent">🏛️<br>Architect</div>
+        <div class="node subagent">📝<br>Spec Writer</div>
+        <div class="node subagent">⚙️<br>BE Coder</div>
+        <div class="node subagent">🎨<br>FE Coder</div>
+        <div class="node subagent">🔄<br>Sync Worker</div>
+      </div>
+      <div class="arch-row" style="margin-top:1rem;">
+        <div class="node subagent">🧪<br>UI Tester</div>
+        <div class="node subagent">🔍<br>Reviewer</div>
+        <div class="node subagent">📅<br>Sprint Planner</div>
+      </div>
+      <p class="arch-label">แต่ละ subagent มี system prompt + working directory + context window แยกกัน · สื่อสารผ่าน shared files (spec.md, plan.md, backlog.md)</p>
+    </div>
+  </section>
+
+  <!-- Why agent team -->
+  <section>
+    <h2><span class="icon">✅</span> ทำไมถึงเป็น Agent Team?</h2>
+    <table>
+      <thead>
+        <tr><th>คุณสมบัติ Multi-Agent System</th><th style="width:80px">มี?</th><th>หลักฐานใน solution</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Multiple Specialized Agents</strong></td><td><span class="check">✓</span></td><td>9 agents ใน <code>agents/*.md</code></td></tr>
+        <tr><td><strong>Distinct System Prompts</strong></td><td><span class="check">✓</span></td><td>แต่ละ role มีไฟล์ <code>.md</code> เป็น prompt เฉพาะ</td></tr>
+        <tr><td><strong>Separation of Concerns</strong></td><td><span class="check">✓</span></td><td>BE / FE / Sync / Test / Review แยกชัดเจน</td></tr>
+        <tr><td><strong>Parallel Execution</strong></td><td><span class="check">✓</span></td><td>Phase 2 spawn BE + FE + Sync Worker พร้อมกัน</td></tr>
+        <tr><td><strong>Coordinator Pattern</strong></td><td><span class="check">✓</span></td><td>Orchestrator วางแผน + แบ่งงาน + ติดตาม</td></tr>
+        <tr><td><strong>Shared State / Artifacts</strong></td><td><span class="check">✓</span></td><td>spec.md, plan.md, backlog.md, assignments/</td></tr>
+        <tr><td><strong>Context Isolation</strong></td><td><span class="check">✓</span></td><td>subagent มี working dir + context แยก</td></tr>
+        <tr><td><strong>Lifecycle Management</strong></td><td><span class="check">✓</span></td><td>Todo → Active → In Review → Done</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Agent roster -->
+  <section>
+    <h2><span class="icon">👥</span> Team Roster (9 Agents)</h2>
+    <h3 style="color:#fbbf24">🎯 Coordinator Tier</h3>
+    <div class="agents-grid">
+      <div class="agent-card coordinator">
+        <div class="name">Orchestrator</div>
+        <div class="role">วางแผน · แบ่งงาน · ติดตาม pipeline</div>
+      </div>
+      <div class="agent-card coordinator">
+        <div class="name">Sprint Planner</div>
+        <div class="role">groom backlog · plan sprint capacity</div>
+      </div>
+    </div>
+
+    <h3 style="color:#a78bfa">⚙️ Specialist Tier (Builders)</h3>
+    <div class="agents-grid">
+      <div class="agent-card specialist">
+        <div class="name">Architect</div>
+        <div class="role">data model · API contract design</div>
+      </div>
+      <div class="agent-card specialist">
+        <div class="name">Spec Writer</div>
+        <div class="role">แตก task เป็น checklist ละเอียด</div>
+      </div>
+      <div class="agent-card specialist">
+        <div class="name">BE Coder</div>
+        <div class="role">.NET 10 · ASP.NET Core · EF Core</div>
+      </div>
+      <div class="agent-card specialist">
+        <div class="name">FE Coder</div>
+        <div class="role">Next.js 15 · React · Tailwind</div>
+      </div>
+      <div class="agent-card specialist">
+        <div class="name">Sync Worker Coder</div>
+        <div class="role">.NET 10 Worker · ERP→OMS sync</div>
+      </div>
+    </div>
+
+    <h3 style="color:#4ade80">🧪 Quality Tier</h3>
+    <div class="agents-grid">
+      <div class="agent-card qa">
+        <div class="name">UI Tester</div>
+        <div class="role">scaffold E2E · run Playwright tests</div>
+      </div>
+      <div class="agent-card qa">
+        <div class="name">Reviewer</div>
+        <div class="role">code review · mockup fidelity gate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compare -->
+  <section>
+    <h2><span class="icon">⚖️</span> Single Agent vs Agent Team</h2>
+    <div class="compare">
+      <div class="compare-card bad">
+        <h4>❌ Single Agent (แบบเก่า)</h4>
+        <ul>
+          <li>1 context ทำทุกอย่างเอง</li>
+          <li>System prompt เดียว ครอบคลุมทุกเรื่อง</li>
+          <li>ทำงานแบบ sequential ทีละขั้น</li>
+          <li>Context พองเร็ว — สูญเสีย accuracy</li>
+          <li>ไม่มี separation of concerns</li>
+          <li>ไม่มี quality gate ที่ enforce ได้</li>
+        </ul>
+      </div>
+      <div class="compare-card good">
+        <h4>✅ Agent Team (Solution นี้)</h4>
+        <ul>
+          <li>Orchestrator + spawn specialist subagents</li>
+          <li>9 system prompts เฉพาะแต่ละ role</li>
+          <li>Parallel — BE+FE+Sync ทำพร้อมกัน</li>
+          <li>Context แต่ละ subagent แยก ไม่ปนกัน</li>
+          <li>BE / FE / Sync / Test / Review แยกชัด</li>
+          <li>Reviewer + UI Tester เป็น quality gate</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section>
+    <h2><span class="icon">🎁</span> Business Benefits</h2>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="benefit-title">⚡ Speed</div>
+        <div class="benefit-desc">BE + FE + Sync Worker ทำงาน parallel — ลดเวลา delivery feature 2-3 เท่า เทียบกับ sequential</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">🎯 Quality</div>
+        <div class="benefit-desc">UI Tester + Reviewer เป็น mandatory gate — ป้องกัน visual regression และ code quality issue</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">📊 Traceability</div>
+        <div class="benefit-desc">ทุก task มี plan.md + lifecycle status (Todo→Done) — ติดตามได้ทุกขั้นตอน</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">🔒 Consistency</div>
+        <div class="benefit-desc">แต่ละ specialist มี CLAUDE.md + system prompt — บังคับ pattern เดียวกันทุกครั้ง</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">💰 Cost Efficiency</div>
+        <div class="benefit-desc">Context isolation + RTK token optimizer — ประหยัด token 60-90% ต่อ operation</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">📈 Scalability</div>
+        <div class="benefit-desc">เพิ่ม agent ใหม่ได้ง่าย (เช่น Mobile Coder, DBA) โดยไม่กระทบ agent เดิม</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Communication -->
+  <section>
+    <h2><span class="icon">💬</span> รูปแบบการสื่อสาร — Hierarchical (ไม่ใช่ Peer-to-Peer)</h2>
+    <table>
+      <thead>
+        <tr><th>รูปแบบ</th><th>Solution นี้</th><th>หมายเหตุ</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hierarchical</strong> (Coordinator → Workers)</td>
+          <td><span class="check">✓ ใช้</span></td>
+          <td>Orchestrator spawn subagent → return ผลกลับ</td>
+        </tr>
+        <tr>
+          <td><strong>Peer-to-Peer</strong> (Agents คุยกันเอง)</td>
+          <td><span class="x">✗ ไม่ใช้</span></td>
+          <td>ไม่มี agent คุยกันโดยตรง</td>
+        </tr>
+        <tr>
+          <td><strong>Shared File State</strong></td>
+          <td><span class="check">✓ ใช้</span></td>
+          <td>spec.md, plan.md, backlog.md, assignments/</td>
+        </tr>
+        <tr>
+          <td><strong>Context Isolation</strong></td>
+          <td><span class="check">✓ ใช้</span></td>
+          <td>subagent return summary ไม่ pollute main context</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Conclusion -->
+  <section>
+    <h2><span class="icon">🎯</span> Conclusion</h2>
+    <div class="conclusion">
+      <p>
+        <strong style="color:#60a5fa; font-size:1.2em">Agent Team แบบ Hierarchical Multi-Agent System</strong><br>
+        ใช้ Claude Code <strong style="color:#a78bfa">Subagent Delegation</strong> เป็น runtime<br><br>
+        Orchestrator = <strong style="color:#fbbf24">Coordinator</strong> · Specialists = <strong style="color:#a78bfa">Workers</strong> · Tester+Reviewer = <strong style="color:#86efac">Quality Gate</strong><br>
+        สื่อสารผ่าน <strong style="color:#f472b6">Shared Files</strong> (spec / plan / backlog / assignments)<br>
+        เพื่อ sync state ข้าม conversation และทำให้ลูกทีม dev ใช้ร่วมกันได้
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Generated 2026-05-09 · b1dx-fulfillment-workspace · Confidential — for internal team &amp; executive review
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX · AI Integration Executive Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #fafbfc;
+    --bg-1: #f4f6fa;
+    --surface: #ffffff;
+    --ink: #0b0f1a;
+    --ink-2: #1f2937;
+    --ink-3: #475569;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --line: #e6e9f0;
+    --line-soft: #eef1f6;
+    --soft: #f7f9fc;
+    --soft-2: #fafbfd;
+
+    --indigo: #4f46e5;
+    --indigo-2: #6366f1;
+    --violet: #7c3aed;
+    --fuchsia: #c026d3;
+    --pink: #ec4899;
+    --emerald: #059669;
+    --emerald-2: #10b981;
+    --emerald-soft: #ecfdf5;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --cyan: #0891b2;
+    --amber: #b45309;
+    --amber-2: #d97706;
+    --amber-soft: #fffbeb;
+    --rose: #e11d48;
+    --rose-soft: #fff1f2;
+
+    --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #c026d3 100%);
+    --grad-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --grad-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --grad-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --grad-violet: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    --grad-rose: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+    --grad-dark: linear-gradient(135deg, #0b0f1a 0%, #1e1b4b 45%, #4c1d95 100%);
+
+    --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-xl: 24px; --r-2xl: 32px;
+
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 2px 6px rgba(15,23,42,.05);
+    --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05), 0 12px 24px -8px rgba(15,23,42,.08);
+    --shadow-lg: 0 32px 64px -12px rgba(15,23,42,.18), 0 8px 16px -4px rgba(15,23,42,.06);
+  }
+
+  html, body {
+    font-family: 'Inter', 'IBM Plex Sans Thai', -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 500px at 12% -10%, #eef2ff 0%, transparent 55%),
+      radial-gradient(700px 420px at 92% 8%, #fae8ff 0%, transparent 55%),
+      radial-gradient(600px 400px at 50% 110%, #e0e7ff 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+    padding: 32px 20px;
+  }
+
+  .reveal { opacity: 0; transform: translateY(12px); animation: reveal .8s cubic-bezier(.16,1,.3,1) forwards; }
+  .reveal:nth-child(1) { animation-delay: .05s; }
+  .reveal:nth-child(2) { animation-delay: .12s; }
+  .reveal:nth-child(3) { animation-delay: .19s; }
+  .reveal:nth-child(4) { animation-delay: .26s; }
+  .reveal:nth-child(5) { animation-delay: .33s; }
+  .reveal:nth-child(6) { animation-delay: .40s; }
+  .reveal:nth-child(7) { animation-delay: .47s; }
+  @keyframes reveal { to { opacity: 1; transform: none; } }
+
+  .page {
+    max-width: 1280px; margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden; position: relative;
+    border: 1px solid rgba(255,255,255,.8);
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative; padding: 32px 44px 28px;
+    color: #fff; background: var(--grad-dark);
+    overflow: hidden; isolation: isolate;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(900px 380px at 90% -25%, rgba(192,38,211,.4), transparent 55%),
+      radial-gradient(800px 400px at -5% 110%, rgba(99,102,241,.5), transparent 55%);
+  }
+  .hero::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; opacity: .85;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+            mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .4; z-index: -1; pointer-events: none; }
+  .orb-1 { width: 320px; height: 320px; background: #c026d3; top: -120px; right: 8%; animation: float 18s ease-in-out infinite; }
+  .orb-2 { width: 280px; height: 280px; background: #6366f1; bottom: -100px; left: 12%; animation: float 22s ease-in-out infinite reverse; }
+  @keyframes float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(20px,-15px) scale(1.05); } }
+
+  .hero-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 22px; padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 48px; height: 48px; border-radius: 13px;
+    background: linear-gradient(135deg, #a5b4fc 0%, #c084fc 50%, #f0abfc 100%);
+    display: grid; place-items: center; font-weight: 900; font-size: 18px;
+    color: #1e1b4b; letter-spacing: -.5px;
+    box-shadow: 0 12px 30px -8px rgba(192,38,211,.55), inset 0 1px 0 rgba(255,255,255,.5);
+    position: relative;
+  }
+  .logo::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 17px;
+    background: linear-gradient(135deg, #a5b4fc, #f0abfc); z-index: -1;
+    filter: blur(10px); opacity: .7;
+  }
+  .brand-text .name { font-size: 10.5px; color: #c7d2fe; text-transform: uppercase; letter-spacing: 2.2px; font-weight: 700; margin-bottom: 2px; }
+  .brand-text .product { font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
+
+  .hero-meta { display: flex; align-items: center; gap: 18px; }
+  .hero-meta .item { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .hero-meta .item .lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.5px; color: #a5b4fc; font-weight: 700; }
+  .hero-meta .item .val { color: #fff; font-weight: 700; font-size: 12px; }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(16,185,129,.18); color: #6ee7b7;
+    border: 1px solid rgba(110,231,183,.4);
+    padding: 7px 16px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
+    backdrop-filter: blur(10px);
+  }
+  .status-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52,211,153,.25), 0 0 14px rgba(52,211,153,.9);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.85); } }
+
+  .hero-body { display: flex; justify-content: space-between; align-items: flex-end; gap: 36px; margin-bottom: 22px; }
+  .hero-title {
+    font-size: 34px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.1;
+    background: linear-gradient(180deg, #ffffff 0%, #c7d2fe 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-title .accent {
+    background: linear-gradient(120deg, #a5b4fc, #f0abfc, #fbcfe8);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub { font-size: 13px; color: #c7d2fe; margin-top: 8px; line-height: 1.55; max-width: 620px; }
+
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    padding: 14px 24px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+  }
+  .hero-stats .qi { display: flex; flex-direction: column; gap: 3px; padding: 0 18px; border-right: 1px solid rgba(255,255,255,.08); }
+  .hero-stats .qi:last-child { border-right: none; }
+  .hero-stats .qi:first-child { padding-left: 0; }
+  .hero-stats .qi .lbl { font-size: 9.5px; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1.3px; font-weight: 700; }
+  .hero-stats .qi .val { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -.4px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stats .qi .val .u { font-size: 12px; color: #c7d2fe; font-weight: 600; }
+  .hero-stats .qi .trend { font-size: 9.5px; color: #6ee7b7; font-weight: 700; margin-top: 2px; }
+  .hero-stats .qi .trend.warn { color: #fcd34d; }
+
+  /* ===== BODY ===== */
+  .body { padding: 26px 32px 32px; }
+
+  /* ===== TLDR ===== */
+  .tldr-card {
+    background: linear-gradient(135deg, #fff 0%, #fffaf0 100%);
+    border: 1px solid #fde68a;
+    border-radius: var(--r-md);
+    padding: 20px 24px; margin-bottom: 22px;
+    position: relative; overflow: hidden;
+  }
+  .tldr-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--grad-amber);
+  }
+  .tldr-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .tldr-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: var(--grad-amber); color: #fff;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 800;
+    box-shadow: 0 6px 14px -4px rgba(217,119,6,.45);
+  }
+  .tldr-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .tldr-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+  .tldr-text b { color: var(--ink); font-weight: 700; background: linear-gradient(120deg, transparent 0%, transparent 60%, rgba(252,211,77,.45) 60%, rgba(252,211,77,.45) 100%); }
+
+  /* ===== KPI ROW ===== */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .kpi {
+    position: relative; background: #fff;
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 16px 18px; overflow: hidden;
+    transition: all .25s cubic-bezier(.4,0,.2,1); isolation: isolate;
+  }
+  .kpi::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, rgba(99,102,241,.025), transparent 50%);
+  }
+  .kpi::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: var(--grad-brand);
+  }
+  .kpi.green::after  { background: var(--grad-emerald); }
+  .kpi.blue::after   { background: var(--grad-blue); }
+  .kpi.amber::after  { background: var(--grad-amber); }
+  .kpi.violet::after { background: var(--grad-violet); }
+  .kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .kpi-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.3px; font-weight: 700; }
+  .kpi-icon {
+    width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center; font-size: 14px; font-weight: 700;
+  }
+  .kpi.green .kpi-icon  { background: var(--emerald-soft); color: var(--emerald); }
+  .kpi.blue .kpi-icon   { background: var(--blue-soft); color: var(--blue); }
+  .kpi.amber .kpi-icon  { background: var(--amber-soft); color: var(--amber-2); }
+  .kpi.violet .kpi-icon { background: #f5f3ff; color: var(--violet); }
+
+  .kpi-value {
+    font-size: 30px; font-weight: 800; letter-spacing: -1.2px;
+    color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums;
+    display: flex; align-items: baseline; gap: 2px;
+  }
+  .kpi-value .unit { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .kpi-foot { margin-top: 10px; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+  .kpi-foot b { color: var(--ink-2); font-weight: 600; }
+
+  /* ===== CARD ===== */
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: var(--r-md); padding: 22px 24px;
+    position: relative; margin-bottom: 22px;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .card-head .ttl-row { display: flex; align-items: center; gap: 12px; }
+  .card-head h2 {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    letter-spacing: -.2px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-head h2::before {
+    content: ''; width: 4px; height: 18px;
+    background: var(--grad-brand); border-radius: 99px;
+  }
+  .card-head .ttl-sub { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+  .card-head .meta {
+    font-size: 10.5px; color: var(--muted); font-weight: 700;
+    background: var(--soft); padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line-soft); letter-spacing: .4px;
+  }
+
+  /* ===== USE CASE GRID ===== */
+  .uc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .uc-card {
+    background: linear-gradient(180deg, #fafbfd, #f7f9fc);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+    transition: all .2s ease;
+  }
+  .uc-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--grad-brand); opacity: 0; transition: opacity .2s;
+  }
+  .uc-card:hover { border-color: rgba(99,102,241,.3); box-shadow: 0 6px 16px -6px rgba(99,102,241,.18); transform: translateY(-2px); }
+  .uc-card:hover::before { opacity: 1; }
+  .uc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+  .uc-emoji { font-size: 26px; line-height: 1; }
+  .uc-roi {
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    background: var(--emerald-soft); color: var(--emerald);
+    border: 1px solid rgba(16,185,129,.2); letter-spacing: .3px;
+  }
+  .uc-roi.r4 { background: var(--blue-soft); color: var(--blue); border-color: rgba(37,99,235,.2); }
+  .uc-roi.r3 { background: #f5f3ff; color: var(--violet); border-color: rgba(124,58,237,.2); }
+  .uc-title { font-size: 13.5px; font-weight: 700; color: var(--ink); letter-spacing: -.2px; margin-bottom: 6px; }
+  .uc-desc { font-size: 12px; color: var(--ink-3); line-height: 1.55; margin-bottom: 10px; }
+  .uc-meta { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+  .uc-tag {
+    font-size: 9.5px; font-weight: 700; padding: 3px 7px; border-radius: 5px;
+    background: var(--soft); color: var(--muted); border: 1px solid var(--line-soft);
+    letter-spacing: .3px;
+  }
+  .uc-tag.effort-s { background: var(--emerald-soft); color: var(--emerald); border-color: rgba(16,185,129,.2); }
+  .uc-tag.effort-m { background: var(--amber-soft); color: var(--amber); border-color: rgba(180,83,9,.2); }
+  .uc-tag.effort-l { background: var(--rose-soft); color: var(--rose); border-color: rgba(225,29,72,.2); }
+
+  /* ===== LADDER (10 methods) ===== */
+  .ladder { display: flex; flex-direction: column; gap: 8px; }
+  .lad-row {
+    display: grid; grid-template-columns: 44px 1fr 140px 100px;
+    gap: 14px; align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, #fafbfd, #f7f9fc);
+    border: 1px solid var(--line-soft); border-radius: 10px;
+    transition: all .15s;
+  }
+  .lad-row:hover { background: #fff; border-color: var(--line); transform: translateX(2px); }
+  .lad-row.best {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: rgba(16,185,129,.3);
+  }
+  .lad-num {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: grid; place-items: center; font-weight: 800; font-size: 13px;
+    background: var(--soft); color: var(--muted); border: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .lad-row.tier-bad .lad-num { background: var(--rose-soft); color: var(--rose); border-color: rgba(225,29,72,.2); }
+  .lad-row.tier-mid .lad-num { background: var(--amber-soft); color: var(--amber); border-color: rgba(180,83,9,.2); }
+  .lad-row.tier-good .lad-num { background: var(--emerald-soft); color: var(--emerald); border-color: rgba(16,185,129,.2); }
+  .lad-row.best .lad-num { background: var(--grad-emerald); color: #fff; border-color: transparent; box-shadow: 0 4px 10px -3px rgba(16,185,129,.4); }
+  .lad-info { display: flex; flex-direction: column; gap: 2px; }
+  .lad-name { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -.1px; }
+  .lad-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .lad-bar { display: flex; flex-direction: column; gap: 4px; }
+  .lad-bar-track {
+    height: 6px; background: var(--line-soft); border-radius: 99px; overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(15,23,42,.06);
+  }
+  .lad-bar-fill { height: 100%; border-radius: 99px; }
+  .lad-bar-fill.f1 { background: var(--grad-rose); width: 8%; }
+  .lad-bar-fill.f2 { background: var(--grad-amber); width: 35%; }
+  .lad-bar-fill.f3 { background: var(--grad-blue); width: 65%; }
+  .lad-bar-fill.f4 { background: var(--grad-emerald); width: 90%; }
+  .lad-bar-fill.f5 { background: var(--grad-emerald); width: 100%; }
+  .lad-save-pct {
+    font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums;
+    color: var(--muted); letter-spacing: .2px; text-align: right;
+  }
+  .lad-tier {
+    font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 999px;
+    text-align: center; letter-spacing: .3px;
+  }
+  .lad-tier.bad { background: var(--rose-soft); color: var(--rose); border: 1px solid rgba(225,29,72,.2); }
+  .lad-tier.mid { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(180,83,9,.2); }
+  .lad-tier.good { background: var(--emerald-soft); color: var(--emerald); border: 1px solid rgba(16,185,129,.2); }
+  .lad-tier.best { background: var(--grad-emerald); color: #fff; border: 1px solid transparent; box-shadow: 0 4px 10px -3px rgba(16,185,129,.4); }
+
+  /* ===== ARCH DIAGRAM ===== */
+  .arch-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .arch-tier {
+    background: linear-gradient(180deg, #fff, #fafbfd);
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; position: relative; overflow: hidden;
+  }
+  .arch-tier::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .arch-tier.t1::before { background: var(--grad-blue); }
+  .arch-tier.t2::before { background: var(--grad-brand); }
+  .arch-tier.t3::before { background: var(--grad-emerald); }
+  .arch-tier-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: grid; place-items: center; font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .arch-tier.t1 .arch-tier-icon { background: var(--blue-soft); color: var(--blue); }
+  .arch-tier.t2 .arch-tier-icon { background: #f5f3ff; color: var(--violet); }
+  .arch-tier.t3 .arch-tier-icon { background: var(--emerald-soft); color: var(--emerald); }
+  .arch-tier-label { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px; }
+  .arch-tier-name { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; letter-spacing: -.2px; }
+  .arch-tier-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .arch-tier-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px; color: var(--ink-3); line-height: 1.5;
+  }
+  .arch-tier-list li::before { content: '▸'; color: var(--muted-2); font-weight: 800; flex-shrink: 0; }
+
+  .arch-flow {
+    margin-top: 18px; padding: 18px 20px;
+    background: var(--grad-dark); color: #fff;
+    border-radius: 12px; position: relative; overflow: hidden;
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.65;
+    white-space: pre; overflow-x: auto;
+  }
+  .arch-flow::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 24px 24px; opacity: .6;
+  }
+  .arch-flow > span { position: relative; z-index: 1; }
+  .arch-flow .ac1 { color: #a5b4fc; font-weight: 700; }
+  .arch-flow .ac2 { color: #6ee7b7; font-weight: 700; }
+  .arch-flow .ac3 { color: #fcd34d; font-weight: 700; }
+  .arch-flow .ac4 { color: #f0abfc; font-weight: 700; }
+
+  /* ===== COST TABLE ===== */
+  .cost-tbl { width: 100%; border-collapse: collapse; }
+  .cost-tbl thead th {
+    text-align: left; padding: 11px 14px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1.3px; color: var(--muted);
+    background: var(--soft); border-bottom: 1px solid var(--line);
+  }
+  .cost-tbl thead th:first-child { border-top-left-radius: 8px; }
+  .cost-tbl thead th:last-child { border-top-right-radius: 8px; text-align: right; }
+  .cost-tbl tbody td {
+    padding: 13px 14px; font-size: 12.5px; color: var(--ink-2);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .cost-tbl tbody td.num { text-align: right; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cost-tbl tbody tr:hover { background: var(--soft-2); }
+  .cost-tbl tbody tr.rec td { background: linear-gradient(90deg, #ecfdf5 0%, #fff 100%); font-weight: 700; }
+  .cost-tbl tbody tr.rec td.num { color: var(--emerald); }
+  .cost-tbl tbody tr.total td { background: var(--grad-dark); color: #fff; padding: 14px; }
+  .cost-tbl tbody tr.total td.num { color: #6ee7b7; font-size: 15px; }
+  .cost-tbl tbody tr.total td:first-child { border-bottom-left-radius: 8px; }
+  .cost-tbl tbody tr.total td:last-child { border-bottom-right-radius: 8px; }
+  .badge-model {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .3px;
+  }
+  .badge-model.haiku { background: var(--emerald-soft); color: var(--emerald); border: 1px solid rgba(16,185,129,.2); }
+  .badge-model.sonnet { background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(37,99,235,.2); }
+  .badge-model.opus { background: #f5f3ff; color: var(--violet); border: 1px solid rgba(124,58,237,.2); }
+  .badge-model.embed { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(180,83,9,.2); }
+
+  /* ===== ROADMAP ===== */
+  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .rm-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 22px; position: relative; overflow: hidden;
+  }
+  .rm-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .rm-card.p1::before { background: var(--grad-emerald); }
+  .rm-card.p2::before { background: var(--grad-blue); }
+  .rm-card.p3::before { background: var(--grad-violet); }
+  .rm-phase-num {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
+    margin-bottom: 10px; text-transform: uppercase;
+  }
+  .rm-card.p1 .rm-phase-num { background: var(--emerald-soft); color: var(--emerald); }
+  .rm-card.p2 .rm-phase-num { background: var(--blue-soft); color: var(--blue); }
+  .rm-card.p3 .rm-phase-num { background: #f5f3ff; color: var(--violet); }
+  .rm-title { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.3px; margin-bottom: 4px; }
+  .rm-time {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .rm-time::before { content: '⏱'; }
+  .rm-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .rm-list li { font-size: 12px; color: var(--ink-3); padding-left: 18px; position: relative; line-height: 1.55; }
+  .rm-list li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .rm-card.p1 .rm-list li::before { background: var(--emerald); }
+  .rm-card.p2 .rm-list li::before { background: var(--blue); }
+  .rm-card.p3 .rm-list li::before { background: var(--violet); }
+  .rm-goal {
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 11.5px; font-weight: 600; line-height: 1.5;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .rm-card.p1 .rm-goal { background: var(--emerald-soft); color: var(--emerald); }
+  .rm-card.p2 .rm-goal { background: var(--blue-soft); color: var(--blue); }
+  .rm-card.p3 .rm-goal { background: #f5f3ff; color: var(--violet); }
+  .rm-goal::before { content: '🎯'; flex-shrink: 0; }
+
+  /* ===== RISKS ===== */
+  .risks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .risk {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px;
+    position: relative; overflow: hidden;
+  }
+  .risk::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+  .risk.hi::before { background: var(--rose); }
+  .risk.med::before { background: var(--amber-2); }
+  .risk.low::before { background: var(--emerald); }
+  .risk-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .risk-sev {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 800;
+  }
+  .risk.hi .risk-sev { background: var(--rose-soft); color: var(--rose); }
+  .risk.med .risk-sev { background: var(--amber-soft); color: var(--amber); }
+  .risk.low .risk-sev { background: var(--emerald-soft); color: var(--emerald); }
+  .risk-name { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -.1px; }
+  .risk-desc { font-size: 11.5px; color: var(--ink-3); line-height: 1.55; margin-bottom: 10px; }
+  .risk-mit {
+    font-size: 11px; color: var(--ink-2); line-height: 1.5;
+    padding-top: 10px; border-top: 1px dashed var(--line);
+  }
+  .risk-mit-lbl {
+    display: inline-block; padding: 2px 7px; border-radius: 5px;
+    font-size: 9.5px; font-weight: 800; letter-spacing: .5px;
+    background: var(--emerald-soft); color: var(--emerald); margin-right: 6px;
+  }
+
+  /* ===== TECH TABLE ===== */
+  .tech-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tech-tbl thead th {
+    text-align: left; padding: 10px 14px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1.3px; color: var(--muted);
+    background: var(--soft); border-bottom: 1px solid var(--line);
+  }
+  .tech-tbl tbody td {
+    padding: 12px 14px; color: var(--ink-2);
+    border-bottom: 1px solid var(--line-soft); vertical-align: top;
+  }
+  .tech-tbl tbody tr:hover { background: var(--soft-2); }
+  .tech-tbl tbody td code {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--violet); background: #f5f3ff;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .layer-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 9px; border-radius: 999px;
+    font-size: 10px; font-weight: 800; letter-spacing: .5px;
+  }
+  .layer-pill.app { background: var(--emerald-soft); color: var(--emerald); border: 1px solid rgba(16,185,129,.2); }
+  .layer-pill.inf { background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(37,99,235,.2); }
+  .layer-pill.api { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(180,83,9,.2); }
+  .layer-pill.fe  { background: #f5f3ff; color: var(--violet); border: 1px solid rgba(124,58,237,.2); }
+
+  /* ===== NEXT STEPS ===== */
+  .steps { display: flex; flex-direction: column; gap: 10px; position: relative; }
+  .steps::before {
+    content: ''; position: absolute; left: 18px; top: 18px; bottom: 18px;
+    width: 2px; background: linear-gradient(180deg, var(--indigo), var(--violet), var(--fuchsia));
+    opacity: .25; border-radius: 99px;
+  }
+  .step {
+    display: grid; grid-template-columns: 40px 1fr 130px 110px;
+    gap: 14px; align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, #fff, #fafbfd);
+    border: 1px solid var(--line-soft); border-radius: 12px;
+    position: relative;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--grad-brand); color: #fff;
+    display: grid; place-items: center;
+    font-size: 14px; font-weight: 800;
+    box-shadow: 0 5px 14px -4px rgba(99,102,241,.55);
+    position: relative; z-index: 1;
+  }
+  .step-info { display: flex; flex-direction: column; gap: 2px; }
+  .step-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -.1px; }
+  .step-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .step-owner {
+    font-size: 11px; font-weight: 700; color: var(--ink-2);
+    background: var(--soft); padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--line-soft); text-align: center;
+  }
+  .step-time {
+    font-size: 11px; font-weight: 800; color: var(--indigo);
+    font-family: 'JetBrains Mono', monospace; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== TAKEAWAY ===== */
+  .takeaway {
+    margin-top: 28px;
+    background: var(--grad-dark); color: #fff;
+    padding: 28px 36px; border-radius: var(--r-lg);
+    position: relative; overflow: hidden; isolation: isolate;
+  }
+  .takeaway::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(700px 280px at 100% 0%, rgba(192,38,211,.4), transparent 60%),
+      radial-gradient(600px 280px at 0% 100%, rgba(99,102,241,.4), transparent 60%);
+  }
+  .takeaway::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; opacity: .6;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent 80%);
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent 80%);
+  }
+  .takeaway-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .takeaway-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
+    border: 1px solid rgba(255,255,255,.18);
+    display: grid; place-items: center; font-size: 22px;
+    backdrop-filter: blur(10px);
+  }
+  .takeaway-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; color: #c7d2fe; font-weight: 800; margin-bottom: 3px; }
+  .takeaway-title { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.3px; }
+  .takeaway-body { font-size: 13.5px; line-height: 1.7; color: #e0e7ff; max-width: 940px; }
+  .takeaway-body b { color: #fff; font-weight: 700; }
+
+  .takeaway-cta {
+    display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap;
+  }
+  .cta-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 999px;
+    background: rgba(255,255,255,.12); color: #fff;
+    border: 1px solid rgba(255,255,255,.2);
+    font-size: 12px; font-weight: 700;
+    backdrop-filter: blur(10px);
+  }
+  .cta-pill.primary { background: linear-gradient(135deg, #6ee7b7, #34d399); color: #064e3b; border-color: transparent; }
+
+  /* ===== FOOTER ===== */
+  .foot {
+    margin-top: 18px; padding: 16px 36px;
+    background: var(--soft); border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    font-size: 10.5px; color: var(--muted); font-weight: 600;
+  }
+  .foot .left { display: flex; gap: 14px; align-items: center; }
+  .foot code { font-family: 'JetBrains Mono', monospace; color: var(--ink-3); }
+
+  @media (max-width: 980px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .uc-grid, .roadmap, .risks-grid, .arch-grid { grid-template-columns: 1fr; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .hero-stats .qi { border-right: none; padding: 0; }
+    .lad-row { grid-template-columns: 40px 1fr; }
+    .lad-bar, .lad-tier { grid-column: span 2; }
+    .step { grid-template-columns: 36px 1fr; }
+    .step-owner, .step-time { grid-column: span 2; text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="hero-top">
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div class="brand-text">
+          <div class="name">B1DX · OMS Fulfillment</div>
+          <div class="product">AI Integration Strategy</div>
+        </div>
+      </div>
+      <div class="hero-meta">
+        <div class="status-pill"><span class="dot"></span>READY TO START</div>
+        <div class="item"><span class="lbl">Date</span><span class="val">2026-05-15</span></div>
+        <div class="item"><span class="lbl">Version</span><span class="val">v1.0</span></div>
+      </div>
+    </div>
+
+    <div class="hero-body">
+      <div>
+        <h1 class="hero-title">เพิ่ม <span class="accent">AI</span> เข้าสู่<br>ระบบ OMS Fulfillment</h1>
+        <p class="hero-sub">วิเคราะห์โอกาส วิธีเชื่อม และ roadmap สำหรับการนำ AI เข้าสู่ b1dx-oms-fulfillment — เพื่อเพิ่มประสิทธิภาพการทำงานของทีม CS, Warehouse, PIM และลดต้นทุน operate ในระยะยาว</p>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="qi">
+        <span class="lbl">Use Cases</span>
+        <span class="val">6 <span class="u">ตัว</span></span>
+        <span class="trend">PIM · Orders · Search · Support</span>
+      </div>
+      <div class="qi">
+        <span class="lbl">Methods</span>
+        <span class="val">10 <span class="u">วิธี</span></span>
+        <span class="trend">เรียงประหยัด ↑</span>
+      </div>
+      <div class="qi">
+        <span class="lbl">Cost ลดได้</span>
+        <span class="val">70<span class="u">%</span></span>
+        <span class="trend">ด้วย Cache + Batch</span>
+      </div>
+      <div class="qi">
+        <span class="lbl">Budget เริ่ม</span>
+        <span class="val">฿16-26K <span class="u">/เดือน</span></span>
+        <span class="trend warn">ทุก use case</span>
+      </div>
+      <div class="qi">
+        <span class="lbl">Quick Win</span>
+        <span class="val">2 <span class="u">สัปดาห์</span></span>
+        <span class="trend">PIM Auto-desc</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== BODY ===== -->
+  <main class="body">
+
+    <!-- ===== TL;DR ===== -->
+    <section class="tldr-card reveal">
+      <div class="tldr-head">
+        <div class="tldr-icon">💡</div>
+        <div class="tldr-title">TL;DR — สรุปสำหรับผู้บริหาร</div>
+      </div>
+      <p class="tldr-text">
+        b1dx <b>ยังไม่มี AI integration เลย</b> ในปัจจุบัน — มีโอกาสนำ AI เข้ามาในหลาย module โดยใช้ pattern เดียวกับ external integration ที่มีอยู่ (HttpClient + Mediator)
+        ขอเสนอ <b>เริ่มที่ 3 use cases ที่ ROI สูงสุด</b> ในไตรมาสแรก: PIM Auto-description, Order from Text, และ Semantic Product Search
+        ด้วยงบประมาณ <b>~฿15,000–25,000/เดือน</b> (Claude API + infra) — break-even ภายใน <b>3-4 เดือน</b> จากเวลาที่ทีม CS/PIM ประหยัดได้
+      </p>
+    </section>
+
+    <!-- ===== KPI GRID ===== -->
+    <section class="kpi-grid reveal">
+      <div class="kpi green">
+        <div class="kpi-head">
+          <span class="kpi-label">Modules ที่ AI ช่วยได้</span>
+          <div class="kpi-icon">🧩</div>
+        </div>
+        <div class="kpi-value">5<span class="unit">+</span></div>
+        <div class="kpi-foot">PIM · Orders · Search · Support · Reports <br><b>ครอบคลุม 80% ของ workflow</b></div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-head">
+          <span class="kpi-label">วิธีเชื่อม AI (ladder)</span>
+          <div class="kpi-icon">🪜</div>
+        </div>
+        <div class="kpi-value">10</div>
+        <div class="kpi-foot">เรียงจากแพง → ประหยัด <br><b>เลือก #2 + #3 + #4 สำหรับ b1dx</b></div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-head">
+          <span class="kpi-label">ลด Token Cost</span>
+          <div class="kpi-icon">💰</div>
+        </div>
+        <div class="kpi-value">70<span class="unit">%</span></div>
+        <div class="kpi-foot">ด้วย Prompt cache + Response cache + Batch <br><b>เทียบกับ direct API call</b></div>
+      </div>
+      <div class="kpi violet">
+        <div class="kpi-head">
+          <span class="kpi-label">Quick Win แรก</span>
+          <div class="kpi-icon">🚀</div>
+        </div>
+        <div class="kpi-value">2<span class="unit"> wk</span></div>
+        <div class="kpi-foot">PIM Auto-description (1 BE + 1 FE) <br><b>วัดผลได้ใน 2 สัปดาห์</b></div>
+      </div>
+    </section>
+
+    <!-- ===== USE CASES ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>Use Cases ที่แนะนำ</h2>
+          <span class="ttl-sub">6 ตัวที่เห็น value ชัดเจน · เรียงตาม ROI</span>
+        </div>
+        <span class="meta">🎯 OPPORTUNITY</span>
+      </div>
+
+      <div class="uc-grid">
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">📝</div>
+            <span class="uc-roi">ROI ★★★★★</span>
+          </div>
+          <div class="uc-title">PIM Auto-description / SEO</div>
+          <div class="uc-desc">ใส่ชื่อ + attributes → AI เขียน description + SEO title/meta · ประหยัด 5 นาที/SKU</div>
+          <div class="uc-meta">
+            <span class="uc-tag">PIM</span>
+            <span class="uc-tag">Claude API</span>
+            <span class="uc-tag effort-s">Effort: S</span>
+          </div>
+        </div>
+
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">💬</div>
+            <span class="uc-roi r4">ROI ★★★★</span>
+          </div>
+          <div class="uc-title">Order from Natural Language</div>
+          <div class="uc-desc">CS พิมพ์ "ลูกค้า A สั่งเสื้อดำ size L 2 ตัว COD" → AI parse + สร้าง Draft Order</div>
+          <div class="uc-meta">
+            <span class="uc-tag">Orders</span>
+            <span class="uc-tag">Structured Out</span>
+            <span class="uc-tag effort-m">Effort: M</span>
+          </div>
+        </div>
+
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">🔍</div>
+            <span class="uc-roi r4">ROI ★★★★</span>
+          </div>
+          <div class="uc-title">Semantic Product Search</div>
+          <div class="uc-desc">"เสื้อกันหนาวสีเข้ม" → เจอ "Hoodie Black L" · ใช้ embedding + pgvector</div>
+          <div class="uc-meta">
+            <span class="uc-tag">PIM</span>
+            <span class="uc-tag">Embedding</span>
+            <span class="uc-tag effort-m">Effort: M</span>
+          </div>
+        </div>
+
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">📊</div>
+            <span class="uc-roi r3">ROI ★★★</span>
+          </div>
+          <div class="uc-title">Order Issue Summarization</div>
+          <div class="uc-desc">อ่าน audit log → สรุปสาเหตุ + แนะนำ action (refund/re-ship) ให้ CS</div>
+          <div class="uc-meta">
+            <span class="uc-tag">Orders</span>
+            <span class="uc-tag">Batch nightly</span>
+            <span class="uc-tag effort-s">Effort: S</span>
+          </div>
+        </div>
+
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">🌏</div>
+            <span class="uc-roi r3">ROI ★★★</span>
+          </div>
+          <div class="uc-title">Auto-tag &amp; Translate</div>
+          <div class="uc-desc">Auto-categorize สินค้าใหม่ + แปล TH↔EN↔CN สำหรับ marketplace ต่างประเทศ</div>
+          <div class="uc-meta">
+            <span class="uc-tag">PIM</span>
+            <span class="uc-tag">Vision</span>
+            <span class="uc-tag effort-m">Effort: M</span>
+          </div>
+        </div>
+
+        <div class="uc-card">
+          <div class="uc-head">
+            <div class="uc-emoji">🤖</div>
+            <span class="uc-roi r3">ROI ★★★</span>
+          </div>
+          <div class="uc-title">Internal Chatbot (RAG)</div>
+          <div class="uc-desc">"SKU-123 อยู่ warehouse ไหน?" — ตอบจาก DB ผ่าน RAG pattern</div>
+          <div class="uc-meta">
+            <span class="uc-tag">New</span>
+            <span class="uc-tag">RAG + pgvector</span>
+            <span class="uc-tag effort-l">Effort: L</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 10 METHODS LADDER ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>วิธีเชื่อม AI กับ App</h2>
+          <span class="ttl-sub">10 วิธี · เรียงจากแพงสุด → ประหยัดสุด</span>
+        </div>
+        <span class="meta">💸 COST LADDER</span>
+      </div>
+
+      <div class="ladder">
+        <div class="lad-row tier-bad">
+          <div class="lad-num">01</div>
+          <div class="lad-info">
+            <div class="lad-name">Cloud API ตรง ทุก request</div>
+            <div class="lad-desc">เรียก Opus/GPT-4 ทุกครั้ง ไม่ cache · เหมาะ prototype/demo เท่านั้น</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f1"></div></div><div class="lad-save-pct">Baseline</div></div>
+          <div class="lad-tier bad">แพงสุด</div>
+        </div>
+
+        <div class="lad-row tier-mid">
+          <div class="lad-num">02</div>
+          <div class="lad-info">
+            <div class="lad-name">Smart Model Routing</div>
+            <div class="lad-desc">ใช้ Haiku/Sonnet/Opus ตามความยากของงาน · classify→Haiku, content→Sonnet</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f2"></div></div><div class="lad-save-pct">ลด 60-80%</div></div>
+          <div class="lad-tier mid">ปานกลาง</div>
+        </div>
+
+        <div class="lad-row tier-mid">
+          <div class="lad-num">03</div>
+          <div class="lad-info">
+            <div class="lad-name">+ Prompt Caching (Anthropic native)</div>
+            <div class="lad-desc">System prompt + few-shot examples cache อัตโนมัติ · charge 10% สำหรับส่วนที่ cache</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f3"></div></div><div class="lad-save-pct">ลดอีก 70-90%</div></div>
+          <div class="lad-tier good">ดี</div>
+        </div>
+
+        <div class="lad-row tier-good best">
+          <div class="lad-num">04</div>
+          <div class="lad-info">
+            <div class="lad-name">+ Response Caching (App-level) ⭐</div>
+            <div class="lad-desc">Hash prompt+context → Redis/PostgreSQL · งานซ้ำ (auto-tag สินค้าเดิม) ใช้ผลเก่า</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f4"></div></div><div class="lad-save-pct">ลด 30-90%</div></div>
+          <div class="lad-tier best">แนะนำ</div>
+        </div>
+
+        <div class="lad-row tier-good">
+          <div class="lad-num">05</div>
+          <div class="lad-info">
+            <div class="lad-name">+ Batch API</div>
+            <div class="lad-desc">รวม request ส่ง batch รอผล 24 ชม. แลกราคา 50% · เหมาะ bulk auto-tag, daily summary</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f4"></div></div><div class="lad-save-pct">ลด 50%</div></div>
+          <div class="lad-tier good">ดี</div>
+        </div>
+
+        <div class="lad-row tier-good">
+          <div class="lad-num">06</div>
+          <div class="lad-info">
+            <div class="lad-name">+ Embedding Search (แทน LLM)</div>
+            <div class="lad-desc">Pre-compute embeddings · pgvector similarity search · semantic search ไม่ต้องเรียก LLM</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f5"></div></div><div class="lad-save-pct">ลด 95-99%</div></div>
+          <div class="lad-tier good">ดีมาก</div>
+        </div>
+
+        <div class="lad-row tier-good">
+          <div class="lad-num">07</div>
+          <div class="lad-info">
+            <div class="lad-name">+ RAG (Retrieval-Augmented Generation)</div>
+            <div class="lad-desc">ดึง context 3-5 chunks แทนส่ง knowledge base ทั้งหมด · ลด context size 70-95%</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f4"></div></div><div class="lad-save-pct">ลด 70-95%</div></div>
+          <div class="lad-tier good">ดี</div>
+        </div>
+
+        <div class="lad-row tier-mid">
+          <div class="lad-num">08</div>
+          <div class="lad-info">
+            <div class="lad-name">Self-hosted Open-source Model</div>
+            <div class="lad-desc">Llama 3.1 / Qwen / DeepSeek บน GPU · คุ้มเมื่อ traffic &gt;10M tokens/วัน หรือ data sensitive</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f4"></div></div><div class="lad-save-pct">ลด 60-95%</div></div>
+          <div class="lad-tier mid">มี trade-off</div>
+        </div>
+
+        <div class="lad-row tier-good">
+          <div class="lad-num">09</div>
+          <div class="lad-info">
+            <div class="lad-name">Hybrid (Self-host + Cloud API)</div>
+            <div class="lad-desc">งาน 80% (ง่าย/repeat) → local · 20% (ยาก/edge) → cloud · เหมาะ scale ใหญ่</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f4"></div></div><div class="lad-save-pct">ลด 80-95%</div></div>
+          <div class="lad-tier good">ดี</div>
+        </div>
+
+        <div class="lad-row tier-good">
+          <div class="lad-num">10</div>
+          <div class="lad-info">
+            <div class="lad-name">⭐ ไม่ใช้ AI ตรงนั้นเลย (rule/regex/search)</div>
+            <div class="lad-desc">งานบางอย่าง rule/regex/full-text-search ทำได้ดีกว่า · เช่น validate phone, lookup SKU exact</div>
+          </div>
+          <div class="lad-bar"><div class="lad-bar-track"><div class="lad-bar-fill f5"></div></div><div class="lad-save-pct">ลด 100%</div></div>
+          <div class="lad-tier best">ดีที่สุด</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ARCHITECTURE ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>สถาปัตยกรรม</h2>
+          <span class="ttl-sub">AI อยู่ฝั่ง Backend เท่านั้น · ไม่ call AI API ตรงจาก FE</span>
+        </div>
+        <span class="meta">🏗 ARCHITECTURE</span>
+      </div>
+
+      <div class="arch-grid">
+        <div class="arch-tier t1">
+          <div class="arch-tier-icon">🖥</div>
+          <div class="arch-tier-label">Layer 01</div>
+          <div class="arch-tier-name">Frontend (Next.js 15)</div>
+          <ul class="arch-tier-list">
+            <li>React Query useMutation/useQuery</li>
+            <li>Loading state + skeleton UI</li>
+            <li>Human-in-the-loop verify before commit</li>
+            <li>ใช้ <code>omsRequest()</code> เดิม → Bearer + Tenant ฟรี</li>
+          </ul>
+        </div>
+
+        <div class="arch-tier t2">
+          <div class="arch-tier-icon">⚙</div>
+          <div class="arch-tier-label">Layer 02</div>
+          <div class="arch-tier-name">Backend (.NET 10 + Mediator)</div>
+          <ul class="arch-tier-list">
+            <li>Mediator Command/Query (CQRS)</li>
+            <li><code>IAiTextService</code> interface (vendor-agnostic)</li>
+            <li>IHttpClientFactory + named client</li>
+            <li>Audit log + tenant isolation บังคับทุก call</li>
+          </ul>
+        </div>
+
+        <div class="arch-tier t3">
+          <div class="arch-tier-icon">☁</div>
+          <div class="arch-tier-label">Layer 03</div>
+          <div class="arch-tier-name">AI Provider + Storage</div>
+          <ul class="arch-tier-list">
+            <li>Claude API (Anthropic) — primary</li>
+            <li>Prompt caching native (Anthropic)</li>
+            <li>PostgreSQL + pgvector (embedding)</li>
+            <li><code>ai_usage_log</code> table (billing/quota)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="arch-flow"><span>
+<span class="ac4">┌───────────────────────────────────────────────────────────────────────┐</span>
+<span class="ac4">│</span>                     <span class="ac1">B1DX AI INTEGRATION FLOW</span>                          <span class="ac4">│</span>
+<span class="ac4">└───────────────────────────────────────────────────────────────────────┘</span>
+
+  <span class="ac1">User</span> ──▶ <span class="ac1">FE (Next.js)</span> ──POST──▶ <span class="ac2">BE (Mediator)</span>
+                                  │
+                                  ├──▶ <span class="ac3">IAiTextService</span> ──▶ <span class="ac4">Claude API</span>
+                                  │       (Sonnet / Haiku)
+                                  │
+                                  ├──▶ <span class="ac2">ProductQueryService</span> ──▶ PostgreSQL
+                                  │       (SKU matching, validate)
+                                  │
+                                  └──▶ <span class="ac3">AiUsageLog</span> ──▶ PostgreSQL
+                                          (audit + billing)
+
+  ◀──── <span class="ac1">DraftDto + confidence + ambiguities[]</span> ────┘
+
+  <span class="ac3">Pattern:</span>  AI parse  →  Human verify  →  Commit  (ห้าม auto-commit จาก AI)</span></div>
+    </section>
+
+    <!-- ===== COST TABLE ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>กลยุทธ์ &amp; ประมาณการ Cost</h2>
+          <span class="ttl-sub">เลือกวิธี #2 + #3 + #4 ครอบคลุม 80% ของ use case</span>
+        </div>
+        <span class="meta">💰 BUDGET</span>
+      </div>
+
+      <table class="cost-tbl">
+        <thead>
+          <tr>
+            <th>Use Case</th>
+            <th>วิธีที่แนะนำ</th>
+            <th>Model</th>
+            <th>Cost/เดือน (~)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="rec">
+            <td><strong>PIM Auto-description</strong> · Quick Win</td>
+            <td>#3 + #4 · Prompt cache + Response cache</td>
+            <td><span class="badge-model sonnet">Sonnet</span></td>
+            <td class="num">฿3,000 – 5,000</td>
+          </tr>
+          <tr>
+            <td>Order from Text</td>
+            <td>#2 + #3 · Sonnet + Structured Output + cache</td>
+            <td><span class="badge-model sonnet">Sonnet</span></td>
+            <td class="num">฿4,000 – 7,000</td>
+          </tr>
+          <tr>
+            <td>Bulk Auto-tag (10K SKU)</td>
+            <td>#5 · Batch API (24h)</td>
+            <td><span class="badge-model haiku">Haiku</span></td>
+            <td class="num">฿1,500 <small>(one-off)</small></td>
+          </tr>
+          <tr>
+            <td>Semantic Product Search</td>
+            <td>#6 · Embedding + pgvector</td>
+            <td><span class="badge-model embed">Embed</span></td>
+            <td class="num">฿500 – 1,500</td>
+          </tr>
+          <tr>
+            <td>Order Issue Summary</td>
+            <td>#5 · Batch (nightly)</td>
+            <td><span class="badge-model sonnet">Sonnet</span></td>
+            <td class="num">฿2,000 – 3,500</td>
+          </tr>
+          <tr>
+            <td>Internal Chatbot</td>
+            <td>#7 · RAG + pgvector</td>
+            <td><span class="badge-model sonnet">Sonnet</span></td>
+            <td class="num">฿5,000 – 8,000</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3"><strong>รวมประมาณการ (ทุก use case)</strong></td>
+            <td class="num">฿16,000 – 26,000 /เดือน</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== ROADMAP ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>Roadmap — 3 Phase</h2>
+          <span class="ttl-sub">Validate value ก่อน scale · Quick Win → Expand → Enterprise</span>
+        </div>
+        <span class="meta">🗓 PLAN</span>
+      </div>
+
+      <div class="roadmap">
+        <div class="rm-card p1">
+          <div class="rm-phase-num">▸ Phase 1 · Quick Win</div>
+          <div class="rm-title">PIM Auto-description</div>
+          <div class="rm-time">~2 สัปดาห์ · 1 BE + 1 FE</div>
+          <ul class="rm-list">
+            <li>BE: <code>IAiTextService</code> + Mediator command</li>
+            <li>FE: ปุ่ม "✨ Generate ด้วย AI" ใน Product Edit</li>
+            <li>Prompt template + few-shot examples (cache)</li>
+            <li>Audit log + tenant isolation</li>
+          </ul>
+          <div class="rm-goal">วัดเวลาที่ PIM ประหยัดได้ + คุณภาพ description</div>
+        </div>
+
+        <div class="rm-card p2">
+          <div class="rm-phase-num">▸ Phase 2 · Expand</div>
+          <div class="rm-title">Order from Text + Semantic Search</div>
+          <div class="rm-time">~4-6 สัปดาห์ · 1 BE + 1 FE</div>
+          <ul class="rm-list">
+            <li>BE: <code>CreateOrderCommand</code> + <code>ParseOrderText</code></li>
+            <li>BE: pgvector setup + embedding pipeline</li>
+            <li>FE: <code>/orders/create</code> 2-mode (text/form)</li>
+            <li>FE: semantic search ใน PIM list page</li>
+          </ul>
+          <div class="rm-goal">ลดเวลา CS create order 40-60%</div>
+        </div>
+
+        <div class="rm-card p3">
+          <div class="rm-phase-num">▸ Phase 3 · Scale</div>
+          <div class="rm-title">Bulk Ops + Internal Chatbot</div>
+          <div class="rm-time">~6-8 สัปดาห์ · 2 BE + 1 FE</div>
+          <ul class="rm-list">
+            <li>Sync Worker: Batch API integration</li>
+            <li>Bulk auto-tag + bulk translation</li>
+            <li>Order issue summarization (nightly)</li>
+            <li>RAG chatbot สำหรับพนักงาน fulfillment</li>
+          </ul>
+          <div class="rm-goal">Automation ระดับ enterprise · scale พร้อม</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RISKS ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>ความเสี่ยง &amp; การจัดการ</h2>
+          <span class="ttl-sub">6 ความเสี่ยงหลัก · ทุกข้อมี mitigation ชัดเจน — ไม่มี blocker</span>
+        </div>
+        <span class="meta">⚠ RISKS</span>
+      </div>
+
+      <div class="risks-grid">
+        <div class="risk hi">
+          <div class="risk-head">
+            <div class="risk-sev">!</div>
+            <div class="risk-name">Cost บานปลาย</div>
+          </div>
+          <div class="risk-desc">AI token cost คุมยาก ถ้ามี user abuse หรือ infinite loop</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Rate limit ต่อ tenant + budget alert + prompt cache + monthly cap</div>
+        </div>
+
+        <div class="risk hi">
+          <div class="risk-head">
+            <div class="risk-sev">!</div>
+            <div class="risk-name">Data Privacy</div>
+          </div>
+          <div class="risk-desc">ส่งข้อมูลลูกค้า/order ไปยัง 3rd party (Anthropic/OpenAI)</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Anonymize PII ก่อนส่ง · Zero-retention policy · self-host ถ้า sensitive</div>
+        </div>
+
+        <div class="risk med">
+          <div class="risk-head">
+            <div class="risk-sev">⚠</div>
+            <div class="risk-name">AI Hallucination</div>
+          </div>
+          <div class="risk-desc">AI สร้างข้อมูลที่ไม่มีจริง (สินค้าผิด, ราคาเพี้ยน)</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Human-in-the-loop verify ทุกครั้ง · ห้าม AI ตั้งราคา/SKU เอง</div>
+        </div>
+
+        <div class="risk med">
+          <div class="risk-head">
+            <div class="risk-sev">⚠</div>
+            <div class="risk-name">Latency</div>
+          </div>
+          <div class="risk-desc">AI call ใช้เวลา 2-5s — ช้ากว่า REST API ปกติ</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Streaming response · skeleton UI · Batch สำหรับงานไม่ realtime</div>
+        </div>
+
+        <div class="risk med">
+          <div class="risk-head">
+            <div class="risk-sev">⚠</div>
+            <div class="risk-name">Tenant Isolation</div>
+          </div>
+          <div class="risk-desc">Prompt cache อาจรั่ว tenant context ข้ามกัน</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Cache key รวม <code>tenant_id</code> เสมอ · ใช้ ICurrentTenant · audit ทุก call</div>
+        </div>
+
+        <div class="risk low">
+          <div class="risk-head">
+            <div class="risk-sev">✓</div>
+            <div class="risk-name">Vendor Lock-in</div>
+          </div>
+          <div class="risk-desc">ผูกกับ Anthropic/OpenAI · เปลี่ยน vendor ยาก</div>
+          <div class="risk-mit"><span class="risk-mit-lbl">MITIGATE</span>Interface <code>IAiTextService</code> abstract · เปลี่ยน implementation ได้</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TECH DETAIL ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>รายละเอียดเชิงเทคนิค</h2>
+          <span class="ttl-sub">สำหรับ Tech Lead · pattern ที่จะใช้ใน b1dx codebase</span>
+        </div>
+        <span class="meta">🔧 TECH NOTES</span>
+      </div>
+
+      <table class="tech-tbl">
+        <thead>
+          <tr>
+            <th style="width:14%">Layer</th>
+            <th>ไฟล์ตัวอย่าง</th>
+            <th>หน้าที่</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="layer-pill app">Application</span></td>
+            <td><code>Pim/AI/AutoDescribe/GenerateDescriptionCommand.cs</code></td>
+            <td>Mediator command + handler + validator</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill app">Application</span></td>
+            <td><code>Pim/AI/Contracts/IAiTextService.cs</code></td>
+            <td>Interface — vendor-agnostic abstraction</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill inf">Infrastructure</span></td>
+            <td><code>Pim/AI/Services/ClaudeAiTextService.cs</code></td>
+            <td>Implement ผ่าน <code>IHttpClientFactory</code> + named client</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill inf">Infrastructure</span></td>
+            <td><code>Pim/AI/Persistence/AiUsageLog.cs</code></td>
+            <td>Audit + billing ทุก AI call (tenant, model, tokens, cost)</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill api">Api</span></td>
+            <td><code>Endpoints/Pim/PimAiEndpoints.cs</code></td>
+            <td>POST /api/pim/products/{id}/auto-describe</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill fe">FE Hook</span></td>
+            <td><code>features/pim/hooks/useGenerateDescription.ts</code></td>
+            <td><code>useMutation</code> wrapper + error handling</td>
+          </tr>
+          <tr>
+            <td><span class="layer-pill fe">FE Component</span></td>
+            <td><code>features/pim/components/AiAssistButton.tsx</code></td>
+            <td>UI button + loading state + diff preview</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== NEXT STEPS ===== -->
+    <section class="card reveal">
+      <div class="card-head">
+        <div class="ttl-row">
+          <h2>ขั้นตอนถัดไป</h2>
+          <span class="ttl-sub">6 ขั้น · จาก executive approval → measure</span>
+        </div>
+        <span class="meta">🎬 NEXT STEPS</span>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <div class="step-title">Executive Approval</div>
+            <div class="step-desc">เลือก use case Phase 1 · อนุมัติงบประมาณ · pick Anthropic API tier</div>
+          </div>
+          <div class="step-owner">Exec Committee</div>
+          <div class="step-time">สัปดาห์นี้</div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <div class="step-title">Setup Anthropic API + Monitoring</div>
+            <div class="step-desc">API account + budget cap + cost dashboard · Azure Key Vault setup</div>
+          </div>
+          <div class="step-owner">DevOps</div>
+          <div class="step-time">3 วัน</div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-info">
+            <div class="step-title">Spec + Mockup PIM Auto-description</div>
+            <div class="step-desc">docs/specs + mockup HTML · API contract · prompt template · cost estimate</div>
+          </div>
+          <div class="step-owner">Architect + PM</div>
+          <div class="step-time">3-5 วัน</div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-info">
+            <div class="step-title">Build Phase 1 (Working Protocol)</div>
+            <div class="step-desc">BE coder + FE coder + UI Tester (parallel) · TDD ทุก layer</div>
+          </div>
+          <div class="step-owner">Eng Team</div>
+          <div class="step-time">2 สัปดาห์</div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-info">
+            <div class="step-title">Measure &amp; Validate</div>
+            <div class="step-desc">เวลาที่ประหยัด · คุณภาพ description · cost จริง vs estimate</div>
+          </div>
+          <div class="step-owner">PM + PIM staff</div>
+          <div class="step-time">2 สัปดาห์</div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-info">
+            <div class="step-title">Go / No-Go Review</div>
+            <div class="step-desc">ผลลัพธ์ Phase 1 → ถ้าผ่าน → เริ่ม Phase 2 (Order from Text)</div>
+          </div>
+          <div class="step-owner">Exec + Eng Lead</div>
+          <div class="step-time">Month 2</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAKEAWAY ===== -->
+    <section class="takeaway reveal">
+      <div class="takeaway-head">
+        <div class="takeaway-icon">🚀</div>
+        <div>
+          <div class="takeaway-label">EXECUTIVE TAKEAWAY</div>
+          <div class="takeaway-title">เริ่ม Quick Win ใน 2 สัปดาห์ · พิสูจน์ value ก่อนขยาย</div>
+        </div>
+      </div>
+      <p class="takeaway-body">
+        b1dx มีโครงสร้าง <b>พร้อมรับ AI integration</b> โดยไม่ต้อง re-architect — ใช้ pattern เดียวกับ external integration ที่มีอยู่
+        แนะนำให้เริ่มที่ <b>PIM Auto-description</b> เป็น Quick Win (2 สัปดาห์, ~฿5K/เดือน) เพื่อพิสูจน์ ROI ก่อน
+        จากนั้น scale ไปยัง <b>Order from Text + Semantic Search</b> ใน Phase 2 ที่จะ unlock ประสบการณ์ใหม่ของทีม CS
+        การลงทุน <b>~฿20K/เดือน</b> จะ break-even ใน 3-4 เดือนจากเวลาที่ทีมประหยัดได้
+      </p>
+      <div class="takeaway-cta">
+        <span class="cta-pill primary">✓ APPROVE: เริ่ม Phase 1 PIM Auto-description</span>
+        <span class="cta-pill">Budget: ฿16K-26K/เดือน</span>
+        <span class="cta-pill">Timeline: Q3 2026</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="foot">
+    <div class="left">
+      <span><strong>B1DX</strong> · OMS Fulfillment</span>
+      <span>·</span>
+      <span>AI Integration Strategy</span>
+    </div>
+    <div>
+      <code>v1.0</code> · Prepared 2026-05-15 · Internal Use Only
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

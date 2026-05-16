@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeOne OMS — Full Feature Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple-50: #EEEDFE; --purple-600: #534AB7; --purple-800: #3C3489;
+    --teal-50: #E1F5EE; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-600: #854F0B; --amber-800: #633806;
+    --coral-50: #FAECE7; --coral-600: #993C1D; --coral-800: #712B13;
+    --green-50: #EAF3DE; --green-600: #3B6D11; --green-800: #27500A;
+    --pink-50: #FBEAF0; --pink-600: #993556; --pink-800: #72243E;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --gray-100: #f5f4f0;
+    --text: #2C2C2A;
+    --text-muted: #5F5E5A;
+    --border: rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: #f0ede8;
+    color: var(--text);
+    padding: 32px 24px;
+    min-height: 100vh;
+  }
+  .page { max-width: 900px; margin: 0 auto; }
+  .header {
+    background: var(--purple-600);
+    color: white;
+    border-radius: 16px;
+    padding: 24px 32px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .card-head {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .card-body { padding: 12px 16px 16px; }
+  .card-body ul { list-style: none; }
+  .card-body li {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.5;
+  }
+  .card-body li:last-child { border-bottom: none; }
+  .card-body li::before { content: '•'; flex-shrink: 0; margin-top: 1px; }
+
+  .c-purple .card-head { background: var(--purple-50); color: var(--purple-800); }
+  .c-purple li::before { color: var(--purple-600); }
+  .c-teal .card-head { background: var(--teal-50); color: var(--teal-800); }
+  .c-teal li::before { color: var(--teal-600); }
+  .c-amber .card-head { background: var(--amber-50); color: var(--amber-800); }
+  .c-amber li::before { color: var(--amber-600); }
+  .c-coral .card-head { background: var(--coral-50); color: var(--coral-800); }
+  .c-coral li::before { color: var(--coral-600); }
+  .c-green .card-head { background: var(--green-50); color: var(--green-800); }
+  .c-green li::before { color: var(--green-600); }
+  .c-pink .card-head { background: var(--pink-50); color: var(--pink-800); }
+  .c-pink li::before { color: var(--pink-600); }
+  .c-blue .card-head { background: var(--blue-50); color: var(--blue-800); }
+  .c-blue li::before { color: var(--blue-600); }
+
+  .num {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 20px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .c-purple .num { background: var(--purple-600); color: white; }
+  .c-teal .num { background: var(--teal-600); color: white; }
+  .c-amber .num { background: var(--amber-600); color: white; }
+  .c-coral .num { background: var(--coral-600); color: white; }
+  .c-green .num { background: var(--green-600); color: white; }
+  .c-pink .num { background: var(--pink-600); color: white; }
+  .c-blue .num { background: var(--blue-600); color: white; }
+
+  .card-head-inner { display: flex; align-items: center; }
+
+  @media (max-width: 660px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 420px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <h1>BeOne OMS — Full Feature Overview</h1>
+    <p>Order Management System สำหรับ Fulfillment &amp; Warehouse Management</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="card c-purple">
+      <div class="card-head"><div class="card-head-inner"><span class="num">1</span>ระบบ Login &amp; สิทธิ์</div></div>
+      <div class="card-body"><ul>
+        <li>FF Member — จัดการ Brand/Shop</li>
+        <li>Brand Admin — ดูแลสินค้า Brand</li>
+        <li>FF Manager — จัดการ Warehouse</li>
+        <li>WH Admin / WH Worker</li>
+        <li>System Admin</li>
+        <li>รองรับ Mobile / Tablet / Desktop</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-teal">
+      <div class="card-head"><div class="card-head-inner"><span class="num">2</span>Master Data</div></div>
+      <div class="card-body"><ul>
+        <li>Shop / Brand / SKU Item</li>
+        <li>Virtual Set (Bundle)</li>
+        <li>Promotion Engine</li>
+        <li>Shipping Courier</li>
+        <li>Safety Stock / Dummy Stock</li>
+        <li>FIFO / FEFO Config</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-amber">
+      <div class="card-head"><div class="card-head-inner"><span class="num">3</span>Order Input</div></div>
+      <div class="card-body"><ul>
+        <li>API/Webhook — Shopee, Lazada, TikTok, LINE, Lnwshop</li>
+        <li>POS (Point of Sale)</li>
+        <li>Import Excel</li>
+        <li>Sale Page (ลูกค้ากรอกเอง)</li>
+        <li>Service Policy (Instant / Express)</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-coral">
+      <div class="card-head"><div class="card-head-inner"><span class="num">4</span>Order Preparation</div></div>
+      <div class="card-body"><ul>
+        <li>แตก Virtual Bundle → SKU จริงอัตโนมัติ</li>
+        <li>ตรวจสอบ Promotion อัตโนมัติ</li>
+        <li>จัดลำดับ Order ตามวัน/เวลา</li>
+        <li>กระจายงาน Pick ให้พนักงาน</li>
+        <li>พิมพ์ Order Ticket</li>
+        <li>Skip ถ้ายังไม่ชำระ (ยกเว้น COD)</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-green">
+      <div class="card-head"><div class="card-head-inner"><span class="num">5</span>WMS Operations</div></div>
+      <div class="card-body"><ul>
+        <li>Inbound — รับสินค้าเข้าคลัง</li>
+        <li>Pick (Single / Batch / Team)</li>
+        <li>Pack + บันทึกวิดีโอ</li>
+        <li>Ship + ชั่งน้ำหนัก + Label</li>
+        <li>Return + Cycle Count</li>
+        <li>Lot Control (FIFO / FEFO)</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-pink">
+      <div class="card-head"><div class="card-head-inner"><span class="num">6</span>Order Status Flow</div></div>
+      <div class="card-body"><ul>
+        <li>100 รอจับคู่สินค้า</li>
+        <li>400 ยืนยันแล้ว → 450 กำลังแพ็ค</li>
+        <li>490 รอขนส่ง → 500 ส่งแล้ว</li>
+        <li>700 จัดส่งสำเร็จ</li>
+        <li>600–650 ตีกลับ (Return flow)</li>
+        <li>800 ยกเลิก</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-blue">
+      <div class="card-head"><div class="card-head-inner"><span class="num">7</span>การเงิน &amp; เอกสาร</div></div>
+      <div class="card-body"><ul>
+        <li>Tax Invoice / ใบเสร็จรับเงิน</li>
+        <li>Credit Note / Debit Note</li>
+        <li>COD Report &amp; Reimbursement</li>
+        <li>Subscription &amp; Billing</li>
+        <li>Transfer / Finance Report</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-teal">
+      <div class="card-head"><div class="card-head-inner"><span class="num">8</span>จัดการสต๊อก</div></div>
+      <div class="card-body"><ul>
+        <li>Real-time stock sync ทุก platform</li>
+        <li>คำนวณ Available Stock อัตโนมัติ</li>
+        <li>Location / Bin management</li>
+        <li>Replenishment</li>
+        <li>Barcode / QR scan</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-amber">
+      <div class="card-head"><div class="card-head-inner"><span class="num">9</span>Report &amp; Monitor</div></div>
+      <div class="card-body"><ul>
+        <li>Sales Report (Brand / Shop / SKU)</li>
+        <li>Stock Balance / Movement</li>
+        <li>Monitor Order / Inbound / Return</li>
+        <li>Worker Performance Dashboard</li>
+        <li>Export Excel</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-coral">
+      <div class="card-head"><div class="card-head-inner"><span class="num">10</span>Activity Traceability</div></div>
+      <div class="card-body"><ul>
+        <li>Log ทุกกิจกรรมของพนักงาน</li>
+        <li>บันทึกวิดีโอตอน Pack สินค้า</li>
+        <li>ตรวจสอบย้อนหลังได้ทุก step</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-green">
+      <div class="card-head"><div class="card-head-inner"><span class="num">11</span>เชื่อมต่อ Platform</div></div>
+      <div class="card-body"><ul>
+        <li>Shopee / Lazada / TikTok</li>
+        <li>LINE Myshop / Lnwshop</li>
+        <li>WooCommerce / Shopify</li>
+      </ul></div>
+    </div>
+
+    <div class="card c-pink">
+      <div class="card-head"><div class="card-head-inner"><span class="num">12</span>ระบบ Promotion</div></div>
+      <div class="card-body"><ul>
+        <li>ซื้อ A แถม X</li>
+        <li>ซื้อ A และ B แถม X</li>
+        <li>ซื้อ A หรือ B และ C หรือ D แถม X</li>
+        <li>กำหนดวันเริ่ม-สิ้นสุด Promotion</li>
+      </ul></div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

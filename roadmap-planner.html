@@ -1,0 +1,413 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.w{padding:.75rem 0}
+.axes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1rem}
+.ax-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:4px 0}
+.ax-hi{color:var(--color-text-success)}
+.ax-lo{color:var(--color-text-danger)}
+.matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;margin-bottom:1.25rem;height:420px}
+.quadrant{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px;position:relative;overflow:hidden;cursor:default}
+.q-label{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding:3px 8px;border-radius:4px;display:inline-block}
+.q1{background:var(--color-background-success)}
+.q1 .q-label{background:rgba(99,153,34,.15);color:var(--color-text-success)}
+.q2{background:var(--color-background-warning)}
+.q2 .q-label{background:rgba(186,117,23,.15);color:var(--color-text-warning)}
+.q3{background:var(--color-background-info)}
+.q3 .q-label{background:rgba(55,138,221,.15);color:var(--color-text-info)}
+.q4{background:var(--color-background-secondary)}
+.q4 .q-label{background:rgba(136,135,128,.15);color:var(--color-text-secondary)}
+.task-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;margin-bottom:5px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:border-color .12s}
+.task-chip:hover{border-color:var(--color-border-secondary)}
+.task-chip.sel{border-color:var(--color-border-info);background:var(--color-background-info)}
+.chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.chip-name{font-size:11.5px;color:var(--color-text-primary);flex:1;line-height:1.3}
+.chip-tag{font-size:9px;font-family:var(--font-mono);color:var(--color-text-tertiary);white-space:nowrap}
+.detail-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;background:var(--color-background-secondary);min-height:200px}
+.d-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.d-why{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
+.d-steps{display:flex;flex-direction:column;gap:5px}
+.d-step{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.d-num{width:18px;height:18px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.d-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.d-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-weight:500}
+.b-effort{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-output{background:var(--color-background-success);color:var(--color-text-success)}
+.b-dep{background:var(--color-background-info);color:var(--color-text-info)}
+.axis-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.axis-line{height:2px;background:linear-gradient(to right,var(--color-background-danger),var(--color-background-success));border-radius:2px;margin-bottom:12px}
+.legend-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+.empty-hint{font-size:12px;color:var(--color-text-tertiary);padding:2rem;text-align:center}
+</style>
+
+<div class="w">
+
+<div class="legend-row">
+  <div class="leg"><div class="leg-dot" style="background:#639922"></div>UI / FE</div>
+  <div class="leg"><div class="leg-dot" style="background:#185FA5"></div>Schema / BE</div>
+  <div class="leg"><div class="leg-dot" style="background:#534AB7"></div>Integration</div>
+  <div class="leg"><div class="leg-dot" style="background:#BA7517"></div>Config / JSON</div>
+  <div class="leg"><div class="leg-dot" style="background:#888780"></div>QA / Test</div>
+</div>
+
+<div class="axis-row">
+  <span style="font-size:10px;color:var(--color-text-tertiary)">← ผลลัพธ์น้อย</span>
+  <span style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Value (ผลลัพธ์ที่ได้)</span>
+  <span style="font-size:10px;color:var(--color-text-success)">ผลลัพธ์มาก →</span>
+</div>
+<div class="axis-line"></div>
+
+<div class="matrix">
+
+  <!-- Q1: Easy + High Value = DO FIRST -->
+  <div class="quadrant q1">
+    <div class="q-label">ทำก่อน — ง่าย + คุ้มค่า</div>
+
+    <div class="task-chip" onclick="show('json_seed')">
+      <div class="chip-dot" style="background:#BA7517"></div>
+      <span class="chip-name">Seed JSON config ทุก status</span>
+      <span class="chip-tag">S · 1-2 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('action_panel')">
+      <div class="chip-dot" style="background:#639922"></div>
+      <span class="chip-name">OrderActionPanel component</span>
+      <span class="chip-tag">S · 1-2 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('status_badge')">
+      <div class="chip-dot" style="background:#639922"></div>
+      <span class="chip-name">Status badge + color map</span>
+      <span class="chip-tag">XS · ครึ่งวัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('msw_transition')">
+      <div class="chip-dot" style="background:#888780"></div>
+      <span class="chip-name">MSW mock transition API</span>
+      <span class="chip-tag">S · 1 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('i18n_keys')">
+      <div class="chip-dot" style="background:#639922"></div>
+      <span class="chip-name">i18n keys ครบ (EN+TH)</span>
+      <span class="chip-tag">XS · ครึ่งวัน</span>
+    </div>
+  </div>
+
+  <!-- Q2: Hard + High Value = PLAN CAREFULLY -->
+  <div class="quadrant q2">
+    <div class="q-label">วางแผนดีๆ — ยาก + คุ้มค่า</div>
+
+    <div class="task-chip" onclick="show('be_schema')">
+      <div class="chip-dot" style="background:#185FA5"></div>
+      <span class="chip-name">DB schema + migration</span>
+      <span class="chip-tag">M · 3-4 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('state_machine')">
+      <div class="chip-dot" style="background:#185FA5"></div>
+      <span class="chip-name">BE State machine service</span>
+      <span class="chip-tag">M · 3-4 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('webhook')">
+      <div class="chip-dot" style="background:#534AB7"></div>
+      <span class="chip-name">Courier webhook handler</span>
+      <span class="chip-tag">L · 5-7 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('permission_guard')">
+      <div class="chip-dot" style="background:#534AB7"></div>
+      <span class="chip-name">Permission guard + ABAC</span>
+      <span class="chip-tag">M · 3-4 วัน</span>
+    </div>
+  </div>
+
+  <!-- Q3: Easy + Low Value = FILL IN GAPS -->
+  <div class="quadrant q3">
+    <div class="q-label">ทำเสริม — ง่าย + คุ้มพอควร</div>
+
+    <div class="task-chip" onclick="show('cancel_dialog')">
+      <div class="chip-dot" style="background:#639922"></div>
+      <span class="chip-name">CancelOrderDialog</span>
+      <span class="chip-tag">XS · ครึ่งวัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('timeline_ui')">
+      <div class="chip-dot" style="background:#639922"></div>
+      <span class="chip-name">Order Timeline UI</span>
+      <span class="chip-tag">S · 1 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('config_admin')">
+      <div class="chip-dot" style="background:#BA7517"></div>
+      <span class="chip-name">Admin UI แก้ config JSON</span>
+      <span class="chip-tag">M · 2-3 วัน</span>
+    </div>
+
+    <div class="task-chip" onclick="show('audit_log')">
+      <div class="chip-dot" style="background:#888780"></div>
+      <span class="chip-name">Audit log per transition</span>
+      <span class="chip-tag">S · 1-2 วัน</span>
+    </div>
+  </div>
+
+  <!-- Q4: Hard + Low Value = DEFER -->
+  <div class="quadrant q4">
+    <div class="q-label">เลื่อนก่อน — ยาก + คุ้มน้อย</div>
+
+    <div class="task-chip" onclick="show('fallback_flow')">
+      <div class="chip-dot" style="background:#534AB7"></div>
+      <span class="chip-name">Courier API fallback flow</span>
+      <span class="chip-tag">L · Phase 2</span>
+    </div>
+
+    <div class="task-chip" onclick="show('video_rec')">
+      <div class="chip-dot" style="background:#534AB7"></div>
+      <span class="chip-name">Video recording PWA</span>
+      <span class="chip-tag">XL · Phase 2</span>
+    </div>
+
+    <div class="task-chip" onclick="show('multi_tenant_json')">
+      <div class="chip-dot" style="background:#BA7517"></div>
+      <span class="chip-name">Per-tenant JSON override</span>
+      <span class="chip-tag">M · Phase 2</span>
+    </div>
+
+    <div class="task-chip" onclick="show('sla_alert')">
+      <div class="chip-dot" style="background:#888780"></div>
+      <span class="chip-name">SLA alert engine</span>
+      <span class="chip-tag">L · Phase 2</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="detail-box" id="detailBox">
+  <div class="empty-hint">← คลิก task ใดก็ได้เพื่อดูรายละเอียด + ขั้นตอน</div>
+</div>
+</div>
+
+<script>
+const DATA = {
+  json_seed:{
+    title:'Seed JSON config ทั้ง 13 status ลง DB',
+    why:'นี่คือ foundation ของทุกอย่าง — ถ้าไม่มีนี้ OrderActionPanel ดึง config ไม่ได้ ทำก่อนเป็นอันดับแรก',
+    steps:[
+      'สร้าง migration: order_flow_configs table (tenant_id, status, config_json, is_active)',
+      'เขียน seed script: 13 rows จาก ACTION_MAP เดิมที่มีใน mockup แปลงเป็น JSON schema ที่ออกแบบไว้',
+      'เพิ่ม Zod schema validate ฝั่ง FE + CHECK constraint ฝั่ง DB',
+      'เขียน getStatusConfig() service + useStatusConfig() React Query hook',
+      'ทดสอบ fallback: ลบ tenant row → ต้อง fallback ไป global row'
+    ],
+    effort:'1-2 วัน',output:'Config พร้อมใช้ทันที',dep:'DB migration'
+  },
+  action_panel:{
+    title:'OrderActionPanel component',
+    why:'Component หลักที่ render ปุ่มทุกอย่างใน Order Detail sidebar — เมื่อได้ JSON seed แล้ว component นี้ทำเสร็จได้ใน 1 วัน',
+    steps:[
+      'สร้าง OrderActionPanel.tsx — รับ orderId + status เป็น props',
+      'ดึง config จาก useStatusConfig(status) แทน hard-coded map',
+      'Render transition buttons จาก config.transitions[] พร้อม variant + permission check',
+      'Render extra buttons จาก config.capabilities (ticket, label, video, track)',
+      'เชื่อม useOrderTransition() mutation — invalidate query หลัง transition สำเร็จ',
+      'เพิ่ม disabled state ระหว่าง isPending + CancelOrderDialog'
+    ],
+    effort:'1-2 วัน',output:'ปุ่มทำงานจริงตาม status',dep:'json_seed, useOrderTransition hook'
+  },
+  status_badge:{
+    title:'OrderStatusBadge + color map',
+    why:'Component เล็กสุดแต่ใช้ทุกที่ — Order list, Detail, Timeline ต้องทำก่อนเพื่อ reuse',
+    steps:[
+      'สร้าง OrderStatusBadge.tsx ใน packages/ui หรือ features/orders/components',
+      'เพิ่ม STATUS_COLOR_MAP: Record<number, {bg, text, label}> ครบ 13 status',
+      'Export จาก features/orders/index.ts',
+      'แทนที่ hardcoded pill ใน OrderTable + OrderDetailV2'
+    ],
+    effort:'ครึ่งวัน',output:'Badge consistent ทุกหน้า',dep:'ไม่มี'
+  },
+  msw_transition:{
+    title:'MSW mock handler สำหรับ transition API',
+    why:'ทำให้ dev ทำงานได้โดยไม่ต้องรอ BE — useOrderTransition() ต้องมี endpoint ก่อน',
+    steps:[
+      'เพิ่ม handler: PATCH /gateway/proxy/oms/orders/:id/transition',
+      'Validate toStatus ต้องอยู่ใน transitions[] ของ status ปัจจุบัน',
+      'อัปเดต order.status ใน MSW fake DB',
+      'Return order ใหม่ + append transition record ใน history',
+      'ทดสอบ: transition ผิด status → 422, permission ขาด → 403'
+    ],
+    effort:'1 วัน',output:'FE พัฒนาได้ offline',dep:'MSW fake DB'
+  },
+  i18n_keys:{
+    title:'เพิ่ม i18n keys ใน en.json + th.json',
+    why:'ถ้าไม่มี key ก่อน component render แล้วแสดงเป็น key string เปล่า ทำล่วงหน้าเลยดีกว่า',
+    steps:[
+      'เพิ่ม section order_detail.action.* สำหรับ transition labels ทุก status',
+      'เพิ่ม order_detail.status_note.* สำหรับ context note',
+      'เพิ่ม order_detail.section.transition + order_detail.section.extras',
+      'เพิ่ม checklist.* และ fallback.* keys สำหรับ phase ถัดไป'
+    ],
+    effort:'ครึ่งวัน',output:'Text แสดงถูกภาษาทันที',dep:'ไม่มี'
+  },
+  be_schema:{
+    title:'DB schema + EF Core migration',
+    why:'Backend foundation — order_flow_configs, order_status_transitions, order_checklists ต้องมีก่อน integrate จริง',
+    steps:[
+      'สร้าง entity: OrderFlowConfig, OrderStatusTransition, OrderChecklist',
+      'เพิ่ม global query filter: tenant_id scoping ทุก query',
+      'เขียน migration + seed data 13 global configs',
+      'เพิ่ม CHECK constraint: config_json ต้องมี transitions + capabilities keys',
+      'เขียน repository + service layer: GetStatusConfig(tenantId, status) with fallback',
+      'Unit test: fallback logic, tenant override, Zod validation'
+    ],
+    effort:'3-4 วัน',output:'BE พร้อม serve config จริง',dep:'Existing SaaS.Starter schema'
+  },
+  state_machine:{
+    title:'BE Order State Machine service',
+    why:'Core business logic — validate transition rules, enforce permissions, apply side effects, write audit log',
+    steps:[
+      'สร้าง OrderStateMachineService: ValidateTransition(order, toStatus, userId)',
+      'Load config จาก DB → check allowed_roles + permission',
+      'Execute side_effects: release_stock, void_label, create_refund ตาม config',
+      'Write OrderStatusTransition record (from, to, trigger_type, meta)',
+      'Write AuditLog entry',
+      'Publish domain event: OrderStatusChanged → webhook + notification downstream',
+      'Integration test: ทุก transition path จาก 22 cases'
+    ],
+    effort:'3-4 วัน',output:'Transition API ปลอดภัย + traceable',dep:'be_schema, permission service'
+  },
+  webhook:{
+    title:'Courier webhook handler',
+    why:'ST 500→700 (DELIVERED) และ 500→600 (RETURN) ขับเคลื่อนด้วย Webhook — ต้องทำ idempotent',
+    steps:[
+      'สร้าง endpoint: POST /webhooks/courier/{provider}',
+      'Verify webhook signature ทุก provider (SPX, J&T, Flash, KEX)',
+      'Map webhook_event → toStatus จาก config.webhook_transitions[]',
+      'Idempotency key: skip ถ้า event_id เคยประมวลแล้ว',
+      'Call OrderStateMachineService.Transition()',
+      'Dead letter queue: failed events → retry 3 ครั้ง → alert'
+    ],
+    effort:'5-7 วัน',output:'ST 500/600/700 อัปเดตอัตโนมัติ',dep:'state_machine, queue service'
+  },
+  permission_guard:{
+    title:'FE Permission guard + usePermission hook',
+    why:'ปุ่มต้องซ่อน (ไม่แค่ disable) ถ้า role ไม่ตรง — ต้องทำก่อน go live',
+    steps:[
+      'สร้าง usePermission() hook: ดึง permissions จาก auth store',
+      'เพิ่ม hasPermission(perm) + hasRole(role) helper',
+      'อัปเดต OrderActionPanel: filter transitions โดย allowed_roles + permission',
+      'เพิ่ม BE middleware: check permission ก่อน transition ทุกครั้ง (defense in depth)',
+      'Test: WH Worker ไม่เห็นปุ่ม Cancel Override ที่ต้องการ ff_manager'
+    ],
+    effort:'3-4 วัน',output:'UI + API ปลอดภัยตาม role จริง',dep:'authStore, RBAC config'
+  },
+  cancel_dialog:{
+    title:'CancelOrderDialog component',
+    why:'Transition → ST 800 ต้อง require_confirm = true ทุกกรณี dialog ง่ายมากแต่จำเป็น',
+    steps:[
+      'สร้าง CancelOrderDialog.tsx ใช้ shadcn Dialog',
+      'เพิ่ม reason select จาก config.transitions[cancel].reason_options[]',
+      'Validate reason บังคับก่อน confirm',
+      'เชื่อม onConfirm → doTransition(800, reason)'
+    ],
+    effort:'ครึ่งวัน',output:'Cancel flow ถูกต้อง + audit trail',dep:'OrderActionPanel'
+  },
+  timeline_ui:{
+    title:'Order Timeline UI (ประวัติ transitions)',
+    why:'User ต้องการเห็นว่า Order ผ่าน step อะไรมาบ้าง ดึงจาก order_status_transitions table',
+    steps:[
+      'สร้าง OrderTimeline component: render list ของ OrderStatusTransition',
+      'แสดง: from→to, triggered_by (ชื่อ user / system), เวลา, reason (ถ้ามี)',
+      'Color ตาม status group (pending=amber, shipping=teal, done=green, cancel=red)',
+      'เชื่อม useOrderDetail hook ที่ return transitions[] พร้อมกับ order data'
+    ],
+    effort:'1 วัน',output:'Visibility ครบ lifecycle',dep:'BE state_machine (หรือ MSW mock)'
+  },
+  config_admin:{
+    title:'Admin UI สำหรับแก้ไข JSON config',
+    why:'ให้ ops team แก้ flow โดยไม่ต้อง deploy — ทำหลัง core เสร็จก็ได้',
+    steps:[
+      'หน้า /admin/flow-config: list configs ทุก status',
+      'Form edit: JSON editor + preview (transitions, capabilities)',
+      'Validate ด้วย Zod schema ก่อน save',
+      'Version history: audit trail ของทุก config change',
+      'Invalidate Redis cache หลัง save'
+    ],
+    effort:'2-3 วัน',output:'Ops แก้ flow ไม่ต้อง deploy',dep:'be_schema'
+  },
+  audit_log:{
+    title:'Audit log per transition',
+    why:'ทุก status change ต้องมี log: ใคร เมื่อไหร่ จาก→ไป เพื่อ compliance + debug',
+    steps:[
+      'ตรวจสอบว่า OrderStateMachineService write audit record ทุกครั้ง',
+      'เพิ่ม meta_json: reason, weight_value, video_id ตาม transition',
+      'UI: Audit log tab ใน Order Detail — filter by action',
+      'Export to CSV สำหรับ compliance'
+    ],
+    effort:'1-2 วัน',output:'Traceable ทุก action',dep:'state_machine'
+  },
+  fallback_flow:{
+    title:'Courier API fallback flow (retry + manual)',
+    why:'B1-10022 — เมื่อ API ล้ม WH stuck ทั้งหมด แต่เป็น edge case ทำ Phase 2 ได้',
+    steps:[
+      'Implement retry policy: exponential backoff 1s→5s→15s',
+      'Alert WH Admin เมื่อครบ 3 retry',
+      'UI: fallback option panel (manual label / change courier / wait)',
+      'Manual label: reconcile flow กับ Courier ทีหลัง'
+    ],
+    effort:'5-7 วัน',output:'WH ไม่ stuck เมื่อ API ล้ม',dep:'state_machine, queue'
+  },
+  video_rec:{
+    title:'Video recording PWA (Pack + Return)',
+    why:'Mobile PWA ด้วย MediaRecorder API — complex มาก ทำ Phase 2 หลัง core OMS เสร็จ',
+    steps:[
+      'PWA setup: manifest + service worker',
+      'MediaRecorder: เริ่ม/หยุด recording ตาม status event',
+      'Upload to S3: chunked upload พร้อม progress',
+      'Link video_id กับ transition record'
+    ],
+    effort:'2-3 สัปดาห์',output:'หลักฐาน pack/return',dep:'S3, PWA infrastructure'
+  },
+  multi_tenant_json:{
+    title:'Per-tenant JSON config override',
+    why:'แต่ละ tenant กำหนด flow เองได้ — powerful แต่ไม่จำเป็นสำหรับ MVP',
+    steps:[
+      'เพิ่ม tenant_id column ใน order_flow_configs',
+      'Fallback query: tenant-specific → global default',
+      'Admin UI: copy global config → edit per tenant',
+      'Cache: per tenant per status key'
+    ],
+    effort:'2-3 วัน',output:'Multi-tenant flow customization',dep:'Admin UI, config schema'
+  },
+  sla_alert:{
+    title:'SLA alert engine',
+    why:'B1-10002: Order รอนาน → alert ff_manager — ต้องการ background job + notification infra',
+    steps:[
+      'Background job: scan orders ที่อยู่ใน holding status นาน > threshold',
+      'Threshold config ใน order_flow_configs.alerts[]',
+      'Notification: in-app + email ไปที่ allowed_roles',
+      'Dashboard: SLA violation widget'
+    ],
+    effort:'5-7 วัน',output:'ไม่พลาด Order ที่ค้างนาน',dep:'background job, notification service'
+  }
+};
+
+function show(key){
+  document.querySelectorAll('.task-chip').forEach(c=>c.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  const d=DATA[key];
+  if(!d){document.getElementById('detailBox').innerHTML='<div class="empty-hint">ไม่พบข้อมูล</div>';return;}
+  document.getElementById('detailBox').innerHTML=`
+    <div class="d-title">${d.title}</div>
+    <div class="d-why">${d.why}</div>
+    <div class="d-steps">${d.steps.map((s,i)=>`<div class="d-step"><div class="d-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>
+    <div class="d-meta">
+      <span class="d-badge b-effort">effort: ${d.effort}</span>
+      <span class="d-badge b-output">output: ${d.output}</span>
+      ${d.dep&&d.dep!=='ไม่มี'?`<span class="d-badge b-dep">dep: ${d.dep}</span>`:''}
+    </div>`;
+}
+</script>

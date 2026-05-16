@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>BeOne OMS · Executive Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #fafbfc;
+    --bg-1: #f4f6fa;
+    --surface: #ffffff;
+    --ink: #0b0f1a;
+    --ink-2: #1f2937;
+    --ink-3: #475569;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --line: #e6e9f0;
+    --line-soft: #eef1f6;
+    --soft: #f7f9fc;
+    --soft-2: #fafbfd;
+
+    --indigo: #4f46e5;
+    --indigo-2: #6366f1;
+    --violet: #7c3aed;
+    --fuchsia: #c026d3;
+    --pink: #ec4899;
+    --emerald: #059669;
+    --emerald-2: #10b981;
+    --emerald-soft: #ecfdf5;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --cyan: #0891b2;
+    --amber: #b45309;
+    --amber-2: #d97706;
+    --amber-soft: #fffbeb;
+    --rose: #e11d48;
+    --rose-soft: #fff1f2;
+
+    --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #c026d3 100%);
+    --grad-brand-rev: linear-gradient(315deg, #6366f1 0%, #8b5cf6 50%, #c026d3 100%);
+    --grad-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --grad-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --grad-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --grad-violet: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    --grad-dark: linear-gradient(135deg, #0b0f1a 0%, #1e1b4b 45%, #4c1d95 100%);
+    --grad-mesh: conic-gradient(from 220deg at 50% 50%, #6366f1, #8b5cf6, #c026d3, #ec4899, #6366f1);
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    --r-xl: 24px;
+    --r-2xl: 32px;
+
+    --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 2px 6px rgba(15,23,42,.05);
+    --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05), 0 12px 24px -8px rgba(15,23,42,.08);
+    --shadow-lg: 0 32px 64px -12px rgba(15,23,42,.18), 0 8px 16px -4px rgba(15,23,42,.06);
+    --shadow-glow-indigo: 0 0 0 1px rgba(99,102,241,.1), 0 20px 40px -12px rgba(99,102,241,.25);
+    --shadow-glow-emerald: 0 0 0 1px rgba(16,185,129,.1), 0 20px 40px -12px rgba(16,185,129,.25);
+  }
+
+  html, body {
+    font-family: 'Inter', 'IBM Plex Sans Thai', -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'cv02','cv03','cv04','cv11','ss01','ss03';
+    font-variant-ligatures: common-ligatures;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 500px at 12% -10%, #eef2ff 0%, transparent 55%),
+      radial-gradient(700px 420px at 92% 8%, #fae8ff 0%, transparent 55%),
+      radial-gradient(600px 400px at 50% 110%, #e0e7ff 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+    padding: 32px 20px;
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: reveal .8s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .reveal:nth-child(1) { animation-delay: .05s; }
+  .reveal:nth-child(2) { animation-delay: .12s; }
+  .reveal:nth-child(3) { animation-delay: .19s; }
+  .reveal:nth-child(4) { animation-delay: .26s; }
+  .reveal:nth-child(5) { animation-delay: .33s; }
+  @keyframes reveal {
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ===== PAGE SHELL ===== */
+  .page {
+    max-width: 1240px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255,255,255,.8);
+  }
+
+  /* ===== HERO HEADER ===== */
+  .hero {
+    position: relative;
+    padding: 36px 48px 32px;
+    color: #fff;
+    background: var(--grad-dark);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(900px 380px at 90% -25%, rgba(192,38,211,.4), transparent 55%),
+      radial-gradient(800px 400px at -5% 110%, rgba(99,102,241,.5), transparent 55%),
+      radial-gradient(500px 250px at 50% 50%, rgba(236,72,153,.18), transparent 60%);
+    z-index: -1;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+            mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+    z-index: -1;
+    opacity: .85;
+  }
+  /* Floating orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .4;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .orb-1 { width: 320px; height: 320px; background: #c026d3; top: -120px; right: 8%; animation: float 18s ease-in-out infinite; }
+  .orb-2 { width: 280px; height: 280px; background: #6366f1; bottom: -100px; left: 12%; animation: float 22s ease-in-out infinite reverse; }
+  .orb-3 { width: 200px; height: 200px; background: #ec4899; top: 30%; right: 40%; animation: float 26s ease-in-out infinite; opacity: .25; }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 25px) scale(.95); }
+  }
+
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #a5b4fc 0%, #c084fc 50%, #f0abfc 100%);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 19px;
+    color: #1e1b4b;
+    letter-spacing: -.5px;
+    box-shadow:
+      0 12px 30px -8px rgba(192,38,211,.55),
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -1px 0 rgba(0,0,0,.1);
+    position: relative;
+  }
+  .logo::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #a5b4fc, #f0abfc);
+    z-index: -1;
+    filter: blur(10px);
+    opacity: .7;
+  }
+  .brand-text .name {
+    font-size: 11px;
+    color: #c7d2fe;
+    text-transform: uppercase;
+    letter-spacing: 2.2px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .brand-text .product {
+    font-size: 16.5px;
+    font-weight: 700;
+    letter-spacing: -.2px;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .hero-meta .item { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .hero-meta .item .lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.5px; color: #a5b4fc; font-weight: 700; }
+  .hero-meta .item .val { color: #fff; font-weight: 700; font-size: 12.5px; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16,185,129,.18);
+    color: #6ee7b7;
+    border: 1px solid rgba(110,231,183,.4);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .status-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52,211,153,.25), 0 0 14px rgba(52,211,153,.9);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .55; transform: scale(.85); }
+  }
+
+  .hero-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+  }
+  .hero-title {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    line-height: 1.1;
+    background: linear-gradient(180deg, #ffffff 0%, #c7d2fe 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-title .accent {
+    background: linear-gradient(120deg, #a5b4fc, #f0abfc, #fbcfe8);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: #c7d2fe;
+    margin-top: 10px;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 560px;
+  }
+  .hero-quick {
+    display: flex;
+    gap: 24px;
+    padding: 16px 26px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,.3);
+  }
+  .hero-quick .qi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 78px;
+  }
+  .hero-quick .qi .lbl {
+    font-size: 9.5px;
+    color: #a5b4fc;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    font-weight: 700;
+  }
+  .hero-quick .qi .val {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.6px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .hero-quick .qi .val .u { font-size: 13px; color: #c7d2fe; font-weight: 600; }
+  .hero-quick .qi .trend {
+    font-size: 10px;
+    color: #6ee7b7;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .hero-quick .sep {
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,.18), transparent);
+  }
+
+  /* ===== BODY ===== */
+  .body { padding: 30px 38px 30px; }
+
+  /* ===== TOP STRIP: KPI + DONUT ===== */
+  .top-strip {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .kpi {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 16px 18px;
+    overflow: hidden;
+    transition: all .25s cubic-bezier(.4,0,.2,1);
+    isolation: isolate;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(99,102,241,.025), transparent 50%);
+    z-index: -1;
+  }
+  .kpi::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--grad-brand);
+  }
+  .kpi.green::after  { background: var(--grad-emerald); }
+  .kpi.blue::after   { background: var(--grad-blue); }
+  .kpi.amber::after  { background: var(--grad-amber); }
+  .kpi.violet::after { background: var(--grad-violet); }
+
+  .kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .kpi-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.3px; font-weight: 700; }
+  .kpi-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .kpi.green .kpi-icon  { background: var(--emerald-soft); color: var(--emerald); }
+  .kpi.blue .kpi-icon   { background: var(--blue-soft); color: var(--blue); }
+  .kpi.amber .kpi-icon  { background: var(--amber-soft); color: var(--amber-2); }
+  .kpi.violet .kpi-icon { background: #f5f3ff; color: var(--violet); }
+
+  .kpi-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .kpi-value {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: var(--ink);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+  .kpi-value .unit { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* Sparkline */
+  .spark {
+    width: 80px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  .spark path.line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .spark path.area { stroke: none; opacity: .25; }
+
+  .kpi-foot {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .kpi-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-delta.up   { background: var(--emerald-soft); color: var(--emerald); }
+  .kpi-delta.flat { background: var(--blue-soft); color: var(--blue); }
+  .kpi-delta.warn { background: var(--amber-soft); color: var(--amber); }
+  .kpi-delta.brand{ background: #f5f3ff; color: var(--violet); }
+
+  /* ===== DONUT WIDGET ===== */
+  .donut-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 18px;
+    align-items: center;
+    isolation: isolate;
+  }
+  .donut-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--grad-brand);
+  }
+  .donut-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(200px 120px at 0% 100%, rgba(99,102,241,.04), transparent 60%);
+    z-index: -1;
+  }
+  .donut-wrap {
+    position: relative;
+    width: 130px;
+    height: 130px;
+  }
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+  .donut-center .pct {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: var(--grad-brand);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .donut-center .lbl {
+    font-size: 9.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .donut-info { display: flex; flex-direction: column; gap: 10px; }
+  .donut-info h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .donut-legend { display: flex; flex-direction: column; gap: 7px; }
+  .legend-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    gap: 9px;
+    font-size: 11.5px;
+  }
+  .legend-row .sw {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .legend-row .sw.done    { background: var(--grad-emerald); }
+  .legend-row .sw.active  { background: var(--grad-blue); }
+  .legend-row .sw.review  { background: var(--grad-amber); }
+  .legend-row .sw.pending { background: #cbd5e1; }
+  .legend-row .lbl { color: var(--ink-2); font-weight: 500; }
+  .legend-row .val {
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+  }
+
+  /* ===== MAIN GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 22px;
+    margin-bottom: 22px;
+  }
+  .col { display: flex; flex-direction: column; gap: 18px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 22px 24px;
+    position: relative;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .card-head .ttl-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-head h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -.2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-head h2::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: var(--grad-brand);
+    border-radius: 99px;
+  }
+  .card-head .ttl-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .card-head .meta {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-weight: 700;
+    background: var(--soft);
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-soft);
+    letter-spacing: .4px;
+  }
+
+  /* ===== PHASES ===== */
+  .phase-list { display: flex; flex-direction: column; gap: 18px; }
+  .phase {
+    display: grid;
+    grid-template-columns: 170px 1fr 100px;
+    gap: 16px;
+    align-items: center;
+  }
+  .phase-meta { display: flex; flex-direction: column; gap: 3px; }
+  .phase-meta .num {
+    font-size: 9.5px;
+    color: var(--muted-2);
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .phase-meta .title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -.1px;
+  }
+  .phase-meta .scope {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .phase-bar { display: flex; align-items: center; gap: 12px; }
+  .bar-track {
+    flex: 1;
+    height: 12px;
+    background: var(--line-soft);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(15,23,42,.06);
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    position: relative;
+    width: 0;
+    animation: fillBar 1.4s cubic-bezier(.4,0,.2,1) .3s forwards;
+  }
+  @keyframes fillBar {
+    to { width: var(--target); }
+  }
+  .bar-fill.done {
+    background: var(--grad-emerald);
+    box-shadow: 0 1px 3px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .bar-fill.active {
+    background: var(--grad-blue);
+    box-shadow: 0 1px 3px rgba(37,99,235,.4), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .bar-fill.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.5) 50%, transparent 80%);
+    animation: shimmer 2.5s linear infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  .bar-fill.planned {
+    background: repeating-linear-gradient(45deg, #cbd5e1 0, #cbd5e1 4px, #e2e8f0 4px, #e2e8f0 8px);
+    opacity: .6;
+    min-width: 6px;
+  }
+  .bar-pct {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    min-width: 50px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.4px;
+  }
+  .phase-status { text-align: right; }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.5);
+  }
+  .badge.done    { background: var(--emerald-soft); color: var(--emerald); border-color: rgba(16,185,129,.2); }
+  .badge.done::before    { background: var(--emerald); }
+  .badge.active  { background: var(--blue-soft); color: var(--blue); border-color: rgba(37,99,235,.2); }
+  .badge.active::before  { background: var(--blue); }
+  .badge.review  { background: var(--amber-soft); color: var(--amber); border-color: rgba(180,83,9,.2); }
+  .badge.review::before  { background: var(--amber-2); }
+  .badge.planned { background: var(--soft); color: var(--muted); border-color: var(--line); }
+  .badge.planned::before { background: var(--muted-2); }
+  .badge.low     { background: var(--emerald-soft); color: var(--emerald); border-color: rgba(16,185,129,.2); }
+  .badge.low::before     { background: var(--emerald); }
+  .badge.med     { background: var(--amber-soft); color: var(--amber); border-color: rgba(180,83,9,.2); }
+  .badge.med::before     { background: var(--amber-2); }
+
+  /* ===== ACTIVE WORK ===== */
+  .active-rows { display: flex; flex-direction: column; gap: 10px; }
+  .active-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 150px;
+    gap: 14px;
+    align-items: center;
+    padding: 13px 16px;
+    background: linear-gradient(180deg, #fafbfd, #f7f9fc);
+    border-radius: 12px;
+    border: 1px solid var(--line-soft);
+    transition: all .2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .active-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--grad-brand);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .active-row:hover {
+    border-color: rgba(99,102,241,.3);
+    box-shadow: 0 6px 16px -6px rgba(99,102,241,.18);
+    transform: translateX(2px);
+  }
+  .active-row:hover::before { opacity: 1; }
+  .task-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    letter-spacing: .3px;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .task-name {
+    font-size: 12.5px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .owner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    box-shadow: 0 3px 8px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.3);
+    flex-shrink: 0;
+  }
+  .avatar.n  { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  .avatar.s  { background: linear-gradient(135deg, #f59e0b, #ec4899); }
+  .avatar.w  { background: linear-gradient(135deg, #10b981, #06b6d4); }
+
+  /* ===== TEAM STRIP ===== */
+  .team-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .team-member {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    background: var(--soft-2);
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+  }
+  .team-member .info { flex: 1; min-width: 0; }
+  .team-member .nm {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .team-member .rl {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .team-member .ct {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--indigo);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .team-member .ct .u {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-left: 2px;
+  }
+
+  /* ===== DELIVERABLES ===== */
+  .deliverables { display: grid; gap: 6px; }
+  .deliverables li {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    transition: background .15s;
+    list-style: none;
+  }
+  .deliverables li:hover { background: var(--soft); }
+  .check {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: var(--grad-emerald);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(16,185,129,.35), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .deliverables .name {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    flex: 1;
+    font-weight: 500;
+  }
+  .deliverables .name small {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* ===== MILESTONES TIMELINE ===== */
+  .milestones {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .milestones::before {
+    content: '';
+    position: absolute;
+    left: 29px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--indigo) 0%, var(--violet) 50%, var(--fuchsia) 100%);
+    opacity: .3;
+    border-radius: 99px;
+  }
+  .milestone {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 11px 0;
+    position: relative;
+  }
+  .milestone .q {
+    font-size: 10.5px;
+    font-weight: 800;
+    background: var(--grad-brand);
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 8px;
+    text-align: center;
+    letter-spacing: .3px;
+    box-shadow: 0 5px 14px -4px rgba(99,102,241,.55);
+    position: relative;
+    z-index: 1;
+  }
+  .milestone .desc {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    font-weight: 500;
+  }
+  .milestone .desc b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ===== RISKS ===== */
+  .risks { display: flex; flex-direction: column; gap: 9px; }
+  .risk-row {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 11px 13px;
+    background: var(--soft);
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+    transition: all .15s;
+  }
+  .risk-row:hover {
+    background: #fff;
+    border-color: var(--line);
+    transform: translateX(2px);
+  }
+  .risk-row .desc {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+
+  /* ===== TAKEAWAY ===== */
+  .takeaway {
+    margin-top: 24px;
+    background: var(--grad-dark);
+    color: #fff;
+    padding: 28px 34px;
+    border-radius: var(--r-lg);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .takeaway::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(700px 280px at 100% 0%, rgba(192,38,211,.4), transparent 60%),
+      radial-gradient(600px 280px at 0% 100%, rgba(99,102,241,.4), transparent 60%);
+    z-index: -1;
+  }
+  .takeaway::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent 80%);
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent 80%);
+    z-index: -1;
+    opacity: .6;
+  }
+  .takeaway-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .takeaway-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
+    border: 1px solid rgba(255,255,255,.18);
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,.3);
+  }
+  .takeaway-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #c7d2fe;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+  .takeaway-sub {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.2px;
+  }
+  .takeaway-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #e0e7ff;
+  }
+  .takeaway-body b { color: #fff; font-weight: 700; }
+  .takeaway-body .hi {
+    background: linear-gradient(120deg, rgba(167,139,250,.28), rgba(192,38,211,.18));
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 600;
+    border: 1px solid rgba(167,139,250,.25);
+  }
+  .takeaway-chips {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    color: #e0e7ff;
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+  }
+  .chip .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .chip .dot.g { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,.7); }
+  .chip .dot.b { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,.7); }
+  .chip .dot.p { background: #c084fc; box-shadow: 0 0 8px rgba(192,132,252,.7); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    margin-top: 18px;
+    padding: 18px 38px;
+    background: var(--soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10.5px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
+  footer .left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  footer code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: #fff;
+    padding: 3px 9px;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  footer .conf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    letter-spacing: .4px;
+  }
+  footer .conf .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--indigo);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(99,102,241,.6);
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: none; border: none; }
+    .orb { display: none; }
+    .reveal { animation: none; opacity: 1; transform: none; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HERO ============ -->
+  <div class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero-top">
+      <div class="brand">
+        <div class="logo">B1</div>
+        <div class="brand-text">
+          <div class="name">BeOne Digital</div>
+          <div class="product">Order Management &amp; Fulfillment Platform</div>
+        </div>
+      </div>
+      <div class="hero-meta">
+        <div class="item">
+          <span class="lbl">Period</span>
+          <span class="val">Sprint 2 + PIM</span>
+        </div>
+        <div class="item">
+          <span class="lbl">Reporting Date</span>
+          <span class="val">13 May 2026</span>
+        </div>
+        <span class="status-pill"><span class="dot"></span>ON TRACK</span>
+      </div>
+    </div>
+
+    <div class="hero-body">
+      <div>
+        <h1 class="hero-title">Executive Brief<br><span class="accent">Project Tracking · Q2 2026</span></h1>
+        <p class="hero-sub">ภาพรวมความคืบหน้าโครงการ BeOne OMS — Foundation และ Core Order Flow ส่งมอบครบ, Marketplace + ERP Sync เริ่มใช้งานบน production แล้ว</p>
+      </div>
+      <div class="hero-quick">
+        <div class="qi">
+          <span class="lbl">Completion</span>
+          <span class="val">89<span class="u">%</span></span>
+          <span class="trend">▲ +12pt</span>
+        </div>
+        <div class="sep"></div>
+        <div class="qi">
+          <span class="lbl">Velocity</span>
+          <span class="val">76<span class="u">/85</span></span>
+          <span class="trend">▲ on plan</span>
+        </div>
+        <div class="sep"></div>
+        <div class="qi">
+          <span class="lbl">PRs Merged</span>
+          <span class="val">13<span class="u">+</span></span>
+          <span class="trend">▲ 8w streak</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- ============ TOP STRIP: KPI + DONUT ============ -->
+    <div class="top-strip reveal">
+
+      <!-- KPI GRID 2x2 -->
+      <div class="kpi-grid">
+        <div class="kpi green">
+          <div class="kpi-head">
+            <span class="kpi-label">Sprint Completion</span>
+            <span class="kpi-icon">▲</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-value">89<span class="unit">%</span></div>
+            <svg class="spark" viewBox="0 0 80 32" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity=".4"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="area" fill="url(#g-green)" d="M0,28 L0,22 L10,20 L20,18 L30,15 L40,12 L50,9 L60,7 L70,5 L80,3 L80,32 L0,32 Z"/>
+              <path class="line" stroke="#10b981" d="M0,22 L10,20 L20,18 L30,15 L40,12 L50,9 L60,7 L70,5 L80,3"/>
+            </svg>
+          </div>
+          <div class="kpi-foot">
+            <span class="kpi-delta up">▲ +12pt</span>
+            <span>76 / 85 tasks</span>
+          </div>
+        </div>
+
+        <div class="kpi blue">
+          <div class="kpi-head">
+            <span class="kpi-label">Active Now</span>
+            <span class="kpi-icon">●</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-value">3</div>
+            <svg class="spark" viewBox="0 0 80 32" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity=".4"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="area" fill="url(#g-blue)" d="M0,20 L10,18 L20,22 L30,16 L40,12 L50,18 L60,14 L70,10 L80,14 L80,32 L0,32 Z"/>
+              <path class="line" stroke="#3b82f6" d="M0,20 L10,18 L20,22 L30,16 L40,12 L50,18 L60,14 L70,10 L80,14"/>
+            </svg>
+          </div>
+          <div class="kpi-foot">
+            <span class="kpi-delta flat">● In Flight</span>
+            <span>2 active · 1 review</span>
+          </div>
+        </div>
+
+        <div class="kpi amber">
+          <div class="kpi-head">
+            <span class="kpi-label">Pending Backlog</span>
+            <span class="kpi-icon">◐</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-value">7</div>
+            <svg class="spark" viewBox="0 0 80 32" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#d97706" stop-opacity=".35"/>
+                  <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="area" fill="url(#g-amber)" d="M0,8 L10,10 L20,12 L30,11 L40,14 L50,12 L60,15 L70,17 L80,16 L80,32 L0,32 Z"/>
+              <path class="line" stroke="#d97706" d="M0,8 L10,10 L20,12 L30,11 L40,14 L50,12 L60,15 L70,17 L80,16"/>
+            </svg>
+          </div>
+          <div class="kpi-foot">
+            <span class="kpi-delta warn">◐ Next Sprint</span>
+            <span>FPC flow priority</span>
+          </div>
+        </div>
+
+        <div class="kpi violet">
+          <div class="kpi-head">
+            <span class="kpi-label">Engineering Velocity</span>
+            <span class="kpi-icon">★</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-value">55<span class="unit">+</span></div>
+            <svg class="spark" viewBox="0 0 80 32" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#8b5cf6" stop-opacity=".4"/>
+                  <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="area" fill="url(#g-violet)" d="M0,26 L10,22 L20,20 L30,17 L40,14 L50,11 L60,8 L70,6 L80,4 L80,32 L0,32 Z"/>
+              <path class="line" stroke="#8b5cf6" d="M0,26 L10,22 L20,20 L30,17 L40,14 L50,11 L60,8 L70,6 L80,4"/>
+            </svg>
+          </div>
+          <div class="kpi-foot">
+            <span class="kpi-delta brand">★ tasks/sprint</span>
+            <span>13+ PRs · 3 devs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DONUT WIDGET -->
+      <div class="donut-card">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 120 120" width="130" height="130">
+            <defs>
+              <linearGradient id="dgrad-done" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+              <linearGradient id="dgrad-active" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#2563eb"/>
+              </linearGradient>
+              <linearGradient id="dgrad-review" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#d97706"/>
+              </linearGradient>
+            </defs>
+            <!-- Donut ring: r=46, C=2πr ≈ 289.03
+                 Done 76/85 = 89.4% → 258.4 (filled), gap 30.6
+                 Active 2/85 = 2.4% → 6.8
+                 Review 1/85 = 1.2% → 3.4
+                 Pending 6/85 = 7% → 20.3 (background visible)
+            -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#e2e8f0" stroke-width="14"/>
+            <g transform="rotate(-90 60 60)">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="url(#dgrad-done)"
+                stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="258.4 30.6" stroke-dashoffset="0">
+                <animate attributeName="stroke-dasharray" from="0 289" to="258.4 30.6" dur="1.2s" fill="freeze" begin=".4s"/>
+              </circle>
+              <circle cx="60" cy="60" r="46" fill="none" stroke="url(#dgrad-active)"
+                stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="6.8 282.2" stroke-dashoffset="-260">
+                <animate attributeName="stroke-dasharray" from="0 289" to="6.8 282.2" dur=".4s" fill="freeze" begin="1.6s"/>
+              </circle>
+              <circle cx="60" cy="60" r="46" fill="none" stroke="url(#dgrad-review)"
+                stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="3.4 285.6" stroke-dashoffset="-268">
+                <animate attributeName="stroke-dasharray" from="0 289" to="3.4 285.6" dur=".3s" fill="freeze" begin="2s"/>
+              </circle>
+            </g>
+          </svg>
+          <div class="donut-center">
+            <div>
+              <div class="pct">89%</div>
+              <div class="lbl">Complete</div>
+            </div>
+          </div>
+        </div>
+        <div class="donut-info">
+          <div>
+            <h3>Sprint Distribution</h3>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">85 tasks · Sprint 2</div>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-row"><span class="sw done"></span><span class="lbl">Done</span><span class="val">76</span></div>
+            <div class="legend-row"><span class="sw active"></span><span class="lbl">In Progress</span><span class="val">2</span></div>
+            <div class="legend-row"><span class="sw review"></span><span class="lbl">In Review</span><span class="val">1</span></div>
+            <div class="legend-row"><span class="sw pending"></span><span class="lbl">Pending</span><span class="val">6</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MAIN GRID ============ -->
+    <div class="grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="col">
+        <!-- Roadmap -->
+        <div class="card reveal">
+          <div class="card-head">
+            <div class="ttl-row">
+              <h2>Roadmap Progress</h2>
+              <span class="ttl-sub">2026 delivery plan</span>
+            </div>
+            <span class="meta">4 PHASES</span>
+          </div>
+          <div class="phase-list">
+            <div class="phase">
+              <div class="phase-meta">
+                <span class="num">PHASE 01</span>
+                <span class="title">Foundation</span>
+                <span class="scope">Auth · RBAC · Security</span>
+              </div>
+              <div class="phase-bar">
+                <div class="bar-track"><div class="bar-fill done" style="--target:100%"></div></div>
+                <span class="bar-pct">100%</span>
+              </div>
+              <div class="phase-status"><span class="badge done">Done</span></div>
+            </div>
+
+            <div class="phase">
+              <div class="phase-meta">
+                <span class="num">PHASE 02</span>
+                <span class="title">Core Order Flow</span>
+                <span class="scope">Order BE/FE · Marketplace + ERP Sync</span>
+              </div>
+              <div class="phase-bar">
+                <div class="bar-track"><div class="bar-fill done" style="--target:89%"></div></div>
+                <span class="bar-pct">89%</span>
+              </div>
+              <div class="phase-status"><span class="badge done">Done</span></div>
+            </div>
+
+            <div class="phase">
+              <div class="phase-meta">
+                <span class="num">PHASE 03</span>
+                <span class="title">Master Data &amp; WMS</span>
+                <span class="scope">PIM · SKU · Warehouse Ops</span>
+              </div>
+              <div class="phase-bar">
+                <div class="bar-track"><div class="bar-fill active" style="--target:15%"></div></div>
+                <span class="bar-pct">15%</span>
+              </div>
+              <div class="phase-status"><span class="badge active">Active</span></div>
+            </div>
+
+            <div class="phase">
+              <div class="phase-meta">
+                <span class="num">PHASE 04</span>
+                <span class="title">Finance &amp; Integrations</span>
+                <span class="scope">Invoice · Reports · Platforms</span>
+              </div>
+              <div class="phase-bar">
+                <div class="bar-track"><div class="bar-fill planned" style="--target:3%"></div></div>
+                <span class="bar-pct">0%</span>
+              </div>
+              <div class="phase-status"><span class="badge planned">Planned</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Work + Team -->
+        <div class="card reveal">
+          <div class="card-head">
+            <div class="ttl-row">
+              <h2>Active Work &amp; Team</h2>
+              <span class="ttl-sub">in flight · 3 tasks</span>
+            </div>
+            <span class="meta">3 TASKS · 3 DEVS</span>
+          </div>
+          <div class="active-rows">
+            <div class="active-row">
+              <div>
+                <span class="task-id">PIM-FE-02</span>
+                <div class="task-name">Variants Tab — Product Master</div>
+              </div>
+              <div class="owner"><span class="avatar n">N</span>Nuchit</div>
+              <div><span class="badge review">In Review · #167</span></div>
+            </div>
+            <div class="active-row">
+              <div>
+                <span class="task-id">S2-CR-02</span>
+                <div class="task-name">Custom Role Modal</div>
+              </div>
+              <div class="owner"><span class="avatar s">S</span>Srattha</div>
+              <div><span class="badge active">In Progress</span></div>
+            </div>
+            <div class="active-row">
+              <div>
+                <span class="task-id">S2-RH-02</span>
+                <div class="task-name">Role Hierarchy Wire</div>
+              </div>
+              <div class="owner"><span class="avatar s">S</span>Srattha</div>
+              <div><span class="badge active">In Progress</span></div>
+            </div>
+          </div>
+          <div class="team-strip">
+            <div class="team-member">
+              <span class="avatar n" style="width:32px;height:32px;font-size:12px">N</span>
+              <div class="info">
+                <div class="nm">Nuchit</div>
+                <div class="rl">Sync Worker · PIM</div>
+              </div>
+              <div class="ct">18<span class="u">tasks</span></div>
+            </div>
+            <div class="team-member">
+              <span class="avatar s" style="width:32px;height:32px;font-size:12px">S</span>
+              <div class="info">
+                <div class="nm">Srattha</div>
+                <div class="rl">BE Lead · FE Order</div>
+              </div>
+              <div class="ct">25<span class="u">+</span></div>
+            </div>
+            <div class="team-member">
+              <span class="avatar w" style="width:32px;height:32px;font-size:12px">W</span>
+              <div class="info">
+                <div class="nm">Wat</div>
+                <div class="rl">RBAC · FE</div>
+              </div>
+              <div class="ct">12<span class="u">+</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col">
+        <!-- Deliverables -->
+        <div class="card reveal">
+          <div class="card-head">
+            <div class="ttl-row">
+              <h2>Shipped Deliverables</h2>
+              <span class="ttl-sub">production-ready modules</span>
+            </div>
+            <span class="meta">7 MODULES</span>
+          </div>
+          <ul class="deliverables">
+            <li><span class="check">✓</span><span class="name">Authentication &amp; Security <small>— JWT/OTP</small></span></li>
+            <li><span class="check">✓</span><span class="name">RBAC + Permission Editor</span></li>
+            <li><span class="check">✓</span><span class="name">Order Management <small>— BE + FE</small></span></li>
+            <li><span class="check">✓</span><span class="name">Marketplace Sync <small>— Shopee · Lazada · TikTok</small></span></li>
+            <li><span class="check">✓</span><span class="name">ERP Order Sync Worker</span></li>
+            <li><span class="check">✓</span><span class="name">Email Infrastructure <small>— SMTP + Templates</small></span></li>
+            <li><span class="check">✓</span><span class="name">PIM Module Scaffold + Spec</span></li>
+          </ul>
+        </div>
+
+        <!-- Milestones -->
+        <div class="card reveal">
+          <div class="card-head">
+            <div class="ttl-row">
+              <h2>Upcoming Milestones</h2>
+              <span class="ttl-sub">2026 roadmap</span>
+            </div>
+            <span class="meta">H2 2026</span>
+          </div>
+          <div class="milestones">
+            <div class="milestone">
+              <span class="q">Q2 ’26</span>
+              <span class="desc"><b>PIM tabs ครบ</b> — Variants · Pricing · Media · Logistics · Channels · Audit</span>
+            </div>
+            <div class="milestone">
+              <span class="q">Q2 ’26</span>
+              <span class="desc"><b>Master Data CRUD</b> — Categories · Brands · Attributes</span>
+            </div>
+            <div class="milestone">
+              <span class="q">Q3 ’26</span>
+              <span class="desc"><b>WMS Operations</b> — Inbound · Pick · Pack · Ship · Return</span>
+            </div>
+            <div class="milestone">
+              <span class="q">Q4 ’26</span>
+              <span class="desc"><b>Finance &amp; Reports</b> · Promotion Engine</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risks -->
+        <div class="card reveal">
+          <div class="card-head">
+            <div class="ttl-row">
+              <h2>Risks &amp; Watch Items</h2>
+              <span class="ttl-sub">monitored · auto-tracked</span>
+            </div>
+            <span class="meta">3 ITEMS</span>
+          </div>
+          <div class="risks">
+            <div class="risk-row">
+              <span class="badge low">LOW</span>
+              <span class="desc">PIM-FE-02 รอ visual fidelity check — คาดแล้วเสร็จใน 1–2 วัน</span>
+            </div>
+            <div class="risk-row">
+              <span class="badge med">MED</span>
+              <span class="desc">Force Password Change flow ค้าง 6 tasks — จัด priority ใน sprint ถัดไป</span>
+            </div>
+            <div class="risk-row">
+              <span class="badge low">LOW</span>
+              <span class="desc">BE-PIM ยังไม่เริ่ม · FE ใช้ MSW mock ตามแผน (ไม่บล็อก)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAKEAWAY ============ -->
+    <div class="takeaway reveal">
+      <div class="takeaway-head">
+        <div class="takeaway-icon">✦</div>
+        <div>
+          <div class="takeaway-label">Executive Takeaway</div>
+          <div class="takeaway-sub">Project status &amp; strategic direction</div>
+        </div>
+      </div>
+      <div class="takeaway-body">
+        โครงการ <b>เดินหน้าตามแผน</b> — <span class="hi">Foundation (Auth/RBAC)</span> และ <span class="hi">Core Order Flow</span> ส่งมอบครบถ้วน
+        ระบบ <b>Marketplace + ERP Sync</b> เริ่มใช้งานบน production แล้ว ·
+        <b>MVP Demo-Ready</b>: Login → Order Lifecycle → Sync ทำงานได้จริงทุกขั้นตอน ·
+        ขั้นถัดไปคือ <b>PIM (Product Master Data)</b> เพื่อปูทางสู่ <b>WMS Operations</b> ในไตรมาส 3
+      </div>
+      <div class="takeaway-chips">
+        <span class="chip"><span class="dot g"></span>MVP Ready</span>
+        <span class="chip"><span class="dot b"></span>Production Sync Active</span>
+        <span class="chip"><span class="dot p"></span>PIM In Progress</span>
+        <span class="chip"><span class="dot g"></span>Zero Critical Risk</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="left">
+      <span style="font-weight:700;color:var(--ink-3)">Sources</span>
+      <code>tasks/progress.md</code>
+      <code>roadmap.md</code>
+      <code>assignments/2026-05</code>
+    </div>
+    <div class="conf">
+      <span class="dot"></span>
+      BeOne Digital · Internal &amp; Confidential
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
