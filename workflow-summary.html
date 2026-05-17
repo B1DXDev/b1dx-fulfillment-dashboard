@@ -113,11 +113,11 @@
 <div class="arrow">▼</div>
 
 <div class="phase gate">
-  <h3>🚦 Pre-Build Confirmation Gate (บังคับ)</h3>
+  <h3>🚦 Pre-Build Plan Gate (บังคับ — auto-proceed mode)</h3>
   <ul>
     <li><strong>Step 1</strong> — present 4 รายการ: Plan &amp; Scope / Summary of changes / SIT Impact / Test Plan</li>
-    <li><strong>Step 2</strong> — สร้าง <code>tasks/plans/{TICKET-ID}/plan.md</code> (Status: Draft)</li>
-    <li><strong>Step 3</strong> — รอ user พิมพ์ <code>"confirm"</code> / <code>"go"</code> / <code>"ยืนยัน"</code> → Status: Confirmed</li>
+    <li><strong>Step 2</strong> — สร้าง <code>tasks/plans/{TICKET-ID}/plan.md</code> (Status: Draft) + แสดง call-to-action เช่น "พิมพ์ <code>build</code> หรือ <code>ลุย</code> เพื่อเริ่ม"</li>
+    <li><strong>Step 3</strong> — รอ user trigger: primary <code>build</code> / <code>ลุย</code>, secondary <code>confirm</code> / <code>go</code> / <code>ยืนยัน</code> → Status: Confirmed → build ต่อเนื่อง ไม่ pause ยกเว้นชน Auto-Proceed Stop List (13 ข้อ)</li>
   </ul>
 </div>
 
