@@ -2,26 +2,89 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent Team Architecture — b1dx-fulfillment-workspace</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-1: #0f172a;
+    --bg-2: #1e293b;
+    --panel: rgba(30,41,59,.6);
+    --panel-dark: rgba(15,23,42,.8);
+    --border: rgba(148,163,184,.2);
+    --border-soft: rgba(148,163,184,.15);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-strong: #f1f5f9;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
   body {
     font-family: -apple-system, "Segoe UI", "Sarabun", "Noto Sans Thai", sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: #e2e8f0;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: var(--text);
     line-height: 1.7;
     min-height: 100vh;
   }
-  .container { max-width: 1280px; margin: 0 auto; padding: 3rem 2rem; }
+  .container { max-width: 1280px; margin: 0 auto; padding: 2rem 2rem 3rem; }
+
+  /* Top nav */
+  .topnav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,23,42,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topnav-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: .75rem 2rem;
+    display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .topnav .brand {
+    font-weight: 700; color: var(--text-strong);
+    font-size: .95rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .topnav nav {
+    display: flex; gap: .25rem; flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .topnav nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: .82rem;
+    padding: .35rem .7rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all .15s;
+  }
+  .topnav nav a:hover { color: var(--blue); background: rgba(96,165,250,.08); border-color: rgba(96,165,250,.25); }
+  .topnav .search {
+    background: rgba(15,23,42,.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .35rem .7rem;
+    color: var(--text);
+    font-size: .82rem;
+    width: 180px;
+  }
+  .topnav .search::placeholder { color: #64748b; }
+  .topnav .search:focus { outline: none; border-color: var(--blue); }
 
   /* Hero */
   .hero {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 3.5rem 2rem;
     background: linear-gradient(135deg, rgba(59,130,246,.15) 0%, rgba(139,92,246,.15) 100%);
     border-radius: 20px;
-    border: 1px solid rgba(148,163,184,.2);
-    margin-bottom: 3rem;
+    border: 1px solid var(--border);
+    margin: 2rem 0 3rem;
     position: relative;
     overflow: hidden;
   }
@@ -40,7 +103,7 @@
     border: 1px solid rgba(59,130,246,.4);
     border-radius: 20px;
     font-size: .85rem;
-    color: #60a5fa;
+    color: var(--blue);
     margin-bottom: 1rem;
     position: relative;
   }
@@ -53,13 +116,13 @@
     margin-bottom: 1rem;
     position: relative;
   }
-  .hero .subtitle { color: #94a3b8; font-size: 1.1rem; position: relative; }
+  .hero .subtitle { color: var(--text-dim); font-size: 1.1rem; position: relative; }
 
   /* Section */
-  section { margin: 4rem 0; }
+  section { margin: 3.5rem 0; scroll-margin-top: 70px; }
   h2 {
     font-size: 1.8rem;
-    color: #f1f5f9;
+    color: var(--text-strong);
     margin-bottom: 1.5rem;
     padding-bottom: .5rem;
     border-bottom: 2px solid rgba(96,165,250,.3);
@@ -84,8 +147,8 @@
     margin: 2rem 0;
   }
   .stat-card {
-    background: rgba(30,41,59,.6);
-    border: 1px solid rgba(148,163,184,.15);
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
     border-radius: 14px;
     padding: 1.5rem;
     text-align: center;
@@ -101,12 +164,12 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .stat-label { color: #94a3b8; font-size: .85rem; margin-top: .25rem; }
+  .stat-label { color: var(--text-dim); font-size: .85rem; margin-top: .25rem; }
 
   /* Architecture diagram */
   .arch {
-    background: rgba(15,23,42,.8);
-    border: 1px solid rgba(148,163,184,.2);
+    background: var(--panel-dark);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 2.5rem 1.5rem;
     margin: 2rem 0;
@@ -126,17 +189,19 @@
   .node.user { background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(20,184,166,.25)); border-color: rgba(74,222,128,.6); }
   .node.orchestrator { background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(239,68,68,.25)); border-color: rgba(251,191,36,.6); min-width: 200px; padding: 1.1rem 1.6rem; }
   .node.subagent { background: linear-gradient(135deg, rgba(139,92,246,.2), rgba(236,72,153,.2)); border-color: rgba(167,139,250,.5); font-size: .9em; min-width: 110px; padding: .7rem 1rem; }
+  .node.subagent.new { border-color: rgba(74,222,128,.7); box-shadow: 0 4px 20px rgba(74,222,128,.2); }
+  .node.subagent.new::after { content: 'NEW'; display: block; font-size: .55em; color: var(--green); margin-top: .25rem; letter-spacing: .1em; }
   .arrow-down {
     text-align: center;
     font-size: 1.8rem;
-    color: #60a5fa;
+    color: var(--blue);
     margin: -.25rem 0;
   }
   .branch-lines {
     display: flex; justify-content: center;
-    color: #60a5fa; font-size: 1.5rem; margin: -.5rem 0 -.25rem;
+    color: var(--blue); font-size: 1.5rem; margin: -.5rem 0 -.25rem;
   }
-  .arch-label { text-align: center; color: #94a3b8; font-size: .85rem; margin-top: 1rem; font-style: italic; }
+  .arch-label { text-align: center; color: var(--text-dim); font-size: .85rem; margin-top: 1rem; font-style: italic; }
 
   /* Properties table */
   table {
@@ -147,14 +212,15 @@
     border-radius: 12px;
     overflow: hidden;
     margin: 1.5rem 0;
-    border: 1px solid rgba(148,163,184,.15);
+    border: 1px solid var(--border-soft);
   }
-  th, td { padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid rgba(148,163,184,.1); }
-  th { background: rgba(15,23,42,.7); color: #f1f5f9; font-weight: 600; }
+  th, td { padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid rgba(148,163,184,.1); vertical-align: top; }
+  th { background: rgba(15,23,42,.7); color: var(--text-strong); font-weight: 600; }
   tr:last-child td { border-bottom: none; }
-  td:nth-child(2) { text-align: center; }
-  .check { color: #4ade80; font-weight: 700; font-size: 1.2em; }
-  .x { color: #f87171; font-weight: 700; font-size: 1.2em; }
+  table.center-second td:nth-child(2) { text-align: center; }
+  .check { color: var(--green); font-weight: 700; font-size: 1.2em; }
+  .x { color: var(--red); font-weight: 700; font-size: 1.2em; }
+  code { background: rgba(15,23,42,.7); padding: .1rem .4rem; border-radius: 4px; font-size: .85em; color: #cbd5e1; }
 
   /* Compare cards */
   .compare {
@@ -166,7 +232,7 @@
   .compare-card {
     border-radius: 14px;
     padding: 1.5rem;
-    border: 1px solid rgba(148,163,184,.2);
+    border: 1px solid var(--border);
   }
   .compare-card.bad { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.3); }
   .compare-card.good { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.3); }
@@ -175,8 +241,8 @@
   .compare-card.good h4 { color: #86efac; }
   .compare-card ul { list-style: none; }
   .compare-card li { padding: .4rem 0; padding-left: 1.5rem; position: relative; color: #cbd5e1; }
-  .compare-card.bad li::before { content: '✗'; color: #f87171; position: absolute; left: 0; font-weight: 700; }
-  .compare-card.good li::before { content: '✓'; color: #4ade80; position: absolute; left: 0; font-weight: 700; }
+  .compare-card.bad li::before { content: '✗'; color: var(--red); position: absolute; left: 0; font-weight: 700; }
+  .compare-card.good li::before { content: '✓'; color: var(--green); position: absolute; left: 0; font-weight: 700; }
 
   /* Agents grid */
   .agents-grid {
@@ -186,19 +252,138 @@
     margin: 1.5rem 0;
   }
   .agent-card {
-    background: rgba(30,41,59,.6);
-    border: 1px solid rgba(148,163,184,.15);
-    border-left: 4px solid #60a5fa;
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--blue);
     border-radius: 10px;
     padding: 1rem 1.2rem;
     transition: all .2s;
+    position: relative;
   }
-  .agent-card:hover { transform: translateX(4px); border-left-color: #a78bfa; }
-  .agent-card .name { font-weight: 700; color: #f1f5f9; font-size: 1rem; margin-bottom: .3rem; }
-  .agent-card .role { color: #94a3b8; font-size: .85rem; }
-  .agent-card.coordinator { border-left-color: #fbbf24; }
-  .agent-card.specialist { border-left-color: #a78bfa; }
-  .agent-card.qa { border-left-color: #4ade80; }
+  .agent-card:hover { transform: translateX(4px); border-left-color: var(--purple); }
+  .agent-card .name { font-weight: 700; color: var(--text-strong); font-size: 1rem; margin-bottom: .3rem; display: flex; align-items: center; gap: .5rem; }
+  .agent-card .role { color: var(--text-dim); font-size: .85rem; }
+  .agent-card .file { color: #64748b; font-size: .72rem; font-family: ui-monospace, monospace; margin-top: .4rem; }
+  .agent-card.coordinator { border-left-color: var(--amber); }
+  .agent-card.specialist { border-left-color: var(--purple); }
+  .agent-card.qa { border-left-color: var(--green); }
+  .agent-card.new::after {
+    content: 'NEW';
+    position: absolute; top: .6rem; right: .6rem;
+    background: rgba(74,222,128,.18);
+    color: var(--green);
+    font-size: .6rem;
+    font-weight: 700;
+    padding: .15rem .45rem;
+    border-radius: 6px;
+    letter-spacing: .08em;
+    border: 1px solid rgba(74,222,128,.4);
+  }
+  .agent-card.hidden { display: none; }
+
+  /* Phase timeline */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .phase {
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-top: 4px solid var(--blue);
+    border-radius: 12px;
+    padding: 1.2rem;
+    position: relative;
+  }
+  .phase.p1 { border-top-color: var(--amber); }
+  .phase.p15 { border-top-color: var(--pink); }
+  .phase.p2 { border-top-color: var(--purple); }
+  .phase.p3 { border-top-color: var(--green); }
+  .phase-tag {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    margin-bottom: .4rem;
+  }
+  .phase h4 { color: var(--text-strong); font-size: 1.05rem; margin-bottom: .6rem; }
+  .phase ul { list-style: none; }
+  .phase li { padding: .3rem 0; padding-left: 1rem; position: relative; color: #cbd5e1; font-size: .85rem; }
+  .phase li::before { content: '▸'; position: absolute; left: 0; color: var(--blue); }
+
+  /* Repos table */
+  .repos td:first-child { font-weight: 600; color: var(--text-strong); }
+  .repo-tag {
+    display: inline-block;
+    background: rgba(96,165,250,.12);
+    border: 1px solid rgba(96,165,250,.3);
+    color: var(--blue);
+    font-size: .72rem;
+    padding: .15rem .5rem;
+    border-radius: 6px;
+    margin-right: .3rem;
+    margin-bottom: .2rem;
+  }
+  .repo-tag.go { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.3); color: #67e8f9; }
+  .repo-tag.net { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.3); color: var(--purple); }
+  .repo-tag.next { background: rgba(74,222,128,.12); border-color: rgba(74,222,128,.3); color: var(--green); }
+  .repo-tag.new { background: rgba(251,191,36,.15); border-color: rgba(251,191,36,.4); color: var(--amber); }
+
+  /* Details / collapsible */
+  details {
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 0;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  details summary {
+    cursor: pointer;
+    padding: 1rem 1.3rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: '▶';
+    color: var(--blue);
+    transition: transform .2s;
+    font-size: .8em;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary:hover { background: rgba(96,165,250,.05); }
+  details .body { padding: 0 1.3rem 1.3rem; color: #cbd5e1; }
+
+  /* Tier list (Plan Gate) */
+  .tier { margin: 1rem 0; }
+  .tier-head {
+    display: flex; align-items: center; gap: .6rem;
+    font-weight: 700; font-size: 1rem;
+    margin-bottom: .6rem;
+  }
+  .tier.t1 .tier-head { color: #fca5a5; }
+  .tier.t2 .tier-head { color: var(--amber); }
+  .tier.t3 .tier-head { color: var(--green); }
+  .tier-badge {
+    font-size: .65rem; letter-spacing: .1em; padding: .2rem .5rem; border-radius: 6px;
+    background: rgba(15,23,42,.7); border: 1px solid var(--border);
+  }
+  .tier ol { margin-left: 1.5rem; }
+  .tier ol li { padding: .25rem 0; color: #cbd5e1; font-size: .9rem; }
+
+  /* Rule list (token efficiency) */
+  .rule-group { margin: 1rem 0; padding: 1rem 1.2rem; background: var(--panel); border-radius: 10px; border-left: 3px solid var(--purple); }
+  .rule-group h4 { color: var(--text-strong); margin-bottom: .5rem; font-size: 1rem; }
+  .rule-group ul { list-style: none; }
+  .rule-group li { padding: .25rem 0 .25rem 1.2rem; position: relative; color: #cbd5e1; font-size: .9rem; }
+  .rule-group li::before { content: '•'; position: absolute; left: .3rem; color: var(--purple); }
 
   /* Conclusion */
   .conclusion {
@@ -224,12 +409,184 @@
   }
   .benefit {
     background: rgba(30,41,59,.5);
-    border: 1px solid rgba(148,163,184,.15);
+    border: 1px solid var(--border-soft);
     border-radius: 10px;
     padding: 1.2rem;
   }
-  .benefit-title { color: #60a5fa; font-weight: 600; margin-bottom: .4rem; display: flex; align-items: center; gap: .5rem; }
+  .benefit-title { color: var(--blue); font-weight: 600; margin-bottom: .4rem; display: flex; align-items: center; gap: .5rem; }
   .benefit-desc { color: #cbd5e1; font-size: .9rem; }
+
+  /* Phase groups inside arch */
+  .phase-group {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.2rem 1.2rem;
+    margin: 1rem auto;
+    max-width: 880px;
+    background: rgba(15,23,42,.35);
+    position: relative;
+  }
+  .phase-group.pg-design   { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.05); }
+  .phase-group.pg-scaffold { border-color: rgba(244,114,182,.45); background: rgba(244,114,182,.05); }
+  .phase-group.pg-build    { border-color: rgba(167,139,250,.6);  background: rgba(167,139,250,.07); box-shadow: 0 0 0 3px rgba(167,139,250,.08); }
+  .phase-group.pg-verify   { border-color: rgba(74,222,128,.45); background: rgba(74,222,128,.05); }
+  .phase-group.pg-plan     { border-color: rgba(96,165,250,.45); background: rgba(96,165,250,.05); }
+  .phase-group-head {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: .9rem;
+  }
+  .phase-group-num {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .75rem;
+    color: #0f172a;
+    font-weight: 800;
+  }
+  .pg-design   .phase-group-num { background: var(--amber); }
+  .pg-scaffold .phase-group-num { background: var(--pink); }
+  .pg-build    .phase-group-num { background: var(--purple); }
+  .pg-verify   .phase-group-num { background: var(--green); }
+  .pg-plan     .phase-group-num { background: var(--blue); }
+  .pg-design   .phase-group-head { color: var(--amber); }
+  .pg-scaffold .phase-group-head { color: var(--pink); }
+  .pg-build    .phase-group-head { color: var(--purple); }
+  .pg-verify   .phase-group-head { color: var(--green); }
+  .pg-plan     .phase-group-head { color: var(--blue); }
+  .phase-group-meta {
+    margin-left: auto;
+    font-size: .7rem;
+    color: var(--text-dim);
+    letter-spacing: .08em;
+    background: rgba(15,23,42,.6);
+    padding: .2rem .55rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .pg-build .phase-group-meta {
+    color: var(--purple);
+    border-color: rgba(167,139,250,.45);
+    background: rgba(167,139,250,.12);
+  }
+  .phase-group .arch-row { margin: 0; }
+  .phase-group .arrow-down { margin: .35rem 0; font-size: 1.4rem; }
+
+  /* Phase tags inside agent cards */
+  .phase-tags {
+    display: flex;
+    gap: .25rem;
+    flex-wrap: wrap;
+    margin-top: .5rem;
+  }
+  .ptag {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: .12rem .42rem;
+    border-radius: 5px;
+    border: 1px solid;
+    line-height: 1.5;
+    font-family: ui-monospace, monospace;
+  }
+  .ptag.pt1   { background: rgba(251,191,36,.12);  border-color: rgba(251,191,36,.4);  color: var(--amber); }
+  .ptag.pt15  { background: rgba(244,114,182,.12); border-color: rgba(244,114,182,.4); color: var(--pink); }
+  .ptag.pt2   { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.4); color: var(--purple); }
+  .ptag.pt3   { background: rgba(74,222,128,.12);  border-color: rgba(74,222,128,.4);  color: var(--green); }
+  .ptag.ptpl  { background: rgba(96,165,250,.12);  border-color: rgba(96,165,250,.4);  color: var(--blue); }
+  .ptag.ptall { background: rgba(148,163,184,.12); border-color: rgba(148,163,184,.4); color: #cbd5e1; }
+
+  /* Agent × Phase matrix */
+  .matrix-wrap { overflow-x: auto; margin: 1.5rem 0; }
+  table.matrix-tbl {
+    min-width: 640px;
+    width: 100%;
+    margin: 0;
+  }
+  .matrix-tbl th, .matrix-tbl td {
+    padding: .65rem .8rem;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .matrix-tbl thead th {
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .matrix-tbl tbody td:first-child,
+  .matrix-tbl thead th:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-strong);
+    min-width: 160px;
+  }
+  .matrix-tbl tbody tr:hover { background: rgba(96,165,250,.05); }
+  .mdot {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    background: currentColor;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.04);
+  }
+  .mdot.m-p1  { color: var(--amber); border-color: rgba(251,191,36,.6); }
+  .mdot.m-p15 { color: var(--pink);  border-color: rgba(244,114,182,.6); }
+  .mdot.m-p2  { color: var(--purple); border-color: rgba(167,139,250,.6); }
+  .mdot.m-p3  { color: var(--green); border-color: rgba(74,222,128,.6); }
+  .mdot.m-pl  { color: var(--blue);  border-color: rgba(96,165,250,.6); }
+  .mdash { color: #475569; font-weight: 700; }
+  .matrix-legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .8rem; font-size: .78rem; color: var(--text-dim); }
+  .matrix-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+
+  /* Webhook callout */
+  .wh-callout {
+    background: linear-gradient(135deg, rgba(34,211,238,.08), rgba(74,222,128,.05));
+    border: 1px solid rgba(34,211,238,.3);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .wh-callout h4 {
+    color: #67e8f9;
+    font-size: 1rem;
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .wh-callout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .8rem;
+    margin-top: .8rem;
+  }
+  .wh-trigger {
+    background: rgba(15,23,42,.5);
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid #67e8f9;
+    border-radius: 8px;
+    padding: .7rem .9rem;
+    font-size: .85rem;
+    color: #cbd5e1;
+  }
+  .wh-trigger strong { color: var(--text-strong); display: block; margin-bottom: .15rem; font-size: .9rem; }
+  @media (max-width: 760px) { .wh-callout-grid { grid-template-columns: 1fr; } }
+
+  /* Empty search state */
+  .empty-state {
+    display: none;
+    text-align: center;
+    color: var(--text-dim);
+    padding: 1.5rem;
+    font-style: italic;
+  }
+  .empty-state.show { display: block; }
 
   footer {
     text-align: center;
@@ -240,32 +597,87 @@
     border-top: 1px solid rgba(148,163,184,.1);
   }
 
-  @media (max-width: 768px) {
-    .stats, .agents-grid { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .agents-grid { grid-template-columns: repeat(2, 1fr); }
+    .phases { grid-template-columns: repeat(2, 1fr); }
     .compare, .benefits { grid-template-columns: 1fr; }
     .hero h1 { font-size: 2rem; }
+    .topnav nav { display: none; }
+    .topnav .search { width: 100%; margin-left: 0; }
+  }
+  @media (max-width: 520px) {
+    .stats, .agents-grid, .phases { grid-template-columns: 1fr; }
+    .container { padding: 1rem; }
+    .hero { padding: 2.5rem 1rem; }
+  }
+
+  /* Print friendly */
+  @media print {
+    body { background: white; color: #1e293b; }
+    .topnav, .topnav .search, .empty-state { display: none !important; }
+    .hero, .hero::before, .stat-card, .arch, .conclusion, .agent-card, .compare-card, .benefit, .phase, details, .rule-group, .phase-group, .wh-callout, .wh-trigger {
+      background: white !important;
+      color: #1e293b !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: none !important;
+    }
+    .phase-group-head, .wh-callout h4 { color: #1e293b !important; }
+    .mdot { box-shadow: none !important; }
+    .hero h1 { -webkit-text-fill-color: #1e3a8a; color: #1e3a8a; }
+    .stat-num { -webkit-text-fill-color: #1e3a8a; color: #1e3a8a; }
+    h2, h3, .agent-card .name, .phase h4 { color: #0f172a !important; }
+    .stat-label, .agent-card .role, .benefit-desc, .arch-label { color: #475569 !important; }
+    .node { background: #f1f5f9 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
+    .conclusion p { color: #1e293b !important; }
+    details { page-break-inside: avoid; }
+    details[open] summary::before, details summary::before { content: '' !important; }
+    details summary { padding-left: 0; }
+    details .body { padding: 0; }
+    details:not([open]) .body { display: block !important; } /* expand all when printing */
+    section, .arch { page-break-inside: avoid; }
+    a { color: #1e40af !important; text-decoration: underline; }
   }
 </style>
 </head>
 <body>
 
+<!-- Sticky top nav -->
+<div class="topnav">
+  <div class="topnav-inner">
+    <div class="brand">🤖 Agent Team</div>
+    <nav>
+      <a href="#summary">Summary</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#repos">Repos</a>
+      <a href="#phases">Phases</a>
+      <a href="#matrix">Matrix</a>
+      <a href="#roster">Roster</a>
+      <a href="#plan-gate">Plan Gate</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#benefits">Benefits</a>
+    </nav>
+    <input id="agentSearch" class="search" type="search" placeholder="Search agents…" aria-label="Search agents">
+  </div>
+</div>
+
 <div class="container">
 
   <!-- Hero -->
   <div class="hero">
-    <span class="badge">Executive Report · 2026-05-09</span>
+    <span class="badge">Executive Report · 2026-05-19 (v2.1 — Phase-grouped Architecture + Agent×Phase Matrix)</span>
     <h1>🤖 Agent Team Architecture</h1>
-    <p class="subtitle">Multi-Agent System ผ่าน Subagent Delegation Pattern<br><strong style="color:#cbd5e1">b1dx-fulfillment-workspace</strong></p>
+    <p class="subtitle">Hierarchical Multi-Agent System via Subagent Delegation<br><strong style="color:#cbd5e1">b1dx-fulfillment-workspace</strong> · 4 repos · 10 agents · 4 parallel build tracks</p>
   </div>
 
   <!-- Quick Stats -->
   <div class="stats">
     <div class="stat-card">
-      <div class="stat-num">9</div>
+      <div class="stat-num">10</div>
       <div class="stat-label">Specialized Agents</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num">3</div>
+      <div class="stat-num">4</div>
       <div class="stat-label">Parallel Build Tracks</div>
     </div>
     <div class="stat-card">
@@ -279,21 +691,22 @@
   </div>
 
   <!-- TL;DR -->
-  <section>
+  <section id="summary">
     <h2><span class="icon">💡</span> Executive Summary</h2>
     <div class="conclusion">
       <p>
         Solution นี้คือ <strong style="color:#60a5fa">Hierarchical Multi-Agent System</strong> ที่ใช้
-        <strong style="color:#a78bfa">Subagent Delegation Pattern</strong> — ไม่ใช่ single AI agent ทำทุกอย่าง
+        <strong style="color:#a78bfa">Agent Team Orchestrator Pattern</strong> — ไม่ใช่ single AI agent ทำทุกอย่าง
         แต่เป็น <strong style="color:#86efac">"ทีม AI"</strong> ที่มี Orchestrator เป็นหัวหน้าทีม
-        แล้วกระจายงานให้ specialist subagents (BE / FE / Sync / Tester / Reviewer)
-        ทำงาน <strong style="color:#fbbf24">พร้อมกันแบบ parallel</strong> โดยแต่ละ agent มี context แยกกัน
+        แล้วกระจายงานให้ specialist subagents (BE / FE / Sync Worker / <strong style="color:#fbbf24">Webhook</strong> / Tester / Reviewer)
+        ทำงาน <strong style="color:#fbbf24">พร้อมกันแบบ parallel ได้สูงสุด 4 tracks</strong>
+        โดยแต่ละ agent มี context แยกกัน + working directory ของตัวเอง
       </p>
     </div>
   </section>
 
   <!-- Architecture -->
-  <section>
+  <section id="architecture">
     <h2><span class="icon">🏗️</span> System Architecture</h2>
     <div class="arch">
       <div class="arch-row">
@@ -303,38 +716,343 @@
       <div class="arch-row">
         <div class="node orchestrator">🎯 Orchestrator Agent<br><span style="font-size:.8em; opacity:.85; font-weight:400">Coordinator · Main Context</span></div>
       </div>
-      <div class="arrow-down">▼ spawn (parallel)</div>
-      <div class="branch-lines">┌─────┬─────┬─────┬─────┬─────┐</div>
-      <div class="arch-row">
-        <div class="node subagent">🏛️<br>Architect</div>
-        <div class="node subagent">📝<br>Spec Writer</div>
-        <div class="node subagent">⚙️<br>BE Coder</div>
-        <div class="node subagent">🎨<br>FE Coder</div>
-        <div class="node subagent">🔄<br>Sync Worker</div>
+      <div class="arrow-down">▼ spawn by phase</div>
+
+      <!-- Phase 1: Design -->
+      <div class="phase-group pg-design">
+        <div class="phase-group-head">
+          <span class="phase-group-num">1</span>
+          Design — sequential
+          <span class="phase-group-meta">Phase 1</span>
+        </div>
+        <div class="arch-row">
+          <div class="node subagent">🏛️<br>Architect</div>
+          <div class="node subagent">📝<br>Spec Writer</div>
+        </div>
       </div>
-      <div class="arch-row" style="margin-top:1rem;">
-        <div class="node subagent">🧪<br>UI Tester</div>
-        <div class="node subagent">🔍<br>Reviewer</div>
-        <div class="node subagent">📅<br>Sprint Planner</div>
+
+      <!-- Phase 1.5: Test Scaffold -->
+      <div class="phase-group pg-scaffold">
+        <div class="phase-group-head">
+          <span class="phase-group-num">1.5</span>
+          Test Scaffold
+          <span class="phase-group-meta">Phase 1.5</span>
+        </div>
+        <div class="arch-row">
+          <div class="node subagent">🧪<br>UI Tester<br><span style="font-size:.7em; opacity:.7; font-weight:400">(scaffold · test.skip)</span></div>
+        </div>
       </div>
-      <p class="arch-label">แต่ละ subagent มี system prompt + working directory + context window แยกกัน · สื่อสารผ่าน shared files (spec.md, plan.md, backlog.md)</p>
+
+      <!-- Phase 2: Build (PARALLEL) -->
+      <div class="phase-group pg-build">
+        <div class="phase-group-head">
+          <span class="phase-group-num">2</span>
+          Build — PARALLEL · 4 tracks
+          <span class="phase-group-meta">⚡ Phase 2</span>
+        </div>
+        <div class="arch-row">
+          <div class="node subagent">⚙️<br>BE Coder</div>
+          <div class="node subagent">🎨<br>FE Coder</div>
+          <div class="node subagent">🔄<br>Sync Worker</div>
+          <div class="node subagent new">🪝<br>Webhook Coder</div>
+        </div>
+      </div>
+
+      <!-- Phase 3: Verify -->
+      <div class="phase-group pg-verify">
+        <div class="phase-group-head">
+          <span class="phase-group-num">3</span>
+          Verify &amp; Report
+          <span class="phase-group-meta">Phase 3</span>
+        </div>
+        <div class="arch-row">
+          <div class="node subagent">🧪<br>UI Tester<br><span style="font-size:.7em; opacity:.7; font-weight:400">(un-skip · run E2E)</span></div>
+          <div class="node subagent">🔍<br>Reviewer</div>
+        </div>
+      </div>
+
+      <!-- Cross-Sprint -->
+      <div class="phase-group pg-plan">
+        <div class="phase-group-head">
+          <span class="phase-group-num">∞</span>
+          Cross-Sprint Planning
+          <span class="phase-group-meta">Continuous</span>
+        </div>
+        <div class="arch-row">
+          <div class="node subagent">📅<br>Sprint Planner</div>
+        </div>
+      </div>
+
+      <p class="arch-label">แต่ละ subagent มี system prompt + working directory + context window แยกกัน · สื่อสารผ่าน shared files (spec.md, plan.md, backlog.md, assignments/)</p>
+    </div>
+
+    <div class="wh-callout">
+      <h4>🪝 เมื่อไหร่ที่ Webhook Coder ถูก spawn?</h4>
+      <p style="color:#cbd5e1; font-size:.9rem; margin-bottom:.4rem">
+        Webhook Coder เป็น specialist ใหม่ใน Phase 2 — Orchestrator จะ spawn เฉพาะเมื่อ feature เข้าเงื่อนไขใดเงื่อนไขหนึ่งใน 4 categories นี้
+        (รายละเอียดเงื่อนไขครบ: <code>docs/guides/webhook-coder-trigger-flow.md</code>)
+      </p>
+      <div class="wh-callout-grid">
+        <div class="wh-trigger">
+          <strong>📨 Webhook Ingestion</strong>
+          รับ event จาก marketplace (Shopee / Lazada / TikTok / Facebook / LINE) — HTTP 202 ทันที + publish RabbitMQ
+        </div>
+        <div class="wh-trigger">
+          <strong>🔐 OAuth Platform Bind</strong>
+          เชื่อม merchant account ↔ marketplace platform · token refresh · scope management
+        </div>
+        <div class="wh-trigger">
+          <strong>📬 RabbitMQ DLX-DLQ</strong>
+          Dead-letter exchange + queue · retry policy · idempotency key per event
+        </div>
+        <div class="wh-trigger">
+          <strong>🛒 Marketplace Integration</strong>
+          Platform-specific adapter · signature verification · webhook → order sync
+        </div>
+      </div>
+      <p style="color:var(--text-dim); font-size:.78rem; margin-top:.7rem">
+        <strong style="color:var(--amber)">⚠️</strong> Webhook handler ต้อง return <strong>HTTP 202</strong> ทันที + publish RabbitMQ — ห้าม process sync · ทุก Upsert ต้อง <strong>idempotent</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- Repos & Tech Stack (NEW) -->
+  <section id="repos">
+    <h2><span class="icon">📦</span> Repositories &amp; Tech Stack</h2>
+    <p style="color:var(--text-dim); margin-bottom:1rem">4 submodules (read-only spec/ref) → working dir จริงระบุใน <code>workspace.local.json</code></p>
+    <table class="repos">
+      <thead>
+        <tr><th>Repo</th><th>Stack</th><th>Owner Agent</th><th>Working Dir Key</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>BE Fulfillment API</td>
+          <td>
+            <span class="repo-tag net">.NET 10</span>
+            <span class="repo-tag">ASP.NET Core</span>
+            <span class="repo-tag">EF Core</span>
+            <span class="repo-tag">PostgreSQL</span>
+            <span class="repo-tag">Mediator</span>
+          </td>
+          <td>BE Coder</td>
+          <td><code>be_repo_path</code></td>
+        </tr>
+        <tr>
+          <td>FE Fulfillment Web</td>
+          <td>
+            <span class="repo-tag next">Next.js 15</span>
+            <span class="repo-tag">React</span>
+            <span class="repo-tag">Tailwind</span>
+            <span class="repo-tag">Playwright</span>
+            <span class="repo-tag">MSW</span>
+          </td>
+          <td>FE Coder · UI Tester</td>
+          <td><code>fe_repo_path</code></td>
+        </tr>
+        <tr>
+          <td>Sync Worker (ERP→OMS)</td>
+          <td>
+            <span class="repo-tag net">.NET 10</span>
+            <span class="repo-tag">Worker Service</span>
+            <span class="repo-tag">DBUp</span>
+            <span class="repo-tag">TestContainers</span>
+          </td>
+          <td>Sync Worker Coder</td>
+          <td><code>sync_worker_repo_path</code></td>
+        </tr>
+        <tr>
+          <td>Webhook Receiver <span class="repo-tag new">NEW</span></td>
+          <td>
+            <span class="repo-tag go">Go 1.25</span>
+            <span class="repo-tag">Gin</span>
+            <span class="repo-tag">GORM</span>
+            <span class="repo-tag">RabbitMQ</span>
+            <span class="repo-tag">Caddy/Docker</span>
+          </td>
+          <td>Webhook Coder</td>
+          <td><code>webhook_repo_path</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="color:var(--text-dim); font-size:.85rem; margin-top:.5rem">
+      <strong style="color:var(--amber)">⚠️ ห้ามเขียนโค้ดลง submodule</strong> — ใช้ working dir จริงเท่านั้น · Submodule = อ่าน spec / CLAUDE.md เท่านั้น
+    </p>
+  </section>
+
+  <!-- Working Protocol Phases (NEW) -->
+  <section id="phases">
+    <h2><span class="icon">⏱️</span> Working Protocol — 4 Phases</h2>
+    <p style="color:var(--text-dim); margin-bottom:1rem">ลำดับการทำงาน Orchestrator → specialist subagents · ห้าม skip phase</p>
+    <div class="phases">
+      <div class="phase p1">
+        <div class="phase-tag">PHASE 1</div>
+        <h4>🧭 Design</h4>
+        <ul>
+          <li>อ่าน CLAUDE.md + mockup</li>
+          <li>ออกแบบ data model + API contract</li>
+          <li>เขียน <code>docs/specs/{feature}.md</code></li>
+          <li>รับ confirm จาก user</li>
+        </ul>
+      </div>
+      <div class="phase p15">
+        <div class="phase-tag">PHASE 1.5</div>
+        <h4>🧪 Scaffold Tests</h4>
+        <ul>
+          <li>UI Tester subagent</li>
+          <li>AC → <code>e2e/{feature}.spec.ts</code></li>
+          <li>ทุก test เริ่มที่ <code>test.skip</code></li>
+          <li>commit: <code>test(e2e): scaffold …</code></li>
+        </ul>
+      </div>
+      <div class="phase p2">
+        <div class="phase-tag">PHASE 2</div>
+        <h4>⚡ Build (Parallel)</h4>
+        <ul>
+          <li>BE + FE + Sync + Webhook</li>
+          <li>spawn พร้อมกัน · context แยก</li>
+          <li>TDD · branch ก่อนเสมอ</li>
+          <li>verify: build &amp; test</li>
+        </ul>
+      </div>
+      <div class="phase p3">
+        <div class="phase-tag">PHASE 3</div>
+        <h4>✅ Verify &amp; Report</h4>
+        <ul>
+          <li>UI Tester un-skip + run E2E</li>
+          <li><code>gen-progress.mjs</code></li>
+          <li>รายงาน + รอ user สั่ง PR</li>
+          <li>Reviewer (optional)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agent × Phase Matrix (NEW) -->
+  <section id="matrix">
+    <h2><span class="icon">🗺️</span> Agent × Phase Responsibility Matrix</h2>
+    <p style="color:var(--text-dim); margin-bottom:1rem">
+      Quick reference: agent ตัวไหนทำงาน phase ไหนบ้าง — Orchestrator อยู่ทุก phase, specialist focus เฉพาะของตัวเอง
+    </p>
+    <div class="matrix-wrap">
+      <table class="matrix-tbl">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>P1 · Design</th>
+            <th>P1.5 · Scaffold</th>
+            <th>P2 · Build</th>
+            <th>P3 · Verify</th>
+            <th>Continuous</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🎯 Orchestrator</td>
+            <td><span class="mdot m-p1"></span></td>
+            <td><span class="mdot m-p15"></span></td>
+            <td><span class="mdot m-p2"></span></td>
+            <td><span class="mdot m-p3"></span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>📅 Sprint Planner</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-pl"></span></td>
+          </tr>
+          <tr>
+            <td>🏛️ Architect</td>
+            <td><span class="mdot m-p1"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>📝 Spec Writer</td>
+            <td><span class="mdot m-p1"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>⚙️ BE Coder</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p2"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>🎨 FE Coder</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p2"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>🔄 Sync Worker Coder</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p2"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>🪝 Webhook Coder <span class="repo-tag new" style="margin-left:.3rem">NEW</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p2"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>🧪 UI Tester</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p15"></span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p3"></span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+          <tr>
+            <td>🔍 Reviewer</td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdash">—</span></td>
+            <td><span class="mdot m-p3"></span></td>
+            <td><span class="mdash">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="matrix-legend">
+      <span><span class="mdot m-p1"></span> Design (Phase 1)</span>
+      <span><span class="mdot m-p15"></span> Scaffold (Phase 1.5)</span>
+      <span><span class="mdot m-p2"></span> Build (Phase 2)</span>
+      <span><span class="mdot m-p3"></span> Verify (Phase 3)</span>
+      <span><span class="mdot m-pl"></span> Continuous Planning</span>
+      <span><span class="mdash">—</span> ไม่เกี่ยวข้อง</span>
     </div>
   </section>
 
   <!-- Why agent team -->
-  <section>
+  <section id="why">
     <h2><span class="icon">✅</span> ทำไมถึงเป็น Agent Team?</h2>
-    <table>
+    <table class="center-second">
       <thead>
         <tr><th>คุณสมบัติ Multi-Agent System</th><th style="width:80px">มี?</th><th>หลักฐานใน solution</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>Multiple Specialized Agents</strong></td><td><span class="check">✓</span></td><td>9 agents ใน <code>agents/*.md</code></td></tr>
+        <tr><td><strong>Multiple Specialized Agents</strong></td><td><span class="check">✓</span></td><td>10 agents ใน <code>agents/*.md</code></td></tr>
         <tr><td><strong>Distinct System Prompts</strong></td><td><span class="check">✓</span></td><td>แต่ละ role มีไฟล์ <code>.md</code> เป็น prompt เฉพาะ</td></tr>
-        <tr><td><strong>Separation of Concerns</strong></td><td><span class="check">✓</span></td><td>BE / FE / Sync / Test / Review แยกชัดเจน</td></tr>
-        <tr><td><strong>Parallel Execution</strong></td><td><span class="check">✓</span></td><td>Phase 2 spawn BE + FE + Sync Worker พร้อมกัน</td></tr>
+        <tr><td><strong>Separation of Concerns</strong></td><td><span class="check">✓</span></td><td>BE / FE / Sync / Webhook / Test / Review แยกชัดเจน</td></tr>
+        <tr><td><strong>Parallel Execution</strong></td><td><span class="check">✓</span></td><td>Phase 2 spawn BE + FE + Sync + Webhook พร้อมกัน</td></tr>
         <tr><td><strong>Coordinator Pattern</strong></td><td><span class="check">✓</span></td><td>Orchestrator วางแผน + แบ่งงาน + ติดตาม</td></tr>
-        <tr><td><strong>Shared State / Artifacts</strong></td><td><span class="check">✓</span></td><td>spec.md, plan.md, backlog.md, assignments/</td></tr>
+        <tr><td><strong>Shared State / Artifacts</strong></td><td><span class="check">✓</span></td><td><code>spec.md</code>, <code>plan.md</code>, <code>backlog.md</code>, <code>assignments/</code></td></tr>
         <tr><td><strong>Context Isolation</strong></td><td><span class="check">✓</span></td><td>subagent มี working dir + context แยก</td></tr>
         <tr><td><strong>Lifecycle Management</strong></td><td><span class="check">✓</span></td><td>Todo → Active → In Review → Done</td></tr>
       </tbody>
@@ -342,59 +1060,91 @@
   </section>
 
   <!-- Agent roster -->
-  <section>
-    <h2><span class="icon">👥</span> Team Roster (9 Agents)</h2>
-    <h3 style="color:#fbbf24">🎯 Coordinator Tier</h3>
-    <div class="agents-grid">
-      <div class="agent-card coordinator">
+  <section id="roster">
+    <h2><span class="icon">👥</span> Team Roster (10 Agents)</h2>
+    <p style="color:var(--text-dim); margin-bottom:.5rem; font-size:.9rem">💡 ใช้ search box ด้านบนเพื่อ filter agent ตามชื่อหรือ role</p>
+
+    <h3 style="color:var(--amber)">🎯 Coordinator Tier</h3>
+    <div class="agents-grid" data-tier="coordinator">
+      <div class="agent-card coordinator" title="Spawn ทุก phase ของ pipeline · ติดตาม task lifecycle">
         <div class="name">Orchestrator</div>
         <div class="role">วางแผน · แบ่งงาน · ติดตาม pipeline</div>
+        <div class="phase-tags">
+          <span class="ptag pt1">P1</span><span class="ptag pt15">P1.5</span><span class="ptag pt2">P2</span><span class="ptag pt3">P3</span>
+        </div>
+        <div class="file">agents/orchestrator.md</div>
       </div>
-      <div class="agent-card coordinator">
+      <div class="agent-card coordinator" title="สิ้น sprint หรือมี request ใหม่">
         <div class="name">Sprint Planner</div>
         <div class="role">groom backlog · plan sprint capacity</div>
+        <div class="phase-tags">
+          <span class="ptag ptpl">Continuous</span>
+        </div>
+        <div class="file">agents/sprint-planner.md</div>
       </div>
     </div>
 
-    <h3 style="color:#a78bfa">⚙️ Specialist Tier (Builders)</h3>
-    <div class="agents-grid">
-      <div class="agent-card specialist">
+    <h3 style="color:var(--purple)">⚙️ Specialist Tier (Builders)</h3>
+    <div class="agents-grid" data-tier="specialist">
+      <div class="agent-card specialist" title="ก่อน build feature · ออกแบบ contract">
         <div class="name">Architect</div>
         <div class="role">data model · API contract design</div>
+        <div class="phase-tags"><span class="ptag pt1">P1</span></div>
+        <div class="file">agents/architect.md</div>
       </div>
-      <div class="agent-card specialist">
+      <div class="agent-card specialist" title="หลัง Architect · แตก task เป็น checklist">
         <div class="name">Spec Writer</div>
         <div class="role">แตก task เป็น checklist ละเอียด</div>
+        <div class="phase-tags"><span class="ptag pt1">P1</span></div>
+        <div class="file">agents/spec-writer.md</div>
       </div>
-      <div class="agent-card specialist">
+      <div class="agent-card specialist" title="Phase 2 · working dir: be_repo_path">
         <div class="name">BE Coder</div>
-        <div class="role">.NET 10 · ASP.NET Core · EF Core</div>
+        <div class="role">.NET 10 · ASP.NET Core · EF Core · Mediator</div>
+        <div class="phase-tags"><span class="ptag pt2">P2 · Build</span></div>
+        <div class="file">agents/be-coder.md</div>
       </div>
-      <div class="agent-card specialist">
+      <div class="agent-card specialist" title="Phase 2 (parallel กับ BE) · working dir: fe_repo_path">
         <div class="name">FE Coder</div>
-        <div class="role">Next.js 15 · React · Tailwind</div>
+        <div class="role">Next.js 15 · React · Tailwind · MSW</div>
+        <div class="phase-tags"><span class="ptag pt2">P2 · Build</span></div>
+        <div class="file">agents/fe-coder.md</div>
       </div>
-      <div class="agent-card specialist">
+      <div class="agent-card specialist" title="Feature เกี่ยวกับ sync · working dir: sync_worker_repo_path">
         <div class="name">Sync Worker Coder</div>
         <div class="role">.NET 10 Worker · ERP→OMS sync</div>
+        <div class="phase-tags"><span class="ptag pt2">P2 · Build</span></div>
+        <div class="file">agents/sync-worker-coder.md</div>
+      </div>
+      <div class="agent-card specialist new" title="Feature: webhook ingestion / OAuth platform bind / RabbitMQ DLX-DLQ / marketplace (Shopee/Lazada/TikTok/Facebook/LINE)">
+        <div class="name">Webhook Coder</div>
+        <div class="role">Go 1.25 · Gin · GORM · RabbitMQ · Docker ops</div>
+        <div class="phase-tags"><span class="ptag pt2">P2 · Build</span></div>
+        <div class="file">agents/webhook-coder.md</div>
       </div>
     </div>
 
-    <h3 style="color:#4ade80">🧪 Quality Tier</h3>
-    <div class="agents-grid">
-      <div class="agent-card qa">
+    <h3 style="color:var(--green)">🧪 Quality Tier</h3>
+    <div class="agents-grid" data-tier="qa">
+      <div class="agent-card qa" title="ทำงาน 2 ครั้งต่อ task: Phase 1.5 (scaffold) + Phase 3 (run)">
         <div class="name">UI Tester</div>
         <div class="role">scaffold E2E · run Playwright tests</div>
+        <div class="phase-tags"><span class="ptag pt15">P1.5</span><span class="ptag pt3">P3</span></div>
+        <div class="file">agents/ui-tester.md</div>
       </div>
-      <div class="agent-card qa">
+      <div class="agent-card qa" title="Phase 3 (optional) · enforce mockup visual fidelity">
         <div class="name">Reviewer</div>
         <div class="role">code review · mockup fidelity gate</div>
+        <div class="phase-tags"><span class="ptag pt3">P3</span></div>
+        <div class="file">agents/reviewer.md</div>
       </div>
     </div>
+
+    <div id="emptyState" class="empty-state">— ไม่มี agent ตรงกับคำค้นหา —</div>
   </section>
 
   <!-- Compare -->
-  <section>
+  <section id="compare">
     <h2><span class="icon">⚖️</span> Single Agent vs Agent Team</h2>
     <div class="compare">
       <div class="compare-card bad">
@@ -412,23 +1162,161 @@
         <h4>✅ Agent Team (Solution นี้)</h4>
         <ul>
           <li>Orchestrator + spawn specialist subagents</li>
-          <li>9 system prompts เฉพาะแต่ละ role</li>
-          <li>Parallel — BE+FE+Sync ทำพร้อมกัน</li>
+          <li>10 system prompts เฉพาะแต่ละ role</li>
+          <li>Parallel — BE+FE+Sync+Webhook ทำพร้อมกัน</li>
           <li>Context แต่ละ subagent แยก ไม่ปนกัน</li>
-          <li>BE / FE / Sync / Test / Review แยกชัด</li>
+          <li>BE / FE / Sync / Webhook / Test / Review แยกชัด</li>
           <li>Reviewer + UI Tester เป็น quality gate</li>
         </ul>
       </div>
     </div>
   </section>
 
+  <!-- Plan Gate (NEW) -->
+  <section id="plan-gate">
+    <h2><span class="icon">🚦</span> Pre-Build Plan Gate &amp; Auto-Proceed Stop List</h2>
+    <p style="color:var(--text-dim); margin-bottom:1rem">
+      <strong style="color:var(--amber)">ก่อนแก้โค้ดแม้แต่บรรทัดเดียว</strong> — agent ต้องแสดง plan 4 รายการ →
+      สร้าง <code>tasks/plans/{TICKET-ID}/plan.md</code> → รอ user trigger (<code>build</code> / <code>ลุย</code>) →
+      build ต่อเนื่องโดย <strong style="color:var(--green)">ไม่ confirm กลางทาง</strong>
+      ยกเว้นชน 13 เงื่อนไขด้านล่าง
+    </p>
+
+    <details>
+      <summary>📋 Plan Gate: 4 รายการที่ agent ต้องแสดงก่อน build</summary>
+      <div class="body">
+        <ol style="margin-left:1.5rem">
+          <li><strong>Plan &amp; Scope</strong> — ตารางไฟล์ที่แก้/เพิ่ม + สิ่งที่เปลี่ยน + out of scope</li>
+          <li><strong>Summary of changes</strong> — ตาราง current → expected ต่อ item</li>
+          <li><strong>SIT Impact</strong> — flow/feature อื่นที่อาจได้รับผลกระทบ (ระบุถ้าไม่มีด้วย)</li>
+          <li><strong>Test Plan</strong> — unit ทุก layer + E2E (happy + edge + error)</li>
+        </ol>
+      </div>
+    </details>
+
+    <details open>
+      <summary>🛑 Auto-Proceed Stop List — 13 เงื่อนไขที่ agent ต้องหยุดถาม user</summary>
+      <div class="body">
+        <div class="tier t1">
+          <div class="tier-head">
+            <span class="tier-badge">TIER 1</span>
+            MUST stop — irreversible / data risk / cross-team
+          </div>
+          <ol>
+            <li>งานไม่ตรง spec / spec ขัด mockup</li>
+            <li>Scope change (เพิ่ม/ลด feature นอก plan)</li>
+            <li>Blocker: missing dep, BE contract ไม่พร้อม, conflict งาน in-flight</li>
+            <li>Irreversible: drop table, force-push, delete branch, migration backfill+lock</li>
+            <li>Security: credential exposure, auth bypass, tenant isolation leak</li>
+            <li>Breaking change: remove/rename public API, shared contract field</li>
+            <li>Cross-repo impact: <code>@b1dx/ui</code>, shared types, infra/CI/CD, env vars</li>
+            <li>External cost: paid API, LLM call ใน build, dep license unclear</li>
+            <li>Commit / Push / PR — stage + รอ user สั่ง</li>
+          </ol>
+        </div>
+        <div class="tier t2">
+          <div class="tier-head">
+            <span class="tier-badge">TIER 2</span>
+            SHOULD stop — drift จาก plan
+          </div>
+          <ol start="10">
+            <li>Effort blow-up &gt;2x จาก plan</li>
+            <li>Hidden bug นอก scope → log <code>backlog.md</code> แล้วถาม fix ตอนนี้ไหม</li>
+            <li>Test เดิม fail หลัง change · root cause unclear</li>
+            <li>Business rule ambiguous: rounding / timezone / permission / mockup copy</li>
+          </ol>
+        </div>
+        <div class="tier t3">
+          <div class="tier-head">
+            <span class="tier-badge">TIER 3</span>
+            INFORM ใน report — ไม่ block
+          </div>
+          <ul style="margin-left:1.5rem">
+            <li>Flaky test (mark + แจ้ง)</li>
+            <li>Dead code ลบเพื่อ proceed (แจ้งใน diff)</li>
+            <li>Dep ใหม่ size ปกติ (&lt;1MB)</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Token Efficiency Rules (NEW) -->
+  <section id="tokens">
+    <h2><span class="icon">💰</span> Token Efficiency Rules</h2>
+    <p style="color:var(--text-dim); margin-bottom:1rem">
+      <strong>ทำงานให้เสร็จด้วย token น้อยที่สุด — ไม่ใช่ทำงานน้อยที่สุด</strong> · RTK proxy ช่วยตัด output 60-90%
+    </p>
+
+    <details>
+      <summary>📖 Read &amp; Search — ใช้ tool ที่ถูก</summary>
+      <div class="body">
+        <div class="rule-group">
+          <ul>
+            <li><strong>ห้าม</strong> <code>Read</code> ไฟล์เต็มถ้ารู้ว่าต้องการแค่บางส่วน → ใช้ <code>offset</code> + <code>limit</code></li>
+            <li><strong>ห้าม</strong> <code>cat</code> / <code>head</code> / <code>tail</code> — ใช้ <code>Read</code> tool เสมอ</li>
+            <li><strong>ห้าม</strong> <code>find</code> / <code>ls -R</code> — ใช้ <code>Glob</code></li>
+            <li><strong>ห้าม</strong> <code>grep</code> / <code>rg</code> ใน Bash — ใช้ <code>Grep</code> tool</li>
+            <li><strong>Search ก่อน Read</strong> — Grep หาตำแหน่ง → Read เฉพาะ <code>offset</code>/<code>limit</code></li>
+            <li>ไฟล์ใหญ่ (&gt;500 บรรทัด) เช่น <code>tasks/backlog.md</code> — ห้าม Read เต็ม</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>🤖 Subagent Delegation — ประหยัด context หลัก</summary>
+      <div class="body">
+        <div class="rule-group">
+          <ul>
+            <li>งาน research/exploration ข้าม &gt;3 ไฟล์ → spawn <code>Explore</code> / <code>general-purpose</code></li>
+            <li>งาน output ยาว (test results, build output, log) → delegate ให้ subagent สรุป</li>
+            <li>ห้าม spawn subagent ซ้ำซ้อน — ใช้ <code>SendMessage</code> ต่อ agent เดิมแทน</li>
+            <li>Subagent prompt ต้อง self-contained — ระบุไฟล์ + บรรทัดที่ต้องอ่าน</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>🔧 Tool Selection &amp; Editing</summary>
+      <div class="body">
+        <div class="rule-group">
+          <ul>
+            <li>ใช้ dedicated tool เสมอ — <code>Read</code>/<code>Edit</code>/<code>Write</code>/<code>Glob</code>/<code>Grep</code> ก่อน Bash</li>
+            <li><strong>Parallel tool calls</strong> — independent calls อยู่ใน message เดียว (เช่น <code>git status</code> + <code>git diff</code>)</li>
+            <li>ใช้ <code>Edit</code> ไม่ใช่ <code>Write</code> สำหรับไฟล์ที่มีอยู่ — ส่งเฉพาะ diff</li>
+            <li><code>replace_all: true</code> ถ้า rename across file</li>
+            <li>ห้าม Read ก่อน Edit ถ้าเพิ่ง Write/Read ไปแล้วใน turn เดียวกัน</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>💬 Communication &amp; File Discipline</summary>
+      <div class="body">
+        <div class="rule-group">
+          <ul>
+            <li>คำตอบสั้น — ห้าม summarize งานตอนจบทุกครั้ง (user เห็น diff อยู่แล้ว)</li>
+            <li>ห้าม narrate ทุกขั้นตอน — บอกแค่เริ่ม + เปลี่ยนทิศทาง + จุดที่ติด</li>
+            <li>ห้าม preamble / postamble — "ฉันจะ..." / "หวังว่า..." ตัดออก</li>
+            <li>ภาษาตามที่ user ใช้ — ไทยตอบไทย, อังกฤษตอบอังกฤษ</li>
+            <li>ห้ามสร้างไฟล์ใหม่ ถ้าแก้ของเดิมได้</li>
+            <li>Plan file → <code>tasks/plans/{TICKET-ID}/plan.md</code> เท่านั้น</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
   <!-- Benefits -->
-  <section>
+  <section id="benefits">
     <h2><span class="icon">🎁</span> Business Benefits</h2>
     <div class="benefits">
       <div class="benefit">
         <div class="benefit-title">⚡ Speed</div>
-        <div class="benefit-desc">BE + FE + Sync Worker ทำงาน parallel — ลดเวลา delivery feature 2-3 เท่า เทียบกับ sequential</div>
+        <div class="benefit-desc">BE + FE + Sync + Webhook ทำงาน parallel — ลดเวลา delivery feature 2-4 เท่า เทียบกับ sequential</div>
       </div>
       <div class="benefit">
         <div class="benefit-title">🎯 Quality</div>
@@ -436,7 +1324,7 @@
       </div>
       <div class="benefit">
         <div class="benefit-title">📊 Traceability</div>
-        <div class="benefit-desc">ทุก task มี plan.md + lifecycle status (Todo→Done) — ติดตามได้ทุกขั้นตอน</div>
+        <div class="benefit-desc">ทุก task มี plan.md + lifecycle status (Todo→Active→In Review→Done) — ติดตามได้ทุกขั้นตอน</div>
       </div>
       <div class="benefit">
         <div class="benefit-title">🔒 Consistency</div>
@@ -448,15 +1336,15 @@
       </div>
       <div class="benefit">
         <div class="benefit-title">📈 Scalability</div>
-        <div class="benefit-desc">เพิ่ม agent ใหม่ได้ง่าย (เช่น Mobile Coder, DBA) โดยไม่กระทบ agent เดิม</div>
+        <div class="benefit-desc">เพิ่ม agent ใหม่ได้ง่าย (Webhook Coder เพิ่งเข้าทีม) โดยไม่กระทบ agent เดิม</div>
       </div>
     </div>
   </section>
 
   <!-- Communication -->
-  <section>
+  <section id="communication">
     <h2><span class="icon">💬</span> รูปแบบการสื่อสาร — Hierarchical (ไม่ใช่ Peer-to-Peer)</h2>
-    <table>
+    <table class="center-second">
       <thead>
         <tr><th>รูปแบบ</th><th>Solution นี้</th><th>หมายเหตุ</th></tr>
       </thead>
@@ -474,7 +1362,7 @@
         <tr>
           <td><strong>Shared File State</strong></td>
           <td><span class="check">✓ ใช้</span></td>
-          <td>spec.md, plan.md, backlog.md, assignments/</td>
+          <td><code>spec.md</code>, <code>plan.md</code>, <code>backlog.md</code>, <code>assignments/</code></td>
         </tr>
         <tr>
           <td><strong>Context Isolation</strong></td>
@@ -486,12 +1374,12 @@
   </section>
 
   <!-- Conclusion -->
-  <section>
+  <section id="conclusion">
     <h2><span class="icon">🎯</span> Conclusion</h2>
     <div class="conclusion">
       <p>
         <strong style="color:#60a5fa; font-size:1.2em">Agent Team แบบ Hierarchical Multi-Agent System</strong><br>
-        ใช้ Claude Code <strong style="color:#a78bfa">Subagent Delegation</strong> เป็น runtime<br><br>
+        ใช้ Claude Code <strong style="color:#a78bfa">Subagent Delegation</strong> เป็น runtime · 10 specialist agents · 4 parallel build tracks<br><br>
         Orchestrator = <strong style="color:#fbbf24">Coordinator</strong> · Specialists = <strong style="color:#a78bfa">Workers</strong> · Tester+Reviewer = <strong style="color:#86efac">Quality Gate</strong><br>
         สื่อสารผ่าน <strong style="color:#f472b6">Shared Files</strong> (spec / plan / backlog / assignments)<br>
         เพื่อ sync state ข้าม conversation และทำให้ลูกทีม dev ใช้ร่วมกันได้
@@ -500,10 +1388,55 @@
   </section>
 
   <footer>
-    Generated 2026-05-09 · b1dx-fulfillment-workspace · Confidential — for internal team &amp; executive review
+    Generated 2026-05-19 (v2.1) · b1dx-fulfillment-workspace · Confidential — for internal team &amp; executive review<br>
+    Changes from v2 (2026-05-18): Architecture diagram regrouped by Phase (Design / Scaffold / Build / Verify / Continuous) · highlighted Phase 2 PARALLEL group · +Webhook Coder trigger callout (4 categories) · +Agent × Phase Matrix section · phase tags on every roster card<br>
+    Changes from v1 (2026-05-09): +Webhook Coder agent · +Repos &amp; Tech Stack section · +Phase timeline · +Plan Gate &amp; Stop List · +Token Efficiency Rules · TOC nav · agent search · print-friendly CSS
   </footer>
 
 </div>
+
+<script>
+  // Agent search filter
+  (function () {
+    var search = document.getElementById('agentSearch');
+    var empty = document.getElementById('emptyState');
+    if (!search) return;
+
+    var cards = document.querySelectorAll('.agents-grid .agent-card');
+    var groups = document.querySelectorAll('.agents-grid');
+    var tierHeadings = document.querySelectorAll('#roster h3');
+
+    search.addEventListener('input', function () {
+      var q = search.value.trim().toLowerCase();
+      var anyVisible = false;
+
+      cards.forEach(function (card) {
+        var text = card.textContent.toLowerCase();
+        var match = q === '' || text.indexOf(q) !== -1;
+        card.classList.toggle('hidden', !match);
+        if (match) anyVisible = true;
+      });
+
+      // Hide groups & their h3 headings when all cards inside are hidden
+      groups.forEach(function (group, idx) {
+        var visibleInGroup = group.querySelectorAll('.agent-card:not(.hidden)').length;
+        group.style.display = visibleInGroup === 0 ? 'none' : '';
+        var heading = tierHeadings[idx];
+        if (heading) heading.style.display = visibleInGroup === 0 ? 'none' : '';
+      });
+
+      empty.classList.toggle('show', !anyVisible);
+    });
+
+    // Keyboard shortcut: "/" focuses search
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '/' && document.activeElement !== search) {
+        e.preventDefault();
+        search.focus();
+      }
+    });
+  })();
+</script>
 
 </body>
 </html>

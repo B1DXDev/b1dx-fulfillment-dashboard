@@ -1,201 +1,452 @@
-
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX — Roadmap Planner (Effort × Value)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+:root{
+  --bg:#07090f;--bg2:#0c0f18;--bg3:#111520;--bg4:#171c2c;--bg5:#1d2235;
+  --line:rgba(255,255,255,.055);--line2:rgba(255,255,255,.1);--line3:rgba(255,255,255,.16);
+  --text:#e2e6f3;--sub:#8892a8;--dim:#45506a;--dimmer:#2a3348;
+  --p1:#22d47e;--p1bg:rgba(34,212,126,.07);--p1line:rgba(34,212,126,.22);
+  --p2:#4d9fff;--p2bg:rgba(77,159,255,.07);--p2line:rgba(77,159,255,.22);
+  --p3:#ffb830;--p3bg:rgba(255,184,48,.07);--p3line:rgba(255,184,48,.22);
+  --p4:#c27aff;--p4bg:rgba(194,122,255,.06);--p4line:rgba(194,122,255,.2);
+  --p5:#6b7a99;
+  --crit:#ff5252;--warn:#ff8c42;
+  --mono:'JetBrains Mono',monospace;
+  --display:'Syne',sans-serif;
+  --body:'Noto Sans Thai',sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans)}
-.w{padding:.75rem 0}
-.axes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1rem}
-.ax-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:4px 0}
-.ax-hi{color:var(--color-text-success)}
-.ax-lo{color:var(--color-text-danger)}
-.matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;margin-bottom:1.25rem;height:420px}
-.quadrant{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px;position:relative;overflow:hidden;cursor:default}
-.q-label{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding:3px 8px;border-radius:4px;display:inline-block}
-.q1{background:var(--color-background-success)}
-.q1 .q-label{background:rgba(99,153,34,.15);color:var(--color-text-success)}
-.q2{background:var(--color-background-warning)}
-.q2 .q-label{background:rgba(186,117,23,.15);color:var(--color-text-warning)}
-.q3{background:var(--color-background-info)}
-.q3 .q-label{background:rgba(55,138,221,.15);color:var(--color-text-info)}
-.q4{background:var(--color-background-secondary)}
-.q4 .q-label{background:rgba(136,135,128,.15);color:var(--color-text-secondary)}
-.task-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;margin-bottom:5px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:border-color .12s}
-.task-chip:hover{border-color:var(--color-border-secondary)}
-.task-chip.sel{border-color:var(--color-border-info);background:var(--color-background-info)}
-.chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.chip-name{font-size:11.5px;color:var(--color-text-primary);flex:1;line-height:1.3}
-.chip-tag{font-size:9px;font-family:var(--font-mono);color:var(--color-text-tertiary);white-space:nowrap}
-.detail-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;background:var(--color-background-secondary);min-height:200px}
-.d-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
-.d-why{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
-.d-steps{display:flex;flex-direction:column;gap:5px}
-.d-step{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5}
-.d-num{width:18px;height:18px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.d-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.d-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-weight:500}
-.b-effort{background:var(--color-background-warning);color:var(--color-text-warning)}
-.b-output{background:var(--color-background-success);color:var(--color-text-success)}
-.b-dep{background:var(--color-background-info);color:var(--color-text-info)}
-.axis-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.axis-line{height:2px;background:linear-gradient(to right,var(--color-background-danger),var(--color-background-success));border-radius:2px;margin-bottom:12px}
-.legend-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem}
-.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
-.leg-dot{width:8px;height:8px;border-radius:50%}
-.empty-hint{font-size:12px;color:var(--color-text-tertiary);padding:2rem;text-align:center}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{color:var(--text);font-family:var(--body);font-size:13.5px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;opacity:.5;pointer-events:none;z-index:0}
+
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 24px 60px}
+
+/* ── HEADER ── */
+.hdr{padding:40px 0 28px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.hdr-eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.hdr-eyebrow::before{content:'';width:20px;height:1px;background:var(--dim)}
+.hdr-title{font-family:var(--display);font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:12px}
+.hdr-title span{color:var(--p1)}
+.hdr-sub{font-size:13px;color:var(--sub);max-width:640px;line-height:1.7}
+.hdr-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.hdr-chip{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--line2);color:var(--sub)}
+
+/* ── HOW TO READ ── */
+.howto{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:24px}
+.howto-head{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px}
+.howto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.howto-item{display:flex;gap:10px;align-items:flex-start;font-size:11.5px;color:var(--sub);line-height:1.5}
+.howto-icon{width:26px;height:26px;border-radius:8px;background:var(--bg4);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:13px;flex-shrink:0;font-family:var(--mono)}
+.howto-item b{color:var(--text);font-weight:600;display:block;margin-bottom:1px}
+@media(max-width:760px){.howto-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.stat.s1::after{background:var(--p1)}
+.stat.s2::after{background:var(--p2)}
+.stat.s3::after{background:var(--p3)}
+.stat.s4::after{background:var(--p4)}
+.stat-eyebrow{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px}
+.stat.s1 .stat-eyebrow{color:var(--p1)}
+.stat.s2 .stat-eyebrow{color:var(--p2)}
+.stat.s3 .stat-eyebrow{color:var(--p3)}
+.stat.s4 .stat-eyebrow{color:var(--p4)}
+.stat-num{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.stat-lbl{font-size:11.5px;color:var(--text);margin-top:6px;font-weight:500}
+.stat-hint{font-size:10.5px;color:var(--sub);margin-top:2px;font-family:var(--mono)}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ── MATRIX ── */
+.matrix-wrap{display:grid;grid-template-columns:40px 1fr;grid-template-rows:1fr 40px;gap:6px;margin-bottom:28px}
+
+.y-axis{grid-row:1;grid-column:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0;position:relative}
+.y-axis::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--p1),var(--crit));opacity:.4}
+.y-top,.y-bot{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;background:var(--bg);padding:6px 4px;z-index:1;text-align:center;line-height:1.3}
+.y-top{color:var(--p1)}
+.y-bot{color:var(--crit)}
+.y-label{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--text);writing-mode:vertical-rl;transform:rotate(180deg);background:var(--bg);padding:8px 2px;z-index:1;text-transform:uppercase}
+
+.matrix{grid-row:1;grid-column:2;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:520px}
+
+.x-axis{grid-row:2;grid-column:2;display:flex;justify-content:space-between;align-items:center;padding:0 4px;position:relative}
+.x-axis::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(to right,var(--crit),var(--p1));opacity:.4}
+.x-left,.x-right{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;background:var(--bg);padding:4px 8px;z-index:1}
+.x-left{color:var(--crit)}
+.x-right{color:var(--p1)}
+.x-label{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--text);background:var(--bg);padding:4px 12px;z-index:1;text-transform:uppercase}
+
+/* ── QUADRANT ── */
+.quadrant{border:1px solid;border-radius:12px;padding:14px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.q1{background:var(--p1bg);border-color:var(--p1line)}
+.q2{background:var(--p2bg);border-color:var(--p2line)}
+.q3{background:var(--p3bg);border-color:var(--p3line)}
+.q4{background:var(--p4bg);border-color:var(--p4line)}
+
+.q-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed}
+.q1 .q-head{border-color:var(--p1line)}
+.q2 .q-head{border-color:var(--p2line)}
+.q3 .q-head{border-color:var(--p3line)}
+.q4 .q-head{border-color:var(--p4line)}
+
+.q-num{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;font-weight:800;flex-shrink:0;color:#0a0a0a}
+.q1 .q-num{background:var(--p1)}
+.q2 .q-num{background:var(--p2)}
+.q3 .q-num{background:var(--p3)}
+.q4 .q-num{background:var(--p4)}
+
+.q-title{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:-.01em;line-height:1.2;flex:1}
+.q-title b{display:block;font-size:10px;font-family:var(--mono);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.q1 .q-title b{color:var(--p1)}
+.q2 .q-title b{color:var(--p2)}
+.q3 .q-title b{color:var(--p3)}
+.q4 .q-title b{color:var(--p4)}
+
+.q-count{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;border:1px solid var(--line2);color:var(--sub)}
+
+/* ── TASK CHIP ── */
+.chips{display:flex;flex-direction:column;gap:5px;flex:1}
+.chip{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);cursor:pointer;transition:all .14s}
+.chip:hover{background:var(--bg3);border-color:var(--line3);transform:translateX(2px)}
+.chip.sel{background:var(--bg4);border-color:var(--p1)}
+.q2 .chip.sel{border-color:var(--p2)}
+.q3 .chip.sel{border-color:var(--p3)}
+.q4 .chip.sel{border-color:var(--p4)}
+
+.chip-pri{width:18px;height:18px;border-radius:5px;background:var(--bg4);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--sub);flex-shrink:0}
+.chip.sel .chip-pri{background:var(--p1);color:#0a0a0a;border-color:var(--p1)}
+.q2 .chip.sel .chip-pri{background:var(--p2);border-color:var(--p2)}
+.q3 .chip.sel .chip-pri{background:var(--p3);border-color:var(--p3)}
+.q4 .chip.sel .chip-pri{background:var(--p4);border-color:var(--p4)}
+
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.03)}
+.chip-name{font-size:12px;color:var(--text);flex:1;line-height:1.3}
+.chip-tag{font-family:var(--mono);font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.t-xs{background:rgba(34,212,126,.14);color:var(--p1)}
+.t-s{background:rgba(77,159,255,.14);color:var(--p2)}
+.t-m{background:rgba(255,184,48,.14);color:var(--p3)}
+.t-l{background:rgba(255,140,66,.16);color:var(--warn)}
+.t-xl{background:rgba(255,82,82,.14);color:var(--crit)}
+
+/* ── DETAIL PANEL ── */
+.detail{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:0;margin-bottom:28px;overflow:hidden;min-height:260px}
+.detail-empty{padding:50px 24px;text-align:center;color:var(--dim);font-size:12px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.detail-empty::before{content:'◆';display:block;font-size:24px;color:var(--dimmer);margin-bottom:12px}
+
+.d-hdr{padding:20px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--bg3),transparent)}
+.d-eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--p1);text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+.d-eyebrow .d-cat{padding:2px 8px;border-radius:4px;background:var(--bg4);color:var(--sub)}
+.d-title{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.2;color:var(--text)}
+
+.d-body{display:grid;grid-template-columns:1fr 280px;gap:0}
+@media(max-width:780px){.d-body{grid-template-columns:1fr}}
+
+.d-main{padding:20px 24px;border-right:1px solid var(--line)}
+@media(max-width:780px){.d-main{border-right:none;border-bottom:1px solid var(--line)}}
+
+.d-why{font-size:12.5px;color:var(--sub);line-height:1.75;padding:12px 14px;background:var(--bg3);border-left:2px solid var(--p1);border-radius:0 6px 6px 0;margin-bottom:18px}
+.d-why::before{content:'WHY';display:block;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;color:var(--p1);margin-bottom:4px}
+
+.d-steps-head{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
+.d-steps{display:flex;flex-direction:column;gap:8px}
+.d-step{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--text);line-height:1.55}
+.d-num{width:22px;height:22px;border-radius:6px;background:var(--bg4);border:1px solid var(--line2);color:var(--p1);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+.d-side{padding:20px 24px;background:var(--bg3)}
+.d-meta-block{margin-bottom:16px}
+.d-meta-block:last-child{margin-bottom:0}
+.d-meta-lbl{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px}
+.d-meta-val{font-size:13px;color:var(--text);font-weight:500;line-height:1.4}
+.d-meta-val.mono{font-family:var(--mono);font-size:11.5px}
+
+/* ── EXECUTION ORDER ── */
+.order{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:28px}
+.order-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.order-title{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.02em}
+.order-title span{color:var(--p1)}
+.order-sub{font-size:11.5px;color:var(--sub)}
+.order-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;list-style:none}
+@media(max-width:900px){.order-list{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.order-list{grid-template-columns:1fr}}
+.order-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--line);border-radius:8px;font-size:12px;cursor:pointer;transition:all .14s}
+.order-item:hover{background:var(--bg4);border-color:var(--line3)}
+.order-n{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10.5px;font-weight:700;color:#0a0a0a;flex-shrink:0}
+.o-q1{background:var(--p1)}.o-q2{background:var(--p2)}.o-q3{background:var(--p3)}.o-q4{background:var(--p4)}
+.order-name{flex:1;color:var(--text);line-height:1.3}
+.order-eff{font-family:var(--mono);font-size:9.5px;color:var(--sub);white-space:nowrap}
+
+/* ── LEGEND ── */
+.legend{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 20px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.legend-lbl{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.14em}
+.leg{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub)}
+.leg-dot{width:9px;height:9px;border-radius:50%}
+
 </style>
+</head>
+<body>
+<div class="wrap">
 
-<div class="w">
+<!-- ── HEADER ── -->
+<header class="hdr">
+  <div class="hdr-eyebrow">B1DX OMS · Sprint Planning</div>
+  <h1 class="hdr-title">Roadmap <span>Planner</span></h1>
+  <p class="hdr-sub">วาง 17 tasks บน <b style="color:var(--text)">Effort × Value matrix</b> เพื่อตัดสินใจว่าอะไรควรทำก่อน — คลิก task ใด ๆ เพื่อดูเหตุผล, ขั้นตอน 4-7 step และ dependency ที่ต้องเตรียม</p>
+  <div class="hdr-meta">
+    <span class="hdr-chip">17 tasks</span>
+    <span class="hdr-chip">3 phases</span>
+    <span class="hdr-chip">5 categories</span>
+    <span class="hdr-chip">~6 สัปดาห์ Phase 1</span>
+  </div>
+</header>
 
-<div class="legend-row">
-  <div class="leg"><div class="leg-dot" style="background:#639922"></div>UI / FE</div>
-  <div class="leg"><div class="leg-dot" style="background:#185FA5"></div>Schema / BE</div>
-  <div class="leg"><div class="leg-dot" style="background:#534AB7"></div>Integration</div>
-  <div class="leg"><div class="leg-dot" style="background:#BA7517"></div>Config / JSON</div>
-  <div class="leg"><div class="leg-dot" style="background:#888780"></div>QA / Test</div>
-</div>
+<!-- ── HOW TO READ ── -->
+<section class="howto">
+  <div class="howto-head">วิธีอ่าน Matrix</div>
+  <div class="howto-grid">
+    <div class="howto-item"><div class="howto-icon">↕</div><div><b>แกน Y · Effort</b>ขึ้น = ง่าย<br>ลง = ยาก</div></div>
+    <div class="howto-item"><div class="howto-icon">↔</div><div><b>แกน X · Value</b>ซ้าย = ผลลัพธ์น้อย<br>ขวา = มาก</div></div>
+    <div class="howto-item"><div class="howto-icon">●</div><div><b>สี dot</b>หมวด task<br>(UI / BE / Integration / Config / QA)</div></div>
+    <div class="howto-item"><div class="howto-icon">⏱</div><div><b>Effort tag</b>XS=½d · S=1-2d · M=3-4d<br>L=5-7d · XL=2-3w</div></div>
+  </div>
+</section>
 
-<div class="axis-row">
-  <span style="font-size:10px;color:var(--color-text-tertiary)">← ผลลัพธ์น้อย</span>
-  <span style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Value (ผลลัพธ์ที่ได้)</span>
-  <span style="font-size:10px;color:var(--color-text-success)">ผลลัพธ์มาก →</span>
-</div>
-<div class="axis-line"></div>
+<!-- ── STATS ── -->
+<section class="stats">
+  <div class="stat s1">
+    <div class="stat-eyebrow">Quadrant 1</div>
+    <div class="stat-num">5</div>
+    <div class="stat-lbl">ทำก่อน — Quick Win</div>
+    <div class="stat-hint">~5-6 วัน · Phase 1</div>
+  </div>
+  <div class="stat s2">
+    <div class="stat-eyebrow">Quadrant 2</div>
+    <div class="stat-num">4</div>
+    <div class="stat-lbl">วางแผนดี ๆ — Strategic</div>
+    <div class="stat-hint">~14-19 วัน · Phase 1</div>
+  </div>
+  <div class="stat s3">
+    <div class="stat-eyebrow">Quadrant 3</div>
+    <div class="stat-num">4</div>
+    <div class="stat-lbl">ทำเสริม — Nice to have</div>
+    <div class="stat-hint">~5-7 วัน · Phase 1</div>
+  </div>
+  <div class="stat s4">
+    <div class="stat-eyebrow">Quadrant 4</div>
+    <div class="stat-num">4</div>
+    <div class="stat-lbl">เลื่อนก่อน — Defer</div>
+    <div class="stat-hint">Phase 2</div>
+  </div>
+</section>
 
-<div class="matrix">
+<!-- ── MATRIX ── -->
+<section class="matrix-wrap">
 
-  <!-- Q1: Easy + High Value = DO FIRST -->
-  <div class="quadrant q1">
-    <div class="q-label">ทำก่อน — ง่าย + คุ้มค่า</div>
-
-    <div class="task-chip" onclick="show('json_seed')">
-      <div class="chip-dot" style="background:#BA7517"></div>
-      <span class="chip-name">Seed JSON config ทุก status</span>
-      <span class="chip-tag">S · 1-2 วัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('action_panel')">
-      <div class="chip-dot" style="background:#639922"></div>
-      <span class="chip-name">OrderActionPanel component</span>
-      <span class="chip-tag">S · 1-2 วัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('status_badge')">
-      <div class="chip-dot" style="background:#639922"></div>
-      <span class="chip-name">Status badge + color map</span>
-      <span class="chip-tag">XS · ครึ่งวัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('msw_transition')">
-      <div class="chip-dot" style="background:#888780"></div>
-      <span class="chip-name">MSW mock transition API</span>
-      <span class="chip-tag">S · 1 วัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('i18n_keys')">
-      <div class="chip-dot" style="background:#639922"></div>
-      <span class="chip-name">i18n keys ครบ (EN+TH)</span>
-      <span class="chip-tag">XS · ครึ่งวัน</span>
-    </div>
+  <div class="y-axis">
+    <div class="y-top">ง่าย ↑</div>
+    <div class="y-label">Effort</div>
+    <div class="y-bot">↓ ยาก</div>
   </div>
 
-  <!-- Q2: Hard + High Value = PLAN CAREFULLY -->
-  <div class="quadrant q2">
-    <div class="q-label">วางแผนดีๆ — ยาก + คุ้มค่า</div>
+  <div class="matrix">
 
-    <div class="task-chip" onclick="show('be_schema')">
-      <div class="chip-dot" style="background:#185FA5"></div>
-      <span class="chip-name">DB schema + migration</span>
-      <span class="chip-tag">M · 3-4 วัน</span>
+    <!-- Q1: Easy + High Value = DO FIRST -->
+    <div class="quadrant q1">
+      <div class="q-head">
+        <div class="q-num">1</div>
+        <div class="q-title"><b>Do First</b>ทำก่อน — ง่าย + คุ้มค่า</div>
+        <div class="q-count">5 tasks</div>
+      </div>
+      <div class="chips">
+        <div class="chip" onclick="show('status_badge',event)">
+          <div class="chip-pri">1</div>
+          <div class="chip-dot" style="background:#22d47e"></div>
+          <span class="chip-name">Status badge + color map</span>
+          <span class="chip-tag t-xs">XS · ½d</span>
+        </div>
+        <div class="chip" onclick="show('i18n_keys',event)">
+          <div class="chip-pri">2</div>
+          <div class="chip-dot" style="background:#22d47e"></div>
+          <span class="chip-name">i18n keys ครบ (EN + TH)</span>
+          <span class="chip-tag t-xs">XS · ½d</span>
+        </div>
+        <div class="chip" onclick="show('msw_transition',event)">
+          <div class="chip-pri">3</div>
+          <div class="chip-dot" style="background:#6b7a99"></div>
+          <span class="chip-name">MSW mock transition API</span>
+          <span class="chip-tag t-s">S · 1d</span>
+        </div>
+        <div class="chip" onclick="show('json_seed',event)">
+          <div class="chip-pri">4</div>
+          <div class="chip-dot" style="background:#ffb830"></div>
+          <span class="chip-name">Seed JSON config ทุก status</span>
+          <span class="chip-tag t-s">S · 1-2d</span>
+        </div>
+        <div class="chip" onclick="show('action_panel',event)">
+          <div class="chip-pri">5</div>
+          <div class="chip-dot" style="background:#22d47e"></div>
+          <span class="chip-name">OrderActionPanel component</span>
+          <span class="chip-tag t-s">S · 1-2d</span>
+        </div>
+      </div>
     </div>
 
-    <div class="task-chip" onclick="show('state_machine')">
-      <div class="chip-dot" style="background:#185FA5"></div>
-      <span class="chip-name">BE State machine service</span>
-      <span class="chip-tag">M · 3-4 วัน</span>
+    <!-- Q2: Hard + High Value = PLAN CAREFULLY -->
+    <div class="quadrant q2">
+      <div class="q-head">
+        <div class="q-num">2</div>
+        <div class="q-title"><b>Plan Carefully</b>วางแผนดี ๆ — ยาก + คุ้มค่า</div>
+        <div class="q-count">4 tasks</div>
+      </div>
+      <div class="chips">
+        <div class="chip" onclick="show('be_schema',event)">
+          <div class="chip-pri">6</div>
+          <div class="chip-dot" style="background:#4d9fff"></div>
+          <span class="chip-name">DB schema + EF Core migration</span>
+          <span class="chip-tag t-m">M · 3-4d</span>
+        </div>
+        <div class="chip" onclick="show('state_machine',event)">
+          <div class="chip-pri">7</div>
+          <div class="chip-dot" style="background:#4d9fff"></div>
+          <span class="chip-name">BE State machine service</span>
+          <span class="chip-tag t-m">M · 3-4d</span>
+        </div>
+        <div class="chip" onclick="show('permission_guard',event)">
+          <div class="chip-pri">8</div>
+          <div class="chip-dot" style="background:#c27aff"></div>
+          <span class="chip-name">Permission guard + ABAC</span>
+          <span class="chip-tag t-m">M · 3-4d</span>
+        </div>
+        <div class="chip" onclick="show('webhook',event)">
+          <div class="chip-pri">9</div>
+          <div class="chip-dot" style="background:#c27aff"></div>
+          <span class="chip-name">Courier webhook handler</span>
+          <span class="chip-tag t-l">L · 5-7d</span>
+        </div>
+      </div>
     </div>
 
-    <div class="task-chip" onclick="show('webhook')">
-      <div class="chip-dot" style="background:#534AB7"></div>
-      <span class="chip-name">Courier webhook handler</span>
-      <span class="chip-tag">L · 5-7 วัน</span>
+    <!-- Q3: Easy + Low Value = FILL IN GAPS -->
+    <div class="quadrant q3">
+      <div class="q-head">
+        <div class="q-num">3</div>
+        <div class="q-title"><b>Fill Gaps</b>ทำเสริม — ง่าย + คุ้มพอควร</div>
+        <div class="q-count">4 tasks</div>
+      </div>
+      <div class="chips">
+        <div class="chip" onclick="show('cancel_dialog',event)">
+          <div class="chip-pri">10</div>
+          <div class="chip-dot" style="background:#22d47e"></div>
+          <span class="chip-name">CancelOrderDialog</span>
+          <span class="chip-tag t-xs">XS · ½d</span>
+        </div>
+        <div class="chip" onclick="show('timeline_ui',event)">
+          <div class="chip-pri">11</div>
+          <div class="chip-dot" style="background:#22d47e"></div>
+          <span class="chip-name">Order Timeline UI</span>
+          <span class="chip-tag t-s">S · 1d</span>
+        </div>
+        <div class="chip" onclick="show('audit_log',event)">
+          <div class="chip-pri">12</div>
+          <div class="chip-dot" style="background:#6b7a99"></div>
+          <span class="chip-name">Audit log per transition</span>
+          <span class="chip-tag t-s">S · 1-2d</span>
+        </div>
+        <div class="chip" onclick="show('config_admin',event)">
+          <div class="chip-pri">13</div>
+          <div class="chip-dot" style="background:#ffb830"></div>
+          <span class="chip-name">Admin UI แก้ config JSON</span>
+          <span class="chip-tag t-m">M · 2-3d</span>
+        </div>
+      </div>
     </div>
 
-    <div class="task-chip" onclick="show('permission_guard')">
-      <div class="chip-dot" style="background:#534AB7"></div>
-      <span class="chip-name">Permission guard + ABAC</span>
-      <span class="chip-tag">M · 3-4 วัน</span>
+    <!-- Q4: Hard + Low Value = DEFER -->
+    <div class="quadrant q4">
+      <div class="q-head">
+        <div class="q-num">4</div>
+        <div class="q-title"><b>Defer</b>เลื่อนก่อน — ยาก + คุ้มน้อย</div>
+        <div class="q-count">4 tasks</div>
+      </div>
+      <div class="chips">
+        <div class="chip" onclick="show('multi_tenant_json',event)">
+          <div class="chip-pri">14</div>
+          <div class="chip-dot" style="background:#ffb830"></div>
+          <span class="chip-name">Per-tenant JSON override</span>
+          <span class="chip-tag t-m">M · P2</span>
+        </div>
+        <div class="chip" onclick="show('fallback_flow',event)">
+          <div class="chip-pri">15</div>
+          <div class="chip-dot" style="background:#c27aff"></div>
+          <span class="chip-name">Courier API fallback flow</span>
+          <span class="chip-tag t-l">L · P2</span>
+        </div>
+        <div class="chip" onclick="show('sla_alert',event)">
+          <div class="chip-pri">16</div>
+          <div class="chip-dot" style="background:#6b7a99"></div>
+          <span class="chip-name">SLA alert engine</span>
+          <span class="chip-tag t-l">L · P2</span>
+        </div>
+        <div class="chip" onclick="show('video_rec',event)">
+          <div class="chip-pri">17</div>
+          <div class="chip-dot" style="background:#c27aff"></div>
+          <span class="chip-name">Video recording PWA</span>
+          <span class="chip-tag t-xl">XL · P2</span>
+        </div>
+      </div>
     </div>
+
   </div>
 
-  <!-- Q3: Easy + Low Value = FILL IN GAPS -->
-  <div class="quadrant q3">
-    <div class="q-label">ทำเสริม — ง่าย + คุ้มพอควร</div>
-
-    <div class="task-chip" onclick="show('cancel_dialog')">
-      <div class="chip-dot" style="background:#639922"></div>
-      <span class="chip-name">CancelOrderDialog</span>
-      <span class="chip-tag">XS · ครึ่งวัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('timeline_ui')">
-      <div class="chip-dot" style="background:#639922"></div>
-      <span class="chip-name">Order Timeline UI</span>
-      <span class="chip-tag">S · 1 วัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('config_admin')">
-      <div class="chip-dot" style="background:#BA7517"></div>
-      <span class="chip-name">Admin UI แก้ config JSON</span>
-      <span class="chip-tag">M · 2-3 วัน</span>
-    </div>
-
-    <div class="task-chip" onclick="show('audit_log')">
-      <div class="chip-dot" style="background:#888780"></div>
-      <span class="chip-name">Audit log per transition</span>
-      <span class="chip-tag">S · 1-2 วัน</span>
-    </div>
+  <div class="x-axis">
+    <span class="x-left">← ผลลัพธ์น้อย</span>
+    <span class="x-label">Value</span>
+    <span class="x-right">ผลลัพธ์มาก →</span>
   </div>
 
-  <!-- Q4: Hard + Low Value = DEFER -->
-  <div class="quadrant q4">
-    <div class="q-label">เลื่อนก่อน — ยาก + คุ้มน้อย</div>
+</section>
 
-    <div class="task-chip" onclick="show('fallback_flow')">
-      <div class="chip-dot" style="background:#534AB7"></div>
-      <span class="chip-name">Courier API fallback flow</span>
-      <span class="chip-tag">L · Phase 2</span>
-    </div>
+<!-- ── DETAIL PANEL ── -->
+<section class="detail" id="detailBox">
+  <div class="detail-empty">คลิก task ใด ๆ บน matrix เพื่อดูรายละเอียด</div>
+</section>
 
-    <div class="task-chip" onclick="show('video_rec')">
-      <div class="chip-dot" style="background:#534AB7"></div>
-      <span class="chip-name">Video recording PWA</span>
-      <span class="chip-tag">XL · Phase 2</span>
+<!-- ── EXECUTION ORDER ── -->
+<section class="order">
+  <div class="order-hdr">
+    <div>
+      <div class="order-title">ลำดับที่ <span>แนะนำ</span></div>
+      <div class="order-sub">เรียงตาม dependency + quick win แล้ว — คลิกเพื่อดูรายละเอียด</div>
     </div>
-
-    <div class="task-chip" onclick="show('multi_tenant_json')">
-      <div class="chip-dot" style="background:#BA7517"></div>
-      <span class="chip-name">Per-tenant JSON override</span>
-      <span class="chip-tag">M · Phase 2</span>
-    </div>
-
-    <div class="task-chip" onclick="show('sla_alert')">
-      <div class="chip-dot" style="background:#888780"></div>
-      <span class="chip-name">SLA alert engine</span>
-      <span class="chip-tag">L · Phase 2</span>
-    </div>
+    <span class="hdr-chip">Phase 1: 1-13 · Phase 2: 14-17</span>
   </div>
+  <ol class="order-list" id="orderList"></ol>
+</section>
 
-</div>
+<!-- ── LEGEND ── -->
+<footer class="legend">
+  <span class="legend-lbl">Category</span>
+  <div class="leg"><div class="leg-dot" style="background:#22d47e"></div>UI / FE</div>
+  <div class="leg"><div class="leg-dot" style="background:#4d9fff"></div>Schema / BE</div>
+  <div class="leg"><div class="leg-dot" style="background:#c27aff"></div>Integration</div>
+  <div class="leg"><div class="leg-dot" style="background:#ffb830"></div>Config / JSON</div>
+  <div class="leg"><div class="leg-dot" style="background:#6b7a99"></div>QA / Test</div>
+</footer>
 
-<div class="detail-box" id="detailBox">
-  <div class="empty-hint">← คลิก task ใดก็ได้เพื่อดูรายละเอียด + ขั้นตอน</div>
-</div>
 </div>
 
 <script>
 const DATA = {
   json_seed:{
-    title:'Seed JSON config ทั้ง 13 status ลง DB',
-    why:'นี่คือ foundation ของทุกอย่าง — ถ้าไม่มีนี้ OrderActionPanel ดึง config ไม่ได้ ทำก่อนเป็นอันดับแรก',
+    cat:'Config / JSON',title:'Seed JSON config ทั้ง 13 status ลง DB',
+    why:'นี่คือ foundation ของทุกอย่าง — ถ้าไม่มีสิ่งนี้ OrderActionPanel ดึง config ไม่ได้ ทำก่อนเป็นอันดับแรก',
     steps:[
       'สร้าง migration: order_flow_configs table (tenant_id, status, config_json, is_active)',
       'เขียน seed script: 13 rows จาก ACTION_MAP เดิมที่มีใน mockup แปลงเป็น JSON schema ที่ออกแบบไว้',
@@ -206,7 +457,7 @@ const DATA = {
     effort:'1-2 วัน',output:'Config พร้อมใช้ทันที',dep:'DB migration'
   },
   action_panel:{
-    title:'OrderActionPanel component',
+    cat:'UI / FE',title:'OrderActionPanel component',
     why:'Component หลักที่ render ปุ่มทุกอย่างใน Order Detail sidebar — เมื่อได้ JSON seed แล้ว component นี้ทำเสร็จได้ใน 1 วัน',
     steps:[
       'สร้าง OrderActionPanel.tsx — รับ orderId + status เป็น props',
@@ -219,7 +470,7 @@ const DATA = {
     effort:'1-2 วัน',output:'ปุ่มทำงานจริงตาม status',dep:'json_seed, useOrderTransition hook'
   },
   status_badge:{
-    title:'OrderStatusBadge + color map',
+    cat:'UI / FE',title:'OrderStatusBadge + color map',
     why:'Component เล็กสุดแต่ใช้ทุกที่ — Order list, Detail, Timeline ต้องทำก่อนเพื่อ reuse',
     steps:[
       'สร้าง OrderStatusBadge.tsx ใน packages/ui หรือ features/orders/components',
@@ -230,7 +481,7 @@ const DATA = {
     effort:'ครึ่งวัน',output:'Badge consistent ทุกหน้า',dep:'ไม่มี'
   },
   msw_transition:{
-    title:'MSW mock handler สำหรับ transition API',
+    cat:'QA / Test',title:'MSW mock handler สำหรับ transition API',
     why:'ทำให้ dev ทำงานได้โดยไม่ต้องรอ BE — useOrderTransition() ต้องมี endpoint ก่อน',
     steps:[
       'เพิ่ม handler: PATCH /gateway/proxy/oms/orders/:id/transition',
@@ -242,7 +493,7 @@ const DATA = {
     effort:'1 วัน',output:'FE พัฒนาได้ offline',dep:'MSW fake DB'
   },
   i18n_keys:{
-    title:'เพิ่ม i18n keys ใน en.json + th.json',
+    cat:'UI / FE',title:'เพิ่ม i18n keys ใน en.json + th.json',
     why:'ถ้าไม่มี key ก่อน component render แล้วแสดงเป็น key string เปล่า ทำล่วงหน้าเลยดีกว่า',
     steps:[
       'เพิ่ม section order_detail.action.* สำหรับ transition labels ทุก status',
@@ -253,7 +504,7 @@ const DATA = {
     effort:'ครึ่งวัน',output:'Text แสดงถูกภาษาทันที',dep:'ไม่มี'
   },
   be_schema:{
-    title:'DB schema + EF Core migration',
+    cat:'Schema / BE',title:'DB schema + EF Core migration',
     why:'Backend foundation — order_flow_configs, order_status_transitions, order_checklists ต้องมีก่อน integrate จริง',
     steps:[
       'สร้าง entity: OrderFlowConfig, OrderStatusTransition, OrderChecklist',
@@ -266,7 +517,7 @@ const DATA = {
     effort:'3-4 วัน',output:'BE พร้อม serve config จริง',dep:'Existing SaaS.Starter schema'
   },
   state_machine:{
-    title:'BE Order State Machine service',
+    cat:'Schema / BE',title:'BE Order State Machine service',
     why:'Core business logic — validate transition rules, enforce permissions, apply side effects, write audit log',
     steps:[
       'สร้าง OrderStateMachineService: ValidateTransition(order, toStatus, userId)',
@@ -280,7 +531,7 @@ const DATA = {
     effort:'3-4 วัน',output:'Transition API ปลอดภัย + traceable',dep:'be_schema, permission service'
   },
   webhook:{
-    title:'Courier webhook handler',
+    cat:'Integration',title:'Courier webhook handler',
     why:'ST 500→700 (DELIVERED) และ 500→600 (RETURN) ขับเคลื่อนด้วย Webhook — ต้องทำ idempotent',
     steps:[
       'สร้าง endpoint: POST /webhooks/courier/{provider}',
@@ -293,7 +544,7 @@ const DATA = {
     effort:'5-7 วัน',output:'ST 500/600/700 อัปเดตอัตโนมัติ',dep:'state_machine, queue service'
   },
   permission_guard:{
-    title:'FE Permission guard + usePermission hook',
+    cat:'Integration',title:'FE Permission guard + usePermission hook',
     why:'ปุ่มต้องซ่อน (ไม่แค่ disable) ถ้า role ไม่ตรง — ต้องทำก่อน go live',
     steps:[
       'สร้าง usePermission() hook: ดึง permissions จาก auth store',
@@ -305,7 +556,7 @@ const DATA = {
     effort:'3-4 วัน',output:'UI + API ปลอดภัยตาม role จริง',dep:'authStore, RBAC config'
   },
   cancel_dialog:{
-    title:'CancelOrderDialog component',
+    cat:'UI / FE',title:'CancelOrderDialog component',
     why:'Transition → ST 800 ต้อง require_confirm = true ทุกกรณี dialog ง่ายมากแต่จำเป็น',
     steps:[
       'สร้าง CancelOrderDialog.tsx ใช้ shadcn Dialog',
@@ -316,7 +567,7 @@ const DATA = {
     effort:'ครึ่งวัน',output:'Cancel flow ถูกต้อง + audit trail',dep:'OrderActionPanel'
   },
   timeline_ui:{
-    title:'Order Timeline UI (ประวัติ transitions)',
+    cat:'UI / FE',title:'Order Timeline UI (ประวัติ transitions)',
     why:'User ต้องการเห็นว่า Order ผ่าน step อะไรมาบ้าง ดึงจาก order_status_transitions table',
     steps:[
       'สร้าง OrderTimeline component: render list ของ OrderStatusTransition',
@@ -327,7 +578,7 @@ const DATA = {
     effort:'1 วัน',output:'Visibility ครบ lifecycle',dep:'BE state_machine (หรือ MSW mock)'
   },
   config_admin:{
-    title:'Admin UI สำหรับแก้ไข JSON config',
+    cat:'Config / JSON',title:'Admin UI สำหรับแก้ไข JSON config',
     why:'ให้ ops team แก้ flow โดยไม่ต้อง deploy — ทำหลัง core เสร็จก็ได้',
     steps:[
       'หน้า /admin/flow-config: list configs ทุก status',
@@ -339,7 +590,7 @@ const DATA = {
     effort:'2-3 วัน',output:'Ops แก้ flow ไม่ต้อง deploy',dep:'be_schema'
   },
   audit_log:{
-    title:'Audit log per transition',
+    cat:'QA / Test',title:'Audit log per transition',
     why:'ทุก status change ต้องมี log: ใคร เมื่อไหร่ จาก→ไป เพื่อ compliance + debug',
     steps:[
       'ตรวจสอบว่า OrderStateMachineService write audit record ทุกครั้ง',
@@ -350,7 +601,7 @@ const DATA = {
     effort:'1-2 วัน',output:'Traceable ทุก action',dep:'state_machine'
   },
   fallback_flow:{
-    title:'Courier API fallback flow (retry + manual)',
+    cat:'Integration',title:'Courier API fallback flow (retry + manual)',
     why:'B1-10022 — เมื่อ API ล้ม WH stuck ทั้งหมด แต่เป็น edge case ทำ Phase 2 ได้',
     steps:[
       'Implement retry policy: exponential backoff 1s→5s→15s',
@@ -361,7 +612,7 @@ const DATA = {
     effort:'5-7 วัน',output:'WH ไม่ stuck เมื่อ API ล้ม',dep:'state_machine, queue'
   },
   video_rec:{
-    title:'Video recording PWA (Pack + Return)',
+    cat:'Integration',title:'Video recording PWA (Pack + Return)',
     why:'Mobile PWA ด้วย MediaRecorder API — complex มาก ทำ Phase 2 หลัง core OMS เสร็จ',
     steps:[
       'PWA setup: manifest + service worker',
@@ -372,7 +623,7 @@ const DATA = {
     effort:'2-3 สัปดาห์',output:'หลักฐาน pack/return',dep:'S3, PWA infrastructure'
   },
   multi_tenant_json:{
-    title:'Per-tenant JSON config override',
+    cat:'Config / JSON',title:'Per-tenant JSON config override',
     why:'แต่ละ tenant กำหนด flow เองได้ — powerful แต่ไม่จำเป็นสำหรับ MVP',
     steps:[
       'เพิ่ม tenant_id column ใน order_flow_configs',
@@ -383,7 +634,7 @@ const DATA = {
     effort:'2-3 วัน',output:'Multi-tenant flow customization',dep:'Admin UI, config schema'
   },
   sla_alert:{
-    title:'SLA alert engine',
+    cat:'QA / Test',title:'SLA alert engine',
     why:'B1-10002: Order รอนาน → alert ff_manager — ต้องการ background job + notification infra',
     steps:[
       'Background job: scan orders ที่อยู่ใน holding status นาน > threshold',
@@ -395,19 +646,54 @@ const DATA = {
   }
 };
 
-function show(key){
-  document.querySelectorAll('.task-chip').forEach(c=>c.classList.remove('sel'));
-  event.currentTarget.classList.add('sel');
+// recommended execution order with quadrant tag
+const ORDER=[
+  ['status_badge',1],['i18n_keys',1],['msw_transition',1],['json_seed',1],['action_panel',1],
+  ['be_schema',2],['state_machine',2],['permission_guard',2],['webhook',2],
+  ['cancel_dialog',3],['timeline_ui',3],['audit_log',3],['config_admin',3],
+  ['multi_tenant_json',4],['fallback_flow',4],['sla_alert',4],['video_rec',4]
+];
+
+function show(key,evt){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  if(evt&&evt.currentTarget)evt.currentTarget.classList.add('sel');
+  // also highlight matching order item
+  document.querySelectorAll('.order-item').forEach(o=>{
+    o.classList.toggle('sel-row',o.dataset.k===key);
+  });
   const d=DATA[key];
-  if(!d){document.getElementById('detailBox').innerHTML='<div class="empty-hint">ไม่พบข้อมูล</div>';return;}
+  if(!d){document.getElementById('detailBox').innerHTML='<div class="detail-empty">ไม่พบข้อมูล</div>';return;}
   document.getElementById('detailBox').innerHTML=`
-    <div class="d-title">${d.title}</div>
-    <div class="d-why">${d.why}</div>
-    <div class="d-steps">${d.steps.map((s,i)=>`<div class="d-step"><div class="d-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>
-    <div class="d-meta">
-      <span class="d-badge b-effort">effort: ${d.effort}</span>
-      <span class="d-badge b-output">output: ${d.output}</span>
-      ${d.dep&&d.dep!=='ไม่มี'?`<span class="d-badge b-dep">dep: ${d.dep}</span>`:''}
+    <div class="d-hdr">
+      <div class="d-eyebrow">Task · <span class="d-cat">${d.cat}</span></div>
+      <div class="d-title">${d.title}</div>
+    </div>
+    <div class="d-body">
+      <div class="d-main">
+        <div class="d-why">${d.why}</div>
+        <div class="d-steps-head">ขั้นตอน (${d.steps.length} step)</div>
+        <div class="d-steps">${d.steps.map((s,i)=>`<div class="d-step"><div class="d-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>
+      </div>
+      <div class="d-side">
+        <div class="d-meta-block"><div class="d-meta-lbl">Effort</div><div class="d-meta-val mono">${d.effort}</div></div>
+        <div class="d-meta-block"><div class="d-meta-lbl">Output</div><div class="d-meta-val">${d.output}</div></div>
+        ${d.dep&&d.dep!=='ไม่มี'?`<div class="d-meta-block"><div class="d-meta-lbl">Dependencies</div><div class="d-meta-val mono">${d.dep}</div></div>`:`<div class="d-meta-block"><div class="d-meta-lbl">Dependencies</div><div class="d-meta-val" style="color:var(--p1)">ไม่มี — เริ่มได้ทันที</div></div>`}
+      </div>
     </div>`;
 }
+
+// render execution order
+(function(){
+  const ol=document.getElementById('orderList');
+  ORDER.forEach(([k,q],i)=>{
+    const d=DATA[k];if(!d)return;
+    const li=document.createElement('li');
+    li.className='order-item';li.dataset.k=k;
+    li.onclick=()=>{show(k,null);document.querySelectorAll('.chip').forEach(c=>{if(c.getAttribute('onclick')?.includes("'"+k+"'"))c.classList.add('sel')})};
+    li.innerHTML=`<div class="order-n o-q${q}">${i+1}</div><div class="order-name">${d.title.replace(/^\S+ /,'')}</div><div class="order-eff">${d.effort}</div>`;
+    ol.appendChild(li);
+  });
+})();
 </script>
+</body>
+</html>
