@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Guide — B1dx Workspace</title>
+  <style>
+    :root {
+      --indigo: #6366f1;
+      --indigo-dark: #4f46e5;
+      --indigo-deep: #312e81;
+      --indigo-light: #e0e7ff;
+      --teal: #2dd4bf;
+      --teal-dark: #0d9488;
+      --teal-light: #ccfbf1;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --orange: #f97316;
+      --orange-light: #ffedd5;
+      --yellow: #eab308;
+      --yellow-light: #fef9c3;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --green-light: #dcfce7;
+      --blue: #3b82f6;
+      --blue-light: #dbeafe;
+      --purple: #a855f7;
+      --purple-light: #f3e8ff;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--indigo-dark);
+      color: white;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.6rem;
+      height: 56px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.18);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    nav .logo {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--teal);
+      flex-shrink: 0;
+      letter-spacing: .02em;
+    }
+    nav a {
+      color: rgba(255,255,255,.78);
+      text-decoration: none;
+      font-size: .85rem;
+      transition: color .15s;
+      padding: .15rem .1rem;
+    }
+    nav a:hover { color: white; }
+    nav a.active {
+      color: white;
+      background: rgba(255,255,255,.15);
+      border-radius: 6px;
+      padding: .2rem .65rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background:
+        radial-gradient(ellipse at top right, rgba(45,212,191,.18), transparent 55%),
+        radial-gradient(ellipse at bottom left, rgba(168,85,247,.22), transparent 60%),
+        linear-gradient(135deg, var(--indigo-dark) 0%, var(--indigo-deep) 100%);
+      color: white;
+      padding: 4rem 2rem 3.25rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: .55rem;
+      letter-spacing: -.02em;
+      text-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .hero p {
+      color: rgba(255,255,255,.78);
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: .22rem .9rem;
+      font-size: .78rem;
+      margin-bottom: 1.1rem;
+      letter-spacing: .06em;
+      backdrop-filter: blur(4px);
+    }
+    .hero-meta {
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-meta span {
+      font-size: .78rem;
+      color: rgba(255,255,255,.7);
+      background: rgba(255,255,255,.08);
+      padding: .3rem .8rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 3rem; scroll-margin-top: 70px; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+      margin-bottom: 1.25rem;
+      padding-bottom: .7rem;
+      border-bottom: 2px solid var(--indigo-light);
+      letter-spacing: -.01em;
+    }
+    .section-title .icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: white;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(99,102,241,.3);
+    }
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: .92rem;
+      margin: -.5rem 0 1.1rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.02);
+    }
+    .card-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: .8rem;
+      color: var(--indigo-dark);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* ── CODE BLOCK ── */
+    pre {
+      background: var(--slate-900);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-size: .82rem;
+      line-height: 1.7;
+      margin: .8rem 0;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      border: 1px solid var(--slate-700);
+    }
+    code {
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      padding: .12em .4em;
+      border-radius: 5px;
+      font-size: .82em;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── DIAGRAM CONTAINER ── */
+    .diagram {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .diagram svg {
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
+    }
+    .diagram-caption {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: .7rem;
+      font-style: italic;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin: .5rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th {
+      background: linear-gradient(180deg, var(--indigo-light) 0%, #c7d2fe 100%);
+      color: var(--indigo-dark);
+      font-weight: 700;
+      text-align: left;
+      padding: .7rem 1rem;
+      border-bottom: 2px solid #a5b4fc;
+      font-size: .85rem;
+    }
+    td {
+      padding: .65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafbfc; }
+    tr:hover td { background: #f1f5f9; }
+    td code { font-size: .78em; }
+    .center { text-align: center; }
+
+    /* ── BADGE TAGS ── */
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: .15rem .65rem;
+      font-size: .72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tag-red    { background: var(--red-light);    color: #991b1b; }
+    .tag-orange { background: var(--orange-light); color: #9a3412; }
+    .tag-yellow { background: var(--yellow-light); color: #713f12; }
+    .tag-green  { background: var(--green-light);  color: #14532d; }
+    .tag-blue   { background: var(--blue-light);   color: #1e3a8a; }
+    .tag-indigo { background: var(--indigo-light); color: var(--indigo-dark); }
+    .tag-teal   { background: var(--teal-light);   color: #134e4a; }
+    .tag-purple { background: var(--purple-light); color: #581c87; }
+    .tag-slate  { background: #f1f5f9;             color: var(--slate-700); }
+
+    /* ── CALLOUT ── */
+    .callout {
+      display: flex;
+      gap: .85rem;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      margin: .85rem 0;
+      font-size: .9rem;
+    }
+    .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: .05rem; }
+    .callout.info    { background: var(--blue-light);   border-left: 4px solid var(--blue); }
+    .callout.warn    { background: var(--yellow-light); border-left: 4px solid var(--yellow); }
+    .callout.danger  { background: var(--red-light);    border-left: 4px solid var(--red); }
+    .callout.success { background: var(--green-light);  border-left: 4px solid var(--green); }
+    .callout.tip     { background: var(--teal-light);   border-left: 4px solid var(--teal); }
+
+    /* ── TOC ── */
+    .toc {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem 1.8rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .toc h3 {
+      font-size: .85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .5rem 1.5rem;
+    }
+    @media (max-width: 640px) { .toc-grid { grid-template-columns: 1fr; } }
+    .toc-grid a {
+      color: var(--indigo);
+      text-decoration: none;
+      font-size: .88rem;
+      padding: .25rem 0;
+      transition: color .15s;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .toc-grid a:hover { color: var(--indigo-dark); }
+    .toc-grid a .num {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: .82rem;
+      min-width: 1.6em;
+    }
+
+    /* ── PHASE CARD ── */
+    .phase-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .phase-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.3rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .phase-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+    }
+    .phase-card.p1::before  { background: linear-gradient(180deg, var(--indigo) 0%, var(--indigo-dark) 100%); }
+    .phase-card.p15::before { background: linear-gradient(180deg, var(--teal) 0%, var(--teal-dark) 100%); }
+    .phase-card.p2::before  { background: linear-gradient(180deg, var(--purple) 0%, #7e22ce 100%); }
+    .phase-card.p3::before  { background: linear-gradient(180deg, var(--green) 0%, var(--green-dark) 100%); }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: .8rem;
+    }
+    .phase-num {
+      font-size: .7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: .2rem .7rem;
+      border-radius: 999px;
+    }
+    .phase-card.p1  .phase-num { background: var(--indigo-light); color: var(--indigo-dark); }
+    .phase-card.p15 .phase-num { background: var(--teal-light);   color: #134e4a; }
+    .phase-card.p2  .phase-num { background: var(--purple-light); color: #581c87; }
+    .phase-card.p3  .phase-num { background: var(--green-light);  color: #14532d; }
+    .phase-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── LESSON CARD ── */
+    .lesson-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .lesson-card.fixed { border-left-color: var(--green); }
+    .lesson-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .lesson-bad  { color: #991b1b; }
+    .lesson-good { color: #14532d; }
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin: .7rem 0;
+    }
+    @media (max-width: 640px) { .lesson-grid { grid-template-columns: 1fr; } }
+    .lesson-side {
+      padding: .8rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+    }
+    .lesson-side.bad  { background: var(--red-light); }
+    .lesson-side.good { background: var(--green-light); }
+    .lesson-side-title {
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .35rem;
+    }
+    .lesson-side.bad  .lesson-side-title { color: #991b1b; }
+    .lesson-side.good .lesson-side-title { color: #14532d; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.7rem; }
+      .hero p  { font-size: .92rem; }
+      .container { padding: 1.5rem 1rem 3rem; }
+      .section-title { font-size: 1.15rem; }
+      .card { padding: 1rem 1.1rem; }
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      nav { display: none; }
+      .hero { padding: 1.5rem; background: var(--indigo-dark) !important; -webkit-print-color-adjust: exact; }
+      pre { white-space: pre-wrap; }
+      .section { page-break-inside: avoid; }
+      .diagram svg { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">⚙️ Agent Guide</span>
+  <a href="#overview">Overview</a>
+  <a href="#decision">Decision</a>
+  <a href="#invoke">Invoke</a>
+  <a href="#protocol">Protocol</a>
+  <a href="#rules">Rules</a>
+  <a href="#submodule">Submodule</a>
+  <a href="#spec">Spec</a>
+  <a href="#lessons">Lessons</a>
+  <a href="#reference">Reference</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">B1dx Workspace · Claude Code</div>
+  <h1>Agent Guide</h1>
+  <p>คู่มือใช้ Claude Code อย่างมืออาชีพใน B1dx Workspace — Pipeline, Agents, Rules, และ Lessons Learned</p>
+  <div class="hero-meta">
+    <span>🧭 Orchestrator + 6 Subagents</span>
+    <span>🏗️ 3-Phase Protocol</span>
+    <span>📐 Submodule Architecture</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📚 สารบัญ</h3>
+    <div class="toc-grid">
+      <a href="#overview"><span class="num">01.</span> ภาพรวม Agent Architecture</a>
+      <a href="#decision"><span class="num">02.</span> Quick Decision Tree</a>
+      <a href="#invoke"><span class="num">03.</span> วิธี Invoke Claude</a>
+      <a href="#protocol"><span class="num">04.</span> Working Protocol (3 Phases)</a>
+      <a href="#rules"><span class="num">05.</span> กฎที่ Claude ต้องปฏิบัติ</a>
+      <a href="#submodule"><span class="num">06.</span> Submodule vs Direct Repo</a>
+      <a href="#spec"><span class="num">07.</span> Spec Management</a>
+      <a href="#when-spec"><span class="num">08.</span> เมื่อไหรต้องเขียน Spec</a>
+      <a href="#template"><span class="num">09.</span> Feature Request Template</a>
+      <a href="#lessons"><span class="num">10.</span> Lessons Learned</a>
+      <a href="#reference"><span class="num">11.</span> Quick Reference</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 1. OVERVIEW -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="overview">
+    <div class="section-title"><div class="icon">🗺️</div> 1. ภาพรวม Agent Architecture</div>
+    <p class="section-subtitle">Claude Code ทำงานแบบ <strong>Orchestrator + Subagents</strong> — Orchestrator คุยกับ user, ส่งงานให้ specialized subagents แล้วรวบรวมผลลัพธ์กลับมา</p>
+
+    <!-- SVG Architecture Diagram -->
+    <div class="diagram">
+      <svg viewBox="0 0 980 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agent Pipeline Architecture">
+        <defs>
+          <linearGradient id="gradDev" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fef3c7"/>
+            <stop offset="1" stop-color="#fde68a"/>
+          </linearGradient>
+          <linearGradient id="gradOrch" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6366f1"/>
+            <stop offset="1" stop-color="#4f46e5"/>
+          </linearGradient>
+          <linearGradient id="gradTest" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5eead4"/>
+            <stop offset="1" stop-color="#14b8a6"/>
+          </linearGradient>
+          <linearGradient id="gradBE" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#93c5fd"/>
+            <stop offset="1" stop-color="#3b82f6"/>
+          </linearGradient>
+          <linearGradient id="gradFE" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c4b5fd"/>
+            <stop offset="1" stop-color="#8b5cf6"/>
+          </linearGradient>
+          <linearGradient id="gradSW" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fda4af"/>
+            <stop offset="1" stop-color="#f43f5e"/>
+          </linearGradient>
+          <linearGradient id="gradWH" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fcd34d"/>
+            <stop offset="1" stop-color="#f59e0b"/>
+          </linearGradient>
+          <linearGradient id="gradRep" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#86efac"/>
+            <stop offset="1" stop-color="#22c55e"/>
+          </linearGradient>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+          </marker>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".15"/>
+          </filter>
+        </defs>
+
+        <!-- Developer -->
+        <g filter="url(#shadow)">
+          <rect x="380" y="20" width="220" height="56" rx="12" fill="url(#gradDev)" stroke="#d97706" stroke-width="1.5"/>
+          <text x="490" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">👤 Developer</text>
+          <text x="490" y="62" text-anchor="middle" font-size="11" fill="#92400e">build feature X</text>
+        </g>
+        <line x1="490" y1="76" x2="490" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- Orchestrator -->
+        <g filter="url(#shadow)">
+          <rect x="320" y="110" width="340" height="80" rx="12" fill="url(#gradOrch)" stroke="#3730a3" stroke-width="1.5"/>
+          <text x="490" y="134" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">🧭 Orchestrator</text>
+          <text x="490" y="152" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,.9)">อ่าน CLAUDE.md · workspace.local.json</text>
+          <text x="490" y="166" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,.9)">tasks/current-sprint.md · ออกแบบ spec</text>
+          <text x="490" y="180" text-anchor="middle" font-size="10.5" font-style="italic" fill="rgba(255,255,255,.85)">⏸ รอ user confirm</text>
+        </g>
+        <line x1="490" y1="190" x2="490" y2="220" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- UI Tester Phase 1.5 -->
+        <g filter="url(#shadow)">
+          <rect x="340" y="225" width="300" height="58" rx="12" fill="url(#gradTest)" stroke="#0d9488" stroke-width="1.5"/>
+          <text x="490" y="247" text-anchor="middle" font-size="13" font-weight="700" fill="#134e4a">🧪 UI Tester · Phase 1.5</text>
+          <text x="490" y="265" text-anchor="middle" font-size="10.5" fill="#134e4a">scaffold e2e/{feature}.spec.ts</text>
+          <text x="490" y="278" text-anchor="middle" font-size="10" fill="#134e4a" font-style="italic">ทุก test = test.skip()</text>
+        </g>
+
+        <!-- Parallel arrows down to 4 subagents -->
+        <path d="M 490 283 L 490 305 L 130 305 L 130 330" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M 490 305 L 370 305 L 370 330" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M 490 305 L 610 305 L 610 330" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M 490 305 L 850 305 L 850 330" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="490" y="300" text-anchor="middle" font-size="9.5" fill="#64748b" font-weight="600">spawn parallel</text>
+
+        <!-- BE Subagent -->
+        <g filter="url(#shadow)">
+          <rect x="40" y="335" width="180" height="120" rx="12" fill="url(#gradBE)" stroke="#1d4ed8" stroke-width="1.5"/>
+          <text x="130" y="358" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">⚙️ BE Subagent</text>
+          <text x="130" y="376" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">.NET 10</text>
+          <line x1="60" y1="385" x2="200" y2="385" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+          <text x="130" y="402" text-anchor="middle" font-size="10" fill="#fff">Domain</text>
+          <text x="130" y="416" text-anchor="middle" font-size="10" fill="#fff">Application</text>
+          <text x="130" y="430" text-anchor="middle" font-size="10" fill="#fff">Infrastructure</text>
+          <text x="130" y="444" text-anchor="middle" font-size="10" fill="#fff">Api</text>
+        </g>
+
+        <!-- FE Subagent -->
+        <g filter="url(#shadow)">
+          <rect x="280" y="335" width="180" height="120" rx="12" fill="url(#gradFE)" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="370" y="358" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">🎨 FE Subagent</text>
+          <text x="370" y="376" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">Next.js 15</text>
+          <line x1="300" y1="385" x2="440" y2="385" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+          <text x="370" y="402" text-anchor="middle" font-size="10" fill="#fff">types + zod schema</text>
+          <text x="370" y="416" text-anchor="middle" font-size="10" fill="#fff">MSW mock</text>
+          <text x="370" y="430" text-anchor="middle" font-size="10" fill="#fff">hooks + components</text>
+          <text x="370" y="444" text-anchor="middle" font-size="10" fill="#fff">page</text>
+        </g>
+
+        <!-- Sync Worker -->
+        <g filter="url(#shadow)">
+          <rect x="520" y="335" width="180" height="120" rx="12" fill="url(#gradSW)" stroke="#9f1239" stroke-width="1.5"/>
+          <text x="610" y="358" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">🔄 Sync Worker</text>
+          <text x="610" y="376" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">.NET 10 Worker</text>
+          <line x1="540" y1="385" x2="680" y2="385" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+          <text x="610" y="402" text-anchor="middle" font-size="10" fill="#fff">Domain</text>
+          <text x="610" y="416" text-anchor="middle" font-size="10" fill="#fff">Application</text>
+          <text x="610" y="430" text-anchor="middle" font-size="10" fill="#fff">Infrastructure</text>
+          <text x="610" y="444" text-anchor="middle" font-size="10" fill="#fff">BackgroundJob</text>
+        </g>
+
+        <!-- Webhook -->
+        <g filter="url(#shadow)">
+          <rect x="760" y="335" width="180" height="120" rx="12" fill="url(#gradWH)" stroke="#b45309" stroke-width="1.5"/>
+          <text x="850" y="358" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">🪝 Webhook Coder</text>
+          <text x="850" y="376" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">Go 1.25 · Gin · GORM</text>
+          <line x1="780" y1="385" x2="920" y2="385" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+          <text x="850" y="402" text-anchor="middle" font-size="10" fill="#fff">domain · service</text>
+          <text x="850" y="416" text-anchor="middle" font-size="10" fill="#fff">adapter · handler</text>
+          <text x="850" y="430" text-anchor="middle" font-size="10" fill="#fff">queue + repo</text>
+          <text x="850" y="444" text-anchor="middle" font-size="10" fill="#fff">RabbitMQ</text>
+        </g>
+
+        <!-- Merge arrows -->
+        <path d="M 130 455 L 130 478 L 490 478 L 490 495" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M 370 455 L 370 478 L 490 478" fill="none" stroke="#64748b" stroke-width="2"/>
+        <path d="M 610 455 L 610 478 L 490 478" fill="none" stroke="#64748b" stroke-width="2"/>
+        <path d="M 850 455 L 850 478 L 490 478" fill="none" stroke="#64748b" stroke-width="2"/>
+
+        <!-- UI Tester Phase 3 -->
+        <g filter="url(#shadow)">
+          <rect x="340" y="500" width="300" height="50" rx="12" fill="url(#gradTest)" stroke="#0d9488" stroke-width="1.5"/>
+          <text x="490" y="522" text-anchor="middle" font-size="13" font-weight="700" fill="#134e4a">🧪 UI Tester · Phase 3</text>
+          <text x="490" y="540" text-anchor="middle" font-size="10.5" fill="#134e4a">un-skip + playwright test → pass</text>
+        </g>
+        <line x1="490" y1="550" x2="490" y2="572" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- Report -->
+        <g filter="url(#shadow)">
+          <rect x="380" y="575" width="220" height="40" rx="12" fill="url(#gradRep)" stroke="#15803d" stroke-width="1.5"/>
+          <text x="490" y="600" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">📊 Report + gen-progress</text>
+        </g>
+      </svg>
+      <div class="diagram-caption">Pipeline overview — Orchestrator แตกงานเป็น parallel subagents แล้วรวมผลที่ Phase 3</div>
+    </div>
+
+    <!-- Spawn matrix -->
+    <div class="card">
+      <div class="card-title">📋 When to spawn each subagent</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Subagent</th><th>Spawn เมื่อ</th><th>Working dir</th><th>Reference</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-teal">🧪 UI Tester</span> ×2</td>
+              <td>ทุก feature ที่มี FE — Phase 1.5 (scaffold) + Phase 3 (run)</td>
+              <td><code>{fe_repo_path}</code></td>
+              <td><a href="../../agents/ui-tester.md">ui-tester.md</a></td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-blue">⚙️ BE Subagent</span></td>
+              <td>API / database / business logic ฝั่ง backend</td>
+              <td><code>{be_repo_path}</code></td>
+              <td><a href="../../be-repo/CLAUDE.md">be-repo/CLAUDE.md</a></td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">🎨 FE Subagent</span></td>
+              <td>UI / page / hook / component</td>
+              <td><code>{fe_repo_path}</code></td>
+              <td><a href="../../web-repo/CLAUDE.md">web-repo/CLAUDE.md</a></td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-red">🔄 Sync Worker</span></td>
+              <td>ERP → OMS sync (Checkpoint / Staging / Outbox)</td>
+              <td><code>{sync_worker_repo_path}</code></td>
+              <td><a href="../../agents/sync-worker-coder.md">sync-worker-coder.md</a></td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-orange">🪝 Webhook Coder</span></td>
+              <td>Marketplace webhook (Shopee/Lazada/TikTok/Facebook/LINE), OAuth, RabbitMQ DLX/DLQ, deploy ops</td>
+              <td><code>{webhook_repo_path}</code></td>
+              <td><a href="../../agents/webhook-coder.md">webhook-coder.md</a> + <a href="./webhook-coder-trigger-flow.md">trigger flow</a></td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-indigo">🔍 Reviewer</span></td>
+              <td>auth/JWT/tenant isolation, shared packages, business-critical flow, dev ร้องขอตรงๆ</td>
+              <td>any</td>
+              <td><a href="../../agents/reviewer.md">reviewer.md</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 2. DECISION TREE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="decision">
+    <div class="section-title"><div class="icon">🎯</div> 2. Quick Decision Tree</div>
+    <p class="section-subtitle">ก่อนสั่ง Claude ใช้ table นี้เพื่อรู้ว่าควรสั่งแบบไหน</p>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>สถานการณ์</th><th>คำสั่งที่ควรใช้</th><th>ผลที่ได้</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Feature ใหม่</strong> — มี mockup + spec</td>
+              <td><code>claude "อ่าน agents/orchestrator.md + tasks/current-sprint.md แล้ว build"</code></td>
+              <td><span class="tag tag-green">Full pipeline (Phase 1→3)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Feature ใหม่</strong> — ยังไม่มี spec</td>
+              <td><code>claude "ออกแบบ spec สำหรับ {feature} แล้วสรุปให้ confirm"</code></td>
+              <td><span class="tag tag-indigo">Architect → confirm → build</span></td>
+            </tr>
+            <tr>
+              <td><strong>มีโค้ดอยู่</strong> — ต้องการ spec</td>
+              <td><code>claude "อ่านโค้ด {area} แล้วเขียน reverse spec ลง docs/specs/"</code></td>
+              <td><span class="tag tag-teal">Reverse spec จาก code จริง</span></td>
+            </tr>
+            <tr>
+              <td><strong>Bug fix</strong></td>
+              <td><code>claude "fix: {ticket-id} — {symptom}, expected: {behavior}"</code></td>
+              <td><span class="tag tag-orange">Plan + regression test ก่อน</span></td>
+            </tr>
+            <tr>
+              <td><strong>UI improve</strong> (FE-only)</td>
+              <td><code>claude "improve: {component} — {change}"</code></td>
+              <td><span class="tag tag-purple">FE-only branch + visual diff</span></td>
+            </tr>
+            <tr>
+              <td><strong>Refactor</strong> — no behavior change</td>
+              <td><code>claude "refactor: {scope} — {goal}, keep behavior identical"</code></td>
+              <td><span class="tag tag-slate">Tests ผ่านเดิม + cleanup</span></td>
+            </tr>
+            <tr>
+              <td><strong>เพิ่ม task ลง backlog</strong></td>
+              <td><code>claude "เพิ่ม task: {feature} priority={H/M/L}"</code></td>
+              <td><span class="tag tag-blue">Update tasks/backlog.md</span></td>
+            </tr>
+            <tr>
+              <td><strong>Daily standup</strong></td>
+              <td><code>claude "สร้าง daily standup วันนี้"</code></td>
+              <td><span class="tag tag-yellow">docs/standup/daily/...</span></td>
+            </tr>
+            <tr>
+              <td><strong>ดู progress</strong></td>
+              <td><code>npm run progress:serve</code></td>
+              <td><span class="tag tag-green">progress.html updated</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 3. INVOKE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="invoke">
+    <div class="section-title"><div class="icon">⚡</div> 3. วิธี Invoke Claude</div>
+
+    <div class="callout info">
+      <div class="callout-icon">📍</div>
+      <div>เปิดจาก <strong>workspace root เสมอ</strong> — Claude จะโหลด <code>CLAUDE.md</code> อัตโนมัติ และรู้ context ของ project ทั้งหมด</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3.1 คำสั่งที่ใช้บ่อย</div>
+<pre><span style="color:#94a3b8"># Full pipeline (Orchestrator spawn ครบทุก phase + agent)</span>
+claude <span style="color:#86efac">"อ่าน agents/orchestrator.md + tasks/current-sprint.md แล้ว build ตาม Working Protocol ทุก Phase"</span>
+
+<span style="color:#94a3b8"># สร้าง feature ใหม่ (ระบุชื่อ + description สั้นๆ)</span>
+claude <span style="color:#86efac">"อ่าน agents/orchestrator.md แล้ว build feature order-tracking: real-time order status"</span>
+
+<span style="color:#94a3b8"># ทำแค่ฝั่งเดียว</span>
+claude <span style="color:#86efac">"build BE for order-tracking — อ่าน be-repo/CLAUDE.md + docs/specs/order-tracking.md"</span>
+claude <span style="color:#86efac">"build FE for order-tracking — อ่าน web-repo/CLAUDE.md + docs/specs/order-tracking.md"</span>
+
+<span style="color:#94a3b8"># ต่อ session เดิม / debug</span>
+claude --continue
+claude --verbose
+
+<span style="color:#94a3b8"># ไม่ถาม confirm (ใช้เมื่อแน่ใจใน spec)</span>
+claude --dangerously-skip-permissions <span style="color:#86efac">"..."</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3.2 Task Assignment (ป้องกัน dev ทำงานซ้ำ)</div>
+<pre>claude <span style="color:#86efac">"assign next task: role=be"</span>                       <span style="color:#94a3b8"># claim task ถัดไป</span>
+claude <span style="color:#86efac">"pr: S2-BE-01 — https://github.com/.../pull/42"</span>   <span style="color:#94a3b8"># → In Review</span>
+claude <span style="color:#86efac">"merged: S2-BE-01"</span>                                <span style="color:#94a3b8"># → Done + แจ้ง unblocked</span>
+claude <span style="color:#86efac">"handoff S2-BE-01 from nuchit to wat"</span>             <span style="color:#94a3b8"># โอน owner</span>
+claude <span style="color:#86efac">"suggest parallel task: role=fe — waiting for S2-BE-01"</span></pre>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-top:.6rem">Lifecycle: <code>[ ] Todo</code> → <code>[~] Active</code> → <code>[👀] In Review</code> → <code>[x] Done</code></p>
+      <div class="callout tip" style="margin-top:.5rem">
+        <div class="callout-icon">📋</div>
+        <div>Protocol ฉบับเต็ม: <a href="../../tasks/assignments/README.md">tasks/assignments/README.md</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 4. WORKING PROTOCOL -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="protocol">
+    <div class="section-title"><div class="icon">🏗️</div> 4. Working Protocol (3 Phases)</div>
+    <p class="section-subtitle">Claude จะทำตาม 3 phases นี้เสมอ — <strong>ห้าม skip</strong></p>
+
+    <!-- SVG Phase Timeline -->
+    <div class="diagram">
+      <svg viewBox="0 0 980 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Working Protocol Timeline">
+        <defs>
+          <linearGradient id="phP1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6366f1"/>
+            <stop offset="1" stop-color="#4f46e5"/>
+          </linearGradient>
+          <linearGradient id="phP15" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2dd4bf"/>
+            <stop offset="1" stop-color="#0d9488"/>
+          </linearGradient>
+          <linearGradient id="phP2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#a855f7"/>
+            <stop offset="1" stop-color="#7e22ce"/>
+          </linearGradient>
+          <linearGradient id="phP3" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#22c55e"/>
+            <stop offset="1" stop-color="#16a34a"/>
+          </linearGradient>
+          <filter id="sh2" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".18"/>
+          </filter>
+        </defs>
+
+        <!-- Timeline base -->
+        <line x1="50" y1="100" x2="930" y2="100" stroke="#cbd5e1" stroke-width="3"/>
+
+        <!-- Phase 1 -->
+        <g filter="url(#sh2)">
+          <rect x="50" y="40" width="200" height="120" rx="12" fill="url(#phP1)"/>
+          <text x="150" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,.85)">PHASE 1</text>
+          <text x="150" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">🎨 DESIGN</text>
+          <line x1="70" y1="92" x2="230" y2="92" stroke="rgba(255,255,255,.3)"/>
+          <text x="150" y="110" text-anchor="middle" font-size="10.5" fill="#fff">• git status check</text>
+          <text x="150" y="124" text-anchor="middle" font-size="10.5" fill="#fff">• data model + API</text>
+          <text x="150" y="138" text-anchor="middle" font-size="10.5" fill="#fff">• spec → docs/specs/</text>
+          <text x="150" y="152" text-anchor="middle" font-size="10.5" font-style="italic" fill="rgba(255,255,255,.85)">⏸ user confirm</text>
+        </g>
+
+        <!-- Phase 1.5 -->
+        <g filter="url(#sh2)">
+          <rect x="270" y="40" width="180" height="120" rx="12" fill="url(#phP15)"/>
+          <text x="360" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,.9)">PHASE 1.5</text>
+          <text x="360" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">🧪 SCAFFOLD</text>
+          <line x1="290" y1="92" x2="430" y2="92" stroke="rgba(255,255,255,.3)"/>
+          <text x="360" y="110" text-anchor="middle" font-size="10.5" fill="#fff">• UI Tester</text>
+          <text x="360" y="124" text-anchor="middle" font-size="10.5" fill="#fff">• e2e/{feature}.spec.ts</text>
+          <text x="360" y="138" text-anchor="middle" font-size="10.5" fill="#fff">• ทุก test = skip</text>
+          <text x="360" y="152" text-anchor="middle" font-size="10.5" font-style="italic" fill="rgba(255,255,255,.85)">acceptance criteria</text>
+        </g>
+
+        <!-- Phase 2 -->
+        <g filter="url(#sh2)">
+          <rect x="470" y="40" width="240" height="120" rx="12" fill="url(#phP2)"/>
+          <text x="590" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,.9)">PHASE 2</text>
+          <text x="590" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">⚡ BUILD (parallel)</text>
+          <line x1="490" y1="92" x2="690" y2="92" stroke="rgba(255,255,255,.3)"/>
+          <text x="590" y="110" text-anchor="middle" font-size="10.5" fill="#fff">• BE: Domain → App → Infra → Api</text>
+          <text x="590" y="124" text-anchor="middle" font-size="10.5" fill="#fff">• FE: types → MSW → hook → page</text>
+          <text x="590" y="138" text-anchor="middle" font-size="10.5" fill="#fff">• Worker / Webhook (ถ้าจำเป็น)</text>
+          <text x="590" y="152" text-anchor="middle" font-size="10.5" font-style="italic" fill="rgba(255,255,255,.85)">TDD ทุก layer</text>
+        </g>
+
+        <!-- Phase 3 -->
+        <g filter="url(#sh2)">
+          <rect x="730" y="40" width="200" height="120" rx="12" fill="url(#phP3)"/>
+          <text x="830" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,.9)">PHASE 3</text>
+          <text x="830" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">✅ VERIFY</text>
+          <line x1="750" y1="92" x2="910" y2="92" stroke="rgba(255,255,255,.3)"/>
+          <text x="830" y="110" text-anchor="middle" font-size="10.5" fill="#fff">• build + test ทุก repo</text>
+          <text x="830" y="124" text-anchor="middle" font-size="10.5" fill="#fff">• playwright e2e run</text>
+          <text x="830" y="138" text-anchor="middle" font-size="10.5" fill="#fff">• Reviewer (optional)</text>
+          <text x="830" y="152" text-anchor="middle" font-size="10.5" font-style="italic" fill="rgba(255,255,255,.85)">+ gen-progress + report</text>
+        </g>
+
+        <!-- Phase dots on timeline -->
+        <circle cx="150" cy="100" r="7" fill="#4f46e5" stroke="#fff" stroke-width="3"/>
+        <circle cx="360" cy="100" r="7" fill="#0d9488" stroke="#fff" stroke-width="3"/>
+        <circle cx="590" cy="100" r="7" fill="#7e22ce" stroke="#fff" stroke-width="3"/>
+        <circle cx="830" cy="100" r="7" fill="#16a34a" stroke="#fff" stroke-width="3"/>
+
+        <!-- Labels under timeline -->
+        <text x="150" y="195" text-anchor="middle" font-size="10" fill="#64748b">~10 min</text>
+        <text x="360" y="195" text-anchor="middle" font-size="10" fill="#64748b">~5 min</text>
+        <text x="590" y="195" text-anchor="middle" font-size="10" fill="#64748b">~30 min (parallel)</text>
+        <text x="830" y="195" text-anchor="middle" font-size="10" fill="#64748b">~10 min</text>
+
+        <!-- Bottom note -->
+        <rect x="50" y="225" width="880" height="40" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+        <text x="490" y="250" text-anchor="middle" font-size="11.5" font-weight="600" fill="#92400e">⚠️ ห้าม build ก่อน user confirm — Phase 1 ต้องจบที่ confirm gate เสมอ</text>
+      </svg>
+      <div class="diagram-caption">3-Phase pipeline พร้อม estimated timing — phase 2 ทำ parallel ระหว่าง BE และ FE</div>
+    </div>
+
+    <!-- Phase cards -->
+    <div class="phase-grid">
+
+      <div class="phase-card p1">
+        <div class="phase-header">
+          <span class="phase-num">Phase 1</span>
+          <span class="phase-title">🎨 Design</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ขั้น</th><th>สิ่งที่ทำ</th><th>Output</th></tr></thead>
+            <tbody>
+              <tr><td class="center">1</td><td>อ่าน <code>be-repo/CLAUDE.md</code> + <code>web-repo/CLAUDE.md</code></td><td>context loaded</td></tr>
+              <tr><td class="center">2</td><td>อ่าน mockup ที่ spec ระบุ (fallback <code>docs/mockups/b1dx_full_app_v0.html</code>)</td><td>UI source of truth</td></tr>
+              <tr><td class="center">3</td><td>ออกแบบ data model + API contract</td><td>ER diagram + endpoints</td></tr>
+              <tr><td class="center">4</td><td>เขียน spec → <code>docs/specs/{feature}.md</code></td><td>spec.md</td></tr>
+              <tr><td class="center">5</td><td><strong>แสดง test plan + รอ user confirm</strong> ⏸</td><td>confirmed spec</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="phase-card p15">
+        <div class="phase-header">
+          <span class="phase-num">Phase 1.5</span>
+          <span class="phase-title">🧪 Scaffold Tests</span>
+        </div>
+        <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:.5rem">UI Tester Subagent ทำงาน:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Input</th><th>Process</th><th>Output</th></tr></thead>
+            <tbody>
+              <tr><td>spec.md</td><td>acceptance criteria → test cases</td><td><code>e2e/{feature}/{feature}.spec.ts</code></td></tr>
+              <tr><td>feature → happy + edge</td><td>test.skip ทุกตัว (intentional)</td><td>+ <code>.po.ts</code> ถ้าซับซ้อน</td></tr>
+              <tr><td>bug → regression reproduce</td><td>branch: <code>feat/{branch}</code> หรือ <code>fix/{branch}</code></td><td>commit: <code>test(e2e): scaffold</code></td></tr>
+              <tr><td>improve → before/after</td><td>(เดียวกับ FE Coder)</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="phase-card p2">
+        <div class="phase-header">
+          <span class="phase-num">Phase 2</span>
+          <span class="phase-title">⚡ Build (parallel)</span>
+        </div>
+        <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:.5rem">ทุก subagent ต้อง:</p>
+        <ol style="padding-left:1.5rem;font-size:.88rem;line-height:1.8">
+          <li><code>git status --short</code> ก่อนเริ่ม</li>
+          <li><code>git checkout main &amp;&amp; git pull &amp;&amp; git checkout -b {branch}</code></li>
+          <li><strong>TDD</strong> — test ก่อน impl ทุก layer</li>
+          <li>หลัง push → <code>node scripts/gen-progress.mjs</code></li>
+        </ol>
+        <div class="callout warn" style="margin-top:.7rem">
+          <div class="callout-icon">🐛</div>
+          <div><strong>Bug fix:</strong> เขียน failing regression test ที่ reproduce bug ก่อนเสมอ</div>
+        </div>
+      </div>
+
+      <div class="phase-card p3">
+        <div class="phase-header">
+          <span class="phase-num">Phase 3</span>
+          <span class="phase-title">✅ Verify &amp; Report</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Step</th><th>Command</th><th>Fail action</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag tag-blue">BE</span></td><td><code>dotnet build &amp;&amp; dotnet test</code></td><td>แก้ก่อน ห้าม report เสร็จ</td></tr>
+              <tr><td><span class="tag tag-purple">FE</span></td><td><code>pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test</code></td><td>แก้ก่อน ห้าม report เสร็จ</td></tr>
+              <tr><td><span class="tag tag-red">Worker</span></td><td><code>dotnet build &amp;&amp; dotnet test</code></td><td>แก้ก่อน</td></tr>
+              <tr><td><span class="tag tag-orange">Webhook</span></td><td><code>go build ./... &amp;&amp; go test ./... &amp;&amp; go vet ./...</code></td><td>แก้ก่อน</td></tr>
+              <tr><td><span class="tag tag-teal">UI Tester</span></td><td>un-skip + <code>playwright test e2e/{feature}/</code></td><td>screenshot → FE Coder → fix</td></tr>
+              <tr><td><span class="tag tag-green">Progress</span></td><td><code>node scripts/gen-progress.mjs</code></td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 5. RULES -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="rules">
+    <div class="section-title"><div class="icon">📜</div> 5. กฎที่ Claude ต้องปฏิบัติ</div>
+
+    <div class="card">
+      <div class="card-title">5.1 📁 Path Rules</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>กฎ</th><th>เหตุผล</th></tr></thead>
+          <tbody>
+            <tr><td>อ่าน path จาก <code>workspace.local.json</code></td><td>แต่ละเครื่องมี path ต่างกัน ห้าม hardcode</td></tr>
+            <tr><td>เขียนโค้ดใน <code>{be_repo_path}</code> / <code>{fe_repo_path}</code> / <code>{sync_worker_repo_path}</code> / <code>{webhook_repo_path}</code> เท่านั้น</td><td>submodule เป็น read-only reference</td></tr>
+            <tr><td>ห้ามแตะ <code>./be-repo/</code>, <code>./web-repo/</code>, <code>./sync-worker-repo/</code>, <code>./webhook-repo/</code> ในการเขียนโค้ด</td><td>จะทำให้ submodule diverge จาก direct repo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">5.2 🔀 Git Rules</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>กฎ</th><th>เหตุผล</th></tr></thead>
+          <tbody>
+            <tr><td>รัน <code>git status --short</code> ก่อน build ทุกครั้ง</td><td>ป้องกันเขียนทับงานที่ค้างอยู่</td></tr>
+            <tr><td>ถ้ามี local changes → อ่านก่อน ไม่เขียนทับ</td><td>local changes มักสมบูรณ์กว่าที่ agent จะเขียนใหม่</td></tr>
+            <tr><td>แตก branch ก่อน commit เสมอ — ห้าม commit ตรงเข้า <code>main</code></td><td>ไม่มี PR, ไม่มี review, ไม่มี context</td></tr>
+            <tr><td><span class="tag tag-red">BLOCKING</span> ห้าม push ตรงเข้า <code>main</code></td><td>ทุก change ต้องผ่าน PR + reviewer merge</td></tr>
+            <tr><td>ห้าม commit <code>workspace.local.json</code></td><td>มี path เฉพาะเครื่อง</td></tr>
+            <tr><td>Agent ห้าม auto commit/push/PR</td><td>stage ได้ → รอ user สั่ง "commit"/"push"/"PR"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">5.3 💻 Code Rules</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>กฎ</th><th>ใช้กับ</th></tr></thead>
+          <tbody>
+            <tr><td>ห้ามรับ <code>tenant_id</code> จาก request body — ใช้ <code>ICurrentTenant</code></td><td><span class="tag tag-blue">BE</span></td></tr>
+            <tr><td>ห้าม deep import <code>@b1dx/ui/src/...</code></td><td><span class="tag tag-purple">FE</span></td></tr>
+            <tr><td>ห้ามใช้ <code>&lt;a href&gt;</code> ใน <code>(app)</code> routes — ใช้ <code>router.push()</code></td><td><span class="tag tag-purple">FE</span></td></tr>
+            <tr><td>user-visible text ต้องใช้ <code>t('key')</code> ทุกตัว</td><td><span class="tag tag-purple">FE</span></td></tr>
+            <tr><td>Spec คือ source of truth — ห้ามแก้ระหว่าง build</td><td><span class="tag tag-slate">ALL</span></td></tr>
+            <tr><td>ทุก SQL ผ่าน Dapper parameter — ห้าม string interpolation</td><td><span class="tag tag-red">Sync</span></td></tr>
+            <tr><td>Upsert ต้อง idempotent (<code>ON CONFLICT DO UPDATE</code>) + checkpoint update ครบทุก path</td><td><span class="tag tag-red">Sync</span></td></tr>
+            <tr><td>Webhook handler return <code>202</code> + publish RabbitMQ — ห้าม process synchronous</td><td><span class="tag tag-orange">Webhook</span></td></tr>
+            <tr><td>Upsert ใช้ <code>(platform, seller_account, external_id)</code> ON CONFLICT — <code>tenant_id</code> ใน DoUpdates</td><td><span class="tag tag-orange">Webhook</span></td></tr>
+            <tr><td>OAuth callback verify state HMAC + <code>409</code> on cross-tenant bind</td><td><span class="tag tag-orange">Webhook</span></td></tr>
+            <tr><td>ใช้ constructor injection ใน <code>cmd/api/main.go</code> — ห้าม global / DI framework</td><td><span class="tag tag-orange">Webhook</span></td></tr>
+            <tr><td>Logging stdlib <code>log</code> + prefix <code>[Platform]</code>/<code>[Worker]</code>/<code>[Consumer]</code></td><td><span class="tag tag-orange">Webhook</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 6. SUBMODULE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="submodule">
+    <div class="section-title"><div class="icon">🔗</div> 6. Submodule vs Direct Repo</div>
+
+    <!-- SVG Submodule diagram -->
+    <div class="diagram">
+      <svg viewBox="0 0 980 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Submodule vs Direct Repo">
+        <defs>
+          <linearGradient id="gRemote" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1e293b"/>
+            <stop offset="1" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fef3c7"/>
+            <stop offset="1" stop-color="#fde68a"/>
+          </linearGradient>
+          <linearGradient id="gDirect" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dcfce7"/>
+            <stop offset="1" stop-color="#bbf7d0"/>
+          </linearGradient>
+          <filter id="sh3" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".15"/>
+          </filter>
+          <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Top: GitHub Remote -->
+        <text x="490" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#475569">🌐 GitHub Remote (single source of truth)</text>
+        <g filter="url(#sh3)">
+          <rect x="50" y="35" width="200" height="60" rx="10" fill="url(#gRemote)"/>
+          <text x="150" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx-oms-fulfillment-api</text>
+          <text x="150" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">BE · .NET 10</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="290" y="35" width="200" height="60" rx="10" fill="url(#gRemote)"/>
+          <text x="390" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx-oms-fulfillment-web</text>
+          <text x="390" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">FE · Next.js 15</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="530" y="35" width="200" height="60" rx="10" fill="url(#gRemote)"/>
+          <text x="630" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx.omsorders.sync.worker</text>
+          <text x="630" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">Worker · .NET 10</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="770" y="35" width="160" height="60" rx="10" fill="url(#gRemote)"/>
+          <text x="850" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">webhook</text>
+          <text x="850" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">Go 1.25</text>
+        </g>
+
+        <!-- Arrows down to submodule + direct -->
+        <line x1="150" y1="95"  x2="150" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="390" y1="95"  x2="390" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="630" y1="95"  x2="630" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="850" y1="95"  x2="850" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <text x="170" y="118" font-size="9" fill="#64748b" font-style="italic">clone (pinned)</text>
+
+        <!-- Middle: Workspace with submodules -->
+        <g filter="url(#sh3)">
+          <rect x="30" y="135" width="920" height="155" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="490" y="158" text-anchor="middle" font-size="13" font-weight="800" fill="#475569">🏠 b1dx-fulfillment-workspace/  &mdash;  orchestration repo</text>
+
+          <rect x="50" y="170" width="200" height="60" rx="8" fill="url(#gSub)" stroke="#d97706"/>
+          <text x="150" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 be-repo/</text>
+          <text x="150" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="150" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="290" y="170" width="200" height="60" rx="8" fill="url(#gSub)" stroke="#d97706"/>
+          <text x="390" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 web-repo/</text>
+          <text x="390" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="390" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="530" y="170" width="200" height="60" rx="8" fill="url(#gSub)" stroke="#d97706"/>
+          <text x="630" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 sync-worker-repo/</text>
+          <text x="630" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="630" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="770" y="170" width="160" height="60" rx="8" fill="url(#gSub)" stroke="#d97706"/>
+          <text x="850" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 webhook-repo/</text>
+          <text x="850" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="850" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="50" y="245" width="880" height="32" rx="8" fill="#e0e7ff" stroke="#6366f1"/>
+          <text x="490" y="265" text-anchor="middle" font-size="11" font-weight="700" fill="#3730a3">⚙️ workspace.local.json — path config (gitignored)</text>
+        </g>
+
+        <line x1="150" y1="290" x2="150" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="390" y1="290" x2="390" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="630" y1="290" x2="630" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <line x1="850" y1="290" x2="850" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+        <text x="170" y="312" font-size="9" fill="#64748b" font-style="italic">clone (latest)</text>
+
+        <!-- Bottom: Direct Repos -->
+        <text x="490" y="345" text-anchor="middle" font-size="13" font-weight="800" fill="#15803d">💻 Direct Repos — ที่เขียนโค้ดจริง</text>
+        <g filter="url(#sh3)">
+          <rect x="50" y="358" width="200" height="80" rx="10" fill="url(#gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="150" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ b1dx-oms-fulfillment-api</text>
+          <text x="150" y="395" text-anchor="middle" font-size="10" fill="#14532d">BE code</text>
+          <text x="150" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{be_repo_path}</text>
+          <text x="150" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="290" y="358" width="200" height="80" rx="10" fill="url(#gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="390" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ b1dx-oms-fulfillment-web</text>
+          <text x="390" y="395" text-anchor="middle" font-size="10" fill="#14532d">FE code</text>
+          <text x="390" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{fe_repo_path}</text>
+          <text x="390" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="530" y="358" width="200" height="80" rx="10" fill="url(#gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="630" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ sync.worker</text>
+          <text x="630" y="395" text-anchor="middle" font-size="10" fill="#14532d">Worker code</text>
+          <text x="630" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{sync_worker_repo_path}</text>
+          <text x="630" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#sh3)">
+          <rect x="770" y="358" width="160" height="80" rx="10" fill="url(#gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="850" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ webhook</text>
+          <text x="850" y="395" text-anchor="middle" font-size="10" fill="#14532d">Go code</text>
+          <text x="850" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{webhook_repo_path}</text>
+          <text x="850" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+
+        <!-- Legend -->
+        <text x="490" y="465" text-anchor="middle" font-size="10.5" fill="#64748b" font-style="italic">Submodule และ Direct Repo ชี้ไป remote เดียวกัน — แต่อยู่คนละ working directory</text>
+      </svg>
+      <div class="diagram-caption">Submodule = read-only ref (pinned commit); Direct repo = write-able working copy</div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">📌</div>
+      <div><strong>กฎทอง:</strong> Submodule ถูก <strong>pin</strong> ไว้ที่ commit เฉพาะ — ไม่ auto-update ตาม direct repo<br/>เขียนโค้ดที่ <code>{*_repo_path}</code> เท่านั้น</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">6.1 เมื่อ submodule out of sync</div>
+<pre><span style="color:#94a3b8"># reset submodule กลับไป main</span>
+git -C be-repo           checkout main &amp;&amp; git -C be-repo           pull origin main
+git -C web-repo          checkout main &amp;&amp; git -C web-repo          pull origin main
+git -C sync-worker-repo  checkout main &amp;&amp; git -C sync-worker-repo  pull origin main
+git -C webhook-repo      checkout main &amp;&amp; git -C webhook-repo      pull origin main
+
+<span style="color:#94a3b8"># ตรวจสอบ</span>
+git submodule status</pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 7. SPEC -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="spec">
+    <div class="section-title"><div class="icon">📄</div> 7. Spec Management</div>
+    <p class="section-subtitle">Spec ทุกอย่างอยู่ที่ <code>docs/specs/</code> — BE และ FE อ่านจากที่เดียวกัน</p>
+
+    <div class="card">
+      <div class="card-title">📂 Spec Directory</div>
+<pre>docs/specs/
+├── auth.md              <span style="color:#94a3b8">← auth flow, JWT strategy</span>
+├── orders-fetch-hooks.md
+└── {feature-name}.md    <span style="color:#94a3b8">← สร้างใหม่ก่อน build ทุก feature</span></pre>
+    </div>
+
+    <!-- SVG Spec Lifecycle -->
+    <div class="diagram">
+      <svg viewBox="0 0 980 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spec Lifecycle">
+        <defs>
+          <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#475569"/>
+          </marker>
+          <filter id="sh4" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".15"/>
+          </filter>
+        </defs>
+
+        <!-- Architect -->
+        <g filter="url(#sh4)">
+          <rect x="40" y="80" width="170" height="60" rx="30" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+          <text x="125" y="105" text-anchor="middle" font-size="13" font-weight="700" fill="#3730a3">🏗️ Architect</text>
+          <text x="125" y="124" text-anchor="middle" font-size="10" fill="#3730a3">เขียน spec draft</text>
+        </g>
+
+        <line x1="210" y1="110" x2="265" y2="110" stroke="#475569" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <!-- Spec file -->
+        <g filter="url(#sh4)">
+          <rect x="270" y="75" width="180" height="70" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="360" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">📄 spec.md</text>
+          <text x="360" y="115" text-anchor="middle" font-size="10" fill="#92400e">data model · API ·</text>
+          <text x="360" y="129" text-anchor="middle" font-size="10" fill="#92400e">validation · workflows</text>
+        </g>
+
+        <line x1="450" y1="110" x2="505" y2="110" stroke="#475569" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <!-- Confirm Gate -->
+        <g filter="url(#sh4)">
+          <polygon points="510,110 600,75 690,110 600,145" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="600" y="105" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">⏸ Confirm</text>
+          <text x="600" y="122" text-anchor="middle" font-size="10" fill="#991b1b">user approves?</text>
+        </g>
+
+        <!-- Reject path -->
+        <path d="M 600 75 Q 600 30 360 30 Q 250 30 250 75" fill="none" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr3)" stroke-dasharray="5 3"/>
+        <text x="430" y="22" text-anchor="middle" font-size="10" font-weight="600" fill="#dc2626">✗ revise</text>
+
+        <!-- Approve path -->
+        <line x1="690" y1="110" x2="745" y2="110" stroke="#475569" stroke-width="2" marker-end="url(#arr3)"/>
+        <text x="717" y="100" text-anchor="middle" font-size="10" font-weight="600" fill="#16a34a">✓ approved</text>
+
+        <!-- Build Ready -->
+        <g filter="url(#sh4)">
+          <rect x="750" y="80" width="170" height="60" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+          <text x="835" y="105" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">🚀 Build Ready</text>
+          <text x="835" y="124" text-anchor="middle" font-size="10" fill="#14532d">BE + FE Subagents</text>
+        </g>
+
+        <!-- Down to build -->
+        <line x1="835" y1="145" x2="835" y2="200" stroke="#475569" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <!-- BE + FE branch -->
+        <g filter="url(#sh4)">
+          <rect x="690" y="205" width="140" height="55" rx="8" fill="#dbeafe" stroke="#3b82f6"/>
+          <text x="760" y="225" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">⚙️ BE Build</text>
+          <text x="760" y="242" text-anchor="middle" font-size="10" fill="#1e3a8a">อ่าน spec เดียวกัน</text>
+          <text x="760" y="254" text-anchor="middle" font-size="9" font-style="italic" fill="#1e3a8a">→ Domain → API</text>
+        </g>
+        <g filter="url(#sh4)">
+          <rect x="850" y="205" width="100" height="55" rx="8" fill="#f3e8ff" stroke="#a855f7"/>
+          <text x="900" y="225" text-anchor="middle" font-size="12" font-weight="700" fill="#581c87">🎨 FE Build</text>
+          <text x="900" y="242" text-anchor="middle" font-size="10" fill="#581c87">spec เดียวกัน</text>
+          <text x="900" y="254" text-anchor="middle" font-size="9" font-style="italic" fill="#581c87">→ types → page</text>
+        </g>
+
+        <!-- Need spec change feedback loop -->
+        <path d="M 690 232 Q 500 232 500 220 Q 500 200 480 195" fill="none" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr3)" stroke-dasharray="4 3"/>
+        <text x="595" y="220" text-anchor="middle" font-size="9.5" fill="#b45309" font-style="italic">เจอ edge case</text>
+
+        <g filter="url(#sh4)">
+          <rect x="350" y="180" width="170" height="60" rx="8" fill="#fef3c7" stroke="#d97706"/>
+          <text x="435" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">⚠️ Spec Change?</text>
+          <text x="435" y="215" text-anchor="middle" font-size="9.5" fill="#92400e">แจ้ง user ก่อน</text>
+          <text x="435" y="229" text-anchor="middle" font-size="9.5" fill="#92400e">แก้ที่ docs/specs/ เท่านั้น</text>
+        </g>
+        <path d="M 350 210 Q 270 210 250 170 Q 245 145 245 145" fill="none" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr3)" stroke-dasharray="4 3"/>
+
+        <!-- Final -->
+        <g filter="url(#sh4)">
+          <rect x="40" y="240" width="280" height="60" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+          <text x="180" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">✅ Done — code matches spec</text>
+          <text x="180" y="279" text-anchor="middle" font-size="10" fill="#14532d">tests pass · gen-progress · report</text>
+        </g>
+      </svg>
+      <div class="diagram-caption">Spec Lifecycle — Draft → Confirm → Build (with feedback loop ถ้าเจอ edge case)</div>
+    </div>
+
+    <div class="callout danger">
+      <div class="callout-icon">📌</div>
+      <div><strong>กฎทอง:</strong> Spec มีที่เดียวเท่านั้น — <code>docs/specs/</code> ห้าม copy ไปไว้ที่อื่น<br/>หากต้องแก้ spec กลางทาง → แก้ที่ <code>docs/specs/</code> + แจ้ง user ก่อน + update โค้ดที่ build ตามด้วย</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 8. WHEN SPEC -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="when-spec">
+    <div class="section-title"><div class="icon">❓</div> 8. เมื่อไหรต้องเขียน Spec</div>
+
+    <div class="lesson-grid">
+      <div class="lesson-side good">
+        <div class="lesson-side-title">✅ ต้องเขียน Spec เมื่อ</div>
+        <ul style="padding-left:1.2rem;font-size:.85rem;line-height:1.7">
+          <li><strong>Feature ใหม่</strong> — data model / endpoint / page ใหม่</li>
+          <li><strong>BE + FE ต้องทำพร้อมกัน</strong> — ต้องตกลง contract</li>
+          <li><strong>Design decision ใหญ่</strong> — auth flow, permission model</li>
+        </ul>
+      </div>
+      <div class="lesson-side bad">
+        <div class="lesson-side-title">❌ ไม่ต้องเขียน Spec เมื่อ</div>
+        <ul style="padding-left:1.2rem;font-size:.85rem;line-height:1.7">
+          <li><strong>Bug fix</strong> — แค่บอกอาการ + expected</li>
+          <li><strong>UI improve</strong> — z-index, component กลาง, style</li>
+          <li><strong>Refactor</strong> — ที่ไม่เปลี่ยน behavior</li>
+          <li><strong>งาน FE-only</strong> ที่ไม่ต้องการ API ใหม่</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 ตัวอย่าง</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>งาน</th><th class="center">Spec?</th><th>เหตุผล</th></tr></thead>
+          <tbody>
+            <tr><td>เพิ่ม country code picker ใน phone field</td><td class="center">❌</td><td>FE-only, บอก intent ใน chat พอ</td></tr>
+            <tr><td>สร้าง RHF wrapper component กลาง</td><td class="center">❌</td><td>ไม่มี API เกี่ยวข้อง</td></tr>
+            <tr><td>แก้ z-index Combobox ใน drawer</td><td class="center">❌</td><td>bug fix</td></tr>
+            <tr><td>สร้าง feature User Management ทั้ง BE+FE</td><td class="center">✅</td><td>ต้องตกลง contract</td></tr>
+            <tr><td>Auth flow + JWT</td><td class="center">✅</td><td>design decision ใหญ่</td></tr>
+            <tr><td>Migration table ใหม่ + endpoint ใหม่</td><td class="center">✅</td><td>data model change</td></tr>
+            <tr><td>Refactor query เป็น CQRS — output เท่าเดิม</td><td class="center">❌</td><td>behavior identical</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div><strong>สรุป:</strong> ถ้าต้องตกลงกันว่า API หน้าตาเป็นยังไง → เขียน spec<br/>ถ้าทำได้เลยโดยไม่ต้องตกลงอะไร → บอกใน chat พอ</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ สำหรับงาน improve/fix ที่ชัดเจน — สั่งใน chat ได้เลย</div>
+<pre>claude <span style="color:#86efac">"fix: UserDetailDrawer phone field ให้ใช้ RHFPhoneInput แทน RHFTextInput"</span>
+claude <span style="color:#86efac">"improve: เพิ่ม loading skeleton ให้ DataTable"</span></pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 9. TEMPLATE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="template">
+    <div class="section-title"><div class="icon">📝</div> 9. Feature Request Template</div>
+    <p class="section-subtitle">สร้าง <code>tasks/current-sprint.md</code> ก่อนสั่ง Claude เสมอ</p>
+
+    <div class="card">
+<pre><span style="color:#fbbf24"># Feature: {ชื่อ feature}</span>
+
+<span style="color:#fbbf24">## Goal</span>
+{อธิบาย 1-2 ประโยค}
+
+<span style="color:#fbbf24">## Actors</span>
+- {ใครใช้}: {ทำอะไรได้}
+
+<span style="color:#fbbf24">## Core Workflows</span>
+1. {workflow หลัก}
+2. ...
+
+<span style="color:#fbbf24">## Out of Scope (MVP)</span>
+- {สิ่งที่ไม่ทำในรอบนี้}
+
+<span style="color:#fbbf24">## Test Cases</span> <span style="color:#f87171">(บังคับ — กรอกก่อน claim)</span>
+- [ ] {happy path}
+- [ ] {edge / error}
+- [ ] {permission / auth ถ้ามี}</pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div>
+        Bug fix ใช้ format เดียวกัน + Test Cases case แรก = <code>regression: {reproduce bug}</code><br/>
+        Task ที่ไม่มี Test Cases section <strong>ห้าม claim</strong> และ <strong>ห้าม mark <code>[x]</code> Done</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 10. LESSONS -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="lessons">
+    <div class="section-title"><div class="icon">🎓</div> 10. Lessons Learned</div>
+    <p class="section-subtitle">ข้อผิดพลาดที่เคยเกิด + วิธีป้องกัน</p>
+
+    <!-- Lesson #1 -->
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #1 — Agent เขียนโค้ดลง submodule โดยตรง</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Agent เขียนโค้ดลง <code>./be-repo/</code> → submodule diverge จาก direct repo → ต้องย้าย commit ด้วยมือทีหลัง 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          <code>workspace.local.json</code> ระบุ path จริง → Agent เขียนโค้ดลง <code>{be_repo_path}</code> ✅
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson #2 -->
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #2 — Agent เขียนทับ local changes</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Dev มีงานค้างใน repo จริง → Agent ไม่รู้ → เขียนโค้ดใหม่ทับ → local changes หาย (มักสมบูรณ์กว่า) 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          ก่อน build → <code>git status --short</code><br/>
+          มี changes → อ่านก่อน ไม่เขียนทับ ✅<br/>
+          ไม่มี → เขียนโค้ดใหม่ได้เลย ✅
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson #3 -->
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #3 — Hardcode path ใน CLAUDE.md</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          <code>CLAUDE.md: be_repo = D:\2026\pa\...</code> ← path ของคนเดียว → Dev คนอื่น clone → path ไม่ตรง → พัง 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          <code>workspace.local.json</code> (gitignored) — แต่ละคนใส่ path ของตัวเอง<br/>
+          <code>CLAUDE.md</code> อ้างอิง <code>{be_repo_path}</code> แทน ✅
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson #4 -->
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #4 — Commit/Push ตรงเข้า main (3 ครั้งในวันเดียว — 2026-05-13)</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Agent run sequence:<br/>
+          <code>git checkout main &amp;&amp; git merge feature/x &amp;&amp; git push origin main</code><br/>
+          → ไม่มี PR, ไม่มี review, ไม่มี context 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          Hardened rule: agent ห้าม push main ทุก repo<br/>
+          → push feature branch → <code>gh pr create</code> → reviewer merge<br/>
+          ถ้า user พิมพ์ push main → <strong>hard-stop + require explicit confirmation each time</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson #5 -->
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #5 — Visual fidelity miss (EOD-FE-04, 2026-04-27)</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          PR merged แล้วแต่ visual ขาด accent bar, header icon+pill, audit trail rows<br/>
+          Tests ผ่านครบ + data-testids ครบ → reviewer approve → user เปิดมาเห็นไม่ตรง mockup 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          Mockup Visual Fidelity (BLOCKING):<br/>
+          • FE Coder: dev server → screenshot vs mockup → checklist 7 ข้อ<br/>
+          • Reviewer: ห้าม approve ก่อนเปิด mockup จริง → require PR screenshot
+        </div>
+      </div>
+      <div class="callout tip" style="margin-top:.8rem">
+        <div class="callout-icon">🎯</div>
+        <div><strong>Lesson:</strong> tests passing ≠ feature เสร็จ — visual fidelity เป็น acceptance criteria เสมอ</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 11. QUICK REFERENCE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="reference">
+    <div class="section-title"><div class="icon">⚡</div> 11. Quick Reference</div>
+
+    <div class="card">
+      <div class="card-title">🚀 Setup ครั้งแรก</div>
+<pre>git clone --recurse-submodules &lt;workspace-url&gt;
+git clone &lt;be-url&gt;
+git clone &lt;fe-url&gt;
+git clone &lt;sync-worker-url&gt;
+git clone &lt;webhook-url&gt;
+cp workspace.local.example.json workspace.local.json
+<span style="color:#94a3b8"># แก้ path ใน workspace.local.json</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌱 เริ่มงาน feature ใหม่</div>
+<pre>git -C {be_repo_path}           checkout -b feat/{name}
+git -C {fe_repo_path}           checkout -b feat/{name}
+git -C {sync_worker_repo_path}  checkout -b feat/{name}   <span style="color:#94a3b8"># ถ้าจำเป็น</span>
+git -C {webhook_repo_path}      checkout -b feat/{name}   <span style="color:#94a3b8"># ถ้าจำเป็น</span>
+claude <span style="color:#86efac">"build feature {name}: {description}"</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 ตรวจก่อน build (Claude ทำอัตโนมัติ แต่ควรรู้)</div>
+<pre>git -C {be_repo_path}           status --short
+git -C {fe_repo_path}           status --short
+git -C {sync_worker_repo_path}  status --short
+git -C {webhook_repo_path}      status --short</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ Verify</div>
+<pre>cd {be_repo_path}          &amp;&amp; dotnet build &amp;&amp; dotnet test
+cd {fe_repo_path}          &amp;&amp; pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test
+cd {sync_worker_repo_path} &amp;&amp; dotnet build &amp;&amp; dotnet test
+cd {webhook_repo_path}     &amp;&amp; go build ./... &amp;&amp; go test ./... &amp;&amp; go vet ./...</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 Sync submodule (ถ้า out of sync)</div>
+<pre>git -C be-repo           checkout main &amp;&amp; git -C be-repo           pull
+git -C web-repo          checkout main &amp;&amp; git -C web-repo          pull
+git -C sync-worker-repo  checkout main &amp;&amp; git -C sync-worker-repo  pull
+git -C webhook-repo      checkout main &amp;&amp; git -C webhook-repo      pull</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Progress + Standup</div>
+<pre>npm run progress           <span style="color:#94a3b8"># generate ครั้งเดียว</span>
+npm run progress:serve     <span style="color:#94a3b8"># http://localhost:3939</span>
+npm run progress:watch     <span style="color:#94a3b8"># auto-regenerate</span>
+npm run weekly             <span style="color:#94a3b8"># weekly report (ทุกศุกร์)</span></pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SEE ALSO -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" style="margin-top:3.5rem;padding-top:2rem;border-top:1px solid var(--border)">
+    <h3 style="font-size:.85rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem">🔗 See Also</h3>
+    <div class="toc-grid">
+      <a href="./agent-guide.md">📄 agent-guide.md — Markdown source (canonical)</a>
+      <a href="./agent-workflow-guide.html">🧭 agent-workflow-guide.html — Step-by-step วิธีสั่ง agent</a>
+      <a href="./webhook-coder-trigger-flow.md">🪝 webhook-coder-trigger-flow.md — เมื่อไหรต้อง spawn webhook coder</a>
+      <a href="../../tasks/assignments/README.md">📋 tasks/assignments/README.md — Task assignment protocol</a>
+      <a href="../../tasks/plans/README.md">📐 tasks/plans/README.md — Plan lifecycle</a>
+      <a href="../../agents/orchestrator.md">🏗️ agents/orchestrator.md — Orchestrator system prompt</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Active nav link on scroll -->
+<script>
+(function(){
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const map = {};
+  navLinks.forEach(a => { map[a.getAttribute('href').slice(1)] = a; });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const id = e.target.getAttribute('id');
+        const link = map[id];
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -65% 0px' });
+  sections.forEach(s => io.observe(s));
+})();
+</script>
+
+</body>
+</html>
