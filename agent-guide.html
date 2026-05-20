@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Workflow Guide — b1dx Platform</title>
+  <style>
+    :root {
+      --indigo: #6366f1;
+      --indigo-dark: #4f46e5;
+      --indigo-light: #e0e7ff;
+      --teal: #2dd4bf;
+      --teal-light: #ccfbf1;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --orange: #f97316;
+      --orange-light: #ffedd5;
+      --yellow: #eab308;
+      --yellow-light: #fef9c3;
+      --green: #22c55e;
+      --green-light: #dcfce7;
+      --blue: #3b82f6;
+      --blue-light: #dbeafe;
+      --purple: #a855f7;
+      --purple-light: #f3e8ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--indigo-dark);
+      color: white;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 52px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    nav .logo { font-weight: 700; font-size: 1rem; color: var(--teal); flex-shrink: 0; }
+    nav a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .85rem; transition: color .15s; }
+    nav a:hover { color: white; }
+    nav a.active {
+      color: white;
+      background: rgba(255,255,255,.15);
+      border-radius: 6px;
+      padding: .2rem .6rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--indigo-dark) 0%, #312e81 100%);
+      color: white;
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+    .hero p { color: rgba(255,255,255,.75); font-size: 1rem; max-width: 560px; margin: 0 auto; }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: .2rem .8rem;
+      font-size: .78rem;
+      margin-bottom: 1rem;
+      letter-spacing: .04em;
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 3rem; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--indigo-dark);
+      margin-bottom: 1.25rem;
+      padding-bottom: .6rem;
+      border-bottom: 2px solid var(--indigo-light);
+    }
+    .section-title .icon {
+      width: 32px; height: 32px;
+      background: var(--indigo-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card-title {
+      font-weight: 700;
+      font-size: .95rem;
+      margin-bottom: .6rem;
+      color: var(--indigo-dark);
+    }
+
+    /* ── CODE BLOCK ── */
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: .82rem;
+      line-height: 1.7;
+      margin: .75rem 0;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    code {
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      padding: .1em .35em;
+      border-radius: 4px;
+      font-size: .82em;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: .75rem 0;
+    }
+    .flow pre {
+      background: transparent;
+      color: var(--text);
+      padding: 0;
+      font-size: .82rem;
+    }
+
+    /* ── SVG DIAGRAM CONTAINER ── */
+    .diagram {
+      background: linear-gradient(135deg, #fafbff 0%, #f8fafc 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem 1.25rem 1.25rem;
+      margin: .85rem 0;
+      overflow-x: auto;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.06), 0 1px 3px rgba(15,23,42,0.04);
+      position: relative;
+    }
+    .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+    .diagram-caption {
+      font-size: .78rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: .85rem;
+      padding-top: .75rem;
+      border-top: 1px dashed var(--border);
+      font-style: italic;
+      letter-spacing: 0.01em;
+    }
+    .diagram-legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: .75rem 1.25rem;
+      margin-top: .75rem;
+      padding-top: .65rem;
+      border-top: 1px dashed var(--border);
+    }
+    .diagram-legend .lg {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .76rem;
+      color: var(--text-muted);
+    }
+    .diagram-legend .sw {
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* SVG inline text helpers — used inside diagrams */
+    .dg-title { font: 700 14px 'Segoe UI', system-ui, sans-serif; fill: white; }
+    .dg-sub   { font: 500 11px 'Segoe UI', system-ui, sans-serif; fill: rgba(255,255,255,0.88); }
+    .dg-phase { font: 700 13px 'Segoe UI', system-ui, sans-serif; }
+    .dg-tag   { font: 700 9.5px 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+    .dg-agent { font: 600 12.5px 'Segoe UI', system-ui, sans-serif; fill: #1e293b; }
+    .dg-role  { font: 400 10.5px 'Segoe UI', system-ui, sans-serif; fill: #64748b; }
+    .dg-pill  { font: 700 10px 'Segoe UI', system-ui, sans-serif; }
+    .dg-gate  { font: 700 11px 'Segoe UI', system-ui, sans-serif; }
+    .dg-time  { font: 600 10px 'Cascadia Code', 'Consolas', monospace; fill: #64748b; }
+    .dg-decl  { font: 700 12px 'Segoe UI', system-ui, sans-serif; }
+    .dg-out   { font: 500 11px 'Cascadia Code', 'Consolas', monospace; }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th {
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      font-weight: 700;
+      text-align: left;
+      padding: .6rem .9rem;
+      border: 1px solid #c7d2fe;
+    }
+    td {
+      padding: .55rem .9rem;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── BADGE TAGS ── */
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: .15rem .6rem;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .tag-red    { background: var(--red-light);    color: #991b1b; }
+    .tag-orange { background: var(--orange-light); color: #9a3412; }
+    .tag-yellow { background: var(--yellow-light); color: #713f12; }
+    .tag-green  { background: var(--green-light);  color: #14532d; }
+    .tag-blue   { background: var(--blue-light);   color: #1e3a8a; }
+    .tag-indigo { background: var(--indigo-light); color: var(--indigo-dark); }
+    .tag-teal   { background: var(--teal-light);   color: #134e4a; }
+    .tag-purple { background: var(--purple-light); color: #581c87; }
+
+    /* ── CALLOUT ── */
+    .callout {
+      display: flex;
+      gap: .75rem;
+      padding: .9rem 1.1rem;
+      border-radius: 8px;
+      margin: .75rem 0;
+      font-size: .88rem;
+    }
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+    .callout.info    { background: var(--blue-light);   border-left: 3px solid var(--blue); }
+    .callout.warn    { background: var(--yellow-light); border-left: 3px solid var(--yellow); }
+    .callout.danger  { background: var(--red-light);    border-left: 3px solid var(--red); }
+    .callout.success { background: var(--green-light);  border-left: 3px solid var(--green); }
+    .callout.tip     { background: var(--teal-light);   border-left: 3px solid var(--teal); }
+
+    /* ── STEP ── */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--indigo);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-top: .15rem;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { display: block; font-size: .95rem; margin-bottom: .3rem; }
+
+    /* ── AGENT CARD ── */
+    .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .75rem; }
+    .agent-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .agent-card .agent-icon { font-size: 1.6rem; margin-bottom: .4rem; }
+    .agent-card .agent-name { font-weight: 700; font-size: .88rem; color: var(--indigo-dark); }
+    .agent-card .agent-role { font-size: .78rem; color: var(--text-muted); margin-top: .2rem; }
+    .agent-card .agent-when { font-size: .75rem; color: var(--text-muted); margin-top: .5rem; background: var(--bg); border-radius: 6px; padding: .3rem .5rem; }
+
+    /* ── SEVERITY ── */
+    .severity-list { display: flex; flex-direction: column; gap: .6rem; }
+    .sev-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      font-size: .88rem;
+    }
+    .sev-item .sev-label { font-weight: 700; font-size: .85rem; flex-shrink: 0; min-width: 100px; }
+    .sev-item.blocker  { background: var(--red-light);    border-left: 4px solid var(--red); }
+    .sev-item.major    { background: var(--orange-light); border-left: 4px solid var(--orange); }
+    .sev-item.minor    { background: var(--yellow-light); border-left: 4px solid var(--yellow); }
+    .sev-item.suggest  { background: var(--blue-light);   border-left: 4px solid var(--blue); }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .toc h3 { font-size: .9rem; font-weight: 700; color: var(--text-muted); margin-bottom: .75rem; text-transform: uppercase; letter-spacing: .06em; }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { margin-bottom: .3rem; }
+    .toc a { color: var(--indigo); text-decoration: none; font-size: .88rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── LESSON CARD (incident retrospective) ── */
+    .lesson-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .lesson-card.fixed { border-left-color: var(--green); }
+    .lesson-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .lesson-bad  { color: #991b1b; }
+    .lesson-good { color: #14532d; }
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin: .7rem 0;
+    }
+    @media (max-width: 640px) { .lesson-grid { grid-template-columns: 1fr; } }
+    .lesson-side {
+      padding: .8rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+    }
+    .lesson-side.bad  { background: var(--red-light); }
+    .lesson-side.good { background: var(--green-light); }
+    .lesson-side-title {
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .35rem;
+    }
+    .lesson-side.bad  .lesson-side-title { color: #991b1b; }
+    .lesson-side.good .lesson-side-title { color: #14532d; }
+
+    /* ── PILL TIMELINE ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: .6rem;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: var(--indigo-light);
+    }
+    .tl-item { position: relative; margin-bottom: 1.25rem; }
+    .tl-dot {
+      position: absolute;
+      left: -1.65rem;
+      top: .25rem;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--indigo);
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px var(--indigo-light);
+    }
+    .tl-label { font-weight: 700; font-size: .88rem; color: var(--indigo-dark); margin-bottom: .2rem; }
+    .tl-desc { font-size: .85rem; color: var(--text-muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 1.5rem; }
+      .container { padding: 1.25rem 1rem 3rem; }
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      nav { display: none; }
+      .hero { padding: 1.5rem; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">b1dx Agent Guide</span>
+  <a href="#overview">Overview</a>
+  <a href="#spec">Spec</a>
+  <a href="#agent-write-spec">ให้ Agent เขียน Spec</a>
+  <a href="#new-feature">New Feature</a>
+  <a href="#tasks">Tasks</a>
+  <a href="#mockup-planning">Mockup → Backlog</a>
+  <a href="#non-ui-tasks">งานที่ไม่มี UI</a>
+  <a href="#bug-improve">Bug / Improve</a>
+  <a href="#review">Review</a>
+  <a href="#agents">Agents</a>
+  <a href="#rules">Rules</a>
+  <a href="#path-submodule">Path &amp; Submodule</a>
+  <a href="#lessons">Lessons</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">b1dx Platform — Workspace Guide</div>
+  <h1>Agent Workflow Guide</h1>
+  <p>วิธีสั่งงาน Agent ให้ถูกต้อง — ตั้งแต่เขียน spec จนถึง merge</p>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>สารบัญ</h3>
+    <ol>
+      <li><a href="#overview">ภาพรวม Agent ทั้งหมด</a></li>
+      <li><a href="#spec">Spec คืออะไร และเขียนอย่างไร</a></li>
+      <li><a href="#agent-write-spec">ให้ Agent เขียน Spec แทนคุณ</a></li>
+      <li><a href="#new-feature">สั่ง Build Feature ใหม่ Step by Step</a></li>
+      <li><a href="#tasks">จัดการ Task — Sprint &amp; Backlog</a></li>
+      <li><a href="#mockup-planning">ให้ Agent วางแผนจาก Mockup UI</a></li>
+      <li><a href="#non-ui-tasks">งานใน Sprint ที่ไม่มี Mockup UI</a></li>
+      <li><a href="#bug-improve">Bug vs Improve — วิธีสั่ง</a></li>
+      <li><a href="#review">Code Review ก่อน Merge</a></li>
+      <li><a href="#agents">Agent แต่ละตัวทำอะไร</a></li>
+      <li><a href="#rules">กฎที่ต้องจำ (Red Flags)</a></li>
+      <li><a href="#path-submodule">Path Rules &amp; Submodule</a></li>
+      <li><a href="#lessons">Lessons Learned (เคสจริง)</a></li>
+    </ol>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 1. OVERVIEW -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="overview">
+    <div class="section-title"><div class="icon">🗺️</div> ภาพรวม Pipeline ทั้งหมด</div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 940 940" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pipeline-t pipeline-d">
+        <title id="pipeline-t">B1DX Agent Pipeline Overview</title>
+        <desc id="pipeline-d">ภาพรวม pipeline ของ Agent — Developer → Orchestrator → Phase 1 → 1.5 → 2 → 2.5 → 3 → Report กลับ Developer</desc>
+
+        <defs>
+          <linearGradient id="gIndigo" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#4f46e5"/>
+          </linearGradient>
+          <linearGradient id="gPurple" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a78bfa"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+          </marker>
+          <marker id="arrI" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 Z" fill="#6366f1"/>
+          </marker>
+          <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/>
+          </marker>
+          <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 Z" fill="#ef4444"/>
+          </marker>
+          <filter id="shd" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1e293b" flood-opacity="0.13"/>
+          </filter>
+        </defs>
+
+        <!-- ===== DEVELOPER (top) ===== -->
+        <g filter="url(#shd)">
+          <rect x="370" y="14" width="200" height="64" rx="14" fill="url(#gIndigo)"/>
+        </g>
+        <text class="dg-title" x="470" y="40" text-anchor="middle">👤 Developer (คุณ)</text>
+        <text class="dg-sub"   x="470" y="60" text-anchor="middle">เขียน spec · confirm · merge</text>
+
+        <!-- arrow + pill -->
+        <line x1="470" y1="78" x2="470" y2="120" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+        <rect x="495" y="86" width="84" height="22" rx="11" fill="#ede9fe" stroke="#c4b5fd"/>
+        <text class="dg-pill" x="537" y="101" text-anchor="middle" fill="#6d28d9">คุยตลอด</text>
+
+        <!-- ===== ORCHESTRATOR ===== -->
+        <g filter="url(#shd)">
+          <rect x="320" y="130" width="300" height="80" rx="16" fill="url(#gPurple)"/>
+        </g>
+        <text x="470" y="165" text-anchor="middle" fill="white" font-size="17" font-weight="700">🎯 Orchestrator</text>
+        <text class="dg-sub" x="470" y="187" text-anchor="middle">วางแผน · spawn subagents · รวมผลลัพธ์</text>
+
+        <!-- spawn label -->
+        <text x="635" y="178" font-size="10.5" fill="#94a3b8" font-style="italic">spawn ↓</text>
+
+        <line x1="470" y1="210" x2="470" y2="248" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrI)"/>
+
+        <!-- ===== PHASE 1 (y=250-365) ===== -->
+        <rect x="40" y="272" width="106" height="36" rx="18" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5"/>
+        <text class="dg-phase" x="93" y="295" text-anchor="middle" fill="#92400e">Phase 1</text>
+        <text class="dg-tag" x="93" y="320" text-anchor="middle" fill="#94a3b8">DESIGN</text>
+
+        <!-- Architect -->
+        <g filter="url(#shd)">
+          <rect x="180" y="252" width="200" height="74" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="180" y="252" width="4" height="74" rx="2" fill="#6366f1"/>
+        <text class="dg-agent" x="208" y="280">🏗️ Architect</text>
+        <text class="dg-role"  x="208" y="298">ออกแบบ data model</text>
+        <text class="dg-role"  x="208" y="314">+ API contract</text>
+
+        <!-- Spec Writer -->
+        <g filter="url(#shd)">
+          <rect x="400" y="252" width="200" height="74" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="400" y="252" width="4" height="74" rx="2" fill="#6366f1"/>
+        <text class="dg-agent" x="428" y="280">📝 Spec Writer</text>
+        <text class="dg-role"  x="428" y="298">เขียน spec</text>
+        <text class="dg-role"  x="428" y="314">+ task checklist</text>
+
+        <!-- CONFIRM gate -->
+        <line x1="600" y1="289" x2="660" y2="289" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+        <g filter="url(#shd)">
+          <polygon points="730,289 780,260 830,289 780,318" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+        </g>
+        <text class="dg-gate" x="780" y="287" text-anchor="middle" fill="#92400e">CONFIRM</text>
+        <text style="font:600 9.5px 'Segoe UI'" x="780" y="302" text-anchor="middle" fill="#92400e">รอ user</text>
+        <text x="850" y="295" font-size="10" fill="#92400e" font-weight="600">⚠ ห้าม skip</text>
+
+        <!-- Rail to Phase 1.5 -->
+        <line x1="470" y1="326" x2="470" y2="376" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrI)"/>
+
+        <!-- ===== PHASE 1.5 (y=378-465) ===== -->
+        <rect x="40" y="397" width="106" height="36" rx="18" fill="#ccfbf1" stroke="#5eead4" stroke-width="1.5"/>
+        <text class="dg-phase" x="93" y="420" text-anchor="middle" fill="#134e4a">Phase 1.5</text>
+        <text class="dg-tag" x="93" y="445" text-anchor="middle" fill="#94a3b8">TEST PLAN</text>
+
+        <!-- UI Tester scaffold -->
+        <g filter="url(#shd)">
+          <rect x="180" y="378" width="420" height="74" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="180" y="378" width="4" height="74" rx="2" fill="#14b8a6"/>
+        <text class="dg-agent" x="208" y="404">🧪 UI Tester · scaffold</text>
+        <text class="dg-role"  x="208" y="422">สร้าง e2e/{feature}.spec.ts · ทุก test.skip</text>
+        <text class="dg-role"  x="208" y="440">→ commit เป็น acceptance criteria</text>
+
+        <!-- Output pill -->
+        <rect x="630" y="400" width="180" height="30" rx="15" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+        <text class="dg-pill" x="720" y="420" text-anchor="middle" fill="#166534">acceptance ✓ committed</text>
+
+        <!-- Rail to Phase 2 -->
+        <line x1="470" y1="452" x2="470" y2="500" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrI)"/>
+
+        <!-- ===== PHASE 2 (y=502-630) — PARALLEL ===== -->
+        <rect x="40" y="528" width="106" height="36" rx="18" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+        <text class="dg-phase" x="93" y="551" text-anchor="middle" fill="#1e40af">Phase 2</text>
+        <rect x="40" y="572" width="106" height="22" rx="11" fill="white" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <text class="dg-tag" x="93" y="587" text-anchor="middle" fill="#64748b">PARALLEL</text>
+
+        <!-- BE Coder -->
+        <g filter="url(#shd)">
+          <rect x="180" y="504" width="290" height="124" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="180" y="504" width="4" height="124" rx="2" fill="#3b82f6"/>
+        <text class="dg-agent" x="208" y="530">⚙️ BE Coder · .NET 10</text>
+        <text class="dg-role"  x="208" y="550">Domain → Application →</text>
+        <text class="dg-role"  x="208" y="566">Infrastructure → API endpoint</text>
+        <text class="dg-role"  x="208" y="586" fill="#475569">verify:</text>
+        <text class="dg-out"   x="240" y="586" fill="#1e40af">dotnet build &amp;&amp; test</text>
+        <text class="dg-role"  x="208" y="604" fill="#475569">→ push branch</text>
+
+        <!-- FE Coder -->
+        <g filter="url(#shd)">
+          <rect x="490" y="504" width="290" height="124" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="490" y="504" width="4" height="124" rx="2" fill="#22c55e"/>
+        <text class="dg-agent" x="518" y="530">🎨 FE Coder · Next.js 15</text>
+        <text class="dg-role"  x="518" y="550">types → zod → MSW →</text>
+        <text class="dg-role"  x="518" y="566">hook → component → page</text>
+        <text class="dg-role"  x="518" y="586" fill="#475569">verify:</text>
+        <text class="dg-out"   x="250" y="586" fill="#1e40af"></text>
+        <text class="dg-out"   x="550" y="586" fill="#166534">pnpm lint &amp;&amp; test</text>
+        <text class="dg-role"  x="518" y="604" fill="#475569">→ push branch</text>
+
+        <!-- parallel symbol -->
+        <line x1="470" y1="566" x2="490" y2="566" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2 2"/>
+        <circle cx="480" cy="566" r="9" fill="white" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="480" y="570" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">∥</text>
+
+        <!-- Rail to Phase 2.5 -->
+        <line x1="470" y1="628" x2="470" y2="676" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrI)"/>
+
+        <!-- ===== PHASE 2.5 (y=678-790) ===== -->
+        <rect x="40" y="700" width="106" height="36" rx="18" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/>
+        <text class="dg-phase" x="93" y="723" text-anchor="middle" fill="#9a3412">Phase 2.5</text>
+        <rect x="40" y="744" width="106" height="22" rx="11" fill="white" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <text class="dg-tag" x="93" y="759" text-anchor="middle" fill="#64748b">OPTIONAL</text>
+
+        <!-- Reviewer -->
+        <g filter="url(#shd)">
+          <rect x="180" y="690" width="420" height="74" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="180" y="690" width="4" height="74" rx="2" fill="#f97316"/>
+        <text class="dg-agent" x="208" y="716">🔍 Reviewer</text>
+        <text class="dg-role"  x="208" y="734">security · spec contract · test coverage</text>
+        <text class="dg-role"  x="208" y="752">→ verdict: APPROVED / CHANGES / BLOCKED</text>
+
+        <!-- BLOCKER gate -->
+        <line x1="600" y1="727" x2="650" y2="727" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+        <g filter="url(#shd)">
+          <polygon points="725,727 778,696 831,727 778,758" fill="#fee2e2" stroke="#ef4444" stroke-width="2.5"/>
+        </g>
+        <text class="dg-gate" x="778" y="724" text-anchor="middle" fill="#991b1b">BLOCKER?</text>
+        <text style="font:600 9.5px 'Segoe UI'" x="778" y="740" text-anchor="middle" fill="#991b1b">check</text>
+
+        <!-- Loop back if blocker -->
+        <path d="M 832 727 L 880 727 L 880 565 L 470 565" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arrR)"/>
+        <text x="888" y="650" font-size="10" fill="#ef4444" font-weight="600" transform="rotate(90, 888, 650)">มี → กลับไปแก้</text>
+
+        <!-- Rail to Phase 3 -->
+        <line x1="470" y1="764" x2="470" y2="812" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrI)"/>
+
+        <!-- ===== PHASE 3 (y=814-906) ===== -->
+        <rect x="40" y="834" width="106" height="36" rx="18" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+        <text class="dg-phase" x="93" y="857" text-anchor="middle" fill="#166534">Phase 3</text>
+        <text class="dg-tag" x="93" y="882" text-anchor="middle" fill="#94a3b8">VERIFY</text>
+
+        <!-- UI Tester run -->
+        <g filter="url(#shd)">
+          <rect x="180" y="816" width="190" height="68" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="180" y="816" width="4" height="68" rx="2" fill="#22c55e"/>
+        <text class="dg-agent" x="208" y="842">🧪 UI Tester · run</text>
+        <text class="dg-role"  x="208" y="862">un-skip + playwright</text>
+        <text class="dg-role"  x="208" y="878">→ pass / fail</text>
+
+        <!-- gen-progress -->
+        <g filter="url(#shd)">
+          <rect x="385" y="816" width="190" height="68" rx="12" fill="white" stroke="#e2e8f0"/>
+        </g>
+        <rect x="385" y="816" width="4" height="68" rx="2" fill="#22c55e"/>
+        <text class="dg-agent" x="413" y="842">📊 gen-progress</text>
+        <text class="dg-role"  x="413" y="862">update progress.html</text>
+        <text class="dg-role"  x="413" y="878">+ task status</text>
+
+        <!-- Report (green box) -->
+        <g filter="url(#shd)">
+          <rect x="590" y="816" width="200" height="68" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+        </g>
+        <text class="dg-agent" x="618" y="842" fill="#14532d">📤 Report → คุณ</text>
+        <text class="dg-role"  x="618" y="862" fill="#15803d">files · tests · coverage</text>
+        <text class="dg-role"  x="618" y="878" fill="#15803d">→ ดู merge ได้</text>
+
+        <!-- Final loop back arrow Report → Developer (right side) -->
+        <path d="M 790 850 L 905 850 L 905 46 L 580 46" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#arrG)"/>
+        <text x="912" y="450" font-size="11" fill="#16a34a" font-weight="700" transform="rotate(90, 912, 450)">รายงานกลับ ↑</text>
+      </svg>
+
+      <div class="diagram-legend">
+        <span class="lg"><span class="sw" style="background:#fef3c7;border-color:#fcd34d"></span> Phase 1 · Design</span>
+        <span class="lg"><span class="sw" style="background:#ccfbf1;border-color:#5eead4"></span> Phase 1.5 · Test Plan</span>
+        <span class="lg"><span class="sw" style="background:#dbeafe;border-color:#93c5fd"></span> Phase 2 · Build (parallel)</span>
+        <span class="lg"><span class="sw" style="background:#ffedd5;border-color:#fdba74"></span> Phase 2.5 · Review</span>
+        <span class="lg"><span class="sw" style="background:#dcfce7;border-color:#86efac"></span> Phase 3 · Verify</span>
+      </div>
+      <div class="diagram-caption">FIG. 1 — คุณทำแค่ 3 อย่าง: เขียน spec · confirm · ดู report ส่วนที่เหลือ Orchestrator แจกให้ Agent ทำเอง</div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div><strong>จำง่าย:</strong> คุณทำแค่ 3 อย่าง — เขียน spec / confirm / ดู report สุดท้าย ที่เหลือ agent ทำเอง</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 2. SPEC -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="spec">
+    <div class="section-title"><div class="icon">📄</div> Spec คืออะไร และเขียนอย่างไร</div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div><strong>Spec = สัญญาระหว่าง BE และ FE</strong> — ทุกคนอ่านจากที่เดียวกัน ทำงานตรงกัน<br/>
+      ตำแหน่ง: <code>docs/specs/{feature-name}.md</code></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">โครงสร้าง Spec ที่ดี</div>
+      <table>
+        <thead><tr><th>ส่วน</th><th>เนื้อหา</th><th>ทำไมต้องมี</th></tr></thead>
+        <tbody>
+          <tr><td><code>Overview</code></td><td>feature ทำอะไร, ใครใช้</td><td>ทำให้ทุกคนเข้าใจตรงกัน</td></tr>
+          <tr><td><code>Workflows (Flow)</code></td><td>ขั้นตอนทีละ step</td><td>BE + FE รู้ว่า logic ไหลยังไง</td></tr>
+          <tr><td><code>Validation Rules</code></td><td>field required/optional, rule</td><td>FE ทำ form validation ถูก</td></tr>
+          <tr><td><code>API Contract</code></td><td>endpoint, request, response</td><td>BE + FE ต่อกันได้ตรง</td></tr>
+          <tr><td><code>Status Mapping</code></td><td>enum/status ต่างๆ</td><td>ไม่งง เรื่อง string vs int</td></tr>
+          <tr><td><code>Architecture Notes</code></td><td>ข้อควรระวังพิเศษ</td><td>ป้องกัน edge case</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">กฎของ Spec</div>
+      <div class="flow">
+        <pre>
+ถ้า spec ไม่ชัด   → Claude จะหยุดถาม (ไม่สมมติเอง)
+ถ้า spec ชัด      → Claude build ได้ทันที ไม่ต้องถามระหว่างทาง
+ถ้าต้องแก้ spec   → บอกก่อน Claude จะอัพเดท spec ก่อน build เสมอ
+ห้าม copy spec    → ไว้ที่อื่น มีที่เดียวเท่านั้น docs/specs/
+        </pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 2.5 AGENT WRITE SPEC -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="agent-write-spec">
+    <div class="section-title"><div class="icon">✍️</div> ให้ Agent เขียน Spec แทนคุณ</div>
+
+    <div class="callout success">
+      <div class="callout-icon">✅</div>
+      <div><strong>ทำได้เลย</strong> — Agent เขียน spec ให้ได้ทั้ง 3 แบบ แต่คุณต้อง <strong>confirm</strong> ก่อนเสมอ</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3 รูปแบบ — เลือกตามสถานการณ์</div>
+      <table>
+        <thead><tr><th>รูปแบบ</th><th>เมื่อไหรใช้</th><th>Agent ทำอะไร</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-teal">Reverse Spec</span></td>
+            <td>มีโค้ดอยู่แล้ว ยังไม่มี spec</td>
+            <td>อ่านโค้ดจริง → เขียน spec ตามที่โค้ดทำอยู่</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-indigo">Design Spec</span></td>
+            <td>ยังไม่มีโค้ด ต้องออกแบบใหม่</td>
+            <td>อ่าน mockup + context → ออกแบบ spec ใหม่ทั้งหมด</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Update Spec</span></td>
+            <td>spec มีแล้ว แต่ต้องการแก้ไข</td>
+            <td>อ่าน spec เดิม → เพิ่ม/แก้ section ที่ต้องการ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Reverse Spec -->
+    <div class="card">
+      <div class="card-title">แบบที่ 1 — Reverse Spec (ดูโค้ดที่มีอยู่ → เขียน spec)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: มีโค้ดอยู่แล้ว แต่ยังไม่มีเอกสาร</p>
+      <pre>
+"อ่านโค้ด Role &amp; RBAC ที่มีอยู่ใน be-repo และ web-repo
+ แล้วเขียน spec ออกมาเป็น docs/specs/rbac.md
+
+ ให้ครอบคลุม:
+ - Data model ที่มีอยู่จริง
+ - API endpoints ที่มีจริง (path, method, request, response)
+ - Business rules ที่โค้ดบังคับอยู่
+ - Validation rules
+
+ อย่าสมมติ — ดูจากโค้ดจริงเท่านั้น
+ แล้วสรุปให้ confirm ก่อน save"</pre>
+      <div class="callout tip" style="margin-top:.5rem">
+        <div class="callout-icon">💡</div>
+        <div>Agent จะอ่าน Domain entity, Application handler, API endpoint แล้ว reverse engineer ออกมาเป็น spec ที่อ่านเข้าใจได้</div>
+      </div>
+    </div>
+
+    <!-- Design Spec -->
+    <div class="card">
+      <div class="card-title">แบบที่ 2 — Design Spec (ออกแบบใหม่ตั้งแต่ต้น)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: feature ใหม่ ยังไม่มีโค้ด</p>
+      <pre>
+"ออกแบบ spec สำหรับ Feature: Dashboard Analytics
+
+ Context:
+ - ระบบ multi-tenant SaaS
+ - BE: .NET 10, FE: Next.js 15
+ - อ่าน docs/mockups/b1dx_full_app_v0.html ดู screen ที่เกี่ยวข้อง
+
+ ต้องการ:
+ - แสดง chart สรุปยอด order รายวัน/สัปดาห์/เดือน
+ - กรองตาม Brand / Warehouse
+ - Export ข้อมูลเป็น CSV
+
+ เขียนลง docs/specs/dashboard-analytics.md
+ สรุปให้ confirm ก่อนเสมอ"</pre>
+    </div>
+
+    <!-- Update Spec -->
+    <div class="card">
+      <div class="card-title">แบบที่ 3 — Update Spec (แก้ spec ที่มีอยู่)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: ต้องการเพิ่ม field / เปลี่ยน endpoint / แก้ business rule</p>
+      <pre>
+"อ่าน docs/specs/rbac.md ที่มีอยู่
+ ต้องการเพิ่ม:
+ - field 'description' ใน Role model
+ - endpoint PATCH /roles/{id} สำหรับแก้ชื่อ Role
+ - validation: ชื่อ Role ต้อง unique ภายใน tenant
+
+ อัพเดท spec แล้วสรุปการเปลี่ยนแปลงให้ confirm ก่อน save"</pre>
+      <div class="callout warn" style="margin-top:.5rem">
+        <div class="callout-icon">⚠️</div>
+        <div>ถ้า spec เปลี่ยน → โค้ดที่ build ตามก็ต้องเปลี่ยนด้วย บอก Claude ให้อัพเดทโค้ดตาม spec ใหม่ด้วย</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Flow การทำงาน</div>
+      <div class="diagram">
+        <svg viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sf-t sf-d">
+          <title id="sf-t">Spec Writing Flow</title>
+          <desc id="sf-d">ลำดับขั้นตอนเมื่อให้ Agent เขียน spec — จากคำสั่งจนถึง spec พร้อม build</desc>
+
+          <defs>
+            <linearGradient id="sf-indigo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/>
+            </linearGradient>
+            <linearGradient id="sf-purple" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/>
+            </linearGradient>
+            <linearGradient id="sf-green" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/>
+            </linearGradient>
+            <marker id="sf-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+            </marker>
+            <marker id="sf-arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#16a34a"/>
+            </marker>
+            <marker id="sf-arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#ea580c"/>
+            </marker>
+            <filter id="sf-shd" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1e293b" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+
+          <!-- Step 1: User command -->
+          <g filter="url(#sf-shd)">
+            <rect x="240" y="14" width="280" height="60" rx="14" fill="url(#sf-indigo)"/>
+          </g>
+          <text class="dg-title" x="380" y="40" text-anchor="middle">👤 คุณสั่ง</text>
+          <text class="dg-sub"   x="380" y="60" text-anchor="middle">"อ่านโค้ด/mockup แล้วเขียน spec"</text>
+          <line x1="380" y1="74" x2="380" y2="112" stroke="#94a3b8" stroke-width="2" marker-end="url(#sf-arr)"/>
+
+          <!-- Step 2: Agent reads context -->
+          <g filter="url(#sf-shd)">
+            <rect x="200" y="118" width="360" height="64" rx="12" fill="white" stroke="#e2e8f0"/>
+          </g>
+          <rect x="200" y="118" width="4" height="64" rx="2" fill="#6366f1"/>
+          <text class="dg-agent" x="228" y="145">🤖 Agent อ่าน context</text>
+          <text class="dg-role"  x="228" y="163">โค้ด · mockup · spec ที่มี · CLAUDE.md</text>
+          <line x1="380" y1="182" x2="380" y2="220" stroke="#94a3b8" stroke-width="2" marker-end="url(#sf-arr)"/>
+
+          <!-- Step 3: Agent drafts spec -->
+          <g filter="url(#sf-shd)">
+            <rect x="200" y="226" width="360" height="68" rx="12" fill="white" stroke="#e2e8f0"/>
+          </g>
+          <rect x="200" y="226" width="4" height="68" rx="2" fill="#6366f1"/>
+          <text class="dg-agent" x="228" y="252">✍️ Agent ร่าง spec</text>
+          <text class="dg-role"  x="228" y="270">data model · API · validation · business rules</text>
+          <text class="dg-role"  x="228" y="286" fill="#475569">→ สรุปให้คุณดู</text>
+          <line x1="380" y1="294" x2="380" y2="332" stroke="#94a3b8" stroke-width="2" marker-end="url(#sf-arr)"/>
+
+          <!-- Decision diamond: CONFIRM? -->
+          <g filter="url(#sf-shd)">
+            <polygon points="380,338 480,390 380,442 280,390" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+          </g>
+          <text class="dg-gate" x="380" y="385" text-anchor="middle" fill="#92400e">CONFIRM?</text>
+          <text style="font:600 10px 'Segoe UI'" x="380" y="402" text-anchor="middle" fill="#92400e">รอ user</text>
+
+          <!-- Branch left: NO (revise) -->
+          <line x1="280" y1="390" x2="180" y2="390" stroke="#ea580c" stroke-width="2" marker-end="url(#sf-arrO)"/>
+          <text x="230" y="382" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ea580c">แก้ไข</text>
+          <g filter="url(#sf-shd)">
+            <rect x="40" y="362" width="140" height="56" rx="12" fill="#ffedd5" stroke="#fb923c" stroke-width="1.5"/>
+          </g>
+          <text class="dg-agent" x="60" y="386" fill="#9a3412">↺ แก้ตามที่บอก</text>
+          <text class="dg-role"  x="60" y="404" fill="#9a3412">re-draft</text>
+          <!-- loop back to "Agent draft" -->
+          <path d="M 110 362 L 110 260 L 200 260" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sf-arrO)"/>
+
+          <!-- Branch right: YES (save) -->
+          <line x1="480" y1="390" x2="580" y2="390" stroke="#16a34a" stroke-width="2" marker-end="url(#sf-arrG)"/>
+          <text x="530" y="382" text-anchor="middle" font-size="10.5" font-weight="700" fill="#16a34a">ยืนยัน</text>
+          <g filter="url(#sf-shd)">
+            <rect x="580" y="362" width="160" height="56" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          </g>
+          <text class="dg-agent" x="600" y="386" fill="#14532d">💾 Save spec</text>
+          <text class="dg-out"   x="600" y="404" fill="#15803d">docs/specs/{name}.md</text>
+
+          <!-- Final pill -->
+          <line x1="660" y1="418" x2="660" y2="468" stroke="#16a34a" stroke-width="2" marker-end="url(#sf-arrG)"/>
+          <g filter="url(#sf-shd)">
+            <rect x="555" y="476" width="210" height="44" rx="22" fill="url(#sf-green)"/>
+          </g>
+          <text x="660" y="503" text-anchor="middle" fill="white" font-size="13" font-weight="700">✓ พร้อม build</text>
+        </svg>
+        <div class="diagram-caption">FIG. 3 — Agent ร่าง spec ให้ได้ แต่ <strong>คุณต้อง confirm</strong> ก่อนเสมอ · ผิดตั้งแต่ spec → ทุกอย่างที่ตามมาจะผิดทั้งหมด</div>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <div class="callout-icon">🚨</div>
+      <div><strong>กฎทอง:</strong> Agent เขียน spec ให้ได้ แต่ <strong>คุณต้อง approve spec เสมอ</strong> — spec ที่ผิดตั้งแต่ต้น โค้ดที่ build ตามก็ผิดทั้งหมด</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 3. NEW FEATURE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="new-feature">
+    <div class="section-title"><div class="icon">🚀</div> สั่ง Build Feature ใหม่ Step by Step</div>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem;">ตัวอย่าง: Feature Roles &amp; RBAC</p>
+
+    <!-- Step 1 -->
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>สร้าง Feature Request ใน <code>tasks/current-sprint.md</code></strong>
+          <pre>
+# Feature: Roles &amp; RBAC
+
+## Goal
+จัดการ Role และ Permission ให้ Admin กำหนดสิทธิ์ User ได้
+
+## Actors
+- Super Admin: สร้าง/แก้/ลบ Role, กำหนด Permission
+- Admin: มอบหมาย Role ให้ User
+- User: เห็นเฉพาะ menu/action ที่ตัวเองมีสิทธิ์
+
+## Core Workflows
+1. สร้าง/แก้ไข/ลบ Role
+2. กำหนด Permission ให้ Role
+3. มอบหมาย Role ให้ User
+4. Guard route/component ตาม Permission
+
+## Out of Scope (MVP)
+- Row-level security
+- Permission inheritance</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>สั่ง Claude (Orchestrator)</strong>
+          <pre>claude "อ่าน agents/orchestrator.md + tasks/current-sprint.md แล้ว build ตาม Working Protocol ทุก Phase รวม UI Tester (Phase 1.5 + Phase 3) และ Reviewer"</pre>
+          <div class="callout warn" style="margin-top:.5rem">
+            <div class="callout-icon">⚠️</div>
+            <div><strong>ต้องระบุ <code>agents/orchestrator.md</code> เสมอ</strong> — ถ้าไม่ใส่ Claude อาจข้าม UI Tester Phase 1.5 และ Reviewer</div>
+          </div>
+          <div class="callout tip" style="margin-top:.5rem">
+            <div class="callout-icon">💡</div>
+            <div>ถ้ามี spec อยู่แล้ว ข้าม Phase 1 ได้: <code>"อ่าน agents/orchestrator.md + docs/specs/rbac.md แล้ว build Phase 1.5 เป็นต้นไป"</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Claude สรุป spec ให้คุณดู — รอ Confirm</strong>
+          <div class="card" style="background:#f8fafc;margin-top:.5rem">
+            <div style="font-size:.85rem">
+              Claude จะพิมพ์ประมาณนี้:<br/><br/>
+              <em>"จาก spec rbac.md จะ build:<br/>
+              BE: POST/GET/PUT/DELETE /roles, POST /roles/{id}/permissions<br/>
+              FE: RolesPage, PermissionMatrix component<br/>
+              Tests: scaffold 8 test cases<br/><br/>
+              <strong>ยืนยัน build ได้เลยไหมครับ?</strong>"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>คุณ Confirm (หรือแก้ไขก่อน)</strong>
+          <pre>yes</pre>
+          หรือถ้าต้องการแก้:
+          <pre>แก้ด้วย: endpoint ใช้ /api/roles ไม่ใช่ /api/user/roles</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>Agents ทำงานอัตโนมัติ</strong>
+          <div class="diagram">
+            <svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="gantt-t gantt-d">
+              <title id="gantt-t">Agent Execution Timeline · Phase 1.5 → 2 → 3</title>
+              <desc id="gantt-d">ลำดับเวลาการทำงานของ Agent แต่ละตัว แสดงเป็น Gantt chart จาก t=0 ถึง t=45 นาที</desc>
+
+              <defs>
+                <marker id="g-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+                </marker>
+                <filter id="g-shd" x="-10%" y="-10%" width="120%" height="120%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#1e293b" flood-opacity="0.12"/>
+                </filter>
+              </defs>
+
+              <!-- Background phase bands -->
+              <rect x="180" y="40" width="100" height="320" fill="#f0fdfa" opacity="0.55"/>
+              <rect x="280" y="40" width="370" height="320" fill="#eff6ff" opacity="0.55"/>
+              <rect x="650" y="40" width="200" height="320" fill="#f0fdf4" opacity="0.55"/>
+
+              <!-- Phase labels (top) -->
+              <text class="dg-tag" x="230" y="32" text-anchor="middle" fill="#0d9488">PHASE 1.5</text>
+              <text class="dg-tag" x="465" y="32" text-anchor="middle" fill="#1d4ed8">PHASE 2 · PARALLEL</text>
+              <text class="dg-tag" x="750" y="32" text-anchor="middle" fill="#15803d">PHASE 3</text>
+
+              <!-- Phase boundary lines -->
+              <line x1="280" y1="40" x2="280" y2="360" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+              <line x1="650" y1="40" x2="650" y2="360" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+
+              <!-- Time axis (bottom) -->
+              <line x1="180" y1="360" x2="850" y2="360" stroke="#cbd5e1" stroke-width="1.5"/>
+              <!-- Ticks: t=0, 5, 10, 15, 20, 25, 30, 35, 40, 45 → x = 180 + (t/45)*670 -->
+              <g class="dg-time">
+                <line x1="180" y1="360" x2="180" y2="368" stroke="#cbd5e1"/><text x="180" y="380" text-anchor="middle">t=0</text>
+                <line x1="254" y1="360" x2="254" y2="365" stroke="#cbd5e1"/><text x="254" y="380" text-anchor="middle">5</text>
+                <line x1="328" y1="360" x2="328" y2="365" stroke="#cbd5e1"/><text x="328" y="380" text-anchor="middle">10</text>
+                <line x1="402" y1="360" x2="402" y2="365" stroke="#cbd5e1"/><text x="402" y="380" text-anchor="middle">15</text>
+                <line x1="477" y1="360" x2="477" y2="365" stroke="#cbd5e1"/><text x="477" y="380" text-anchor="middle">20</text>
+                <line x1="551" y1="360" x2="551" y2="365" stroke="#cbd5e1"/><text x="551" y="380" text-anchor="middle">25</text>
+                <line x1="625" y1="360" x2="625" y2="365" stroke="#cbd5e1"/><text x="625" y="380" text-anchor="middle">30</text>
+                <line x1="699" y1="360" x2="699" y2="368" stroke="#cbd5e1"/><text x="699" y="380" text-anchor="middle">35</text>
+                <line x1="773" y1="360" x2="773" y2="365" stroke="#cbd5e1"/><text x="773" y="380" text-anchor="middle">40</text>
+                <line x1="847" y1="360" x2="847" y2="368" stroke="#cbd5e1"/><text x="847" y="380" text-anchor="middle">45 min</text>
+              </g>
+
+              <!-- ===== ROW 1: UI Tester scaffold (Phase 1.5) — t=0 to t=2 (x=180 to x=210) ===== -->
+              <text class="dg-agent" x="20" y="74">🧪 UI Tester</text>
+              <text class="dg-role"  x="20" y="90">scaffold</text>
+              <g filter="url(#g-shd)">
+                <rect x="180" y="60" width="60" height="32" rx="8" fill="#5eead4" stroke="#0d9488" stroke-width="1.5"/>
+              </g>
+              <text x="210" y="80" text-anchor="middle" font-size="10.5" font-weight="700" fill="#134e4a">test.skip</text>
+              <line x1="240" y1="76" x2="270" y2="76" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#g-arr)"/>
+              <text x="290" y="80" font-size="10.5" fill="#0d9488" font-weight="600">► commit</text>
+
+              <!-- ===== ROW 2: BE Coder (Phase 2) — t=2 to t=33 (x=210 to x=668) ===== -->
+              <text class="dg-agent" x="20" y="134">⚙️ BE Coder</text>
+              <text class="dg-role"  x="20" y="150">.NET 10</text>
+              <g filter="url(#g-shd)">
+                <rect x="210" y="120" width="400" height="32" rx="8" fill="#93c5fd" stroke="#3b82f6" stroke-width="1.5"/>
+              </g>
+              <text x="410" y="140" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">Domain → App → Infra → API</text>
+              <line x1="610" y1="136" x2="640" y2="136" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#g-arr)"/>
+              <text x="660" y="140" font-size="10.5" fill="#1d4ed8" font-weight="600">► push</text>
+
+              <!-- ===== ROW 3: FE Coder (Phase 2 — parallel) — t=2 to t=33 ===== -->
+              <text class="dg-agent" x="20" y="184">🎨 FE Coder</text>
+              <text class="dg-role"  x="20" y="200">Next.js 15</text>
+              <g filter="url(#g-shd)">
+                <rect x="210" y="170" width="400" height="32" rx="8" fill="#86efac" stroke="#22c55e" stroke-width="1.5"/>
+              </g>
+              <text x="410" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">types → zod → MSW → hook → page</text>
+              <line x1="610" y1="186" x2="640" y2="186" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#g-arr)"/>
+              <text x="660" y="190" font-size="10.5" fill="#16a34a" font-weight="600">► push</text>
+
+              <!-- parallel indicator between BE/FE -->
+              <line x1="160" y1="136" x2="160" y2="186" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+              <text x="155" y="166" text-anchor="end" font-size="12" font-weight="700" fill="#64748b">∥</text>
+
+              <!-- ===== ROW 4: UI Tester run (Phase 3) — t=35 to t=40 ===== -->
+              <text class="dg-agent" x="20" y="234">🧪 UI Tester</text>
+              <text class="dg-role"  x="20" y="250">run e2e</text>
+              <g filter="url(#g-shd)">
+                <rect x="699" y="220" width="74" height="32" rx="8" fill="#86efac" stroke="#22c55e" stroke-width="1.5"/>
+              </g>
+              <text x="736" y="240" text-anchor="middle" font-size="10" font-weight="700" fill="#14532d">un-skip</text>
+              <text x="780" y="240" font-size="10.5" fill="#16a34a" font-weight="600">► pass/fail</text>
+
+              <!-- ===== ROW 5: Reviewer (Phase 3) — t=40 to t=45 ===== -->
+              <text class="dg-agent" x="20" y="284">🔍 Reviewer</text>
+              <text class="dg-role"  x="20" y="300">security+spec</text>
+              <g filter="url(#g-shd)">
+                <rect x="773" y="270" width="74" height="32" rx="8" fill="#fdba74" stroke="#f97316" stroke-width="1.5"/>
+              </g>
+              <text x="810" y="290" text-anchor="middle" font-size="10" font-weight="700" fill="#7c2d12">review</text>
+              <text x="760" y="320" font-size="10" fill="#9a3412" font-weight="600">► verdict: APPROVED?</text>
+
+              <!-- ===== ROW 6: gen-progress + Report — t=45 ===== -->
+              <text class="dg-agent" x="20" y="334">📊 gen-progress</text>
+              <text class="dg-role"  x="20" y="350">+ Report</text>
+              <g filter="url(#g-shd)">
+                <rect x="820" y="320" width="30" height="30" rx="8" fill="#a78bfa" stroke="#7c3aed" stroke-width="1.5"/>
+              </g>
+              <text x="835" y="339" text-anchor="middle" font-size="10" font-weight="700" fill="white">📤</text>
+
+              <!-- caption to final report -->
+              <line x1="820" y1="335" x2="755" y2="335" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="3 2"/>
+              <text x="745" y="338" text-anchor="end" font-size="10.5" fill="#6d28d9" font-weight="600">Report → คุณ</text>
+
+              <!-- vertical guide for t=2 (start of Phase 2) -->
+              <line x1="210" y1="40" x2="210" y2="360" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="2 3"/>
+              <text class="dg-time" x="210" y="50" text-anchor="middle" fill="#94a3b8">t=2</text>
+              <!-- vertical guide for t=33 (end of Phase 2) -->
+              <line x1="610" y1="40" x2="610" y2="360" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="2 3"/>
+              <text class="dg-time" x="610" y="50" text-anchor="middle" fill="#94a3b8">t=33</text>
+            </svg>
+
+            <div class="diagram-legend">
+              <span class="lg"><span class="sw" style="background:#5eead4"></span> UI Tester scaffold</span>
+              <span class="lg"><span class="sw" style="background:#93c5fd"></span> BE Coder</span>
+              <span class="lg"><span class="sw" style="background:#86efac"></span> FE Coder · UI Tester run</span>
+              <span class="lg"><span class="sw" style="background:#fdba74"></span> Reviewer</span>
+              <span class="lg"><span class="sw" style="background:#a78bfa"></span> Report</span>
+            </div>
+            <div class="diagram-caption">FIG. 2 — BE + FE ทำพร้อมกัน (parallel) · เวลารวมประมาณ 45 นาทีสำหรับ feature ขนาดกลาง</div>
+          </div>
+          <div class="callout warn" style="margin-top:.5rem">
+            <div class="callout-icon">⚠️</div>
+            <div>UI Tester ต้องทำ <strong>ก่อน</strong> FE Coder เสมอ — test scaffold = acceptance criteria ที่ FE ต้องผ่าน</div>
+          </div>
+          <div class="callout info" style="margin-top:.5rem">
+            <div class="callout-icon">📖</div>
+            <div>อยากดู step-by-step ละเอียดทุก phase พร้อม User Says / Agent Does → เปิด <a href="3.feature-bug-workflow-flow.html" style="color:var(--indigo-dark);font-weight:600;text-decoration:underline">3. Feature/Bug Workflow Flow</a> (มี interactive tab สลับ Feature/Bug)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">สิ่งที่คุณทำ vs Agent ทำเอง</div>
+      <table>
+        <thead><tr><th>คุณต้องทำ</th><th>Agent ทำเอง</th></tr></thead>
+        <tbody>
+          <tr><td>เขียน feature request</td><td>อ่าน spec + สรุป</td></tr>
+          <tr><td>พิมพ์ <code>yes</code> confirm</td><td>เขียนโค้ดทั้ง BE + FE</td></tr>
+          <tr><td>ดู report สุดท้าย</td><td>สร้าง branch, commit, push</td></tr>
+          <tr><td>merge PR</td><td>run tests, gen-progress</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 4. TASKS -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="tasks">
+    <div class="section-title"><div class="icon">📋</div> จัดการ Task — Sprint &amp; Backlog</div>
+
+    <div class="callout info">
+      <div class="callout-icon">📁</div>
+      <div>
+        <code>tasks/current-sprint.md</code> — งานที่กำลังทำอยู่ตอนนี้<br/>
+        <code>tasks/backlog.md</code> — งานที่รอทำในอนาคต
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Case A -->
+      <div class="card">
+        <div class="card-title">กรณี A — มีงานใหม่ แต่ Sprint ยังไม่เสร็จ</div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">→ เก็บลง backlog ก่อน</p>
+        <pre>
+"เพิ่ม task ใหม่ลง tasks/backlog.md:
+ Feature: Roles &amp; RBAC
+ Goal: จัดการ Role และ Permission
+ Priority: High
+ รอทำหลัง Auth Flow เสร็จ"</pre>
+      </div>
+
+      <!-- Case B -->
+      <div class="card">
+        <div class="card-title">กรณี B — Sprint เสร็จแล้ว ดึงจาก Backlog</div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">→ ย้ายมาเป็น current sprint</p>
+        <pre>
+"Sprint ก่อนเสร็จแล้ว
+ ย้าย Roles &amp; RBAC จาก backlog
+ มาเป็น current-sprint
+ แล้ว build ตาม CLAUDE.md"</pre>
+      </div>
+
+      <!-- Case C -->
+      <div class="card">
+        <div class="card-title">กรณี C — Task ค้างอยู่ ทำต่อ</div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">→ ชี้ไปที่ current-sprint.md</p>
+        <pre>
+"อ่าน tasks/current-sprint.md
+ ทำต่อจากจุดที่ค้างไว้
+ ข้าม [x] ทำเฉพาะ [ ] ที่ยังค้าง"</pre>
+      </div>
+
+      <!-- Case D -->
+      <div class="card">
+        <div class="card-title">กรณี D — เพิ่มงานย่อยใน Sprint ปัจจุบัน</div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">→ เพิ่ม checkbox แล้วสั่งทำ</p>
+        <pre>
+"เพิ่มงานย่อยนี้ใน current-sprint.md:
+ Phase 2 FE → เพิ่ม error toast
+ เมื่อ login ล้มเหลว
+ แล้วทำเลย ไม่ต้อง confirm"</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:.5rem">
+      <div class="card-title">Flow การตัดสินใจ</div>
+      <div class="diagram">
+        <svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt-t dt-d">
+          <title id="dt-t">Task Decision Flow</title>
+          <desc id="dt-d">การตัดสินใจว่า task ใหม่ลง backlog หรือเข้า current sprint</desc>
+
+          <defs>
+            <linearGradient id="dt-indigo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/>
+            </linearGradient>
+            <linearGradient id="dt-green" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/>
+            </linearGradient>
+            <marker id="dt-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+            </marker>
+            <marker id="dt-arrI" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#6366f1"/>
+            </marker>
+            <filter id="dt-shd" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1e293b" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+
+          <!-- Top: incoming task -->
+          <g filter="url(#dt-shd)">
+            <rect x="270" y="14" width="220" height="56" rx="14" fill="url(#dt-indigo)"/>
+          </g>
+          <text class="dg-title" x="380" y="38" text-anchor="middle">📨 Task ใหม่เข้ามา</text>
+          <text class="dg-sub"   x="380" y="56" text-anchor="middle">feature / bug / improve</text>
+          <line x1="380" y1="70" x2="380" y2="108" stroke="#94a3b8" stroke-width="2" marker-end="url(#dt-arr)"/>
+
+          <!-- Decision diamond -->
+          <g filter="url(#dt-shd)">
+            <polygon points="380,114 530,200 380,286 230,200" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+          </g>
+          <text class="dg-gate" x="380" y="190" text-anchor="middle" fill="#92400e">Sprint ปัจจุบัน</text>
+          <text class="dg-gate" x="380" y="210" text-anchor="middle" fill="#92400e">เสร็จแล้วยัง?</text>
+
+          <!-- Branch labels -->
+          <text x="280" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#ea580c">ยัง</text>
+          <text x="490" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a">เสร็จแล้ว</text>
+
+          <!-- Left branch: NO → backlog -->
+          <line x1="230" y1="200" x2="160" y2="200" stroke="#ea580c" stroke-width="2"/>
+          <line x1="160" y1="200" x2="160" y2="320" stroke="#ea580c" stroke-width="2" marker-end="url(#dt-arr)"/>
+          <g filter="url(#dt-shd)">
+            <rect x="60" y="326" width="200" height="64" rx="12" fill="#ffedd5" stroke="#fb923c" stroke-width="1.5"/>
+          </g>
+          <text class="dg-agent" x="80" y="352" fill="#9a3412">📥 เก็บลง backlog</text>
+          <text class="dg-out"   x="80" y="372" fill="#9a3412">tasks/backlog.md</text>
+          <!-- waiting badge -->
+          <rect x="100" y="400" width="120" height="24" rx="12" fill="white" stroke="#fb923c" stroke-dasharray="3 2"/>
+          <text class="dg-tag" x="160" y="416" text-anchor="middle" fill="#9a3412">รอ sprint ถัดไป</text>
+
+          <!-- Right branch: YES → current sprint -->
+          <line x1="530" y1="200" x2="600" y2="200" stroke="#16a34a" stroke-width="2"/>
+          <line x1="600" y1="200" x2="600" y2="320" stroke="#16a34a" stroke-width="2" marker-end="url(#dt-arr)"/>
+          <g filter="url(#dt-shd)">
+            <rect x="500" y="326" width="200" height="64" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          </g>
+          <text class="dg-agent" x="520" y="352" fill="#14532d">📋 ย้ายมาเป็น current</text>
+          <text class="dg-out"   x="520" y="372" fill="#15803d">tasks/current-sprint.md</text>
+
+          <!-- Arrow down to "claude build" -->
+          <line x1="600" y1="390" x2="600" y2="430" stroke="#16a34a" stroke-width="2" marker-end="url(#dt-arr)"/>
+          <g filter="url(#dt-shd)">
+            <rect x="475" y="436" width="250" height="40" rx="20" fill="url(#dt-green)"/>
+          </g>
+          <text x="600" y="461" text-anchor="middle" fill="white" font-size="13" font-weight="700">🚀 สั่ง Claude build</text>
+        </svg>
+        <div class="diagram-caption">FIG. 4 — Task ใหม่ไหลเข้า backlog หรือ current-sprint ตามสถานะ sprint ปัจจุบัน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 4.5 MOCKUP PLANNING -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="mockup-planning">
+    <div class="section-title"><div class="icon">🎨</div> ให้ Agent วางแผนจาก Mockup UI</div>
+
+    <div class="callout success">
+      <div class="callout-icon">✅</div>
+      <div><strong>ทำได้เลย</strong> — Agent อ่าน <code>docs/mockups/b1dx_full_app_v0.html</code> แล้วช่วยสร้าง Backlog, Sprint, และ Spec ให้อัตโนมัติ</div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div><strong>Mockup = Source of Truth ของ UI</strong> — สี, layout, component, typography ทุกอย่างต้องตรงกับ mockup เสมอ<br/>
+      Agent จะอ่าน mockup ก่อน build FE ทุกครั้งโดยอัตโนมัติ</div>
+    </div>
+
+    <!-- 3 use cases -->
+    <div class="card">
+      <div class="card-title">3 สิ่งที่ Agent ทำจาก Mockup ได้</div>
+      <table>
+        <thead><tr><th>สั่งอะไร</th><th>Agent ทำอะไร</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-teal">สร้าง Backlog</span></td>
+            <td>ดูทุก screen ใน mockup → แตก feature เป็น task</td>
+            <td><code>tasks/backlog.md</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-indigo">สร้าง Sprint</span></td>
+            <td>ดู screen ที่เลือก → เขียน current sprint</td>
+            <td><code>tasks/current-sprint.md</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">เขียน Spec</span></td>
+            <td>ดู screen → ออกแบบ data model + API ตาม UI ที่เห็น</td>
+            <td><code>docs/specs/{name}.md</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Command 1 -->
+    <div class="card">
+      <div class="card-title">คำสั่ง 1 — ดู Mockup แล้วสร้าง Backlog ทั้งหมด</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: เริ่มโปรเจกต์ใหม่ หรืออยากรู้ว่ามีงานอะไรต้องทำบ้าง</p>
+      <pre>
+"อ่าน docs/mockups/b1dx_full_app_v0.html
+ ดูทุก screen/module ที่มี
+ แล้วสร้าง tasks/backlog.md
+ โดยแตก feature แต่ละ screen เป็น task
+ พร้อม priority และ goal สั้นๆ
+ สรุปให้ confirm ก่อน save"</pre>
+      <div class="callout tip" style="margin-top:.5rem">
+        <div class="callout-icon">💡</div>
+        <div>Agent จะสแกน mockup ทั้งหมด แล้วสรุปออกมาเป็น task list พร้อม priority — คุณแค่ confirm หรือปรับ priority</div>
+      </div>
+    </div>
+
+    <!-- Command 2 -->
+    <div class="card">
+      <div class="card-title">คำสั่ง 2 — ดู Mockup แล้วเขียน Spec + Sprint ทันที</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: อยากให้ Agent จัดการทุกอย่างตั้งแต่ spec จนถึง sprint</p>
+      <pre>
+"อ่าน docs/mockups/b1dx_full_app_v0.html
+ ดู screen Roles &amp; RBAC
+ แล้วทำ 2 อย่างนี้:
+ 1. เขียน spec → docs/specs/rbac.md
+    (data model, API endpoints, validation, business rules)
+ 2. เขียน current sprint → tasks/current-sprint.md
+    (phases + checklist พร้อม build)
+ สรุปให้ confirm ก่อน save ทั้งคู่"</pre>
+    </div>
+
+    <!-- Command 3 -->
+    <div class="card">
+      <div class="card-title">คำสั่ง 3 — ดู Mockup แล้ว Build เลย (ครบทุกขั้นตอน)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ใช้เมื่อ: ไว้ใจ mockup แล้ว ต้องการให้ Agent จัดการครบ pipeline</p>
+      <pre>
+"อ่าน docs/mockups/b1dx_full_app_v0.html ดู screen Roles &amp; RBAC
+ แล้วทำตาม Working Protocol ใน CLAUDE.md ครบทุก phase:
+ - Phase 1: ออกแบบ spec จาก mockup → สรุปให้ confirm
+ - Phase 1.5: scaffold e2e tests
+ - Phase 2: build BE + FE ตาม mockup
+ - Phase 3: run tests + report"</pre>
+      <div class="callout warn" style="margin-top:.5rem">
+        <div class="callout-icon">⚠️</div>
+        <div>แม้สั่งแบบ all-in-one Agent ก็ยังหยุดรอ confirm spec ก่อน Phase 2 เสมอ — ห้าม skip</div>
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div class="card">
+      <div class="card-title">Flow: Mockup → Backlog → Sprint → Build</div>
+      <div class="diagram">
+        <svg viewBox="0 0 880 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mk-t mk-d">
+          <title id="mk-t">Mockup → Backlog → Sprint → Build Flow</title>
+          <desc id="mk-d">Agent อ่าน mockup แล้วสร้าง 3 artefacts (backlog, current-sprint, spec) ก่อน build BE + FE</desc>
+
+          <defs>
+            <linearGradient id="mk-pink" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f9a8d4"/><stop offset="100%" stop-color="#db2777"/>
+            </linearGradient>
+            <linearGradient id="mk-indigo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/>
+            </linearGradient>
+            <linearGradient id="mk-blue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/>
+            </linearGradient>
+            <linearGradient id="mk-green" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/>
+            </linearGradient>
+            <marker id="mk-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8"/>
+            </marker>
+            <marker id="mk-arrI" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#6366f1"/>
+            </marker>
+            <filter id="mk-shd" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1e293b" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+
+          <!-- ===== Source: Mockup file ===== -->
+          <g filter="url(#mk-shd)">
+            <rect x="290" y="14" width="300" height="60" rx="14" fill="url(#mk-pink)"/>
+          </g>
+          <text class="dg-title" x="440" y="38" text-anchor="middle">🎨 Mockup HTML</text>
+          <text class="dg-sub"   x="440" y="58" text-anchor="middle" font-family="Cascadia Code, monospace">docs/mockups/b1dx_full_app_v0.html</text>
+          <line x1="440" y1="74" x2="440" y2="112" stroke="#94a3b8" stroke-width="2" marker-end="url(#mk-arr)"/>
+
+          <!-- ===== Agent scan ===== -->
+          <g filter="url(#mk-shd)">
+            <rect x="270" y="118" width="340" height="64" rx="12" fill="white" stroke="#e2e8f0"/>
+          </g>
+          <rect x="270" y="118" width="4" height="64" rx="2" fill="#db2777"/>
+          <text class="dg-agent" x="298" y="144">🤖 Agent scan ทุก screen</text>
+          <text class="dg-role"  x="298" y="162">ดู layout · component · sections · interactions</text>
+
+          <!-- Branching distributor: 3 arrows fan out -->
+          <line x1="440" y1="182" x2="440" y2="216" stroke="#6366f1" stroke-width="2.5"/>
+          <line x1="160" y1="216" x2="720" y2="216" stroke="#6366f1" stroke-width="2"/>
+          <line x1="160" y1="216" x2="160" y2="244" stroke="#6366f1" stroke-width="2" marker-end="url(#mk-arrI)"/>
+          <line x1="440" y1="216" x2="440" y2="244" stroke="#6366f1" stroke-width="2" marker-end="url(#mk-arrI)"/>
+          <line x1="720" y1="216" x2="720" y2="244" stroke="#6366f1" stroke-width="2" marker-end="url(#mk-arrI)"/>
+
+          <!-- 3 outputs -->
+          <!-- 1. Backlog -->
+          <g filter="url(#mk-shd)">
+            <rect x="40" y="250" width="240" height="98" rx="14" fill="white" stroke="#fb923c" stroke-width="1.5"/>
+          </g>
+          <rect x="40" y="250" width="4" height="98" rx="2" fill="#fb923c"/>
+          <text class="dg-agent" x="62" y="276">📥 สร้าง Backlog</text>
+          <text class="dg-role"  x="62" y="294">task ทุก feature + priority</text>
+          <rect x="60" y="306" width="200" height="28" rx="6" fill="#fff7ed" stroke="#fdba74"/>
+          <text class="dg-out" x="160" y="324" text-anchor="middle" fill="#9a3412">tasks/backlog.md</text>
+
+          <!-- 2. Current sprint -->
+          <g filter="url(#mk-shd)">
+            <rect x="320" y="250" width="240" height="98" rx="14" fill="white" stroke="#6366f1" stroke-width="1.5"/>
+          </g>
+          <rect x="320" y="250" width="4" height="98" rx="2" fill="#6366f1"/>
+          <text class="dg-agent" x="342" y="276">📋 เลือก Sprint</text>
+          <text class="dg-role"  x="342" y="294">feature ที่จะทำรอบนี้</text>
+          <rect x="340" y="306" width="200" height="28" rx="6" fill="#eef2ff" stroke="#c4b5fd"/>
+          <text class="dg-out" x="440" y="324" text-anchor="middle" fill="#4338ca">tasks/current-sprint.md</text>
+
+          <!-- 3. Spec -->
+          <g filter="url(#mk-shd)">
+            <rect x="600" y="250" width="240" height="98" rx="14" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+          </g>
+          <rect x="600" y="250" width="4" height="98" rx="2" fill="#3b82f6"/>
+          <text class="dg-agent" x="622" y="276">📝 เขียน Spec</text>
+          <text class="dg-role"  x="622" y="294">data model + API จาก UI</text>
+          <rect x="620" y="306" width="200" height="28" rx="6" fill="#eff6ff" stroke="#93c5fd"/>
+          <text class="dg-out" x="720" y="324" text-anchor="middle" fill="#1e40af">docs/specs/{feature}.md</text>
+
+          <!-- Converging arrow from spec down to confirm -->
+          <line x1="720" y1="348" x2="720" y2="380" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="720" y1="380" x2="440" y2="380" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="440" y1="380" x2="440" y2="402" stroke="#94a3b8" stroke-width="2" marker-end="url(#mk-arr)"/>
+
+          <!-- CONFIRM gate -->
+          <g filter="url(#mk-shd)">
+            <polygon points="440,408 540,452 440,496 340,452" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+          </g>
+          <text class="dg-gate" x="440" y="450" text-anchor="middle" fill="#92400e">คุณ CONFIRM</text>
+          <text style="font:600 10px 'Segoe UI'" x="440" y="466" text-anchor="middle" fill="#92400e">spec ถูกต้อง</text>
+
+          <line x1="440" y1="496" x2="440" y2="528" stroke="#94a3b8" stroke-width="2" marker-end="url(#mk-arr)"/>
+
+          <!-- Phase 2 build -->
+          <g filter="url(#mk-shd)">
+            <rect x="240" y="534" width="400" height="58" rx="14" fill="url(#mk-green)"/>
+          </g>
+          <text class="dg-title" x="440" y="558" text-anchor="middle">🚀 Phase 2 — Build BE + FE</text>
+          <text class="dg-sub"   x="440" y="578" text-anchor="middle">FE ต้องตรง mockup ทุก pixel</text>
+        </svg>
+        <div class="diagram-caption">FIG. 5 — Mockup เป็น Source of Truth · Agent fan-out สร้าง 3 artefacts → คุณ confirm → build จริง</div>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <div class="callout-icon">🚨</div>
+      <div><strong>UI ต้องตรง Mockup เสมอ</strong> — Agent จะอ่าน mockup ก่อน build FE ทุกครั้ง สี <code>#6366f1</code> / <code>#2dd4bf</code>, rounded-xl card, spacing — ห้ามออกแบบเองโดยไม่อ้างอิง mockup</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 4.8 NON-UI TASKS -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="non-ui-tasks">
+    <div class="section-title"><div class="icon">⚙️</div> งานใน Sprint ที่ไม่มี Mockup UI</div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div>ไม่ใช่ทุกงานจะมีหน้าจอใน Mockup — งานพวกนี้อธิบายตรงๆ ในคำสั่งได้เลย ไม่ต้องอ้างอิง mockup</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ประเภทงานที่ไม่มี UI</div>
+      <table>
+        <thead><tr><th>ประเภท</th><th>ตัวอย่าง</th><th>ต้อง Confirm?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-indigo">BE Only</span></td>
+            <td>Background Job, Webhook, Email Service, Cron</td>
+            <td><span class="tag tag-green">ถ้าชัด ไม่ต้อง</span></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Technical</span></td>
+            <td>Logging, Migration, Refactor, Performance</td>
+            <td><span class="tag tag-green">ถ้าชัด ไม่ต้อง</span></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Spike / Research</span></td>
+            <td>ทดลอง library, ออกแบบ architecture</td>
+            <td><span class="tag tag-yellow">รายงานผลก่อนเสมอ</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BE Only -->
+    <div class="card">
+      <div class="card-title">แบบที่ 1 — BE-only Task (ไม่มี UI เลย)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">เช่น Background Job, Webhook, Email Notification, Cron</p>
+      <pre>
+"เพิ่ม task นี้ใน tasks/current-sprint.md แล้ว build เลย:
+
+ Feature: Email Notification Service
+ Goal: ส่ง email เมื่อ Order status เปลี่ยน
+ Type: BE only — ไม่มี UI
+
+ งาน:
+ - สร้าง NotificationService ใน Infrastructure
+ - trigger เมื่อ OrderStatus = Confirmed / Cancelled
+ - ใช้ background queue ไม่บล็อก request
+
+ อ่าน be-repo/CLAUDE.md แล้วเริ่ม build ได้เลย
+ ไม่ต้องอ้างอิง mockup"</pre>
+      <div class="callout tip" style="margin-top:.5rem">
+        <div class="callout-icon">💡</div>
+        <div>ระบุ <code>Type: BE only</code> ชัดเจน — Agent จะ skip ขั้นตอน FE และ UI Tester ออกไปเอง</div>
+      </div>
+    </div>
+
+    <!-- Technical Task -->
+    <div class="card">
+      <div class="card-title">แบบที่ 2 — Technical Task (ไม่ใช่ feature)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">เช่น เพิ่ม logging, refactor, EF migration, setup infrastructure</p>
+      <pre>
+"เพิ่ม task ใน current sprint แล้วทำเลย:
+
+ Task: เพิ่ม structured logging ทุก endpoint
+ Goal: ทุก request ต้อง log UserId + TenantId + RequestId
+ Scope: be-repo — cross-cutting ทุก endpoint
+
+ ทำใน be-repo
+ อ่าน be-repo/CLAUDE.md
+ verify: dotnet build &amp;&amp; dotnet test"</pre>
+    </div>
+
+    <!-- Sprint ผสม -->
+    <div class="card">
+      <div class="card-title">แบบที่ 3 — Sprint ผสม (มีทั้ง UI และ non-UI)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">สั่งได้ใน task เดียว Agent จะแยกงานเองโดยอัตโนมัติ</p>
+      <pre>
+"อ่าน tasks/current-sprint.md แล้วทำตามลำดับ:
+
+ Task 1: Roles &amp; RBAC UI (อ่าน docs/specs/rbac.md + mockup)
+   → ทำทั้ง BE + FE ตาม Working Protocol
+
+ Task 2: Email Notification (BE only, ไม่มี UI)
+   → build หลัง Task 1 เสร็จ
+
+ Task 3: เพิ่ม structured logging (Technical)
+   → ทำพร้อม Task 2 ได้เลย (parallel)"</pre>
+      <div class="callout warn" style="margin-top:.5rem">
+        <div class="callout-icon">⚠️</div>
+        <div>งานที่มี UI → ต้องอ้าง mockup / งานที่ไม่มี UI → บอก <code>BE only</code> หรือ <code>Technical</code> ชัดๆ เพื่อให้ Agent ไม่ไปหา mockup โดยไม่จำเป็น</div>
+      </div>
+    </div>
+
+    <!-- Spike -->
+    <div class="card">
+      <div class="card-title">แบบที่ 4 — Spike / Research (ลองก่อนตัดสินใจ)</div>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.6rem">ไม่เขียนโค้ด production — รายงานผลให้ confirm ก่อนเสมอ</p>
+      <pre>
+"Spike task:
+ เรื่อง: SignalR vs WebSocket สำหรับ real-time order tracking
+ Goal: สรุป approach ที่เหมาะกับ .NET 10 + Next.js 15
+
+ ให้:
+ - อ่านโค้ดปัจจุบันใน be-repo ดู infrastructure ที่มี
+ - เปรียบเทียบ SignalR กับ WebSocket ในแง่ latency, complexity, scale
+ - แนะนำ approach พร้อมเหตุผล
+
+ Output: เขียนสรุปใน docs/adr/realtime-approach.md
+ ไม่ต้องเขียนโค้ด — รายงานผลให้ confirm ก่อน"</pre>
+    </div>
+
+    <!-- Summary table -->
+    <div class="card">
+      <div class="card-title">สรุป: ต้องบอกอะไร Agent บ้าง</div>
+      <table>
+        <thead><tr><th>งาน</th><th>ต้องบอก</th><th>ไม่ต้องบอก</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Feature มี UI</td>
+            <td>อ้าง spec + mockup</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>Feature ไม่มี UI</td>
+            <td><code>Type: BE only</code></td>
+            <td>ไม่ต้องอ้าง mockup</td>
+          </tr>
+          <tr>
+            <td>Technical task</td>
+            <td>scope ชัด (ไฟล์/layer ที่แตะ)</td>
+            <td>ไม่ต้องมี spec</td>
+          </tr>
+          <tr>
+            <td>Spike</td>
+            <td><code>ไม่ต้องเขียนโค้ด</code> + output path</td>
+            <td>ไม่ต้อง confirm ก่อนเริ่ม research</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 5. BUG / IMPROVE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="bug-improve">
+    <div class="section-title"><div class="icon">🐛</div> Bug vs Improve — วิธีสั่ง</div>
+
+    <div class="grid-2" style="margin-bottom:1rem">
+      <div class="card" style="border-left:4px solid var(--red)">
+        <div class="card-title" style="color:var(--red)">Bug — ของพัง</div>
+        <p style="font-size:.85rem">ทำงานผิด / ไม่ตรง spec / error ที่ไม่ควรเกิด</p>
+        <div style="margin-top:.5rem">
+          <span class="tag tag-red">แก้ได้ทันที</span>
+          <span class="tag tag-orange" style="margin-left:.25rem">ไม่ต้อง confirm (ถ้า scope ชัด)</span>
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue)">
+        <div class="card-title" style="color:var(--blue)">Improve — อยากให้ดีขึ้น</div>
+        <p style="font-size:.85rem">ของทำงานได้ แต่อยากเร็วขึ้น / ดูดีขึ้น / ใช้งานง่ายขึ้น</p>
+        <div style="margin-top:.5rem">
+          <span class="tag tag-blue">Confirm ถ้าใหญ่</span>
+          <span class="tag tag-green" style="margin-left:.25rem">ทำเลยถ้าเล็ก</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Template สั่ง Bug</div>
+      <pre>
+"Bug: [อธิบาย 1 บรรทัด]
+
+เจอ:     [สิ่งที่เกิดขึ้นจริง]
+ควรเป็น: [สิ่งที่ควรเกิด]
+ที่ไหน:  [ไฟล์/หน้า/feature ถ้ารู้]"</pre>
+      <div style="font-size:.85rem;color:var(--text-muted);margin-top:.5rem">ตัวอย่าง:</div>
+      <pre>
+"Bug: Login ล้มเหลวแล้วไม่แสดง error message
+
+เจอ:     กด Login → API return 401 → ไม่มีอะไรเกิดขึ้น
+ควรเป็น: แสดง toast 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+ที่ไหน:  FE auth feature"</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Template สั่ง Improve</div>
+      <pre>
+# เล็ก — สั่งทำเลย
+"Improve: เปลี่ยน loading state ใน User List
+ จาก spinner → skeleton table
+ แก้ FE เลย ไม่ต้อง confirm"
+
+# ใหญ่ — ให้สรุปแนวทางก่อน
+"Improve: อยากเพิ่ม export CSV ใน User List
+ ให้ออกแบบ approach ก่อน แล้วสรุปให้ confirm
+ อ่าน docs/specs/user-management.md ด้วย"</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">เปรียบเทียบ Bug vs Improve</div>
+      <table>
+        <thead><tr><th></th><th>Bug</th><th>Improve</th></tr></thead>
+        <tbody>
+          <tr><td><strong>เริ่มด้วย</strong></td><td><code>"Bug: ..."</code></td><td><code>"Improve: ..."</code></td></tr>
+          <tr><td><strong>ต้อง confirm?</strong></td><td>ไม่ต้อง (ถ้าชัดเจน)</td><td>ต้อง (ถ้าไม่มีใน spec)</td></tr>
+          <tr><td><strong>Claude ทำอะไร</strong></td><td>หา root cause → แก้</td><td>ออกแบบ → confirm → แก้</td></tr>
+          <tr><td><strong>กระทบ spec?</strong></td><td>ไม่กระทบ</td><td>อาจต้องอัพเดท spec</td></tr>
+          <tr><td><strong>Branch</strong></td><td><code>fix/login-error-toast</code></td><td><code>feat/user-list-pagination</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="callout success">
+        <div class="callout-icon">✅</div>
+        <div><strong>Bug ชัดเจน</strong> → สั่งแก้ได้เลย ไม่ต้อง confirm</div>
+      </div>
+      <div class="callout warn">
+        <div class="callout-icon">⚠️</div>
+        <div><strong>Improve กระทบ API</strong> → ต้องอัพเดท spec ก่อนเสมอ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 6. REVIEW -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="review">
+    <div class="section-title"><div class="icon">🔍</div> Code Review ก่อน Merge</div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div>Reviewer Agent อยู่ที่ <code>agents/reviewer.md</code> — ตรวจโค้ดเทียบกับ spec + security + test coverage</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">เมื่อไหรควรใช้ Reviewer</div>
+      <table>
+        <thead><tr><th>สถานการณ์</th><th>ต้อง Review?</th></tr></thead>
+        <tbody>
+          <tr><td>feature แตะ Auth / JWT / Tenant isolation</td><td><span class="tag tag-red">บังคับ</span></td></tr>
+          <tr><td>feature มี DB schema changes (migration)</td><td><span class="tag tag-red">บังคับ</span></td></tr>
+          <tr><td>feature แก้ shared packages <code>@b1dx/ui</code></td><td><span class="tag tag-red">บังคับ</span></td></tr>
+          <tr><td>feature มี complex permission rules</td><td><span class="tag tag-red">บังคับ</span></td></tr>
+          <tr><td>feature ปกติทั่วไป (ไม่มีข้อบนเลย)</td><td><span class="tag tag-green">Optional</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">วิธีสั่ง Reviewer</div>
+      <pre>
+"review โค้ด feature User Management
+ branch: feat/user-management
+ อ่าน agents/reviewer.md แล้วทำ review report"</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Reviewer ออก Report แบบนี้</div>
+      <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem">Verdict: APPROVED / APPROVED WITH FIXES / CHANGES REQUIRED / BLOCKED</div>
+      <div class="severity-list">
+        <div class="sev-item blocker">
+          <div class="sev-label">🔴 BLOCKER</div>
+          <div>Merge ไม่ได้จนกว่าจะแก้ — เช่น tenant data leak, auth bypass, spec contract พัง</div>
+        </div>
+        <div class="sev-item major">
+          <div class="sev-label">🟠 MAJOR</div>
+          <div>ต้องแก้ก่อน merge — เช่น missing test, unscoped query, response field ไม่ตรง spec</div>
+        </div>
+        <div class="sev-item minor">
+          <div class="sev-label">🟡 MINOR</div>
+          <div>ควรแก้ก่อน merge — เช่น missing i18n key, missing loading state, UI ไม่ตรง mockup</div>
+        </div>
+        <div class="sev-item suggest">
+          <div class="sev-label">💡 SUGGESTION</div>
+          <div>Optional — ไม่ block merge เช่น refactor, performance hint</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Verify ก่อน Merge (ต้องผ่านทั้งหมด)</div>
+      <pre>
+# BE
+dotnet build &amp;&amp; dotnet test
+
+# FE
+pnpm lint &amp;&amp; pnpm typecheck
+
+# E2E
+playwright test e2e/{feature}/</pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 7. AGENTS -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="agents">
+    <div class="section-title"><div class="icon">🤖</div> Agent แต่ละตัวทำอะไร</div>
+
+    <div class="agent-grid">
+      <div class="agent-card">
+        <div class="agent-icon">🎯</div>
+        <div class="agent-name">Orchestrator</div>
+        <div class="agent-role">วางแผน + ประสานงาน</div>
+        <div class="agent-when">ทุกครั้งที่รัน pipeline — คุณคุยด้วยตรงๆ</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🏗️</div>
+        <div class="agent-name">Architect</div>
+        <div class="agent-role">ออกแบบ data model + API</div>
+        <div class="agent-when">Phase 1 — ก่อน build ทุก feature</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">📝</div>
+        <div class="agent-name">Spec Writer</div>
+        <div class="agent-role">แตก task checklist จาก spec</div>
+        <div class="agent-when">Phase 1 — หลัง Architect เสร็จ</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">⚙️</div>
+        <div class="agent-name">BE Coder</div>
+        <div class="agent-role">เขียน .NET 10 code</div>
+        <div class="agent-when">Phase 2 — parallel กับ FE</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🎨</div>
+        <div class="agent-name">FE Coder</div>
+        <div class="agent-role">เขียน Next.js code</div>
+        <div class="agent-when">Phase 2 — parallel กับ BE</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🧪</div>
+        <div class="agent-name">UI Tester</div>
+        <div class="agent-role">scaffold + run E2E tests</div>
+        <div class="agent-when">Phase 1.5 (scaffold) + Phase 3 (run)</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🔍</div>
+        <div class="agent-name">Reviewer</div>
+        <div class="agent-role">review ก่อน merge</div>
+        <div class="agent-when">Phase 2.5 — optional แต่แนะนำ</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem">
+      <div class="card-title">ลำดับงานของ BE Coder</div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Domain Entity</div><div class="tl-desc">Role, Permission, UserRole — pure C# ไม่มี dependency</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Application Command/Query</div><div class="tl-desc">CreateRoleCommand, GetRolesQuery, Handlers</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Infrastructure Migration</div><div class="tl-desc">EF Core migration, indexes, FK</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">API Endpoints</div><div class="tl-desc">Minimal API, auth, validation</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Unit Tests</div><div class="tl-desc">dotnet build &amp;&amp; dotnet test ผ่าน</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ลำดับงานของ FE Coder</div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Types</div><div class="tl-desc">types/role.ts — TypeScript interfaces</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Zod Schema</div><div class="tl-desc">schemas/role.schema.ts — validation</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">MSW Mock</div><div class="tl-desc">mocks/roles.msw.ts — ใช้ได้ก่อน BE เสร็จ</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Hook</div><div class="tl-desc">hooks/useRoles.ts — React Query</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-label">Component + Page</div><div class="tl-desc">ตรงตาม mockup docs/mockups/b1dx_full_app_v0.html</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 8. RULES -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="rules">
+    <div class="section-title"><div class="icon">🚨</div> กฎที่ต้องจำ — Red Flags ที่ BLOCK ทันที</div>
+
+    <div class="callout danger">
+      <div class="callout-icon">🚨</div>
+      <div><strong>11 Anti-Patterns นี้ = BLOCKER ทันที</strong> — ไม่มีข้อยกเว้น Reviewer จะ block PR เสมอ</div>
+    </div>
+
+    <table>
+      <thead><tr><th>#</th><th>Anti-Pattern</th><th>ปัญหา</th><th>วิธีที่ถูก</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-red">RF-01</span></td>
+          <td>Query ไม่กรอง <code>tenant_id</code></td>
+          <td>ข้อมูล leak ข้าม tenant</td>
+          <td>เพิ่ม <code>.Where(o => o.TenantId == tenantId)</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-02</span></td>
+          <td><code>TenantId</code> จาก request body</td>
+          <td>attacker ควบคุม tenant ได้</td>
+          <td>ใช้ <code>ICurrentTenant.RequiredTenantId</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-03</span></td>
+          <td>Auth check หลัง fetch data</td>
+          <td>fetch ก่อน check permission</td>
+          <td>check permission ก่อนเสมอ</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-04</span></td>
+          <td>Secret ใน source code</td>
+          <td>credential leaked ใน git</td>
+          <td>ใช้ env var / Secret Manager</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-05</span></td>
+          <td>Raw SQL string interpolation</td>
+          <td>SQL Injection</td>
+          <td>ใช้ parameterized query / LINQ</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-06</span></td>
+          <td><code>&lt;a href&gt;</code> ใน app route (FE)</td>
+          <td>ล้าง access token จาก memory</td>
+          <td>ใช้ <code>router.push()</code> หรือ <code>&lt;Link&gt;</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-07</span></td>
+          <td>Unbounded list query</td>
+          <td>OOM บน large tenant data</td>
+          <td>ใส่ pagination + <code>Math.Clamp(pageSize,1,100)</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-08</span></td>
+          <td>Broken build committed</td>
+          <td>CI พัง ทีมทำงานไม่ได้</td>
+          <td><code>dotnet build &amp;&amp; dotnet test</code> ต้องผ่านก่อน push</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-09</span></td>
+          <td>Spec contract พัง</td>
+          <td>BE/FE ต่อกันไม่ได้</td>
+          <td>แก้ spec ก่อน แล้ว build ตาม spec ใหม่</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-10</span></td>
+          <td>Cross-feature import (FE)</td>
+          <td>ทำลาย feature isolation</td>
+          <td>ย้ายไป <code>shared/</code> ถ้าต้องใช้ร่วมกัน</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">RF-11</span></td>
+          <td>Token ใน localStorage (FE)</td>
+          <td>XSS ขโมย token ได้</td>
+          <td>Access token: in-memory / Refresh token: httpOnly cookie</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:1.5rem">
+      <div class="section-title" style="font-size:1.05rem;border-bottom:1px solid var(--border)">กฎร่วมที่ต้องรู้</div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="callout warn"><div class="callout-icon">🌿</div><div><strong>Branch บังคับ</strong> — ห้าม commit ลง <code>main</code> โดยตรง ต้องสร้าง <code>feat/{name}</code> ก่อนเสมอ</div></div>
+        <div class="callout warn"><div class="callout-icon">📋</div><div><strong>git status ก่อน build</strong> — ดู local changes ที่มีอยู่ก่อนเขียนโค้ดใหม่ ห้ามเขียนทับ</div></div>
+        <div class="callout warn"><div class="callout-icon">🚫</div><div><strong>ห้ามเขียนลง submodule</strong> — <code>./be-repo/</code> และ <code>./web-repo/</code> ใช้อ่าน spec เท่านั้น</div></div>
+        <div class="callout warn"><div class="callout-icon">📊</div><div><strong>หลัง push ทุกครั้ง</strong> — รัน <code>node scripts/gen-progress.mjs</code> อัพเดท progress</div></div>
+        <div class="callout warn"><div class="callout-icon">🎨</div><div><strong>UI ต้องตรง mockup</strong> — อ่าน <code>docs/mockups/b1dx_full_app_v0.html</code> ก่อน build FE ทุกครั้ง</div></div>
+        <div class="callout warn"><div class="callout-icon">📦</div><div><strong>ห้าม deep import @b1dx/ui</strong> — import จาก <code>@b1dx/ui</code> เท่านั้น ห้าม <code>@b1dx/ui/src/...</code></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 12. PATH RULES & SUBMODULE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="path-submodule">
+    <div class="section-title"><div class="icon">🔗</div> Path Rules &amp; Submodule</div>
+
+    <div class="callout warn">
+      <div class="callout-icon">📌</div>
+      <div><strong>กฎทอง:</strong> Submodule ใน workspace = read-only spec mirror · เขียนโค้ดที่ <code>{*_repo_path}</code> เท่านั้น (ตาม <code>workspace.local.json</code>)</div>
+    </div>
+
+    <!-- Submodule SVG diagram -->
+    <div class="diagram">
+      <svg viewBox="0 0 980 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Submodule vs Direct Repo">
+        <defs>
+          <linearGradient id="ps-gRemote" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1e293b"/>
+            <stop offset="1" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="ps-gSub" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fef3c7"/>
+            <stop offset="1" stop-color="#fde68a"/>
+          </linearGradient>
+          <linearGradient id="ps-gDirect" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dcfce7"/>
+            <stop offset="1" stop-color="#bbf7d0"/>
+          </linearGradient>
+          <filter id="ps-sh" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".15"/>
+          </filter>
+          <marker id="ps-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Top: GitHub Remote -->
+        <text x="490" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#475569">🌐 GitHub Remote (single source of truth)</text>
+        <g filter="url(#ps-sh)">
+          <rect x="50" y="35" width="200" height="60" rx="10" fill="url(#ps-gRemote)"/>
+          <text x="150" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx-oms-fulfillment-api</text>
+          <text x="150" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">BE · .NET 10</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="290" y="35" width="200" height="60" rx="10" fill="url(#ps-gRemote)"/>
+          <text x="390" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx-oms-fulfillment-web</text>
+          <text x="390" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">FE · Next.js 15</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="530" y="35" width="200" height="60" rx="10" fill="url(#ps-gRemote)"/>
+          <text x="630" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">b1dx.omsorders.sync.worker</text>
+          <text x="630" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">Worker · .NET 10</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="770" y="35" width="160" height="60" rx="10" fill="url(#ps-gRemote)"/>
+          <text x="850" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">webhook</text>
+          <text x="850" y="78" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.7)">Go 1.25</text>
+        </g>
+
+        <line x1="150" y1="95" x2="150" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="390" y1="95" x2="390" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="630" y1="95" x2="630" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="850" y1="95" x2="850" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <text x="170" y="118" font-size="9" fill="#64748b" font-style="italic">clone (pinned)</text>
+
+        <!-- Middle: Workspace with submodules -->
+        <g filter="url(#ps-sh)">
+          <rect x="30" y="135" width="920" height="155" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="490" y="158" text-anchor="middle" font-size="13" font-weight="800" fill="#475569">🏠 b1dx-fulfillment-workspace/  —  orchestration repo</text>
+
+          <rect x="50" y="170" width="200" height="60" rx="8" fill="url(#ps-gSub)" stroke="#d97706"/>
+          <text x="150" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 be-repo/</text>
+          <text x="150" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="150" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="290" y="170" width="200" height="60" rx="8" fill="url(#ps-gSub)" stroke="#d97706"/>
+          <text x="390" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 web-repo/</text>
+          <text x="390" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="390" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="530" y="170" width="200" height="60" rx="8" fill="url(#ps-gSub)" stroke="#d97706"/>
+          <text x="630" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 sync-worker-repo/</text>
+          <text x="630" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="630" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="770" y="170" width="160" height="60" rx="8" fill="url(#ps-gSub)" stroke="#d97706"/>
+          <text x="850" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">📖 webhook-repo/</text>
+          <text x="850" y="205" text-anchor="middle" font-size="9.5" fill="#92400e">submodule</text>
+          <text x="850" y="220" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">READ ONLY</text>
+
+          <rect x="50" y="245" width="880" height="32" rx="8" fill="#e0e7ff" stroke="#6366f1"/>
+          <text x="490" y="265" text-anchor="middle" font-size="11" font-weight="700" fill="#3730a3">⚙️ workspace.local.json — path config (gitignored)</text>
+        </g>
+
+        <line x1="150" y1="290" x2="150" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="390" y1="290" x2="390" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="630" y1="290" x2="630" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <line x1="850" y1="290" x2="850" y2="325" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ps-arr)" stroke-dasharray="4 3"/>
+        <text x="170" y="312" font-size="9" fill="#64748b" font-style="italic">clone (latest)</text>
+
+        <!-- Bottom: Direct Repos -->
+        <text x="490" y="345" text-anchor="middle" font-size="13" font-weight="800" fill="#15803d">💻 Direct Repos — ที่เขียนโค้ดจริง</text>
+        <g filter="url(#ps-sh)">
+          <rect x="50" y="358" width="200" height="80" rx="10" fill="url(#ps-gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="150" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ b1dx-oms-fulfillment-api</text>
+          <text x="150" y="395" text-anchor="middle" font-size="10" fill="#14532d">BE code</text>
+          <text x="150" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{be_repo_path}</text>
+          <text x="150" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="290" y="358" width="200" height="80" rx="10" fill="url(#ps-gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="390" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ b1dx-oms-fulfillment-web</text>
+          <text x="390" y="395" text-anchor="middle" font-size="10" fill="#14532d">FE code</text>
+          <text x="390" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{fe_repo_path}</text>
+          <text x="390" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="530" y="358" width="200" height="80" rx="10" fill="url(#ps-gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="630" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ sync.worker</text>
+          <text x="630" y="395" text-anchor="middle" font-size="10" fill="#14532d">Worker code</text>
+          <text x="630" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{sync_worker_repo_path}</text>
+          <text x="630" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+        <g filter="url(#ps-sh)">
+          <rect x="770" y="358" width="160" height="80" rx="10" fill="url(#ps-gDirect)" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="850" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">✏️ webhook</text>
+          <text x="850" y="395" text-anchor="middle" font-size="10" fill="#14532d">Go code</text>
+          <text x="850" y="412" text-anchor="middle" font-size="9.5" font-style="italic" fill="#14532d">{webhook_repo_path}</text>
+          <text x="850" y="428" text-anchor="middle" font-size="9" font-weight="700" fill="#15803d">WRITE HERE ✏️</text>
+        </g>
+
+        <text x="490" y="465" text-anchor="middle" font-size="10.5" fill="#64748b" font-style="italic">Submodule และ Direct Repo ชี้ไป remote เดียวกัน — แต่อยู่คนละ working directory</text>
+      </svg>
+      <div class="diagram-caption">Submodule = read-only ref (pinned commit) · Direct repo = write-able working copy</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📁 Path Rules</div>
+      <table>
+        <thead><tr><th>กฎ</th><th>เหตุผล</th></tr></thead>
+        <tbody>
+          <tr><td>อ่าน path จาก <code>workspace.local.json</code></td><td>แต่ละเครื่องมี path ต่างกัน ห้าม hardcode</td></tr>
+          <tr><td>เขียนโค้ดใน <code>{be_repo_path}</code> / <code>{fe_repo_path}</code> / <code>{sync_worker_repo_path}</code> / <code>{webhook_repo_path}</code> เท่านั้น</td><td>submodule เป็น read-only reference</td></tr>
+          <tr><td>ห้ามแตะ <code>./be-repo/</code>, <code>./web-repo/</code>, <code>./sync-worker-repo/</code>, <code>./webhook-repo/</code> ในการเขียนโค้ด</td><td>จะทำให้ submodule diverge จาก direct repo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">เมื่อ submodule out of sync</div>
+      <pre><span style="color:#94a3b8"># reset submodule กลับไป main</span>
+git -C be-repo           checkout main &amp;&amp; git -C be-repo           pull origin main
+git -C web-repo          checkout main &amp;&amp; git -C web-repo          pull origin main
+git -C sync-worker-repo  checkout main &amp;&amp; git -C sync-worker-repo  pull origin main
+git -C webhook-repo      checkout main &amp;&amp; git -C webhook-repo      pull origin main
+
+<span style="color:#94a3b8"># ตรวจสอบ</span>
+git submodule status</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔀 Git Rules เพิ่มเติม</div>
+      <table>
+        <thead><tr><th>กฎ</th><th>เหตุผล</th></tr></thead>
+        <tbody>
+          <tr><td>รัน <code>git status --short</code> ก่อน build ทุกครั้ง</td><td>ป้องกันเขียนทับงานที่ค้างอยู่</td></tr>
+          <tr><td>ถ้ามี local changes → อ่านก่อน ไม่เขียนทับ</td><td>local changes มักสมบูรณ์กว่าที่ agent จะเขียนใหม่</td></tr>
+          <tr><td>ห้าม commit <code>workspace.local.json</code></td><td>มี path เฉพาะเครื่อง (gitignored)</td></tr>
+          <tr><td>Agent ห้าม auto commit / push / PR</td><td>stage ได้ → รอ user สั่ง <code>commit</code> / <code>push</code> / <code>PR</code></td></tr>
+          <tr><td><span class="tag tag-red">BLOCKING</span> ห้าม push ตรงเข้า <code>main</code> ทุก repo</td><td>ทุก change ต้องผ่าน PR + reviewer merge · hard-stop ถ้า user พิมพ์ push main ตรง</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- 13. LESSONS LEARNED -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="section" id="lessons">
+    <div class="section-title"><div class="icon">🎓</div> Lessons Learned (เคสจริง)</div>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem">ข้อผิดพลาดที่เคยเกิด + วิธีป้องกัน — เก็บไว้กันลืม</p>
+
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #1 — Agent เขียนโค้ดลง submodule โดยตรง</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Agent เขียนโค้ดลง <code>./be-repo/</code> → submodule diverge จาก direct repo → ต้องย้าย commit ด้วยมือทีหลัง 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          <code>workspace.local.json</code> ระบุ path จริง → Agent เขียนโค้ดลง <code>{be_repo_path}</code> ✅
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #2 — Agent เขียนทับ local changes</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Dev มีงานค้างใน repo จริง → Agent ไม่รู้ → เขียนโค้ดใหม่ทับ → local changes หาย (มักสมบูรณ์กว่า) 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          ก่อน build → <code>git status --short</code><br/>
+          มี changes → อ่านก่อน ไม่เขียนทับ ✅<br/>
+          ไม่มี → เขียนโค้ดใหม่ได้เลย ✅
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #3 — Hardcode path ใน CLAUDE.md</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          <code>CLAUDE.md: be_repo = D:\2026\pa\...</code> ← path ของคนเดียว → Dev คนอื่น clone → path ไม่ตรง → พัง 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          <code>workspace.local.json</code> (gitignored) — แต่ละคนใส่ path ของตัวเอง<br/>
+          <code>CLAUDE.md</code> อ้างอิง <code>{be_repo_path}</code> แทน ✅
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #4 — Commit/Push ตรงเข้า main (3 ครั้งในวันเดียว · 2026-05-13)</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          Agent run sequence:<br/>
+          <code>git checkout main &amp;&amp; git merge feature/x &amp;&amp; git push origin main</code><br/>
+          → ไม่มี PR, ไม่มี review, ไม่มี context 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          Hardened rule: agent ห้าม push main ทุก repo<br/>
+          → push feature branch → <code>gh pr create</code> → reviewer merge<br/>
+          ถ้า user พิมพ์ push main → <strong>hard-stop + require explicit confirmation each time</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-title lesson-bad">❌ #5 — Visual fidelity miss (EOD-FE-04 · 2026-04-27)</div>
+      <div class="lesson-grid">
+        <div class="lesson-side bad">
+          <div class="lesson-side-title">สิ่งที่เกิด</div>
+          PR merged แล้วแต่ visual ขาด accent bar, header icon+pill, audit trail rows<br/>
+          Tests ผ่านครบ + data-testids ครบ → reviewer approve → user เปิดมาเห็นไม่ตรง mockup 😓
+        </div>
+        <div class="lesson-side good">
+          <div class="lesson-side-title">วิธีป้องกัน</div>
+          Mockup Visual Fidelity (BLOCKING):<br/>
+          • FE Coder: dev server → screenshot vs mockup → checklist 7 ข้อ<br/>
+          • Reviewer: ห้าม approve ก่อนเปิด mockup จริง → require PR screenshot
+        </div>
+      </div>
+      <div class="callout tip" style="margin-top:.8rem">
+        <div class="callout-icon">🎯</div>
+        <div><strong>Lesson:</strong> tests passing ≠ feature เสร็จ — visual fidelity เป็น acceptance criteria เสมอ</div>
+      </div>
+    </div>
+  </div>
+
+  <nav style="margin: 2.5rem 0 1rem; padding: 1.25rem 1.5rem; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: 'Inter', system-ui, sans-serif;">
+    <a href="1.onboarding.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #4338ca; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);"><span style="font-size: 18px;">←</span><span><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>1. Onboarding</span></a>
+    <span style="font-size: 11px; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → <strong style="color:#4338ca">2</strong> → 3 → 4 → 5 → 6</span>
+    <a href="3.feature-bug-workflow-flow.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99,102,241,0.30);"><span style="text-align:right"><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.80;font-weight:500;">Next</small>3. Feature/Bug Workflow Flow</span><span style="font-size: 18px;">→</span></a>
+  </nav>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;color:var(--text-muted);font-size:.8rem;padding-top:2rem;border-top:1px solid var(--border)">
+    b1dx Platform — Agent Workflow Guide &nbsp;·&nbsp; อัพเดทล่าสุด: 2026-05-20
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    const navLinks = Array.from(document.querySelectorAll('nav a[href^="#"]'));
+    const sectionIds = navLinks.map(a => a.getAttribute('href').slice(1));
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+    function setActive(id) {
+      navLinks.forEach(a => {
+        const isActive = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('active', isActive);
+      });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // หา section ที่ intersect อยู่ โดยเลือก entry ที่ top น้อยที่สุด (บนสุด)
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      },
+      {
+        rootMargin: '-60px 0px -40% 0px',
+        threshold: 0
+      }
+    );
+
+    sections.forEach(s => observer.observe(s));
+
+    // fallback: scroll ถึงท้ายสุด → active ตัวสุดท้าย
+    window.addEventListener('scroll', () => {
+      const scrollBottom = window.scrollY + window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (scrollBottom >= docHeight - 10) {
+        setActive(sectionIds[sectionIds.length - 1]);
+      }
+    }, { passive: true });
+  })();
+</script>
+</body>
+</html>
