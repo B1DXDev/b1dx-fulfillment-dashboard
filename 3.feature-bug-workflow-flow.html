@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>B1DX Feature Workflow Flow</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Sukhumvit Set", "Noto Sans Thai", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 50px; }
+  h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .subtitle { color: #94a3b8; font-size: 1rem; }
+
+  .phase {
+    margin-bottom: 40px;
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .phase-0 { background: linear-gradient(135deg, rgba(100,116,139,0.15), rgba(71,85,105,0.10)); border-left: 4px solid #94a3b8; }
+  .phase-1 { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(37,99,235,0.10)); border-left: 4px solid #3b82f6; }
+  .phase-gate { background: linear-gradient(135deg, rgba(234,179,8,0.18), rgba(202,138,4,0.10)); border-left: 4px solid #eab308; }
+  .phase-15 { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(147,51,234,0.10)); border-left: 4px solid #a855f7; }
+  .phase-2 { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.10)); border-left: 4px solid #22c55e; }
+  .phase-3 { background: linear-gradient(135deg, rgba(244,114,182,0.15), rgba(219,39,119,0.10)); border-left: 4px solid #f472b6; }
+  .phase-done { background: linear-gradient(135deg, rgba(16,185,129,0.20), rgba(5,150,105,0.10)); border-left: 4px solid #10b981; }
+
+  .phase-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .phase-num {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 700;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .phase-title { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; }
+  .phase-sub { color: #94a3b8; font-size: 0.9rem; margin-top: 4px; }
+
+  .step-list { display: grid; gap: 12px; }
+  .step {
+    background: rgba(15,23,42,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex; align-items: flex-start; gap: 14px;
+    transition: all 0.2s;
+  }
+  .step:hover { background: rgba(15,23,42,0.8); border-color: rgba(255,255,255,0.12); }
+  .step-icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(59,130,246,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem;
+    color: #93c5fd;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+  .step-desc { color: #94a3b8; font-size: 0.88rem; line-height: 1.5; }
+  .step-desc code, .user-says code, .agent-does code {
+    background: rgba(0,0,0,0.4);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: #fbbf24;
+  }
+
+  /* User says box */
+  .user-says {
+    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06));
+    border: 1px solid rgba(251,191,36,0.35);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #fde68a;
+  }
+  .user-says-label {
+    display: inline-block;
+    background: #f59e0b;
+    color: #1f2937;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .user-cmd {
+    display: inline-block;
+    background: rgba(0,0,0,0.5);
+    color: #fbbf24;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 0.82rem;
+    margin: 2px 4px 2px 0;
+    border: 1px solid rgba(251,191,36,0.3);
+  }
+  .user-cmd-alt { opacity: 0.8; }
+
+  /* Agent does box */
+  .agent-does {
+    background: linear-gradient(135deg, rgba(34,197,94,0.10), rgba(22,163,74,0.05));
+    border: 1px solid rgba(34,197,94,0.30);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #bbf7d0;
+  }
+  .agent-does-label {
+    display: inline-block;
+    background: #22c55e;
+    color: #052e16;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .arrow {
+    text-align: center;
+    margin: -10px 0;
+    font-size: 1.8rem;
+    color: #475569;
+    z-index: 1;
+    position: relative;
+  }
+
+  .parallel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .agent-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .agent-name { font-weight: 700; color: #86efac; margin-bottom: 6px; font-size: 0.95rem; }
+  .agent-desc { color: #94a3b8; font-size: 0.82rem; line-height: 1.4; }
+  .agent-cond { color: #fbbf24; font-size: 0.75rem; margin-top: 6px; font-style: italic; }
+
+  .gate-banner {
+    background: rgba(234,179,8,0.15);
+    border: 1px dashed #eab308;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 14px;
+    color: #fde68a;
+    text-align: center;
+    font-weight: 600;
+  }
+  .gate-banner .big-cmd {
+    display: inline-block;
+    background: rgba(0,0,0,0.6);
+    color: #fbbf24;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 1rem;
+    margin: 6px 4px;
+    border: 1px solid #eab308;
+  }
+
+  .legend {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .legend-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #f1f5f9; }
+  .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #cbd5e1; }
+  .legend-color { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .badge-block { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .badge-auto { background: rgba(34,197,94,0.2); color: #86efac; }
+  .badge-user { background: rgba(234,179,8,0.2); color: #fde68a; }
+
+  .cheatsheet {
+    margin-top: 40px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(245,158,11,0.05));
+    border-radius: 12px;
+    border: 2px solid rgba(251,191,36,0.4);
+  }
+  .cheatsheet h2 {
+    color: #fde68a;
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+  }
+  .cheatsheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .cheatsheet th, .cheatsheet td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.88rem;
+  }
+  .cheatsheet th {
+    color: #fbbf24;
+    font-weight: 700;
+    background: rgba(0,0,0,0.3);
+  }
+  .cheatsheet td { color: #cbd5e1; }
+  .cheatsheet code {
+    background: rgba(0,0,0,0.5);
+    color: #fbbf24;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+  }
+
+  footer { text-align: center; margin-top: 40px; color: #64748b; font-size: 0.85rem; }
+
+  /* ========== Flowchart Styles ========== */
+  .flowchart {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 32px 24px;
+    margin-bottom: 50px;
+    overflow-x: auto;
+  }
+  .flowchart-title {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 8px;
+  }
+  .flowchart-sub {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+  .fc-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 800px;
+  }
+  .fc-node {
+    background: rgba(30, 41, 59, 0.95);
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 14px 24px;
+    min-width: 320px;
+    max-width: 520px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .fc-node.start { border-color: #94a3b8; background: linear-gradient(135deg, rgba(100,116,139,0.3), rgba(71,85,105,0.2)); }
+  .fc-node.design { border-color: #3b82f6; background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(37,99,235,0.15)); }
+  .fc-node.gate { border-color: #eab308; background: linear-gradient(135deg, rgba(234,179,8,0.30), rgba(202,138,4,0.15));
+    transform: rotate(0deg); border-radius: 0; padding: 18px 30px; }
+  .fc-node.gate::before {
+    content: ''; position: absolute; inset: -2px; border: 2px dashed #eab308; border-radius: 0;
+    pointer-events: none;
+  }
+  .fc-node.scaffold { border-color: #a855f7; background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(147,51,234,0.15)); }
+  .fc-node.build { border-color: #22c55e; background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(22,163,74,0.15)); }
+  .fc-node.verify { border-color: #f472b6; background: linear-gradient(135deg, rgba(244,114,182,0.25), rgba(219,39,119,0.15)); }
+  .fc-node.user-cmd-node { border-color: #f59e0b; background: linear-gradient(135deg, rgba(245,158,11,0.30), rgba(217,119,6,0.18)); }
+  .fc-node.done { border-color: #10b981; background: linear-gradient(135deg, rgba(16,185,129,0.30), rgba(5,150,105,0.18)); border-radius: 50px; }
+
+  .fc-label {
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .fc-title { font-weight: 700; color: #f1f5f9; font-size: 1rem; margin-bottom: 6px; }
+  .fc-desc { color: #cbd5e1; font-size: 0.82rem; line-height: 1.4; }
+  .fc-cmd {
+    display: inline-block;
+    background: rgba(0,0,0,0.55);
+    color: #fbbf24;
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 0.85rem;
+    margin: 3px 3px 0 3px;
+    border: 1px solid rgba(251,191,36,0.4);
+    font-weight: 600;
+  }
+
+  .fc-arrow {
+    width: 3px;
+    height: 36px;
+    background: linear-gradient(180deg, #64748b, #475569);
+    position: relative;
+    margin: 4px 0;
+  }
+  .fc-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #475569;
+  }
+  .fc-arrow.user-arrow { background: linear-gradient(180deg, #f59e0b, #d97706); }
+  .fc-arrow.user-arrow::after { border-top-color: #d97706; }
+  .fc-arrow-label {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 8px;
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.4);
+    color: #fde68a;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  /* parallel branching */
+  .fc-parallel {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 8px 0;
+  }
+  .fc-parallel .fc-node {
+    min-width: 180px;
+    max-width: 220px;
+    padding: 12px 14px;
+  }
+  .fc-parallel .fc-title { font-size: 0.9rem; }
+  .fc-parallel .fc-desc { font-size: 0.75rem; }
+
+  .fc-split {
+    width: 80%;
+    max-width: 700px;
+    height: 30px;
+    position: relative;
+    margin-top: 4px;
+  }
+  .fc-split::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 3px; height: 12px;
+    background: #64748b;
+    transform: translateX(-50%);
+  }
+  .fc-split::after {
+    content: '';
+    position: absolute;
+    top: 12px; left: 10%; right: 10%;
+    height: 3px;
+    background: #64748b;
+  }
+  .fc-split-arrows {
+    position: absolute;
+    top: 14px; left: 10%; right: 10%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .fc-split-arrows::before, .fc-split-arrows::after {
+    content: ''; width: 3px; height: 18px; background: #64748b;
+  }
+
+  .fc-merge {
+    width: 80%;
+    max-width: 700px;
+    height: 30px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .fc-merge::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #475569;
+    transform: translateX(-50%);
+  }
+  .fc-merge::after {
+    content: '';
+    position: absolute;
+    bottom: 8px; left: 10%; right: 10%;
+    height: 3px;
+    background: #64748b;
+  }
+
+  /* swimlane key */
+  .fc-key {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .fc-key-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.82rem; color: #cbd5e1;
+  }
+  .fc-key-dot {
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+  }
+  .fc-key-dot.user { background: rgba(245,158,11,0.3); border-color: #f59e0b; }
+  .fc-key-dot.agent { background: rgba(34,197,94,0.3); border-color: #22c55e; }
+  .fc-key-dot.gate { background: rgba(234,179,8,0.3); border-color: #eab308; }
+
+  /* ========== Tab Toggle ========== */
+  .flow-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+  .flow-tab {
+    background: rgba(30,41,59,0.6);
+    border: 2px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    padding: 12px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .flow-tab:hover { border-color: rgba(255,255,255,0.25); color: #e2e8f0; }
+  .flow-tab.active.feature { border-color: #3b82f6; color: #93c5fd; background: rgba(59,130,246,0.15); }
+  .flow-tab.active.bug { border-color: #ef4444; color: #fca5a5; background: rgba(239,68,68,0.15); }
+
+  .flow-content { display: none; }
+  .flow-content.active { display: block; }
+
+  /* Bug fix specific */
+  .phase-bug { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.10)); border-left: 4px solid #ef4444; }
+  .phase-investigate { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(234,88,12,0.10)); border-left: 4px solid #f97316; }
+  .phase-regression { background: linear-gradient(135deg, rgba(217,70,239,0.15), rgba(192,38,211,0.10)); border-left: 4px solid #d946ef; }
+
+  .fc-node.bug-start { border-color: #ef4444; background: linear-gradient(135deg, rgba(239,68,68,0.30), rgba(220,38,38,0.18)); }
+  .fc-node.investigate { border-color: #f97316; background: linear-gradient(135deg, rgba(249,115,22,0.25), rgba(234,88,12,0.15)); }
+  .fc-node.regression { border-color: #d946ef; background: linear-gradient(135deg, rgba(217,70,239,0.25), rgba(192,38,211,0.15)); }
+
+  h1.bug-mode {
+    background: linear-gradient(135deg, #ef4444, #f97316, #eab308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ========== TLDR Summary Card ========== */
+  .tldr {
+    margin-bottom: 36px;
+    padding: 28px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(168,85,247,0.08), rgba(34,197,94,0.08));
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .tldr-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tldr-sub {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+  }
+  .tldr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .tldr-card {
+    background: rgba(15,23,42,0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .tldr-card.user-gates { border-left-color: #f59e0b; }
+  .tldr-card.auto { border-left-color: #22c55e; }
+  .tldr-card.warn { border-left-color: #ef4444; }
+  .tldr-card-title {
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tldr-card-title .pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .tldr-card.user-gates .pill { background: #f59e0b; color: #1f2937; }
+  .tldr-card.auto .pill { background: #22c55e; color: #052e16; }
+  .tldr-card.warn .pill { background: #ef4444; color: #fff5f5; }
+  .tldr-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tldr-card li {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .tldr-card li:last-child { border-bottom: none; }
+  .tldr-card code {
+    background: rgba(0,0,0,0.5);
+    color: #fbbf24;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-family: "Cascadia Code", "Consolas", monospace;
+  }
+  .tldr-card .star { color: #fbbf24; font-weight: 700; }
+  .tldr-hint {
+    margin-top: 16px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+  .tldr-hint kbd {
+    background: rgba(0,0,0,0.5);
+    color: #93c5fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 0.78rem;
+    border: 1px solid rgba(147,197,253,0.3);
+  }
+
+  /* Clickable flowchart nodes */
+  .fc-node[data-jump] {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .fc-node[data-jump]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+  .fc-node[data-jump]::after {
+    content: '↓ คลิกดูรายละเอียด';
+    display: block;
+    margin-top: 6px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.45);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1 id="main-title">🚀 B1DX Workflow</h1>
+  <p class="subtitle">Flow การสั่งงาน — บอกชัดๆ ว่า User สั่งอะไร / Agent ทำอะไร</p>
+</header>
+
+<!-- ========== TAB SWITCHER ========== -->
+<div class="flow-tabs">
+  <button class="flow-tab feature active" onclick="switchFlow('feature')">🚀 New Feature</button>
+  <button class="flow-tab bug" onclick="switchFlow('bug')">🐛 Fix Bug</button>
+</div>
+
+<!-- ========== BUG FIX FLOW ========== -->
+<div id="flow-bug" class="flow-content">
+
+<div class="flowchart" style="border-color: rgba(239,68,68,0.3);">
+  <div class="flowchart-title" style="color:#fca5a5;">🐛 Bug Fix Flow Chart</div>
+  <div class="flowchart-sub">เน้น TDD: เขียน failing regression test ก่อนเสมอ</div>
+
+  <div class="fc-container">
+
+    <div class="fc-node bug-start">
+      <div class="fc-label">START</div>
+      <div class="fc-title">🐛 Bug Report</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">เจอ bug: {symptom}</span></span>
+    </div>
+
+    <div class="fc-node bug-start">
+      <div class="fc-label">PHASE 0 — TRIAGE</div>
+      <div class="fc-title">📋 บันทึก backlog § Issues</div>
+      <div class="fc-desc">ID + symptom + severity + assign dev</div>
+    </div>
+
+    <div class="fc-arrow"></div>
+
+    <div class="fc-node investigate">
+      <div class="fc-label">PHASE 1 — INVESTIGATE</div>
+      <div class="fc-title">🔍 Reproduce + Root Cause</div>
+      <div class="fc-desc">หา repro steps · ระบุไฟล์/บรรทัดที่เป็นต้นเหตุ</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">confirmed root cause</span></span>
+    </div>
+
+    <div class="fc-node gate">
+      <div class="fc-label">🚪 PLAN GATE (ทุก task — bug ก็ต้องผ่าน)</div>
+      <div class="fc-title">📝 plan.md — symptom · root cause · fix · regression test</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">build</span> / <span class="fc-cmd">ลุย</span> ⭐</span>
+    </div>
+
+    <div class="fc-node regression">
+      <div class="fc-label">PHASE 2 — TDD (BLOCKING)</div>
+      <div class="fc-title">🧪 เขียน Regression Test (failing ก่อน)</div>
+      <div class="fc-desc">test ที่ reproduce bug → รัน → ต้อง <strong style="color:#fca5a5;">FAIL</strong> ก่อน</div>
+    </div>
+
+    <div class="fc-arrow"></div>
+
+    <div class="fc-node build">
+      <div class="fc-title">🔧 Fix Code</div>
+      <div class="fc-desc">แก้ root cause — minimal change</div>
+    </div>
+
+    <div class="fc-arrow"></div>
+
+    <div class="fc-node verify">
+      <div class="fc-label">PHASE 3 — VERIFY</div>
+      <div class="fc-title">✅ Regression Test PASS + Suite เดิมยังผ่าน</div>
+      <div class="fc-desc">⚠️ ห้าม auto commit — รอ user สั่ง</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">commit</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node">
+      <div class="fc-title">💾 git commit (<code style="background:rgba(0,0,0,0.4);padding:1px 6px;border-radius:3px;color:#fbbf24;font-size:0.78rem;">fix: ...</code>)</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">push</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node">
+      <div class="fc-title">⬆️ git push origin fix/{branch}</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">PR</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node">
+      <div class="fc-title">🔀 gh pr create + repro steps + screenshot</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">merged: {BUG-ID}</span></span>
+    </div>
+
+    <div class="fc-node done">
+      <div class="fc-label">✅ RESOLVED</div>
+      <div class="fc-title">🎉 backlog § Issues → ✓ Resolved</div>
+    </div>
+
+  </div>
+
+  <div class="fc-key">
+    <div class="fc-key-item"><div class="fc-key-dot user"></div> User ต้องสั่ง</div>
+    <div class="fc-key-item"><div class="fc-key-dot agent"></div> Agent ทำ auto</div>
+    <div class="fc-key-item"><div class="fc-key-dot gate"></div> Gate — หยุดรอ</div>
+    <div class="fc-key-item">⭐ = trigger สำคัญ</div>
+  </div>
+</div>
+
+<!-- BUG: Phase 0 -->
+<div class="phase phase-bug">
+  <div class="phase-header">
+    <div class="phase-num">0</div>
+    <div>
+      <div class="phase-title">Bug Report + Triage</div>
+      <div class="phase-sub">User แจ้ง bug → บันทึก backlog → assign</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">0.1</div>
+      <div class="step-content">
+        <div class="step-title">User แจ้ง bug</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">เจอ bug: {symptom}</span>
+          <span class="user-cmd user-cmd-alt">มี bug ที่ {หน้า/feature}: {เกิดอะไร}</span><br>
+          <small style="opacity:0.85;">บอก: <strong>เกิดอะไร · คาดหวังอะไร · repro steps · ข้อความ error</strong></small>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">0.2</div>
+      <div class="step-content">
+        <div class="step-title">Agent บันทึก backlog § Issues</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          เพิ่มใน <code>tasks/backlog.md</code> § Issues Backlog: ID, symptom, severity, assign<br>
+          <strong style="color:#fca5a5;">ห้ามสร้างไฟล์ docs/issues แยก</strong> — backlog เท่านั้น
+          <span class="badge badge-block">BLOCKING</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">0.3</div>
+      <div class="step-content">
+        <div class="step-title">Agent ขอ severity (ถ้าไม่ระบุ)</div>
+        <div class="user-says">
+          <span class="user-says-label">USER ตอบ</span>
+          <span class="user-cmd">critical</span>
+          <span class="user-cmd user-cmd-alt">high</span>
+          <span class="user-cmd user-cmd-alt">medium</span>
+          <span class="user-cmd user-cmd-alt">low</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Phase 1 - Investigate -->
+<div class="phase phase-investigate">
+  <div class="phase-header">
+    <div class="phase-num">1</div>
+    <div>
+      <div class="phase-title">Investigate — Reproduce + Root Cause</div>
+      <div class="phase-sub">หาที่มาก่อนแก้ ห้ามเดา</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">1.1</div>
+      <div class="step-content">
+        <div class="step-title">Agent reproduce bug</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ทำตาม repro steps · capture log/screenshot · ยืนยันว่า bug จริง
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">1.2</div>
+      <div class="step-content">
+        <div class="step-title">Agent หา root cause</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          อ่านโค้ดที่เกี่ยวข้อง · trace flow · ระบุไฟล์/บรรทัดที่ผิด · ระบุว่าทำไมผิด<br>
+          <strong style="color:#fca5a5;">ห้ามแก้แบบ workaround ที่ทำให้ bug หาย แต่ root cause ยังอยู่</strong>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">1.3</div>
+      <div class="step-content">
+        <div class="step-title">Agent รายงาน + ขอ confirm</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          แสดง: repro confirmed · root cause · proposed fix · regression test scenarios
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">confirmed</span>
+          <span class="user-cmd user-cmd-alt">approved</span>
+          <span class="user-cmd user-cmd-alt">root cause ถูกต้อง</span><br>
+          <small style="opacity:0.85;">หรือ <span class="user-cmd" style="color:#fca5a5;">ลองดูใหม่</span> ถ้า root cause ไม่ถูก</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Plan Gate -->
+<div class="phase phase-gate">
+  <div class="phase-header">
+    <div class="phase-num">🚪</div>
+    <div>
+      <div class="phase-title">Plan Gate (Bug ก็ต้องผ่าน) <span class="badge badge-block">BLOCKING</span></div>
+      <div class="phase-sub">ทุก task ไม่ว่าขนาด — รวม bug fix</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">G.1</div>
+      <div class="step-content">
+        <div class="step-title">Agent แสดง Plan 4 รายการ (ปรับสำหรับ bug)</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① Scope: ไฟล์ที่แก้ + minimal change<br>
+          ② current (broken) → expected (fixed)<br>
+          ③ SIT Impact: flow อื่นที่ใช้โค้ดเดียวกัน<br>
+          ④ <strong>Test Plan: Test Cases case แรก = <code>regression: {reproduce bug}</code></strong>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">G.2</div>
+      <div class="step-content">
+        <div class="step-title">Agent สร้าง plan.md + update 3 ไฟล์</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>tasks/plans/{BUG-ID}/plan.md</code> Status: Draft + <code>backlog.md</code> + <code>current-sprint.md</code> + <code>assignments/YYYY-MM-{name}.md</code>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">G.3</div>
+      <div class="step-content">
+        <div class="step-title">รอ user trigger</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">build</span>
+          <span class="user-cmd">ลุย</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="gate-banner">
+    ⏸ พิมพ์ <span class="big-cmd">build</span> หรือ <span class="big-cmd">ลุย</span> เพื่อเริ่มแก้
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Phase 2 - Regression Test (TDD) -->
+<div class="phase phase-regression">
+  <div class="phase-header">
+    <div class="phase-num">2A</div>
+    <div>
+      <div class="phase-title">เขียน Failing Regression Test ก่อน <span class="badge badge-block">TDD BLOCKING</span></div>
+      <div class="phase-sub">test ก่อนแก้โค้ด — ขั้นที่ต่างจาก feature ชัดที่สุด</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">2A.1</div>
+      <div class="step-content">
+        <div class="step-title">Agent เขียน test ที่ reproduce bug</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          BE: unit/integration test · FE: E2E test (in <code>e2e/{bug-id}/</code>)<br>
+          test name: <code>regression_{bug-id}_{scenario}</code>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">2A.2</div>
+      <div class="step-content">
+        <div class="step-title">รัน test — ต้อง FAIL</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>dotnet test</code> / <code>pnpm test</code> / <code>playwright test</code><br>
+          <strong style="color:#fca5a5;">ถ้า test ผ่านตั้งแต่ยังไม่แก้ = test เขียนผิด</strong> ต้องเขียนใหม่ให้ fail ก่อน
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Phase 2B - Fix -->
+<div class="phase phase-2">
+  <div class="phase-header">
+    <div class="phase-num">2B</div>
+    <div>
+      <div class="phase-title">Fix Code <span class="badge badge-auto">AUTO-PROCEED</span></div>
+      <div class="phase-sub">แก้ root cause — minimal change ไม่เพิ่ม scope</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">2B.1</div>
+      <div class="step-content">
+        <div class="step-title">Agent แก้โค้ดที่ root cause</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① <code>git checkout main && pull && checkout -b fix/{bug-id}</code><br>
+          ② แก้เฉพาะที่จำเป็น ห้ามทำ refactor นอก scope<br>
+          ③ ถ้าเจอ bug อื่น → log ใน <code>backlog.md</code> แล้วถาม user ก่อนแก้ (Stop List #11)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Phase 3 - Verify -->
+<div class="phase phase-3">
+  <div class="phase-header">
+    <div class="phase-num">3</div>
+    <div>
+      <div class="phase-title">Verify + Stage</div>
+      <div class="phase-sub">regression test ผ่าน + suite เดิมยังผ่าน</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">3.1</div>
+      <div class="step-content">
+        <div class="step-title">Regression test PASS</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          test ที่เคย fail ตอนนี้ต้องผ่าน — ถ้ายัง fail = fix ไม่ตรง root cause
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">3.2</div>
+      <div class="step-content">
+        <div class="step-title">Test suite เดิมยังผ่านทั้งหมด</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ห้ามมี test เดิม fail หลัง fix — ถ้ามีต้องหยุดถาม user (Stop List #12)
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">3.3</div>
+      <div class="step-content">
+        <div class="step-title">Stage + Report</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>git add</code> + รายงาน: branch · ไฟล์ · commit msg ที่ร่าง (<code>fix: ...</code>) · test result
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER ต่อไป</span>
+          ตัดสินใจสั่ง commit / push / PR
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: User commands -->
+<div class="phase phase-gate">
+  <div class="phase-header">
+    <div class="phase-num">👤</div>
+    <div>
+      <div class="phase-title">User สั่ง Commit / Push / PR</div>
+      <div class="phase-sub">เหมือน feature — แต่ commit prefix = <code>fix:</code></div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">💾</div>
+      <div class="step-content">
+        <div class="step-title">Commit</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">commit</span><br>
+          <small style="opacity:0.85;">Agent commit: <code>fix({scope}): {description}</code></small>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">⬆️</div>
+      <div class="step-content">
+        <div class="step-title">Push</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">push</span><br>
+          <small style="opacity:0.85;">Branch: <code>fix/{bug-id}</code> — ห้าม push main ตรง</small>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">🔀</div>
+      <div class="step-content">
+        <div class="step-title">PR (พิเศษสำหรับ bug)</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">PR</span>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          PR description ต้องมี: <strong>repro steps · root cause · fix description · regression test · screenshot before/after</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- BUG: Resolved -->
+<div class="phase phase-done">
+  <div class="phase-header">
+    <div class="phase-num">✅</div>
+    <div>
+      <div class="phase-title">Bug Resolved</div>
+      <div class="phase-sub">Merge → mark resolved ใน backlog</div>
+    </div>
+  </div>
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">✓.1</div>
+      <div class="step-content">
+        <div class="step-title">User merge PR</div>
+        <div class="user-says">
+          <span class="user-says-label">USER ทำเอง</span>
+          กด Merge บน GitHub
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">✓.2</div>
+      <div class="step-content">
+        <div class="step-title">แจ้ง agent</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">merged: {BUG-ID}</span>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① <code>backlog.md</code> § Issues: <strong>✓ Resolved {date} (PR #{N})</strong><br>
+          ② <code>plan.md</code> Status: Done<br>
+          ③ <code>current-sprint.md</code> [x] Done<br>
+          ④ <code>assignments/YYYY-MM-{name}.md</code> [👀] → [x] Done<br>
+          ⑤ <code>gen-progress.mjs</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUG vs FEATURE comparison -->
+<div class="cheatsheet" style="border-color: rgba(239,68,68,0.4); background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(220,38,38,0.04));">
+  <h2 style="color:#fca5a5;">🆚 Bug Fix vs New Feature — ต่างกันตรงไหน</h2>
+  <table>
+    <thead>
+      <tr><th>ขั้น</th><th>🚀 Feature</th><th>🐛 Bug Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Trigger</td>
+        <td><code>สร้าง feature X</code></td>
+        <td><code>เจอ bug: ...</code></td>
+      </tr>
+      <tr>
+        <td>Phase 1</td>
+        <td>Design + Spec + Mockup</td>
+        <td><strong>Reproduce + Root Cause</strong></td>
+      </tr>
+      <tr>
+        <td>Phase 1.5</td>
+        <td>Scaffold E2E (test.skip)</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Phase 2 — Test</td>
+        <td>เขียน test คู่กับ impl</td>
+        <td><strong>เขียน failing regression test ก่อน fix</strong></td>
+      </tr>
+      <tr>
+        <td>Phase 2 — Code</td>
+        <td>Build feature ใหม่</td>
+        <td>Minimal fix ที่ root cause</td>
+      </tr>
+      <tr>
+        <td>Branch</td>
+        <td><code>feat/{name}</code></td>
+        <td><code>fix/{bug-id}</code></td>
+      </tr>
+      <tr>
+        <td>Commit prefix</td>
+        <td><code>feat:</code></td>
+        <td><code>fix:</code></td>
+      </tr>
+      <tr>
+        <td>PR ต้องมี</td>
+        <td>Screenshot · Mockup fidelity</td>
+        <td><strong>Repro · Root cause · Before/After screenshot</strong></td>
+      </tr>
+      <tr>
+        <td>Done update</td>
+        <td>plan.md + sprint</td>
+        <td><strong>backlog § Issues → ✓ Resolved</strong> + plan.md + sprint</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+<!-- ========== END BUG FLOW ========== -->
+
+<!-- ========== FEATURE FLOW ========== -->
+<div id="flow-feature" class="flow-content active">
+
+<!-- ============== TLDR Summary ============== -->
+<div class="tldr">
+  <div class="tldr-title">⚡ TLDR — จุดสำคัญที่ต้องจำ</div>
+  <div class="tldr-sub">B1DX Feature Workflow — สรุปก่อนดู flow ยาว</div>
+
+  <div class="tldr-grid">
+    <div class="tldr-card user-gates">
+      <div class="tldr-card-title">
+        🟡 3 จุดที่ User ต้อง "สั่ง"
+        <span class="pill">GATE</span>
+      </div>
+      <ul>
+        <li>หลัง <strong>Design</strong> → <code>confirmed</code> / <code>approved</code></li>
+        <li>หลัง <strong>Plan Gate</strong> → <code>build</code> / <code>ลุย</code> <span class="star">⭐</span><br>
+          <small style="opacity:0.75;">trigger หลัก · Status: Draft → Confirmed · agent รันยาวไม่หยุด</small></li>
+        <li>หลัง <strong>Verify</strong> → <code>commit</code> → <code>push</code> → <code>PR</code> → สุดท้าย <code>merged: {TICKET}</code></li>
+      </ul>
+    </div>
+
+    <div class="tldr-card auto">
+      <div class="tldr-card-title">
+        🟢 ขั้นที่ Agent ทำเองยาวๆ
+        <span class="pill">AUTO</span>
+      </div>
+      <ul>
+        <li><strong>Phase 1.5</strong> Scaffold E2E tests (test.skip)</li>
+        <li><strong>Phase 2</strong> Build parallel — 4 subagent (BE / FE / Sync / Webhook)</li>
+        <li style="color:#fde68a;">⚠️ Auto-proceed ตลอด <strong>ยกเว้นชน Stop List 13 เงื่อนไข</strong> (scope change, breaking change, irreversible ฯลฯ)</li>
+      </ul>
+    </div>
+
+    <div class="tldr-card warn">
+      <div class="tldr-card-title">
+        🔴 ข้อระวัง
+        <span class="pill">RULES</span>
+      </div>
+      <ul>
+        <li>Phase 3 verify เสร็จ → agent <code>git add</code> ได้ <br><strong style="color:#fca5a5;">แต่ห้าม auto commit/push/PR</strong> — กฎเด็ดขาด</li>
+        <li><strong>ห้าม push main ตรง</strong> → ต้อง <code>yes push main</code> explicit เท่านั้น</li>
+        <li>UI changes ต้อง verify <strong>visual fidelity vs mockup</strong> ก่อน mark done (ไม่ใช่แค่ test pass)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tldr-hint">
+    💡 คลิกที่ box ไหนใน flowchart ก็ได้ — จะ scroll ลงไปยังรายละเอียดของ phase นั้น
+  </div>
+</div>
+
+<!-- ============== FLOWCHART (Visual Summary) ============== -->
+<div class="flowchart">
+  <div class="flowchart-title">📊 Flow Chart — ดูได้ในที่เดียว</div>
+  <div class="flowchart-sub">เส้นเหลือง = User ต้องสั่ง · เส้นเทา = Agent ทำ auto · คลิก box เพื่อดูรายละเอียด</div>
+
+  <div class="fc-container">
+
+    <!-- START -->
+    <div class="fc-node start" data-jump="phase-0-detail">
+      <div class="fc-label">START</div>
+      <div class="fc-title">📥 Feature Request</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">สร้าง feature X: ...</span></span>
+    </div>
+
+    <!-- Phase 0 -->
+    <div class="fc-node start" data-jump="phase-0-detail">
+      <div class="fc-label">PHASE 0</div>
+      <div class="fc-title">🎯 Orchestrator วิเคราะห์</div>
+      <div class="fc-desc">ระบุ BE/FE/Sync/Webhook · ถามข้อมูลที่ขาด</div>
+    </div>
+
+    <div class="fc-arrow"></div>
+
+    <!-- Phase 1 -->
+    <div class="fc-node design" data-jump="phase-1-detail">
+      <div class="fc-label">PHASE 1 — DESIGN</div>
+      <div class="fc-title">📐 อ่าน CLAUDE.md + Mockup → เขียน Spec</div>
+      <div class="fc-desc">docs/specs/{feature}.md + Test Plan</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">confirmed</span> / <span class="fc-cmd">approved</span></span>
+    </div>
+
+    <!-- Plan Gate -->
+    <div class="fc-node gate" data-jump="plan-gate-detail">
+      <div class="fc-label">🚪 PLAN GATE</div>
+      <div class="fc-title">📋 แสดง Plan 4 รายการ + สร้าง plan.md</div>
+      <div class="fc-desc">Scope · current→expected · SIT Impact · Test Plan<br><strong style="color:#fbbf24;">หยุดรอ → Status: Draft</strong></div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">build</span> / <span class="fc-cmd">ลุย</span> ⭐</span>
+    </div>
+
+    <!-- Phase 1.5 -->
+    <div class="fc-node scaffold" data-jump="phase-15-detail">
+      <div class="fc-label">PHASE 1.5</div>
+      <div class="fc-title">🧪 Scaffold E2E Tests (test.skip)</div>
+      <div class="fc-desc">UI Tester subagent — auto</div>
+    </div>
+
+    <div class="fc-arrow"></div>
+
+    <!-- Phase 2 split -->
+    <div class="fc-node build" data-jump="phase-2-detail" style="background: rgba(34,197,94,0.15); border-style: dashed;">
+      <div class="fc-label">PHASE 2 — BUILD (PARALLEL)</div>
+      <div class="fc-title">🚀 Spawn Subagents — Auto-Proceed</div>
+      <div class="fc-desc">ไม่ confirm กลางทาง ยกเว้นชน Stop List</div>
+    </div>
+
+    <div class="fc-split">
+      <div class="fc-split-arrows"></div>
+    </div>
+
+    <div class="fc-parallel">
+      <div class="fc-node build">
+        <div class="fc-title">⚙️ BE</div>
+        <div class="fc-desc">Domain → App → Infra → Api</div>
+      </div>
+      <div class="fc-node build">
+        <div class="fc-title">🎨 FE</div>
+        <div class="fc-desc">types → zod → MSW → hook → page</div>
+      </div>
+      <div class="fc-node build">
+        <div class="fc-title">🔄 Sync</div>
+        <div class="fc-desc">(ถ้ามี sync feature)</div>
+      </div>
+      <div class="fc-node build">
+        <div class="fc-title">🪝 Webhook</div>
+        <div class="fc-desc">(ถ้ามี ingestion)</div>
+      </div>
+    </div>
+
+    <div class="fc-merge"></div>
+
+    <!-- Phase 3 -->
+    <div class="fc-node verify" data-jump="phase-3-detail">
+      <div class="fc-label">PHASE 3 — VERIFY</div>
+      <div class="fc-title">✅ Build + Test + Mockup Fidelity + Stage</div>
+      <div class="fc-desc">⚠️ ห้าม auto commit — รอ user สั่ง</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">commit</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node" data-jump="user-cmds-detail">
+      <div class="fc-label">USER COMMAND</div>
+      <div class="fc-title">💾 git commit</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">push</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node" data-jump="user-cmds-detail">
+      <div class="fc-label">USER COMMAND</div>
+      <div class="fc-title">⬆️ git push origin {branch}</div>
+      <div class="fc-desc" style="color:#fca5a5;">⚠️ ห้าม push main ตรง — ต้อง <code style="color:#fbbf24;background:rgba(0,0,0,0.4);padding:1px 6px;border-radius:3px;">yes push main</code> explicit</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER: <span class="fc-cmd">PR</span></span>
+    </div>
+
+    <div class="fc-node user-cmd-node" data-jump="user-cmds-detail">
+      <div class="fc-label">USER COMMAND</div>
+      <div class="fc-title">🔀 gh pr create + screenshot</div>
+      <div class="fc-desc">plan.md: Confirmed → In Review</div>
+    </div>
+
+    <div class="fc-arrow user-arrow">
+      <span class="fc-arrow-label">USER merge บน GitHub → <span class="fc-cmd">merged: {TICKET}</span></span>
+    </div>
+
+    <!-- DONE -->
+    <div class="fc-node done" data-jump="done-detail">
+      <div class="fc-label">✅ DONE</div>
+      <div class="fc-title">🎉 Merged + Update plan.md/sprint/progress</div>
+    </div>
+
+  </div>
+
+  <div class="fc-key">
+    <div class="fc-key-item"><div class="fc-key-dot user"></div> User ต้องสั่ง</div>
+    <div class="fc-key-item"><div class="fc-key-dot agent"></div> Agent ทำ auto</div>
+    <div class="fc-key-item"><div class="fc-key-dot gate"></div> Gate — หยุดรอ</div>
+    <div class="fc-key-item">⭐ = trigger สำคัญ</div>
+  </div>
+</div>
+
+<!-- ============== Phase 0 ============== -->
+<div class="phase phase-0" id="phase-0-detail">
+  <div class="phase-header">
+    <div class="phase-num">0</div>
+    <div>
+      <div class="phase-title">Feature Request เข้ามา</div>
+      <div class="phase-sub">User เริ่มงาน → Orchestrator รับ</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">0.1</div>
+      <div class="step-content">
+        <div class="step-title">User แจ้ง feature</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">สร้าง feature {ชื่อ}: {อธิบายสั้นๆ}</span>
+          <span class="user-cmd user-cmd-alt">อ่าน agents/orchestrator.md แล้ว build feature {ชื่อ}</span><br>
+          <small style="opacity:0.85;">หรือเพิ่ม task ลง <code>tasks/current-sprint.md</code> แล้วบอก agent</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">0.2</div>
+      <div class="step-content">
+        <div class="step-title">Orchestrator วิเคราะห์ scope</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          อ่าน <code>agents/orchestrator.md</code> + <code>tasks/current-sprint.md</code> → ระบุ BE/FE/Sync/Webhook ที่เกี่ยวข้อง
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">0.3</div>
+      <div class="step-content">
+        <div class="step-title">ข้อมูลครบไหม?</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ไม่ครบ → <strong style="color:#fca5a5">หยุดถาม user ก่อน</strong> ห้ามสมมติเอง
+          <span class="badge badge-block">BLOCKING</span>
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER ตอบ</span>
+          ตอบคำถาม clarify ของ agent — หรือพิมพ์ <span class="user-cmd">ใช้ default</span> ถ้าไม่ระบุ
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Phase 1 ============== -->
+<div class="phase phase-1" id="phase-1-detail">
+  <div class="phase-header">
+    <div class="phase-num">1</div>
+    <div>
+      <div class="phase-title">Design Phase</div>
+      <div class="phase-sub">อ่าน CLAUDE.md → mockup → spec → ขอ confirm</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">1.1-1.4</div>
+      <div class="step-content">
+        <div class="step-title">Agent ออกแบบ + เขียน spec</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① อ่าน <code>be-repo/CLAUDE.md</code> + <code>web-repo/CLAUDE.md</code><br>
+          ② อ่าน mockup (<code>Mockup:</code> ใน spec → fallback <code>b1dx_full_app_v0.html</code>)<br>
+          ③ ออกแบบ data model + API contract<br>
+          ④ เขียน <code>docs/specs/{feature}.md</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">1.5</div>
+      <div class="step-content">
+        <div class="step-title">Agent แสดง Test Plan + ขอ confirm</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          แสดง: BE unit ทุก layer + integration · FE hook + component + E2E
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">confirmed</span>
+          <span class="user-cmd user-cmd-alt">approved</span>
+          <span class="user-cmd user-cmd-alt">looks good</span>
+          <span class="user-cmd user-cmd-alt">ok spec</span><br>
+          <small style="opacity:0.85; color:#fca5a5;">⚠️ อย่าใช้ <code>build</code> ตอนนี้ — gate นี้คนละอันกับ Plan Gate</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Pre-Build Plan Gate ============== -->
+<div class="phase phase-gate" id="plan-gate-detail">
+  <div class="phase-header">
+    <div class="phase-num">🚪</div>
+    <div>
+      <div class="phase-title">Pre-Build Plan Gate <span class="badge badge-block">BLOCKING</span></div>
+      <div class="phase-sub">ทุก task ขนาด — ห้าม build ก่อน user trigger</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">G.1</div>
+      <div class="step-content">
+        <div class="step-title">Agent แสดง Plan ใน chat (4 รายการ)</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① Plan &amp; Scope (ตารางไฟล์ที่แก้/ไม่แก้)<br>
+          ② Summary current → expected ต่อ item<br>
+          ③ SIT Impact (flow อื่นที่กระทบ)<br>
+          ④ Test Plan (unit + E2E happy/edge/error)
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">G.2</div>
+      <div class="step-content">
+        <div class="step-title">Agent สร้าง plan.md + update 3 ไฟล์</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① <code>tasks/plans/{TICKET-ID}/plan.md</code> (Status: Draft)<br>
+          ② <code>tasks/backlog.md</code> § Issues<br>
+          ③ <code>tasks/current-sprint.md</code><br>
+          ④ <code>tasks/assignments/YYYY-MM-{name}.md</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">G.3</div>
+      <div class="step-content">
+        <div class="step-title">Agent ปิดท้ายด้วย call-to-action → รอ user trigger</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง (Primary)</span>
+          <span class="user-cmd">build</span>
+          <span class="user-cmd">ลุย</span>
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง (Secondary)</span>
+          <span class="user-cmd user-cmd-alt">confirm</span>
+          <span class="user-cmd user-cmd-alt">go</span>
+          <span class="user-cmd user-cmd-alt">ยืนยัน</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-banner">
+    ⏸ <strong>หยุดรอที่ Gate นี้</strong><br>
+    User พิมพ์ <span class="big-cmd">build</span> หรือ <span class="big-cmd">ลุย</span> เพื่อเริ่ม<br>
+    <small style="font-weight:400; opacity:0.85;">เมื่อ trigger → Status: Draft → Confirmed → build ต่อเนื่อง ไม่ confirm กลางทาง ยกเว้นชน Stop List (13 เงื่อนไข)</small>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Phase 1.5 ============== -->
+<div class="phase phase-15" id="phase-15-detail">
+  <div class="phase-header">
+    <div class="phase-num">1.5</div>
+    <div>
+      <div class="phase-title">Scaffold Tests</div>
+      <div class="phase-sub">UI Tester subagent — เขียน E2E (test.skip) ก่อน build</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">📝</div>
+      <div class="step-content">
+        <div class="step-title">Spawn UI Tester subagent</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ (auto)</span>
+          อ่าน <code>agents/ui-tester.md</code> + spec → เขียน <code>e2e/{feature}/{feature}.spec.ts</code> (test.skip ทุกตัว) → commit
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <em style="color:#94a3b8;">— ไม่ต้องสั่งอะไร agent ทำต่อเอง —</em>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Phase 2 ============== -->
+<div class="phase phase-2" id="phase-2-detail">
+  <div class="phase-header">
+    <div class="phase-num">2</div>
+    <div>
+      <div class="phase-title">Build Phase (Parallel) <span class="badge badge-auto">AUTO-PROCEED</span></div>
+      <div class="phase-sub">Spawn subagent แต่ละ repo — ไม่ต้องสั่งระหว่างทาง</div>
+    </div>
+  </div>
+
+  <div style="color:#94a3b8; font-size:0.88rem; margin-bottom:12px;">
+    ทุก subagent ทำ auto: <code>git status</code> → <code>checkout main && pull && checkout -b {branch}</code> → TDD → <code>gen-progress.mjs</code>
+  </div>
+
+  <div class="parallel-grid">
+    <div class="agent-card">
+      <div class="agent-name">⚙️ BE Subagent</div>
+      <div class="agent-desc">Domain → Application → Infrastructure → Api → integration<br>
+      <code style="font-size:0.75rem;">dotnet build && dotnet test</code></div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">🎨 FE Subagent</div>
+      <div class="agent-desc">types → zod → MSW → hook → component → page<br>
+      <code style="font-size:0.75rem;">pnpm lint && typecheck && test</code></div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">🔄 Sync Worker</div>
+      <div class="agent-desc">Domain → Service → Infrastructure → BackgroundJob
+      <div class="agent-cond">เฉพาะ feature sync</div></div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">🪝 Webhook</div>
+      <div class="agent-desc">Domain → Service → Adapter → Handler (HTTP 202 + RabbitMQ)
+      <div class="agent-cond">เฉพาะ ingestion/OAuth/marketplace</div></div>
+    </div>
+  </div>
+
+  <div class="user-says" style="margin-top:14px;">
+    <span class="user-says-label">USER สั่ง</span>
+    <em style="color:#94a3b8;">— ไม่ต้องสั่งอะไร —</em> ยกเว้น agent ชน Stop List (13 เงื่อนไข) เช่น scope change, breaking change, irreversible
+    → agent จะหยุดถาม user เอง<br>
+    <small style="opacity:0.85;">User ตอบ: <span class="user-cmd">ok proceed</span> / <span class="user-cmd">ไม่ทำ skip</span> / <span class="user-cmd">เพิ่ม scope</span></small>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Phase 3 ============== -->
+<div class="phase phase-3" id="phase-3-detail">
+  <div class="phase-header">
+    <div class="phase-num">3</div>
+    <div>
+      <div class="phase-title">Verify &amp; Report</div>
+      <div class="phase-sub">ทดสอบจริง + stage + report ให้ user</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">3.1</div>
+      <div class="step-content">
+        <div class="step-title">Verify build/test ทั้ง 2 repo</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          BE: <code>dotnet build && dotnet test</code> &nbsp;|&nbsp; FE: <code>pnpm lint && typecheck && test</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">3.2</div>
+      <div class="step-content">
+        <div class="step-title">Spawn UI Tester รอบ 2 (un-skip)</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          un-skip tests → <code>playwright test e2e/{feature}/</code> ต้องผ่านทั้งหมด
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">3.3</div>
+      <div class="step-content">
+        <div class="step-title">Mockup Visual Fidelity Check <span class="badge badge-block">BLOCKING</span></div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          FE Coder: dev server → screenshot vs mockup → ตอบ checklist 7 ข้อ — Tests passing ≠ feature เสร็จ
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">3.4</div>
+      <div class="step-content">
+        <div class="step-title">Stage files + Report</div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>git add</code> ได้ — แต่ <strong style="color:#fca5a5">ห้าม auto</strong> <code>commit / push / gh pr create</code><br>
+          รายงาน: branch · ไฟล์ที่แก้ · commit message ที่ร่าง · test result
+          <span class="badge badge-block">BLOCKING</span>
+        </div>
+        <div class="user-says">
+          <span class="user-says-label">USER ต่อไป</span>
+          อ่าน report ของ agent → ตัดสินใจสั่ง commit / push / PR (ดู Phase ถัดไป)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== User Commands (Commit/Push/PR) ============== -->
+<div class="phase phase-gate" id="user-cmds-detail">
+  <div class="phase-header">
+    <div class="phase-num">👤</div>
+    <div>
+      <div class="phase-title">User สั่ง Commit / Push / PR</div>
+      <div class="phase-sub">User สั่งทีละขั้น — agent ทำตามทันที ไม่ถามซ้ำ</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">💾</div>
+      <div class="step-content">
+        <div class="step-title">Commit</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">commit</span>
+          <span class="user-cmd user-cmd-alt">คอมมิท</span>
+          <span class="user-cmd user-cmd-alt">commit ด้วย message ที่ร่าง</span>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>git commit</code> ด้วย message ที่ร่างไว้ใน Stage step
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">⬆️</div>
+      <div class="step-content">
+        <div class="step-title">Push (feature branch)</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">push</span>
+          <span class="user-cmd user-cmd-alt">พุช</span>
+          <span class="user-cmd user-cmd-alt">push origin {branch}</span>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>git push origin {feature-branch}</code> + รัน <code>gen-progress.mjs</code> ที่ workspace
+        </div>
+        <div class="user-says" style="background:rgba(239,68,68,0.10); border-color:rgba(239,68,68,0.4);">
+          <span class="user-says-label" style="background:#ef4444; color:white;">PUSH MAIN</span>
+          ห้าม push main ตรง — ต้อง explicit <span class="user-cmd" style="color:#fca5a5;">yes push main</span> เท่านั้น
+          <span class="badge badge-block">BLOCKING</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">🔀</div>
+      <div class="step-content">
+        <div class="step-title">Create PR</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">PR</span>
+          <span class="user-cmd user-cmd-alt">pr</span>
+          <span class="user-cmd user-cmd-alt">create pr</span>
+          <span class="user-cmd user-cmd-alt">เปิด PR</span>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          <code>gh pr create</code> + แนบ screenshot (ถ้ามี UI changes) → update <code>plan.md</code> Status: In Review + PR link
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">📊</div>
+      <div class="step-content">
+        <div class="step-title">รายงาน PR link</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">pr: {TICKET-ID} — {PR-URL}</span><br>
+          <small style="opacity:0.85;">เช่น <code>pr: S2-BE-01 — https://github.com/.../pull/42</code></small>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          Update assignment: <code>[~] Active → [👀] In Review</code> ใน <code>tasks/assignments/YYYY-MM-{name}.md</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<!-- ============== Done ============== -->
+<div class="phase phase-done" id="done-detail">
+  <div class="phase-header">
+    <div class="phase-num">✅</div>
+    <div>
+      <div class="phase-title">Merged → Done</div>
+      <div class="phase-sub">Reviewer approve → merge → close ticket</div>
+    </div>
+  </div>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-icon">✓.1</div>
+      <div class="step-content">
+        <div class="step-title">Reviewer ตรวจ PR</div>
+        <div class="agent-does">
+          <span class="agent-does-label">REVIEWER ทำ</span>
+          เปิด mockup HTML จริง → list element ที่ขาด → require screenshot ใน PR → approve
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">✓.2</div>
+      <div class="step-content">
+        <div class="step-title">User merge PR</div>
+        <div class="user-says">
+          <span class="user-says-label">USER ทำเอง</span>
+          กดปุ่ม Merge บน GitHub (ไม่ใช่ agent — กฎ no direct push to main)
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-icon">✓.3</div>
+      <div class="step-content">
+        <div class="step-title">แจ้ง agent ว่า merged</div>
+        <div class="user-says">
+          <span class="user-says-label">USER สั่ง</span>
+          <span class="user-cmd">merged: {TICKET-ID}</span><br>
+          <small style="opacity:0.85;">เช่น <code>merged: S2-BE-01</code></small>
+        </div>
+        <div class="agent-does">
+          <span class="agent-does-label">AGENT ทำ</span>
+          ① Update <code>plan.md</code> Status: In Review → Done (merged date)<br>
+          ② Update <code>tasks/current-sprint.md</code>: <code>[x] Done</code><br>
+          ③ Update <code>tasks/assignments/YYYY-MM-{name}.md</code>: <code>[👀] → [x] Done</code><br>
+          ④ รัน <code>gen-progress.mjs</code><br>
+          ⑤ แจ้ง task ที่ unblocked ต่อ
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== User Commands Cheatsheet ============== -->
+<div class="cheatsheet">
+  <h2>📋 User Commands Cheatsheet — สั่งอะไรได้บ้าง</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>User สั่งว่า</th>
+        <th>ทำให้เกิดอะไร</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0 — Request</td>
+        <td><code>สร้าง feature X: ...</code></td>
+        <td>Orchestrator เริ่มงาน</td>
+      </tr>
+      <tr>
+        <td>1 — Design</td>
+        <td><code>confirmed</code> / <code>approved</code> / <code>looks good</code></td>
+        <td>Spec ผ่าน → ไป Plan Gate</td>
+      </tr>
+      <tr>
+        <td>🚪 Plan Gate</td>
+        <td><code>build</code> / <code>ลุย</code> (primary)<br><code>confirm</code> / <code>go</code> / <code>ยืนยัน</code> (secondary)</td>
+        <td>Status: Draft → Confirmed → build ต่อเนื่อง auto</td>
+      </tr>
+      <tr>
+        <td>2 — Build</td>
+        <td><em>(ไม่ต้องสั่ง)</em><br>ตอบเมื่อ agent ชน Stop List เท่านั้น</td>
+        <td>Auto-proceed</td>
+      </tr>
+      <tr>
+        <td>3 — Stage</td>
+        <td><code>commit</code> / <code>คอมมิท</code></td>
+        <td><code>git commit</code></td>
+      </tr>
+      <tr>
+        <td>3 — Push</td>
+        <td><code>push</code> / <code>พุช</code></td>
+        <td><code>git push origin {branch}</code></td>
+      </tr>
+      <tr>
+        <td>3 — PR</td>
+        <td><code>PR</code> / <code>เปิด PR</code></td>
+        <td><code>gh pr create</code> + แนบ screenshot</td>
+      </tr>
+      <tr>
+        <td>Track</td>
+        <td><code>pr: {TICKET} — {URL}</code></td>
+        <td>Assignment → <code>[👀] In Review</code></td>
+      </tr>
+      <tr>
+        <td>✅ Done</td>
+        <td><code>merged: {TICKET}</code></td>
+        <td>Update plan.md Done + sprint + progress</td>
+      </tr>
+      <tr>
+        <td colspan="3" style="background:rgba(239,68,68,0.10); color:#fca5a5; font-weight:600;">⚠️ Danger Zone</td>
+      </tr>
+      <tr>
+        <td>Push main</td>
+        <td><code>yes push main</code> (explicit เท่านั้น)</td>
+        <td>BLOCKING — ปกติห้าม push main ตรง</td>
+      </tr>
+      <tr>
+        <td>Handoff</td>
+        <td><code>handoff {TICKET} from {A} to {B}</code></td>
+        <td>โอน task ระหว่าง dev</td>
+      </tr>
+      <tr>
+        <td>Next task</td>
+        <td><code>assign next task: role=be</code> / <code>role=fe</code> / <code>role=fullstack</code></td>
+        <td>Sprint planner เลือก task ถัดไป</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============== Legend ============== -->
+<div class="legend">
+  <div class="legend-title">🎨 Color Legend</div>
+  <div class="legend-grid">
+    <div class="legend-item"><div class="legend-color" style="background:#94a3b8;"></div> Phase 0 — Request</div>
+    <div class="legend-item"><div class="legend-color" style="background:#3b82f6;"></div> Phase 1 — Design</div>
+    <div class="legend-item"><div class="legend-color" style="background:#eab308;"></div> Gate — รอ User</div>
+    <div class="legend-item"><div class="legend-color" style="background:#a855f7;"></div> Phase 1.5 — Scaffold Tests</div>
+    <div class="legend-item"><div class="legend-color" style="background:#22c55e;"></div> Phase 2 — Build (Auto)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#f472b6;"></div> Phase 3 — Verify</div>
+    <div class="legend-item"><div class="legend-color" style="background:#10b981;"></div> Done — Merged</div>
+  </div>
+
+  <div class="legend-title" style="margin-top:20px;">🏷️ Tag Legend</div>
+  <div class="legend-grid">
+    <div class="legend-item">
+      <span class="user-says-label">USER สั่ง</span> User ต้องพิมพ์คำสั่ง agent ถึงทำต่อ
+    </div>
+    <div class="legend-item">
+      <span class="agent-does-label">AGENT ทำ</span> Agent ทำ auto ไม่ต้องรอ user
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- ========== END FEATURE FLOW ========== -->
+
+<nav style="margin: 2.5rem 0 1rem; padding: 1.25rem 1.5rem; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.30); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: 'Inter', system-ui, sans-serif;">
+  <a href="2.agent-workflow-guide.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: rgba(15,23,42,0.65); border: 1px solid rgba(99,102,241,0.45); border-radius: 10px; color: #c7d2fe; text-decoration: none; font-weight: 600; font-size: 14px;"><span style="font-size: 18px;">←</span><span><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>2. Agent Workflow Guide</span></a>
+  <span style="font-size: 11px; color: #cbd5e1; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → 2 → <strong style="color:#a5b4fc">3</strong> → 4 → 5 → 6</span>
+  <a href="4.multi-agent-architecture.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99,102,241,0.40);"><span style="text-align:right"><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.85;font-weight:500;">Next</small>4. Multi-Agent Architecture</span><span style="font-size: 18px;">→</span></a>
+</nav>
+
+<footer>
+  📚 อ้างอิง: <code>CLAUDE.md</code> (workspace root) · <code>agents/orchestrator.md</code> · <code>tasks/plans/README.md</code><br>
+  Updated 2026-05-19 — เพิ่ม TLDR summary + clickable flowchart
+</footer>
+
+</div>
+
+<script>
+  function switchFlow(type) {
+    document.querySelectorAll('.flow-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.flow-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('flow-' + type).classList.add('active');
+    document.querySelector('.flow-tab.' + type).classList.add('active');
+
+    const title = document.getElementById('main-title');
+    if (type === 'bug') {
+      title.textContent = '🐛 B1DX Bug Fix Flow';
+      title.classList.add('bug-mode');
+    } else {
+      title.textContent = '🚀 B1DX Feature Workflow';
+      title.classList.remove('bug-mode');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Clickable flowchart nodes → scroll to phase detail
+  document.addEventListener('click', (e) => {
+    const node = e.target.closest('.fc-node[data-jump]');
+    if (!node) return;
+    const targetId = node.getAttribute('data-jump');
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // brief highlight
+    target.style.transition = 'box-shadow 0.4s';
+    target.style.boxShadow = '0 0 0 3px rgba(251,191,36,0.6)';
+    setTimeout(() => { target.style.boxShadow = ''; }, 1400);
+  });
+</script>
+</body>
+</html>

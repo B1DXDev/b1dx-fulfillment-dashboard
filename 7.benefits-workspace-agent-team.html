@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Why Workspace + Agent Team — B1dx OMS Fulfillment</title>
+<style>
+  :root {
+    --indigo: #6366f1;
+    --indigo-dark: #4f46e5;
+    --indigo-deep: #312e81;
+    --indigo-light: #e0e7ff;
+    --teal: #2dd4bf;
+    --teal-dark: #0d9488;
+    --teal-light: #ccfbf1;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-faint: #94a3b8;
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #dcfce7;
+    --orange: #f97316;
+    --orange-light: #ffedd5;
+    --slate-900: #0f172a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  nav.topnav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--indigo-dark);
+    color: white;
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 1.4rem;
+    height: 56px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  }
+  nav.topnav .logo {
+    font-weight: 800; font-size: 1rem;
+    color: var(--teal); letter-spacing: .02em;
+  }
+  nav.topnav a {
+    color: rgba(255,255,255,.78);
+    text-decoration: none; font-size: .85rem;
+    padding: .2rem .55rem; border-radius: 6px;
+    transition: color .15s;
+  }
+  nav.topnav a:hover { color: white; background: rgba(255,255,255,.08); }
+
+  /* ── HERO ── */
+  .hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(45,212,191,.18), transparent 55%),
+      radial-gradient(ellipse at bottom left, rgba(168,85,247,.22), transparent 60%),
+      linear-gradient(135deg, var(--indigo-dark) 0%, var(--indigo-deep) 100%);
+    color: white;
+    padding: 3.5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .eyebrow {
+    display: inline-block;
+    font-size: .72rem; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--teal);
+    background: rgba(45,212,191,.12);
+    border: 1px solid rgba(45,212,191,.35);
+    padding: .35rem .85rem; border-radius: 999px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2.3rem; font-weight: 800;
+    margin-bottom: .55rem; letter-spacing: -.02em;
+  }
+  .hero p.tagline {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,.85);
+    max-width: 640px; margin: 0 auto;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  section.card h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-bottom: 1rem;
+    padding-bottom: .65rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: .7rem;
+  }
+  section.card h2 .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+    color: white; border-radius: 8px;
+    font-size: .8rem; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 2px 6px rgba(99,102,241,.35);
+  }
+  section.card p { margin-bottom: .7rem; }
+  section.card strong { color: var(--slate-900); font-weight: 600; }
+
+  /* ── SVG WRAP ── */
+  .svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 1rem 0;
+    padding: .5rem 0;
+  }
+  svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  /* ── BENEFIT CHIPS (compact) ── */
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: .7rem;
+    margin: 1rem 0 .5rem;
+  }
+  .chip {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .85rem 1rem;
+    position: relative;
+  }
+  .chip::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--teal));
+    border-radius: 10px 10px 0 0;
+  }
+  .chip .ico { font-size: 1.3rem; display: block; margin-bottom: .25rem; }
+  .chip h4 {
+    font-size: .9rem; font-weight: 700;
+    color: var(--slate-900); margin-bottom: .15rem;
+  }
+  .chip p {
+    font-size: .8rem; color: var(--text-muted);
+    line-height: 1.5; margin: 0;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    margin: 1rem 0;
+    padding: 1rem 1.15rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--teal-dark);
+    background: var(--teal-light);
+    color: #134e4a;
+    font-size: .92rem;
+  }
+  .callout strong { color: #0f3a36; display: block; margin-bottom: .15rem; }
+
+  code {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: .85em;
+    background: var(--indigo-light);
+    color: var(--indigo-deep);
+    padding: .1rem .4rem;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    color: var(--text-muted);
+    font-size: .82rem;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+  }
+  footer a { color: var(--indigo-dark); text-decoration: none; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 2.5rem 1rem 2rem; }
+    .hero h1 { font-size: 1.6rem; }
+    main { padding: 1.25rem 1rem 2.5rem; }
+    section.card { padding: 1.25rem 1.1rem; }
+    section.card h2 { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="logo">B1dx · Why Workspace + Agents</span>
+  <a href="#flow">The Flow</a>
+  <a href="#diagram">The Diagram</a>
+  <a href="#benefits">Benefits</a>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">SHORT VERSION · 2 MIN READ</span>
+  <h1>Why Workspace + Agent Team?</h1>
+  <p class="tagline">1 flow · 1 diagram · 6 ข้อดีหลัก — ทำไม B1dx ใช้ workspace กลาง + 9 agent แทนการให้แต่ละ repo ทำงานแยกกัน</p>
+</header>
+
+<main>
+
+  <!-- ── SECTION 1: THE FLOW ── -->
+  <section class="card" id="flow">
+    <h2><span class="num">01</span>The Flow — Lifecycle ของ 1 Task</h2>
+    <p>จาก "อยากได้ feature นี้" → "merged แล้ว" ผ่าน gate ไหนบ้าง · ทุก step มี benefit ติดอยู่ข้างๆ</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 880 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Task lifecycle flow">
+        <defs>
+          <linearGradient id="stepGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#f1f5f9"/>
+          </linearGradient>
+          <linearGradient id="gateGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fef3c7"/>
+            <stop offset="1" stop-color="#fde68a"/>
+          </linearGradient>
+          <linearGradient id="endGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dcfce7"/>
+            <stop offset="1" stop-color="#bbf7d0"/>
+          </linearGradient>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#6366f1"/>
+          </marker>
+        </defs>
+
+        <!-- STEP 1: Request -->
+        <rect x="280" y="20" width="320" height="60" rx="12" fill="url(#stepGrad)" stroke="#6366f1" stroke-width="2"/>
+        <text x="440" y="48" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">📥 Feature Request / Bug Report</text>
+        <text x="440" y="68" text-anchor="middle" font-size="11.5" fill="#64748b">user แจ้ง · PM groom · จะไปจบใน backlog.md</text>
+
+        <!-- arrow 1 -->
+        <line x1="440" y1="82" x2="440" y2="105" stroke="#6366f1" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- STEP 2: Assignment -->
+        <rect x="280" y="110" width="320" height="60" rx="12" fill="url(#stepGrad)" stroke="#6366f1" stroke-width="2"/>
+        <text x="440" y="138" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">📋 Assign Task</text>
+        <text x="440" y="158" text-anchor="middle" font-size="11.5" fill="#64748b">backlog.md + current-sprint.md + assignments/{name}.md</text>
+        <!-- benefit side -->
+        <rect x="630" y="115" width="230" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+        <text x="745" y="135" text-anchor="middle" font-size="11" font-weight="600" fill="#4338ca">✅ Task Tracking</text>
+        <text x="745" y="152" text-anchor="middle" font-size="10.5" fill="#4f46e5">ไม่ทำงานซ้ำ · เห็นใครทำอะไร</text>
+        <line x1="603" y1="140" x2="628" y2="140" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <line x1="440" y1="172" x2="440" y2="195" stroke="#6366f1" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- STEP 3: Pre-Build Plan Gate -->
+        <rect x="280" y="200" width="320" height="60" rx="12" fill="url(#gateGrad)" stroke="#ca8a04" stroke-width="2"/>
+        <text x="440" y="228" text-anchor="middle" font-size="15" font-weight="700" fill="#713f12">🛡️ Pre-Build Plan Gate</text>
+        <text x="440" y="248" text-anchor="middle" font-size="11.5" fill="#854f0b">Plan · Scope · SIT Impact · Test Plan → wait `build`</text>
+        <rect x="20" y="205" width="230" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+        <text x="135" y="225" text-anchor="middle" font-size="11" font-weight="600" fill="#4338ca">✅ Quality Gate</text>
+        <text x="135" y="242" text-anchor="middle" font-size="10.5" fill="#4f46e5">user ตรวจ scope ก่อน agent เริ่ม</text>
+        <line x1="252" y1="230" x2="277" y2="230" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <line x1="440" y1="262" x2="440" y2="285" stroke="#6366f1" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- STEP 4: Spawn Agents (Parallel) -->
+        <rect x="60" y="290" width="760" height="100" rx="12" fill="url(#stepGrad)" stroke="#6366f1" stroke-width="2"/>
+        <text x="440" y="316" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">🤖 Spawn Agents (Parallel)</text>
+
+        <!-- sub-agents row -->
+        <rect x="85" y="330" width="135" height="45" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2"/>
+        <text x="152" y="350" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4338ca">BE Coder</text>
+        <text x="152" y="365" text-anchor="middle" font-size="10" fill="#64748b">.NET 10 · EF Core</text>
+
+        <rect x="235" y="330" width="135" height="45" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2"/>
+        <text x="302" y="350" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4338ca">FE Coder</text>
+        <text x="302" y="365" text-anchor="middle" font-size="10" fill="#64748b">Next.js · RTK · MSW</text>
+
+        <rect x="385" y="330" width="135" height="45" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2"/>
+        <text x="452" y="350" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4338ca">Sync Worker</text>
+        <text x="452" y="365" text-anchor="middle" font-size="10" fill="#64748b">.NET 10 Worker</text>
+
+        <rect x="535" y="330" width="135" height="45" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2"/>
+        <text x="602" y="350" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4338ca">Webhook</text>
+        <text x="602" y="365" text-anchor="middle" font-size="10" fill="#64748b">Go · Gin · RabbitMQ</text>
+
+        <rect x="685" y="330" width="120" height="45" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.2"/>
+        <text x="745" y="350" text-anchor="middle" font-size="11.5" font-weight="600" fill="#134e4a">UI Tester</text>
+        <text x="745" y="365" text-anchor="middle" font-size="10" fill="#0f3a36">Playwright E2E</text>
+
+        <line x1="440" y1="392" x2="440" y2="415" stroke="#6366f1" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- STEP 5: Visual Fidelity + Test Gate -->
+        <rect x="280" y="420" width="320" height="60" rx="12" fill="url(#gateGrad)" stroke="#ca8a04" stroke-width="2"/>
+        <text x="440" y="448" text-anchor="middle" font-size="15" font-weight="700" fill="#713f12">🎨 Visual Fidelity + Test Gate</text>
+        <text x="440" y="468" text-anchor="middle" font-size="11.5" fill="#854f0b">screenshot vs mockup · E2E ผ่านครบ</text>
+        <rect x="630" y="425" width="230" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+        <text x="745" y="445" text-anchor="middle" font-size="11" font-weight="600" fill="#4338ca">✅ No Spec Drift</text>
+        <text x="745" y="462" text-anchor="middle" font-size="10.5" fill="#4f46e5">tests ผ่าน ≠ feature เสร็จ</text>
+        <line x1="603" y1="450" x2="628" y2="450" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <line x1="440" y1="482" x2="440" y2="505" stroke="#6366f1" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- STEP 6: PR + Progress -->
+        <rect x="280" y="510" width="320" height="60" rx="12" fill="url(#stepGrad)" stroke="#6366f1" stroke-width="2"/>
+        <text x="440" y="538" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">📦 PR + Auto Progress Dashboard</text>
+        <text x="440" y="558" text-anchor="middle" font-size="11.5" fill="#64748b">user สั่ง push → gh pr create → gen-progress.mjs</text>
+        <rect x="20" y="515" width="230" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+        <text x="135" y="535" text-anchor="middle" font-size="11" font-weight="600" fill="#4338ca">✅ Audit Trail</text>
+        <text x="135" y="552" text-anchor="middle" font-size="10.5" fill="#4f46e5">plan.md + git commit + PR</text>
+        <line x1="252" y1="540" x2="277" y2="540" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <!-- end -->
+        <line x1="440" y1="572" x2="440" y2="588" stroke="#16a34a" stroke-width="2" marker-end="url(#arr)"/>
+        <rect x="350" y="588" width="180" height="28" rx="14" fill="url(#endGrad)" stroke="#16a34a" stroke-width="2"/>
+        <text x="440" y="607" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">✅ Merged · Sprint +1</text>
+      </svg>
+    </div>
+
+    <div class="callout">
+      <strong>หัวใจของ flow นี้</strong>
+      ทุก gate (🛡️ Plan, 🎨 Visual) คือ <em>มนุษย์ตรวจ agent</em> ก่อนเข้า step ถัดไป — agent ทำงานเร็ว แต่ตัดสินใจไม่ได้ · gate ทำให้ความเร็วของ agent ไม่กลายเป็นความผิดพลาดเร็ว
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: THE DIAGRAM ── -->
+  <section class="card" id="diagram">
+    <h2><span class="num">02</span>The Diagram — Workspace Ecosystem</h2>
+    <p>ภาพรวม "ใครอยู่ตรงไหน อ่านอะไร เขียนที่ไหน" — ทุกอย่างหมุนรอบ <strong>Workspace กลาง</strong> ที่เป็น single source of truth</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 880 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Workspace ecosystem diagram">
+        <defs>
+          <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#6366f1"/>
+            <stop offset="1" stop-color="#312e81"/>
+          </radialGradient>
+          <linearGradient id="repoGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#f1f5f9"/>
+          </linearGradient>
+          <linearGradient id="agentGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ccfbf1"/>
+            <stop offset="1" stop-color="#99f6e4"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Central Workspace -->
+        <circle cx="440" cy="280" r="115" fill="url(#coreGrad)" stroke="#4f46e5" stroke-width="3"/>
+        <text x="440" y="252" text-anchor="middle" font-size="13" font-weight="700" fill="white" letter-spacing="1">WORKSPACE</text>
+        <text x="440" y="272" text-anchor="middle" font-size="10.5" fill="#c7d2fe">b1dx-fulfillment-workspace</text>
+
+        <!-- inside workspace items -->
+        <text x="440" y="296" text-anchor="middle" font-size="10.5" fill="#a5b4fc">📄 docs/specs/</text>
+        <text x="440" y="313" text-anchor="middle" font-size="10.5" fill="#a5b4fc">🎨 docs/mockups/</text>
+        <text x="440" y="330" text-anchor="middle" font-size="10.5" fill="#a5b4fc">📋 tasks/ + plans/</text>
+        <text x="440" y="347" text-anchor="middle" font-size="10.5" fill="#a5b4fc">⚙️ CLAUDE.md</text>
+
+        <!-- 4 Repos (corners) -->
+        <!-- BE top-left -->
+        <rect x="40" y="60" width="180" height="80" rx="12" fill="url(#repoGrad)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="130" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">📦 BE Repo</text>
+        <text x="130" y="105" text-anchor="middle" font-size="10.5" fill="#64748b">.NET 10 · EF Core</text>
+        <text x="130" y="120" text-anchor="middle" font-size="10.5" fill="#64748b">Mediator · PostgreSQL</text>
+        <text x="130" y="135" text-anchor="middle" font-size="10" fill="#94a3b8">b1dx-oms-fulfillment-api</text>
+
+        <!-- FE top-right -->
+        <rect x="660" y="60" width="180" height="80" rx="12" fill="url(#repoGrad)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="750" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">🎨 FE Repo</text>
+        <text x="750" y="105" text-anchor="middle" font-size="10.5" fill="#64748b">Next.js 15 · RTK</text>
+        <text x="750" y="120" text-anchor="middle" font-size="10.5" fill="#64748b">MSW · Playwright</text>
+        <text x="750" y="135" text-anchor="middle" font-size="10" fill="#94a3b8">b1dx-oms-fulfillment-web</text>
+
+        <!-- Sync bottom-left -->
+        <rect x="40" y="420" width="180" height="80" rx="12" fill="url(#repoGrad)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="130" y="446" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">🔄 Sync Worker</text>
+        <text x="130" y="465" text-anchor="middle" font-size="10.5" fill="#64748b">.NET 10 Worker</text>
+        <text x="130" y="480" text-anchor="middle" font-size="10.5" fill="#64748b">ERP → OMS sync</text>
+        <text x="130" y="495" text-anchor="middle" font-size="10" fill="#94a3b8">b1dx.omsorders.sync.worker</text>
+
+        <!-- Webhook bottom-right -->
+        <rect x="660" y="420" width="180" height="80" rx="12" fill="url(#repoGrad)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="750" y="446" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">🔔 Webhook</text>
+        <text x="750" y="465" text-anchor="middle" font-size="10.5" fill="#64748b">Go 1.25 · Gin</text>
+        <text x="750" y="480" text-anchor="middle" font-size="10.5" fill="#64748b">RabbitMQ · DLQ</text>
+        <text x="750" y="495" text-anchor="middle" font-size="10" fill="#94a3b8">webhook</text>
+
+        <!-- Lines from workspace to repos (read spec) -->
+        <line x1="350" y1="220" x2="225" y2="115" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <line x1="530" y1="220" x2="655" y2="115" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <line x1="350" y1="340" x2="225" y2="445" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <line x1="530" y1="340" x2="655" y2="445" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+        <!-- read spec labels -->
+        <text x="265" y="180" font-size="9.5" fill="#4338ca" font-weight="600" transform="rotate(-37 265 180)">read spec / CLAUDE.md</text>
+        <text x="555" y="180" font-size="9.5" fill="#4338ca" font-weight="600" transform="rotate(37 555 180)">read spec / CLAUDE.md</text>
+        <text x="265" y="385" font-size="9.5" fill="#4338ca" font-weight="600" transform="rotate(37 265 385)">read spec / CLAUDE.md</text>
+        <text x="555" y="385" font-size="9.5" fill="#4338ca" font-weight="600" transform="rotate(-37 555 385)">read spec / CLAUDE.md</text>
+
+        <!-- Agents (left side) -->
+        <rect x="20" y="220" width="120" height="120" rx="10" fill="url(#agentGrad)" stroke="#0d9488" stroke-width="2"/>
+        <text x="80" y="244" text-anchor="middle" font-size="12" font-weight="700" fill="#134e4a">🤖 AGENTS</text>
+        <text x="80" y="265" text-anchor="middle" font-size="10" fill="#0f3a36">orchestrator</text>
+        <text x="80" y="280" text-anchor="middle" font-size="10" fill="#0f3a36">architect · spec-writer</text>
+        <text x="80" y="295" text-anchor="middle" font-size="10" fill="#0f3a36">be · fe · sync · webhook</text>
+        <text x="80" y="310" text-anchor="middle" font-size="10" fill="#0f3a36">ui-tester · reviewer</text>
+        <text x="80" y="328" text-anchor="middle" font-size="9.5" fill="#134e4a" font-weight="600">9 specialized</text>
+
+        <line x1="140" y1="280" x2="322" y2="280" stroke="#0d9488" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="220" y="272" text-anchor="middle" font-size="10" font-weight="600" fill="#134e4a">read all context</text>
+
+        <!-- Devs/PM (right side) -->
+        <rect x="740" y="220" width="120" height="120" rx="10" fill="#fef3c7" stroke="#ca8a04" stroke-width="2"/>
+        <text x="800" y="244" text-anchor="middle" font-size="12" font-weight="700" fill="#713f12">👥 PEOPLE</text>
+        <text x="800" y="265" text-anchor="middle" font-size="10" fill="#854f0b">Dev (BE/FE/Sync)</text>
+        <text x="800" y="280" text-anchor="middle" font-size="10" fill="#854f0b">PM / Sprint Planner</text>
+        <text x="800" y="295" text-anchor="middle" font-size="10" fill="#854f0b">Reviewer</text>
+        <text x="800" y="310" text-anchor="middle" font-size="10" fill="#854f0b">QA / Stakeholder</text>
+        <text x="800" y="328" text-anchor="middle" font-size="9.5" fill="#713f12" font-weight="600">trigger · approve</text>
+
+        <line x1="740" y1="280" x2="560" y2="280" stroke="#ca8a04" stroke-width="2" marker-end="url(#arr3)"/>
+        <text x="650" y="272" text-anchor="middle" font-size="10" font-weight="600" fill="#713f12">plan · trigger · review</text>
+
+        <!-- arrow markers (extra) -->
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#0d9488"/>
+          </marker>
+          <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#ca8a04"/>
+          </marker>
+        </defs>
+
+        <!-- Bottom callout -->
+        <rect x="220" y="525" width="440" height="28" rx="14" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="440" y="544" text-anchor="middle" font-size="12" font-weight="700" fill="#312e81">spec เปลี่ยน 1 ที่ = ทุก repo + ทุก agent เห็นพร้อมกัน</text>
+      </svg>
+    </div>
+
+    <div class="callout">
+      <strong>Key insight</strong>
+      Workspace = "<em>ตัวกลาง</em>" ที่ทำให้ทุกคน (agent + คน + repo) มอง <strong>เป้าหมายเดียวกัน</strong> · ไม่ใช่แค่ folder ที่เก็บไฟล์ — มันคือ "ที่นัดเจอ" ของทีม
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: BENEFITS ── -->
+  <section class="card" id="benefits">
+    <h2><span class="num">03</span>6 ข้อดีที่ได้จริง</h2>
+
+    <div class="chips">
+      <div class="chip">
+        <span class="ico">📋</span>
+        <h4>Task Tracking</h4>
+        <p>เห็นใครทำอะไรจาก <code>assignments/</code> + <code>plans/</code> ไม่ต้องถามใคร</p>
+      </div>
+      <div class="chip">
+        <span class="ico">🎯</span>
+        <h4>Single Source of Truth</h4>
+        <p>spec + mockup + CLAUDE.md ที่เดียว — แก้ครั้งเดียวทุกฝั่งเห็น</p>
+      </div>
+      <div class="chip">
+        <span class="ico">⚡</span>
+        <h4>Parallel Build</h4>
+        <p>BE + FE + Sync + Webhook ทำพร้อมกัน · FE ไม่ต้องรอ BE (ใช้ MSW)</p>
+      </div>
+      <div class="chip">
+        <span class="ico">🛡️</span>
+        <h4>Quality Gates</h4>
+        <p>Plan Gate + Visual Fidelity + Test Gate — กัน spec drift</p>
+      </div>
+      <div class="chip">
+        <span class="ico">🚀</span>
+        <h4>Fast Onboarding</h4>
+        <p>Dev ใหม่ &lt; 30 นาที (clone + config 4 paths + claude)</p>
+      </div>
+      <div class="chip">
+        <span class="ico">💰</span>
+        <h4>Token Efficient</h4>
+        <p>RTK proxy + subagent delegation = ประหยัด 60-90%</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Bottom line</strong>
+      Workspace + Agent Team ไม่ใช่ "เครื่องมือทันสมัย" — มันคือ <em>infrastructure ของความสอดคล้อง</em> ที่ทำให้ทีมเล็กส่งงานคุณภาพระดับทีมใหญ่ และทำให้ทีมใหญ่ไม่จมด้วย coordination overhead
+    </div>
+  </section>
+
+  <nav style="margin: 1.5rem 0; padding: 1.1rem 1.4rem; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <a href="6.traditional-scrum-workflow.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .65rem 1.1rem; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #4338ca; text-decoration: none; font-weight: 600; font-size: 13.5px;"><span style="font-size: 17px;">←</span><span><small style="display:block;font-size:10px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>6. Traditional Scrum Workflow</span></a>
+    <span style="font-size: 10.5px; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → 2 → 3 → 4 → 5 → 6 → <strong style="color:#4338ca">7</strong> · end</span>
+    <span style="opacity:.4">—</span>
+  </nav>
+
+</main>
+
+<footer>
+  <p><strong>B1dx OMS Fulfillment</strong> · Why Workspace + Agent Team (Short Version)</p>
+  <p>Source: <a href="https://github.com/B1DXDev/b1dx-fulfillment-workspace">b1dx-fulfillment-workspace</a> ·
+     อ่าน <code>CLAUDE.md</code> เพื่อดู rules + protocol เต็ม</p>
+</footer>
+
+</body>
+</html>

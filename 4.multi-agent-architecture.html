@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Agent Workspace Architecture · B1DX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Surfaces */
+  --bg: #f5f6fb;
+  --bg-card: #ffffff;
+  --bg-alt: #f8fafc;
+  --bg-soft: #f1f5f9;
+
+  /* Ink */
+  --ink: #0f172a;
+  --ink-dim: #475569;
+  --ink-faint: #94a3b8;
+
+  /* Lines */
+  --line: #e8ebf2;
+  --line-strong: #d1d5db;
+
+  /* Brand */
+  --brand: #0f172a;
+  --accent: #6366f1;
+  --accent-2: #8b5cf6;
+  --accent-3: #ec4899;
+
+  /* Semantic */
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Pastels */
+  --purple: #ede9fe;
+  --purple-ink: #5b21b6;
+  --purple-line: #c4b5fd;
+  --teal: #ccfbf1;
+  --teal-ink: #0f766e;
+  --teal-line: #5eead4;
+  --blue: #dbeafe;
+  --blue-ink: #1e40af;
+  --blue-line: #93c5fd;
+  --orange: #ffedd5;
+  --orange-ink: #9a3412;
+  --orange-line: #fdba74;
+  --pink: #fce7f3;
+  --pink-ink: #be185d;
+  --pink-line: #f9a8d4;
+  --green: #dcfce7;
+  --green-ink: #15803d;
+  --green-line: #86efac;
+  --amber: #fef3c7;
+  --amber-ink: #92400e;
+  --amber-line: #fcd34d;
+  --red: #fee2e2;
+  --red-ink: #b91c1c;
+  --red-line: #fca5a5;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 18px 44px rgba(15, 23, 42, 0.08), 0 6px 14px rgba(15, 23, 42, 0.05);
+
+  /* Radii */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 16px;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 100% 30%, rgba(236, 72, 153, 0.06), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 70%, rgba(14, 165, 233, 0.05), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: rgba(99, 102, 241, 0.18); color: var(--ink); }
+code, .mono { font-family: 'JetBrains Mono', 'Cascadia Code', monospace; }
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 2.5rem 5rem;
+}
+
+/* === HERO BANNER === */
+.hero-banner {
+  background:
+    radial-gradient(circle at 15% 25%, rgba(236, 72, 153, 0.35), transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.30), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.25), transparent 60%),
+    linear-gradient(135deg, #1e1b4b 0%, #312e81 35%, #4338ca 65%, #6366f1 100%);
+  margin: 0 -2.5rem 3rem;
+  padding: 4rem 4rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--shadow-lg);
+}
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.10), transparent 40%),
+    radial-gradient(circle at 75% 60%, rgba(255,255,255,0.06), transparent 45%);
+  pointer-events: none;
+}
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  pointer-events: none;
+  opacity: 0.6;
+}
+.hero-banner-inner { position: relative; max-width: 1180px; margin: 0 auto; z-index: 1; }
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 12px #4ade80;
+}
+.hero-banner h1 {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 800;
+  font-size: 2.9rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: white;
+  margin-bottom: 1.1rem;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 80%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-banner .hero-lead {
+  font-size: 16.5px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.8;
+  max-width: 920px;
+  margin-bottom: 1.75rem;
+}
+.hero-banner .hero-lead strong {
+  font-weight: 700;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-tags { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.25s var(--ease);
+}
+.hero-tag:hover {
+  background: rgba(255,255,255,0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* === BRAND HEADER === */
+.brand-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 2rem;
+  align-items: center;
+  padding: 1.5rem 1.75rem;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin: 0 0 2.5rem;
+}
+.brand-logo {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #ec4899 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  border-radius: var(--r-sm);
+  letter-spacing: -0.02em;
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255,255,255,0.20);
+}
+.brand-info .org {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.brand-info .sub {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+.brand-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: right;
+}
+.brand-meta .label {
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 600;
+}
+.brand-meta .value {
+  font-size: 12.5px;
+  color: var(--ink);
+  font-weight: 600;
+  margin-top: 3px;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: var(--green-ink);
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border: 1px solid var(--green-line);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18);
+}
+.status-pill .dot {
+  width: 7px; height: 7px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* === KPI ROW === */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.kpi {
+  position: relative;
+  padding: 1.5rem 1.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.kpi::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+}
+.kpi:nth-child(2)::before { background: linear-gradient(180deg, #8b5cf6, #ec4899); }
+.kpi:nth-child(3)::before { background: linear-gradient(180deg, #ec4899, #f43f5e); }
+.kpi:nth-child(4)::before { background: linear-gradient(180deg, #06b6d4, #6366f1); }
+.kpi .k-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.6rem;
+}
+.kpi .k-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 0.55rem;
+}
+.kpi:nth-child(2) .k-value { background: linear-gradient(135deg, #6d28d9, #ec4899); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi:nth-child(3) .k-value { background: linear-gradient(135deg, #be185d, #f43f5e); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi:nth-child(4) .k-value { background: linear-gradient(135deg, #0e7490, #4338ca); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi .k-delta {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+
+/* === CARD GRADIENT HEADER === */
+.card-gradient-header {
+  background:
+    radial-gradient(circle at 90% 50%, rgba(236, 72, 153, 0.25), transparent 50%),
+    linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #7c3aed 100%);
+  color: white;
+  padding: 1.65rem 1.9rem;
+  border-radius: var(--r) var(--r) 0 0;
+  position: relative;
+  overflow: hidden;
+}
+.card-gradient-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 90% 50%, rgba(255,255,255,0.10), transparent 50%);
+  pointer-events: none;
+}
+.card-gradient-header::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #f472b6, #818cf8, #22d3ee);
+}
+.card-gradient-header .card-title {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 1.18rem;
+  letter-spacing: -0.015em;
+  color: white;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.card-gradient-header .card-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.82);
+  margin-top: 5px;
+  position: relative;
+}
+.section-num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.section { margin-bottom: 3.25rem; }
+.card-body {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-top: none;
+  border-radius: 0 0 var(--r) var(--r);
+  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+}
+
+/* === ARCHITECTURE DIAGRAM === */
+.arch-diagram {
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.75rem 1.5rem;
+  overflow-x: auto;
+}
+.arch-layer-label {
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+.arch-layer {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.arch-orch {
+  background: linear-gradient(135deg, #312e81 0%, #6366f1 100%);
+  color: white;
+  padding: 18px 32px;
+  border-radius: var(--r);
+  text-align: center;
+  min-width: 340px;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+.arch-orch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 50%, rgba(255,255,255,0.12), transparent 50%);
+  pointer-events: none;
+}
+.arch-orch-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; position: relative; }
+.arch-orch-sub { font-size: 12px; color: rgba(255,255,255,0.85); position: relative; }
+
+.arch-connector { display: flex; justify-content: center; margin: 4px 0; }
+.arch-connector-svg { width: 80%; max-width: 720px; height: 36px; }
+
+.arch-agent {
+  flex: 1 1 200px;
+  max-width: 230px;
+  min-width: 180px;
+  padding: 14px 14px;
+  border-radius: var(--r-sm);
+  text-align: center;
+  border: 1px solid;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.arch-agent::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.arch-agent:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.arch-agent-title { font-weight: 700; font-size: 14.5px; margin-bottom: 4px; }
+.arch-agent-name { font-size: 11.5px; opacity: 0.85; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+.arch-agent-role { font-size: 11.5px; color: var(--ink-dim); }
+
+.arch-be { border-color: var(--blue-line); }
+.arch-be::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.arch-be .arch-agent-title { color: var(--blue-ink); }
+.arch-be .arch-agent-name { color: #2563eb; }
+
+.arch-fe { border-color: var(--green-line); }
+.arch-fe::before { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.arch-fe .arch-agent-title { color: var(--green-ink); }
+.arch-fe .arch-agent-name { color: #15803d; }
+
+.arch-sync { border-color: var(--purple-line); }
+.arch-sync::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+.arch-sync .arch-agent-title { color: var(--purple-ink); }
+.arch-sync .arch-agent-name { color: #6d28d9; }
+
+.arch-webhook { border-color: var(--orange-line); }
+.arch-webhook::before { background: linear-gradient(90deg, #ea580c, #fb923c); }
+.arch-webhook .arch-agent-title { color: var(--orange-ink); }
+.arch-webhook .arch-agent-name { color: #c2410c; }
+
+.arch-repo {
+  flex: 1 1 200px;
+  max-width: 230px;
+  min-width: 180px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  text-align: center;
+  background: var(--bg-soft);
+  border: 1px dashed var(--line-strong);
+}
+.arch-repo-label {
+  font-size: 10px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.arch-repo-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  word-break: break-all;
+}
+
+/* === MULTI-REPO IMAGE === */
+.multirepo-image {
+  margin: 0 0 1.75rem;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.multirepo-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.multirepo-image-caption {
+  padding: 12px 18px;
+  background: var(--bg-alt);
+  color: var(--ink-dim);
+  font-size: 12.5px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  line-height: 1.65;
+}
+
+/* === SECTION LABEL === */
+.section-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0.5rem 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before,
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-strong), transparent);
+}
+.section-label.green { color: var(--green-ink); }
+
+/* === BENEFIT GRID (green) === */
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.benefit-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid var(--green-line);
+  border-radius: var(--r);
+  padding: 1.4rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.25s var(--ease);
+}
+.benefit-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #16a34a, #4ade80, #86efac);
+}
+.benefit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.18);
+  border-color: var(--success);
+}
+.benefit-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.benefit-card-icon {
+  width: 34px; height: 34px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  color: white;
+  font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.30);
+}
+.benefit-card-title { font-weight: 700; color: var(--ink); font-size: 1rem; letter-spacing: -0.01em; }
+.benefit-card-desc { color: var(--ink-dim); font-size: 13.5px; line-height: 1.65; }
+.benefit-card-desc strong { color: var(--green-ink); font-weight: 700; }
+.benefit-card-desc code {
+  background: var(--bg-soft);
+  color: var(--green-ink);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === COMPARE PAIR === */
+.compare-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.compare-pane {
+  border-radius: var(--r);
+  padding: 1.4rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.compare-pane:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.compare-pane::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.compare-pane.bad {
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  border: 1px solid var(--red-line);
+}
+.compare-pane.bad::before { background: linear-gradient(90deg, #dc2626, #ef4444, #fca5a5); }
+.compare-pane.good {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid var(--green-line);
+}
+.compare-pane.good::before { background: linear-gradient(90deg, #16a34a, #22c55e, #86efac); }
+.compare-pane-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 0.9rem; padding-bottom: 0.85rem;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.compare-pane-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  text-transform: uppercase;
+}
+.compare-pane.bad .compare-pane-tag { background: var(--red); color: var(--red-ink); border: 1px solid var(--red-line); }
+.compare-pane.good .compare-pane-tag { background: var(--green); color: var(--green-ink); border: 1px solid var(--green-line); }
+.compare-pane-title { font-weight: 700; color: var(--ink); font-size: 14.5px; letter-spacing: -0.01em; }
+.compare-pane-body { color: var(--ink-dim); font-size: 13.5px; line-height: 1.7; }
+.compare-pane-body ul { margin: 4px 0 0 18px; padding: 0; }
+.compare-pane-body li { margin-bottom: 6px; }
+.compare-pane.bad .compare-pane-body li::marker { color: var(--danger); }
+.compare-pane.good .compare-pane-body li::marker { color: var(--success); }
+
+/* === INSIGHT BOX === */
+.insight-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px dashed var(--success);
+  border-radius: var(--r);
+  padding: 1.25rem 1.5rem;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.insight-box strong { color: var(--green-ink); font-weight: 700; }
+.insight-box-quote {
+  display: block;
+  margin: 0.65rem 0;
+  padding: 0.85rem 1.1rem;
+  background: var(--bg-card);
+  border-left: 3px solid var(--success);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  color: var(--green-ink);
+  font-style: italic;
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+/* === PRINCIPLE LIST === */
+.principle-list {
+  display: grid;
+  gap: 0.85rem;
+}
+.principle {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  position: relative;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s var(--ease);
+}
+.principle:hover {
+  border-color: var(--purple-line);
+  box-shadow: 0 8px 22px rgba(139, 92, 246, 0.10);
+}
+.principle::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 32px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.principle:hover::before { opacity: 1; }
+.principle-icon {
+  flex-shrink: 0;
+  width: 38px; height: 38px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.30);
+}
+.principle-content strong { color: var(--ink); font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; }
+.principle-content p { color: var(--ink-dim); font-size: 13.5px; margin-top: 4px; line-height: 1.7; }
+.principle-content code {
+  background: var(--purple);
+  color: var(--purple-ink);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--purple-line);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === AGENT GRID (per-agent details) === */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.agent-card {
+  background: var(--bg-card);
+  border-radius: var(--r);
+  padding: 1.4rem 1.4rem;
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.agent-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.agent-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+}
+.agent-card.be::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.agent-card.fe::before { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.agent-card.sync::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+.agent-card.webhook::before { background: linear-gradient(90deg, #ea580c, #fb923c); }
+.agent-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.agent-card-dot { width: 10px; height: 10px; border-radius: 50%; }
+.agent-card.be .agent-card-dot { background: #3b82f6; }
+.agent-card.fe .agent-card-dot { background: #16a34a; }
+.agent-card.sync .agent-card-dot { background: #7c3aed; }
+.agent-card.webhook .agent-card-dot { background: #ea580c; }
+.agent-card-name { font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.agent-card-tech { color: var(--ink-dim); font-size: 12.5px; margin-bottom: 0.85rem; line-height: 1.55; }
+.agent-meta { display: grid; gap: 8px; font-size: 13px; }
+.agent-meta-row { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: start; }
+.agent-meta-key {
+  color: var(--ink-faint);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-top: 3px;
+}
+.agent-meta-val { color: var(--ink-dim); word-break: break-word; line-height: 1.6; }
+.agent-meta-val code {
+  background: var(--bg-soft);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === RUNTIME FLOW === */
+.flow-list { display: grid; gap: 0.75rem; }
+.flow-step {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  transition: all 0.2s var(--ease);
+}
+.flow-step:hover {
+  border-color: var(--amber-line);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.12);
+}
+.flow-step::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 32px;
+  background: linear-gradient(180deg, #f59e0b, #fbbf24);
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.flow-step:hover::before { opacity: 1; }
+.flow-step-num {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.30);
+}
+.flow-step-content { flex: 1; min-width: 0; }
+.flow-step-title { font-weight: 700; color: var(--ink); margin-bottom: 5px; font-size: 14.5px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.flow-step-actor {
+  display: inline-block;
+  font-size: 10px;
+  background: var(--amber);
+  color: var(--amber-ink);
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  border: 1px solid var(--amber-line);
+}
+.flow-step-desc { color: var(--ink-dim); font-size: 13.5px; line-height: 1.7; }
+.flow-step-desc code {
+  background: var(--bg-soft);
+  color: var(--amber-ink);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === DEV WORKFLOW === */
+.dev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.85rem;
+}
+.dev-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.2rem 1.3rem;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s var(--ease);
+}
+.dev-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #db2777, #ec4899, #f9a8d4);
+}
+.dev-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(236, 72, 153, 0.14);
+  border-color: var(--pink-line);
+}
+.dev-card-title {
+  font-weight: 700;
+  color: var(--pink-ink);
+  margin-bottom: 0.65rem;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+}
+.dev-card-title::before {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-3), #db2777);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.45);
+}
+.dev-card-body { color: var(--ink-dim); font-size: 13.5px; line-height: 1.7; }
+.dev-card-body ul { margin: 6px 0 0 18px; padding: 0; }
+.dev-card-body li { margin-bottom: 4px; }
+.dev-card-body li::marker { color: var(--accent-3); }
+.dev-card-body code {
+  background: var(--pink);
+  color: var(--pink-ink);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--pink-line);
+  font-family: 'JetBrains Mono', monospace;
+}
+.dev-card-body strong { color: var(--ink); font-weight: 700; }
+
+/* === CONTRACT FLOW === */
+.contract-flow { display: grid; gap: 0.6rem; }
+.contract-step {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.25rem 1.4rem;
+  border-left: 3px solid var(--info);
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s var(--ease);
+}
+.contract-step:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: #0e7490;
+}
+.contract-step-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 0.7rem;
+}
+.contract-step-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border: 1px solid;
+}
+.contract-step-tag.be { background: var(--blue); color: var(--blue-ink); border-color: var(--blue-line); }
+.contract-step-tag.fe { background: var(--green); color: var(--green-ink); border-color: var(--green-line); }
+.contract-step-tag.webhook { background: var(--orange); color: var(--orange-ink); border-color: var(--orange-line); }
+.contract-step-tag.sync { background: var(--purple); color: var(--purple-ink); border-color: var(--purple-line); }
+.contract-step-title { font-weight: 700; color: var(--ink); font-size: 14.5px; letter-spacing: -0.01em; }
+.contract-step-desc { color: var(--ink-dim); font-size: 13px; line-height: 1.65; margin-bottom: 0.65rem; }
+.contract-step-desc code {
+  background: var(--bg-soft);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+}
+.contract-code {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 12.5px;
+  color: #e2e8f0;
+  margin-top: 8px;
+  overflow-x: auto;
+  line-height: 1.65;
+  white-space: pre;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.contract-code .k { color: #f472b6; }
+.contract-code .s { color: #86efac; }
+.contract-code .n { color: #fbbf24; }
+.contract-code .c { color: #64748b; font-style: italic; }
+.contract-arrow {
+  text-align: center;
+  font-size: 1.3rem;
+  color: var(--info);
+  margin: -2px 0;
+  line-height: 1;
+}
+.contract-insight {
+  margin-top: 1.25rem;
+  padding: 1.1rem 1.4rem;
+  background: linear-gradient(135deg, #ecfeff 0%, #f0fdfa 100%);
+  border: 1px dashed var(--info);
+  border-radius: var(--r);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+.contract-insight strong { color: var(--info); font-weight: 700; }
+
+/* === RELATED + FOOTER === */
+.related {
+  margin-top: 3rem;
+  padding: 1.6rem 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+}
+.related-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.85rem;
+}
+.related-list { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.related-link {
+  color: var(--accent);
+  text-decoration: none;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+.related-link:hover {
+  background: var(--purple);
+  border-color: var(--purple-line);
+  color: var(--purple-ink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-footer {
+  margin-top: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.report-footer .sources { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.6; }
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .benefit-grid { grid-template-columns: repeat(2, 1fr); }
+  .agent-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .container { padding: 0 1.25rem 3rem; }
+  .hero-banner { margin: 0 -1.25rem 2rem; padding: 2.5rem 1.5rem; border-radius: 0 0 18px 18px; }
+  .hero-banner h1 { font-size: 2rem; }
+  .brand-header { grid-template-columns: auto 1fr; gap: 1rem; padding: 1.1rem 1.2rem; }
+  .brand-header > *:nth-child(n+3) { grid-column: 1 / -1; }
+  .kpi-row { grid-template-columns: 1fr; }
+  .benefit-grid { grid-template-columns: 1fr; }
+  .compare-pair { grid-template-columns: 1fr; }
+  .arch-orch { min-width: 100%; }
+  .agent-meta-row { grid-template-columns: 1fr; gap: 2px; }
+  .card-body { padding: 1.4rem; }
+  .report-footer { flex-direction: column; align-items: flex-start; padding: 1.25rem 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-banner-inner">
+      <div class="hero-eyebrow"><span class="dot"></span>Architecture · Workspace · 2026</div>
+      <h1>Multi-Agent Workspace Architecture</h1>
+      <p class="hero-lead">
+        <strong>Workspace</strong> = ห้องประชุมที่ agent ทุกตัวมาใช้ context ร่วมกัน · แต่ละ agent มี <strong>repo ของตัวเอง</strong> · สื่อสารผ่าน <strong>contract</strong> ไม่ผ่าน direct coupling — ไม่ต้องกลัว project บวม จะมี 10–20 repo ก็ไม่มีปัญหา
+      </p>
+      <div class="hero-tags">
+        <span class="hero-tag">Workspace</span>
+        <span class="hero-tag">Orchestrator</span>
+        <span class="hero-tag">Multi-Repo</span>
+        <span class="hero-tag">Subagents</span>
+        <span class="hero-tag">Contract-based</span>
+        <span class="hero-tag">Parallel Build</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND HEADER -->
+  <header class="brand-header">
+    <div class="brand-logo">B1</div>
+    <div class="brand-info">
+      <div class="org">B1DX Engineering · Architecture Guide</div>
+      <div class="sub">Multi-Agent Workspace · 4 repos · 5 agents · 3 languages</div>
+    </div>
+    <div class="brand-meta">
+      <div class="label">Doc</div>
+      <div class="value">3 of 5 · Guide</div>
+    </div>
+    <div class="brand-meta">
+      <div class="label">Updated</div>
+      <div class="value">20 May 2026</div>
+    </div>
+    <div class="status-pill"><span class="dot"></span>LIVE</div>
+  </header>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="k-label">Repos</div>
+      <div class="k-value">4</div>
+      <div class="k-delta">BE · FE · Sync · Webhook</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Agents</div>
+      <div class="k-value">5</div>
+      <div class="k-delta">Orchestrator + 4 specialists</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Languages</div>
+      <div class="k-value">3</div>
+      <div class="k-delta">.NET · TypeScript · Go</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Sections</div>
+      <div class="k-value">7</div>
+      <div class="k-delta">Architecture → Contract</div>
+    </div>
+  </div>
+
+  <!-- ===== 1. Architecture Overview ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">1</span> Architecture Overview</div>
+      <div class="card-sub">3 ชั้น: Orchestrator → Agents → Repos</div>
+    </div>
+    <div class="card-body">
+
+      <div class="arch-diagram">
+        <div class="arch-layer-label">Coordination Layer</div>
+        <div class="arch-layer">
+          <div class="arch-orch">
+            <div class="arch-orch-title">Workspace (Orchestrator)</div>
+            <div class="arch-orch-sub">b1dx-workspace · shared context · contracts · specs</div>
+          </div>
+        </div>
+
+        <div class="arch-connector">
+          <svg class="arch-connector-svg" viewBox="0 0 720 36" preserveAspectRatio="none">
+            <line x1="360" y1="0" x2="90"  y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <line x1="360" y1="0" x2="270" y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <line x1="360" y1="0" x2="450" y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <line x1="360" y1="0" x2="630" y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+
+        <div class="arch-layer-label">Agents · Independent</div>
+        <div class="arch-layer">
+          <div class="arch-agent arch-be">
+            <div class="arch-agent-title">Backend</div>
+            <div class="arch-agent-name">.NET 10 · API</div>
+            <div class="arch-agent-role">REST API · business logic</div>
+          </div>
+          <div class="arch-agent arch-fe">
+            <div class="arch-agent-title">Frontend</div>
+            <div class="arch-agent-name">Next.js 15</div>
+            <div class="arch-agent-role">UI · user interactions</div>
+          </div>
+          <div class="arch-agent arch-sync">
+            <div class="arch-agent-title">Sync Worker</div>
+            <div class="arch-agent-name">.NET 10 · Worker</div>
+            <div class="arch-agent-role">background sync · ERP→OMS</div>
+          </div>
+          <div class="arch-agent arch-webhook">
+            <div class="arch-agent-title">Webhook</div>
+            <div class="arch-agent-name">Go 1.25 · Gin</div>
+            <div class="arch-agent-role">external events · callbacks</div>
+          </div>
+        </div>
+
+        <div class="arch-connector">
+          <svg class="arch-connector-svg" viewBox="0 0 720 36" preserveAspectRatio="none">
+            <line x1="90"  y1="0" x2="90"  y2="36" stroke="#94a3b8" stroke-width="1.5"/>
+            <line x1="270" y1="0" x2="270" y2="36" stroke="#94a3b8" stroke-width="1.5"/>
+            <line x1="450" y1="0" x2="450" y2="36" stroke="#94a3b8" stroke-width="1.5"/>
+            <line x1="630" y1="0" x2="630" y2="36" stroke="#94a3b8" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="arch-layer-label">Source Repos · Isolated Git</div>
+        <div class="arch-layer">
+          <div class="arch-repo">
+            <div class="arch-repo-label">Repo · BE</div>
+            <div class="arch-repo-name">b1dx-oms-fulfillment-api</div>
+          </div>
+          <div class="arch-repo">
+            <div class="arch-repo-label">Repo · FE</div>
+            <div class="arch-repo-name">b1dx-oms-fulfillment-web</div>
+          </div>
+          <div class="arch-repo">
+            <div class="arch-repo-label">Repo · Sync</div>
+            <div class="arch-repo-name">b1dx.omsorders.sync.worker</div>
+          </div>
+          <div class="arch-repo">
+            <div class="arch-repo-label">Repo · Webhook</div>
+            <div class="arch-repo-name">webhook</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 2. Multi-Repo Independence ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">2</span> แยก Repo = แยก Context = แยก Agent</div>
+      <div class="card-sub">ไม่ต้องกลัว project บวม · 10 หรือ 20 repo ก็ทำงานเร็วเหมือนเดิม เพราะ context ของ agent ถูก scope ด้วย repo</div>
+    </div>
+    <div class="card-body">
+
+      <div class="multirepo-image">
+        <img src="3.1.Agent-team-architecture-multi-repo-diagram.png" alt="Agent Team Architecture · Multi-Repo Diagram — แสดง orchestrator แจกงานให้แต่ละ agent ทำงานบน repo ของตัวเองอย่างอิสระ" loading="lazy" />
+        <div class="multirepo-image-caption">FIG. 3.1 — Multi-Repo Architecture · แต่ละ agent ทำงาน scope เฉพาะ repo ของตัวเอง สื่อสารผ่าน contract ที่ workspace</div>
+      </div>
+
+      <div class="section-label green">6 ข้อดี ของ multi-repo workspace</div>
+      <div class="benefit-grid">
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">1</div>
+            <div class="benefit-card-title">แยกอิสระ</div>
+          </div>
+          <div class="benefit-card-desc">แต่ละ repo มี <code>git history</code> · branch · CI/CD ของตัวเอง — ไม่กระทบกันเมื่อ commit หรือ deploy</div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">2</div>
+            <div class="benefit-card-title">Context ไม่บวม</div>
+          </div>
+          <div class="benefit-card-desc">Agent โหลดแค่ repo ที่ตัวเองทำงาน — ไม่ต้องอ่านทุก codebase token ต่ำลง ตอบเร็วขึ้น</div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">3</div>
+            <div class="benefit-card-title">Agent เฉพาะทาง</div>
+          </div>
+          <div class="benefit-card-desc"><code>backend-coder</code> รู้ .NET / EF Core ลึก · <code>webhook-coder</code> รู้ Go / Gin ลึกกว่า agent รวมทุกอย่าง</div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">4</div>
+            <div class="benefit-card-title">ทำงานขนาน</div>
+          </div>
+          <div class="benefit-card-desc">Backend agent แก้ API ขณะ Frontend agent ทำ UI พร้อมกัน — ไม่ block กันเพราะคนละ repo</div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">5</div>
+            <div class="benefit-card-title">เพิ่ม repo ใหม่ง่าย</div>
+          </div>
+          <div class="benefit-card-desc">เพิ่ม submodule + agent config เสร็จในไม่กี่นาที — <strong>10–20 repo ก็ไม่บวม</strong></div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-card-head">
+            <div class="benefit-card-icon">6</div>
+            <div class="benefit-card-title">Deploy / Scale แยก</div>
+          </div>
+          <div class="benefit-card-desc">แต่ละ repo มี pipeline ของตัวเอง — rollback / scale up เฉพาะส่วนได้ ไม่กระทบกัน</div>
+        </div>
+
+      </div>
+
+      <div class="section-label">เปรียบเทียบ — Monolith vs Workspace</div>
+      <div class="compare-pair">
+
+        <div class="compare-pane bad">
+          <div class="compare-pane-head">
+            <span class="compare-pane-tag">Monolith</span>
+            <span class="compare-pane-title">โตขึ้น → ช้าลง · agent ค้าง</span>
+          </div>
+          <div class="compare-pane-body">
+            <ul>
+              <li>Repo เดียวรวมทุกอย่าง — agent ต้อง index ทั้ง project</li>
+              <li>เพิ่ม feature → context window พุ่ง → agent ช้าและตอบงงๆ</li>
+              <li>Build / Deploy ผูกกัน — เปลี่ยน FE ต้อง re-deploy BE</li>
+              <li>1 agent ค้าง → agent อื่นรอ lock เดียวกัน</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="compare-pane good">
+          <div class="compare-pane-head">
+            <span class="compare-pane-tag">Workspace</span>
+            <span class="compare-pane-title">โตขึ้น → แค่เพิ่ม repo ใหม่</span>
+          </div>
+          <div class="compare-pane-body">
+            <ul>
+              <li>แต่ละ repo เป็น scope เฉพาะ — context window ยังเล็ก เร็วเสมอ</li>
+              <li>เพิ่ม feature → spawn agent ใหม่ใน repo ใหม่ ไม่กระทบของเดิม</li>
+              <li>Build / Deploy แยก — เปลี่ยน FE ไม่ต้องแตะ BE</li>
+              <li>Agent ทำงานขนานในคนละ repo — ไม่มี lock กลาง</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="insight-box">
+        <strong>แก่นความคิด:</strong>
+        <span class="insight-box-quote">"แยก codebase = แยก context = แยก agent ความเชี่ยวชาญ"</span>
+        เมื่อ context ของแต่ละ agent ถูก<strong>จำกัดด้วย repo เดียว</strong> — agent ไม่ต้องรู้ทุกอย่างของระบบ ไม่ต้องเหนื่อยกับการ index/อ่านไฟล์ที่ไม่เกี่ยว ผลคือ <strong>คุณภาพการทำงานดีขึ้นตามจำนวน repo ไม่ใช่แย่ลง</strong>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 3. Key Principles ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">3</span> Key Principles</div>
+      <div class="card-sub">หลักการที่ทำให้ระบบยืดหยุ่นและ scale ได้</div>
+    </div>
+    <div class="card-body">
+
+      <div class="principle-list">
+        <div class="principle">
+          <div class="principle-icon">1</div>
+          <div class="principle-content">
+            <strong>Workspace ไม่เก็บ source code</strong>
+            <p>Workspace เป็น orchestration layer สำหรับรวม context (specs, mockups, agent prompts, task tracking) ไม่มี code จริงอยู่ใน <code>./be-repo/</code>, <code>./web-repo/</code> — ใช้แค่เป็น submodule reference</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">2</div>
+          <div class="principle-content">
+            <strong>แต่ละ agent มี repo อิสระ</strong>
+            <p>Git history, branch, deployment pipeline แยกชัดเจน — FE Agent แก้ UI ก็ commit เฉพาะใน <code>b1dx-oms-fulfillment-web</code> เท่านั้น ไม่กระทบ repo อื่น</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">3</div>
+          <div class="principle-content">
+            <strong>Contract-based communication</strong>
+            <p>Agent คุยกันผ่าน contract ที่ Workspace ประกาศไว้ (API spec, event schema, shared types) — ไม่มี direct coupling ระหว่าง repo</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">4</div>
+          <div class="principle-content">
+            <strong>เปลี่ยน 1 repo ไม่กระทบ repo อื่น</strong>
+            <p>ถ้า contract ยังคงเดิม → deploy แยกได้, rollback แยกได้, ทำ A/B test ได้ — ต้อง bump version contract เมื่อ breaking change เท่านั้น</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">5</div>
+          <div class="principle-content">
+            <strong>Orchestrator coordinates · ไม่ execute เอง</strong>
+            <p>Orchestrator (claude ที่อ่าน <code>agents/orchestrator.md</code>) ตัดสินใจว่างานไหนส่งให้ agent ไหน · spawn parallel ได้ · รวมผลลัพธ์กลับมา · ห้าม agent ตัวเดียวทำงานข้าม repo</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 4. Per-Agent Details ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">4</span> Per-Agent Details</div>
+      <div class="card-sub">working dir · tech stack · responsibility · system prompt</div>
+    </div>
+    <div class="card-body">
+
+      <div class="agent-grid">
+
+        <div class="agent-card be">
+          <div class="agent-card-head">
+            <div class="agent-card-dot"></div>
+            <div class="agent-card-name">Backend Agent</div>
+          </div>
+          <div class="agent-card-tech">.NET 10 · ASP.NET Core · EF Core · PostgreSQL · Mediator (CQRS)</div>
+          <div class="agent-meta">
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Working dir</div>
+              <div class="agent-meta-val"><code>b1dx-oms-fulfillment-api/</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Layers</div>
+              <div class="agent-meta-val"><code>Domain ← Application ← Infrastructure ← Api</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Build order</div>
+              <div class="agent-meta-val">Domain entity+test → Application command/query+test → Infrastructure migration → Api endpoint → integration test</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Verify</div>
+              <div class="agent-meta-val"><code>dotnet build &amp;&amp; dotnet test</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Prompt</div>
+              <div class="agent-meta-val"><code>agents/be-coder.md</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card fe">
+          <div class="agent-card-head">
+            <div class="agent-card-dot"></div>
+            <div class="agent-card-name">Frontend Agent</div>
+          </div>
+          <div class="agent-card-tech">Next.js 15 · TypeScript · TanStack Query · MSW · Playwright</div>
+          <div class="agent-meta">
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Working dir</div>
+              <div class="agent-meta-val"><code>b1dx-oms-fulfillment-web/</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Structure</div>
+              <div class="agent-meta-val"><code>features/ · app/(app)/ · components/ · hooks/ · mocks/ · e2e/</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Build order</div>
+              <div class="agent-meta-val">types → zod schema → MSW mock → hook+test → component+test → page</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Verify</div>
+              <div class="agent-meta-val"><code>pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Prompt</div>
+              <div class="agent-meta-val"><code>agents/fe-coder.md</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card sync">
+          <div class="agent-card-head">
+            <div class="agent-card-dot"></div>
+            <div class="agent-card-name">Sync Worker Agent</div>
+          </div>
+          <div class="agent-card-tech">.NET 10 · Background Service · TestContainers</div>
+          <div class="agent-meta">
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Working dir</div>
+              <div class="agent-meta-val"><code>b1dx.omsorders.sync.worker/</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Trigger</div>
+              <div class="agent-meta-val">feature ที่เกี่ยวกับ ERP → OMS sync เท่านั้น</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Build order</div>
+              <div class="agent-meta-val">Domain entity+test → Application service+test → Infrastructure → BackgroundJob</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Verify</div>
+              <div class="agent-meta-val"><code>dotnet build &amp;&amp; dotnet test</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Prompt</div>
+              <div class="agent-meta-val"><code>agents/sync-worker-coder.md</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card webhook">
+          <div class="agent-card-head">
+            <div class="agent-card-dot"></div>
+            <div class="agent-card-name">Webhook Agent</div>
+          </div>
+          <div class="agent-card-tech">Go 1.25 · Gin · GORM · RabbitMQ · Docker · Caddy</div>
+          <div class="agent-meta">
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Working dir</div>
+              <div class="agent-meta-val"><code>webhook/</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Trigger</div>
+              <div class="agent-meta-val">Shopee · Lazada · TikTok · Facebook · LINE · OAuth bind · DLX-DLQ</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Build order</div>
+              <div class="agent-meta-val">Domain → Service+test → Adapter (platform) → Handler (HTTP 202 + RabbitMQ) → Worker consumer</div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Verify</div>
+              <div class="agent-meta-val"><code>go build ./... &amp;&amp; go test ./... &amp;&amp; go vet ./...</code></div>
+            </div>
+            <div class="agent-meta-row">
+              <div class="agent-meta-key">Prompt</div>
+              <div class="agent-meta-val"><code>agents/webhook-coder.md</code></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 5. Runtime Flow ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">5</span> Runtime Flow</div>
+      <div class="card-sub">คำสั่ง user ไหลผ่าน Orchestrator → Agents → Repos → กลับมา user อย่างไร</div>
+    </div>
+    <div class="card-body">
+
+      <div class="flow-list">
+
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">USER</span>ส่งคำสั่ง</div>
+            <div class="flow-step-desc">เช่น <code>build feature order-detail-improve</code> หรือ <code>fix bug FE-EOD-04</code></div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">ORCHESTRATOR</span>อ่าน spec + วิเคราะห์ scope</div>
+            <div class="flow-step-desc">โหลด <code>docs/specs/{feature}.md</code>, mockup, อ่าน <code>tasks/current-sprint.md</code> → ตัดสินใจว่ากระทบ repo ใดบ้าง (BE? FE? Sync? Webhook?)</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">ORCHESTRATOR</span>นำเสนอ plan + รอ user trigger</div>
+            <div class="flow-step-desc">แสดง 4 รายการ (scope · summary of changes · SIT impact · test plan) → สร้าง <code>tasks/plans/{TICKET}/plan.md</code> → รอ user พิมพ์ <code>build</code> หรือ <code>ลุย</code></div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">ORCHESTRATOR</span>spawn subagents แบบ parallel</div>
+            <div class="flow-step-desc">spawn BE Coder + FE Coder พร้อมกันใน working dir ของแต่ละ repo · UI Tester scaffold test ก่อน (Phase 1.5) · Sync/Webhook spawn ถ้า scope เกี่ยว</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">AGENT</span>ทำงานใน repo ของตัวเอง</div>
+            <div class="flow-step-desc">แต่ละ agent: <code>git checkout -b {branch}</code> → TDD (test ก่อน impl ทุก layer) → verify (<code>dotnet test</code> / <code>pnpm test</code> / <code>go test</code>) → stage files</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">6</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">ORCHESTRATOR</span>รวมผลลัพธ์</div>
+            <div class="flow-step-desc">รับ report กลับจากทุก agent · spawn UI Tester อีกครั้งเพื่อ un-skip + รัน e2e · update <code>plan.md</code> Status → In Review</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">7</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title"><span class="flow-step-actor">USER</span>สั่ง commit / push / PR</div>
+            <div class="flow-step-desc">Agent ห้าม auto-push — รอ user พิมพ์ <code>commit</code> / <code>push</code> / <code>PR</code> แล้วจึงรันคำสั่งจริง · ห้ามตรงเข้า <code>main</code> เด็ดขาด</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 6. Development Workflow ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">6</span> Development Workflow</div>
+      <div class="card-sub">ใครแก้อะไร · branch / commit / merge กันยังไง · contract sync</div>
+    </div>
+    <div class="card-body">
+
+      <div class="dev-grid">
+
+        <div class="dev-card">
+          <div class="dev-card-title">Branch Convention</div>
+          <div class="dev-card-body">
+            ทุก agent ต้อง:
+            <ul>
+              <li><code>git checkout main &amp;&amp; git pull</code></li>
+              <li><code>git checkout -b feat/{ticket}</code> หรือ <code>fix/{ticket}</code></li>
+              <li>ห้าม commit ลง <code>main</code> ตรง — push branch → <code>gh pr create</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Plan Gate (ทุก task)</div>
+          <div class="dev-card-body">
+            ก่อนแก้โค้ดต้อง:
+            <ul>
+              <li>แสดง 4 รายการใน chat (scope · changes · SIT impact · test plan)</li>
+              <li>สร้าง <code>tasks/plans/{TICKET}/plan.md</code></li>
+              <li>รอ user พิมพ์ <code>build</code> หรือ <code>ลุย</code></li>
+              <li>หลัง trigger → build ต่อเนื่อง ไม่ confirm กลางทาง</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Parallel Build</div>
+          <div class="dev-card-body">
+            BE + FE spawn พร้อมกันได้ทันที:
+            <ul>
+              <li>ถ้า BE ยังไม่พร้อม → FE ทำ MSW mock ก่อน (ไม่รอ)</li>
+              <li>ทำงานคนละ repo จึงไม่เกิด git conflict</li>
+              <li>ห้าม spawn parallel subagent บน <strong>repo เดียวกัน</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Contract Sync</div>
+          <div class="dev-card-body">
+            API spec / event schema = source of truth ที่ Workspace:
+            <ul>
+              <li>BE ประกาศ contract ใน <code>docs/specs/{feature}.md</code></li>
+              <li>FE / Webhook / Sync อ่าน spec เดียวกัน — ห้าม copy</li>
+              <li>Breaking change → bump version + แจ้ง consumer ทุกตัว</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Task Assignment (3 ไฟล์)</div>
+          <div class="dev-card-body">
+            ทุก task ต้อง update พร้อมกัน:
+            <ul>
+              <li><code>tasks/backlog.md</code> § Issues Backlog</li>
+              <li><code>tasks/current-sprint.md</code> (effort, AC, branch)</li>
+              <li><code>tasks/assignments/YYYY-MM-{name}.md</code> § Active</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Test Discipline</div>
+          <div class="dev-card-body">
+            ห้าม mark done ถ้าไม่มี test:
+            <ul>
+              <li>FE: <code>e2e/{feature}/{feature}.spec.ts</code> ผ่านครบ</li>
+              <li>BE: unit + integration ครอบคลุม happy + error</li>
+              <li>Sync: unit หรือ TestContainers integration</li>
+              <li>Visual fidelity: screenshot vs mockup (FE)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">PR Coordination</div>
+          <div class="dev-card-body">
+            แต่ละ repo มี PR แยก:
+            <ul>
+              <li>BE PR merge ก่อน → FE PR consume API จริง</li>
+              <li>FE PR ตอน BE ยังไม่ merge → mock ด้วย MSW</li>
+              <li>Reviewer ต้องเปิด mockup จริง + ดู screenshot ก่อน approve</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="dev-card-title">Post-Push Hygiene</div>
+          <div class="dev-card-body">
+            หลัง push ทุกครั้ง:
+            <ul>
+              <li>รัน <code>node scripts/gen-progress.mjs</code></li>
+              <li>Update <code>plan.md</code> Status → In Review (PR link)</li>
+              <li>Merged → Update Status → Done + date</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 7. Contract Example ===== -->
+  <div class="section">
+    <div class="card-gradient-header">
+      <div class="card-title"><span class="section-num-badge">7</span> Contract Example</div>
+      <div class="card-sub">ตัวอย่างจริง: feature "Order Created" — agent คุยกันผ่าน contract อย่างไร</div>
+    </div>
+    <div class="card-body">
+
+      <div class="contract-flow">
+
+        <div class="contract-step">
+          <div class="contract-step-head">
+            <span class="contract-step-tag be">BE</span>
+            <span class="contract-step-title">1. ประกาศ endpoint ใน spec</span>
+          </div>
+          <div class="contract-step-desc">
+            BE Agent เขียน <code>docs/specs/order-create.md</code> ระบุ contract → consumer ทุกตัวอ่านจากที่นี่
+          </div>
+<div class="contract-code"><span class="c"># API Contract — POST /api/orders</span>
+<span class="k">Request:</span>
+  <span class="k">tenant_id:</span> <span class="c"># ห้ามรับจาก body — ดึงจาก ICurrentTenant</span>
+  <span class="k">channel:</span>      <span class="s">"shopee" | "lazada" | "tiktok"</span>
+  <span class="k">items[]:</span>
+    <span class="k">sku:</span>        <span class="s">string</span>
+    <span class="k">qty:</span>        <span class="n">int</span>
+    <span class="k">price:</span>      <span class="n">decimal(18,2)</span>
+
+<span class="k">Response 201:</span>
+  <span class="k">order_id:</span>    <span class="s">uuid</span>
+  <span class="k">status:</span>      <span class="s">"pending"</span>
+  <span class="k">created_at:</span>  <span class="s">iso8601</span>
+
+<span class="k">Emits event:</span> <span class="s">order.created</span> <span class="c"># → RabbitMQ exchange</span></div>
+        </div>
+
+        <div class="contract-arrow">↓</div>
+
+        <div class="contract-step">
+          <div class="contract-step-head">
+            <span class="contract-step-tag fe">FE</span>
+            <span class="contract-step-title">2. Frontend consume API</span>
+          </div>
+          <div class="contract-step-desc">
+            FE Agent สร้าง zod schema + hook จาก contract เดียวกัน → ถ้า BE ยังไม่พร้อม ใช้ MSW mock ตอบตาม contract
+          </div>
+<div class="contract-code"><span class="c">// features/orders/schemas/create-order.ts</span>
+<span class="k">export const</span> CreateOrderSchema = z.object({
+  channel: z.<span class="k">enum</span>([<span class="s">"shopee"</span>, <span class="s">"lazada"</span>, <span class="s">"tiktok"</span>]),
+  items: z.array(z.object({
+    sku: z.string(),
+    qty: z.number().<span class="k">int</span>().positive(),
+    price: z.number().positive(),
+  })),
+});
+
+<span class="c">// hooks/use-create-order.ts</span>
+<span class="k">export const</span> useCreateOrder = () =&gt; useMutation({
+  mutationFn: (data) =&gt; api.post(<span class="s">"/api/orders"</span>, data),
+});</div>
+        </div>
+
+        <div class="contract-arrow">↓</div>
+
+        <div class="contract-step">
+          <div class="contract-step-head">
+            <span class="contract-step-tag webhook">WEBHOOK</span>
+            <span class="contract-step-title">3. Webhook รับจาก marketplace → call BE API</span>
+          </div>
+          <div class="contract-step-desc">
+            Webhook Agent รับ event จาก Shopee → return HTTP 202 ทันที → publish to RabbitMQ → worker consume → call BE API ตาม contract เดียวกัน
+          </div>
+<div class="contract-code"><span class="c">// internal/handler/shopee_order.go</span>
+<span class="k">func</span> (h *Handler) ShopeeOrderCreated(c *gin.Context) {
+    payload := parseShopeePayload(c)
+    h.queue.Publish(<span class="s">"order.shopee.created"</span>, payload) <span class="c">// idempotent key</span>
+    c.JSON(<span class="n">202</span>, gin.H{<span class="s">"status"</span>: <span class="s">"accepted"</span>})
+}
+
+<span class="c">// internal/service/order_consumer.go (worker)</span>
+<span class="k">func</span> (s *Service) Consume(msg Message) <span class="k">error</span> {
+    req := mapShopeeToOmsContract(msg) <span class="c">// → ตาม spec ของ BE</span>
+    <span class="k">return</span> s.omsClient.CreateOrder(req)
+}</div>
+        </div>
+
+        <div class="contract-arrow">↓</div>
+
+        <div class="contract-step">
+          <div class="contract-step-head">
+            <span class="contract-step-tag sync">SYNC</span>
+            <span class="contract-step-title">4. Sync Worker subscribe event</span>
+          </div>
+          <div class="contract-step-desc">
+            Sync Worker Agent subscribe <code>order.created</code> event → push ไป ERP (B1) — ใช้ event schema เดียวกับที่ BE ประกาศ
+          </div>
+<div class="contract-code"><span class="c">// Application/Handlers/OrderCreatedHandler.cs</span>
+<span class="k">public class</span> OrderCreatedHandler : IConsumer&lt;OrderCreatedEvent&gt;
+{
+    <span class="k">public async</span> Task Consume(ConsumeContext&lt;OrderCreatedEvent&gt; ctx)
+    {
+        <span class="k">var</span> sapOrder = MapToSapOrder(ctx.Message); <span class="c">// schema จาก spec</span>
+        <span class="k">await</span> _b1Client.PushOrderAsync(sapOrder, ctx.CancellationToken);
+    }
+}</div>
+        </div>
+
+      </div>
+
+      <div class="contract-insight">
+        <strong>Key insight:</strong> 4 agent / 4 repo / 4 ภาษา (C# / TypeScript / Go / C#) แต่ทำงานร่วมกันได้เพราะ contract เดียวกันที่ Workspace —
+        ถ้า BE bump version contract → ทุก consumer (FE, Webhook, Sync) ต้อง update tests → reviewer block PR ถ้าไม่ครบ
+      </div>
+
+    </div>
+  </div>
+
+  <nav style="margin: 2rem 0 1.25rem; padding: 1.25rem 1.5rem; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: 'Inter', system-ui, sans-serif;">
+    <a href="3.feature-bug-workflow-flow.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #4338ca; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);"><span style="font-size: 18px;">←</span><span><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>3. Feature/Bug Workflow Flow</span></a>
+    <span style="font-size: 11px; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → 2 → 3 → <strong style="color:#4338ca">4</strong> → 5 → 6</span>
+    <a href="5.ai_coding_paradigms.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99,102,241,0.30);"><span style="text-align:right"><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.80;font-weight:500;">Next</small>5. AI Coding Paradigms</span><span style="font-size: 18px;">→</span></a>
+  </nav>
+
+  <!-- Related Guides -->
+  <div class="related">
+    <div class="related-title">Related Guides</div>
+    <div class="related-list">
+      <a href="1.onboarding.html" class="related-link">1. Onboarding</a>
+      <a href="2.agent-workflow-guide.html" class="related-link">2. Agent Workflow Guide</a>
+      <a href="3.feature-bug-workflow-flow.html" class="related-link">3. Feature/Bug Workflow</a>
+      <a href="5.ai_coding_paradigms.html" class="related-link">5. AI Coding Paradigms</a>
+      <a href="6.traditional-scrum-workflow.html" class="related-link">6. Traditional Scrum Workflow</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="report-footer">
+    <div class="sources">B1DX Workspace · Multi-Agent Architecture · v2.0</div>
+    <div>Engineering Brief · Internal · 20 May 2026</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

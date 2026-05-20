@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Workflow — ก่อน vs หลังมี AI Agent</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gray-bg: #f1efe8;   --gray-bd: #5f5e5a;   --gray-tt: #444441;   --gray-sb: #5f5e5a;
+    --purple-bg: #eeedfe; --purple-bd: #534ab7; --purple-tt: #3c3489; --purple-sb: #534ab7;
+    --blue-bg: #e6f1fb;   --blue-bd: #185fa5;   --blue-tt: #0c447c;   --blue-sb: #185fa5;
+    --green-bg: #e1f5ee;  --green-bd: #0f6e56;  --green-tt: #085041;  --green-sb: #0f6e56;
+    --amber-bg: #faeeda;  --amber-bd: #854f0b;  --amber-tt: #633806;  --amber-sb: #854f0b;
+    --red-bg: #faece7;    --red-bd: #993c1d;    --red-tt: #712b13;    --red-sb: #993c1d;
+    --rose-bg: #fbeaf0;   --rose-bd: #993556;   --rose-tt: #72243e;   --rose-sb: #993556;
+    --line: #73726c;
+    --line-soft: #cbd5e1;
+  }
+
+  body {
+    font-family: -apple-system, "Segoe UI", "Sukhumvit Set", "Noto Sans Thai", "Anthropic Sans", sans-serif;
+    background: #fafbfc;
+    color: #1e293b;
+    padding: 40px 16px;
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ========== PANEL (one per section) ========== */
+  .panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 32px 36px 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    position: relative;
+  }
+  .panel-header {
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .panel-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: #14140f;
+    letter-spacing: -0.01em;
+  }
+  .panel-subtitle {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+  .menu-dots {
+    position: absolute;
+    top: 2px; right: 0;
+    color: #94a3b8;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    user-select: none;
+  }
+
+  /* ========== BOX styling (shared) ========== */
+  .box {
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+    border: 0.5px solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 56px;
+  }
+  .box .b-title { font-weight: 500; font-size: 0.88rem; line-height: 1.4; }
+  .box .b-desc  { font-size: 0.78rem; line-height: 1.4; margin-top: 2px; }
+
+  .box.gray   { background: var(--gray-bg);   border-color: var(--gray-bd); }
+  .box.gray   .b-title { color: var(--gray-tt); }
+  .box.gray   .b-desc  { color: var(--gray-sb); }
+  .box.purple { background: var(--purple-bg); border-color: var(--purple-bd); }
+  .box.purple .b-title { color: var(--purple-tt); }
+  .box.purple .b-desc  { color: var(--purple-sb); }
+  .box.blue   { background: var(--blue-bg);   border-color: var(--blue-bd); }
+  .box.blue   .b-title { color: var(--blue-tt); }
+  .box.blue   .b-desc  { color: var(--blue-sb); }
+  .box.green  { background: var(--green-bg);  border-color: var(--green-bd); }
+  .box.green  .b-title { color: var(--green-tt); }
+  .box.green  .b-desc  { color: var(--green-sb); }
+  .box.amber  { background: var(--amber-bg);  border-color: var(--amber-bd); }
+  .box.amber  .b-title { color: var(--amber-tt); }
+  .box.amber  .b-desc  { color: var(--amber-sb); }
+  .box.red    { background: var(--red-bg);    border-color: var(--red-bd); }
+  .box.red    .b-title { color: var(--red-tt); }
+  .box.red    .b-desc  { color: var(--red-sb); }
+  .box.rose   { background: var(--rose-bg);   border-color: var(--rose-bd); }
+  .box.rose   .b-title { color: var(--rose-tt); }
+  .box.rose   .b-desc  { color: var(--rose-sb); }
+
+  /* ========== SECTION 1: BEFORE AI ========== */
+  .flow-before {
+    position: relative;
+    padding: 0 90px;
+  }
+  .boxes-1col {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+  }
+  .v-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 26px;
+    position: relative;
+  }
+  .v-arrow::before {
+    content: ''; width: 1.5px; height: 16px; background: var(--line);
+  }
+  .v-arrow::after {
+    content: ''; position: absolute; bottom: 4px;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--line);
+  }
+  .loop-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+  }
+  .loop-line {
+    stroke: var(--line);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 4;
+    fill: none;
+  }
+  .loop-arrow { fill: var(--line); }
+  .loop-label {
+    fill: #3d3d3a;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .manual-bottom {
+    margin-top: 30px;
+    border: 1px dashed var(--gray-bd);
+    background: var(--gray-bg);
+    border-radius: 8px;
+    padding: 12px 18px;
+    text-align: center;
+  }
+  .manual-bottom .b-title { font-weight: 500; color: var(--gray-tt); font-size: 0.88rem; }
+  .manual-bottom .b-desc  { color: var(--gray-sb); font-size: 0.78rem; margin-top: 2px; }
+
+  /* ========== SECTION 2: AFTER AI (2-column flow) ========== */
+  .flow-after {
+    display: grid;
+    grid-template-columns: 1fr 56px 200px;
+    align-items: stretch;
+    row-gap: 0;
+    column-gap: 0;
+    position: relative;
+    padding-left: 36px;
+  }
+  .flow-after .main-box,
+  .flow-after .ai-box {
+    grid-row: span 1;
+  }
+  .flow-after .h-arrow {
+    align-self: center;
+    justify-self: center;
+    position: relative;
+    width: 100%;
+    height: 1.5px;
+    background: var(--line);
+  }
+  .flow-after .h-arrow::after {
+    content: ''; position: absolute;
+    right: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 7px solid var(--line);
+  }
+  .flow-after .v-gap-main {
+    grid-column: 1;
+    height: 26px;
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+  }
+  .flow-after .v-gap-main::before {
+    content: ''; width: 1.5px; height: 16px; background: var(--line);
+  }
+  .flow-after .v-gap-main::after {
+    content: ''; position: absolute; bottom: 4px;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--line);
+  }
+  .flow-after .v-gap-blank {
+    height: 26px;
+  }
+  .flow-after-wrap { position: relative; }
+  .loop-after-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
+  }
+  .ai-summary {
+    margin-top: 28px;
+    background: var(--green-bg);
+    border: 0.5px solid var(--green-bd);
+    border-radius: 8px;
+    padding: 14px 18px;
+    text-align: center;
+  }
+  .ai-summary .s-title { font-weight: 500; color: var(--green-tt); font-size: 0.92rem; }
+  .ai-summary .s-desc  { color: var(--green-sb); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ========== SECTION 3: DEV ROLE ========== */
+  .role-header {
+    background: var(--gray-bg);
+    border: 0.5px solid var(--gray-bd);
+    border-radius: 8px;
+    padding: 12px 18px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .role-header h3 { font-weight: 500; color: var(--gray-tt); font-size: 0.95rem; }
+
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .role-card {
+    border-radius: 8px;
+    border: 0.5px solid;
+    padding: 16px 18px;
+  }
+  .role-card .r-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .role-card .r-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .role-card .r-list li {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .role-card.purple { background: var(--purple-bg); border-color: var(--purple-bd); }
+  .role-card.purple .r-title { color: var(--purple-tt); }
+  .role-card.purple .r-list li { color: var(--purple-sb); }
+  .role-card.blue   { background: var(--blue-bg); border-color: var(--blue-bd); }
+  .role-card.blue   .r-title { color: var(--blue-tt); }
+  .role-card.blue   .r-list li { color: var(--blue-sb); }
+  .role-card.amber  { background: var(--amber-bg); border-color: var(--amber-bd); }
+  .role-card.amber  .r-title { color: var(--amber-tt); }
+  .role-card.amber  .r-list li { color: var(--amber-sb); }
+  .role-card.red    { background: var(--red-bg); border-color: var(--red-bd); }
+  .role-card.red    .r-title { color: var(--red-tt); }
+  .role-card.red    .r-list li { color: var(--red-sb); }
+  .role-card.green  { background: var(--green-bg); border-color: var(--green-bd); }
+  .role-card.green  .r-title { color: var(--green-tt); }
+  .role-card.green  .r-list li { color: var(--green-sb); }
+  .role-card.rose   { background: var(--rose-bg); border-color: var(--rose-bd); }
+  .role-card.rose   .r-title { color: var(--rose-tt); }
+  .role-card.rose   .r-list li { color: var(--rose-sb); }
+
+  /* Comparison bars */
+  .compare-block { margin: 22px 0 24px; }
+  .compare-row {
+    display: grid;
+    grid-template-columns: 150px 1fr 90px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .compare-row .c-label {
+    font-size: 0.85rem;
+    color: #3d3d3a;
+  }
+  .compare-row .c-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .c-bar-line {
+    display: grid;
+    grid-template-columns: 32px 1fr 38px;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+  }
+  .c-bar-line .tag { color: #6b6b65; font-weight: 500; }
+  .c-bar-line .bar {
+    background: #eceae3;
+    height: 12px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .c-bar-line .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+  .c-bar-line .pct { color: #6b6b65; text-align: right; }
+  .compare-row .c-arrow {
+    font-size: 0.85rem;
+    color: #3d3d3a;
+    text-align: center;
+    font-weight: 500;
+  }
+  .bar-fill.before { background: #b4b2a9; }
+  .bar-fill.after-red    { background: var(--red-bd); }
+  .bar-fill.after-green  { background: var(--green-bd); }
+  .bar-fill.after-purple { background: var(--purple-bd); }
+  .bar-fill.after-blue   { background: var(--blue-bd); }
+
+  /* Insight callout */
+  .insight {
+    background: var(--amber-bg);
+    border: 0.5px solid var(--amber-bd);
+    border-radius: 8px;
+    padding: 18px 22px;
+  }
+  .insight .ins-title {
+    font-weight: 500;
+    color: var(--amber-tt);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  .insight ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .insight li {
+    font-size: 0.82rem;
+    color: var(--amber-sb);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .insight li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 720px) {
+    body { padding: 20px 10px; }
+    .panel { padding: 22px 16px 28px; }
+    .flow-before { padding: 0 60px; }
+    .loop-label { font-size: 10px; }
+    .flow-after {
+      grid-template-columns: 1fr;
+      padding-left: 0;
+    }
+    .flow-after .h-arrow,
+    .flow-after .v-gap-blank {
+      display: none;
+    }
+    .flow-after .ai-box {
+      margin-bottom: 10px;
+      border-style: dashed;
+    }
+    .role-grid { grid-template-columns: 1fr; }
+    .compare-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .compare-row .c-arrow { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- ===================================== -->
+    <!-- SECTION 1: BEFORE AI AGENT            -->
+    <!-- ===================================== -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Sprint Workflow (ก่อนมี AI Agent)</div>
+        <div class="panel-subtitle">ทุกขั้นตอนใช้คนทำทั้งหมด — Manual end-to-end</div>
+        <div class="menu-dots">⋯</div>
+      </div>
+
+      <div class="flow-before">
+
+        <!--
+          SVG overlay for dashed loop arrows.
+          viewBox 720×600.
+          Box mid-y (approx in viewBox units):
+            Box1=32, Box2=124, Box3=216, Box4=308, Box5=400, Box6=492
+          Box horizontal edges: x=80 (left) to x=640 (right)
+        -->
+        <svg class="loop-svg" viewBox="0 0 720 600" preserveAspectRatio="none" aria-hidden="true">
+          <!-- LEFT short loop: Box 3 → Box 2 ("เติม Backlog") -->
+          <path class="loop-line" d="M 80 216 L 36 216 L 36 124 L 78 124" />
+          <polygon class="loop-arrow" points="78,124 70,120 70,128" />
+          <text class="loop-label" x="28" y="172"
+                text-anchor="middle"
+                transform="rotate(-90 28 172)">เติม Backlog</text>
+
+          <!-- RIGHT long loop: Box 6 → Box 3 ("วนรอบ Sprint ถัดไป") -->
+          <path class="loop-line" d="M 640 492 L 684 492 L 684 216 L 642 216" />
+          <polygon class="loop-arrow" points="642,216 650,212 650,220" />
+          <text class="loop-label" x="700" y="354"
+                text-anchor="middle"
+                transform="rotate(90 700 354)">วนรอบ Sprint ถัดไป</text>
+        </svg>
+
+        <div class="boxes-1col">
+          <div class="box gray">
+            <div class="b-title">1. รับ Requirement</div>
+            <div class="b-desc">จาก stakeholder / ลูกค้า</div>
+          </div>
+          <div class="v-arrow"></div>
+          <div class="box purple">
+            <div class="b-title">2. Sprint Grooming / Backlog Refinement</div>
+            <div class="b-desc">วิเคราะห์ req, สร้าง Backlog รอ</div>
+          </div>
+          <div class="v-arrow"></div>
+          <div class="box blue">
+            <div class="b-title">3. Sprint Planning</div>
+            <div class="b-desc">ดึง Item Backlog มา Plan</div>
+          </div>
+          <div class="v-arrow"></div>
+          <div class="box green">
+            <div class="b-title">4. Daily Stand Up</div>
+            <div class="b-desc">ประชุมสั้น ๆ ทุกวัน sync งาน</div>
+          </div>
+          <div class="v-arrow"></div>
+          <div class="box amber">
+            <div class="b-title">5. Sprint Review</div>
+            <div class="b-desc">Demo ผลงานให้ stakeholder</div>
+          </div>
+          <div class="v-arrow"></div>
+          <div class="box red">
+            <div class="b-title">6. Retrospective</div>
+            <div class="b-desc">ดี = ทำต่อ, ไม่ดี = ปรับปรุง</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-bottom">
+        <div class="b-title">ทีมพัฒนา (Manual)</div>
+        <div class="b-desc">ทุกขั้นตอนใช้คนทำทั้งหมด</div>
+      </div>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- SECTION 2: AFTER AI AGENT             -->
+    <!-- ===================================== -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Sprint Workflow (หลังมี AI Agent)</div>
+        <div class="panel-subtitle">AI Agent เข้ามาช่วยทุกขั้นตอน — Dev เปลี่ยนบทบาทเป็นผู้ควบคุม</div>
+      </div>
+
+      <div class="flow-after-wrap">
+
+        <!-- SVG overlay for left loop arrow ("วน Sprint ถัดไป") -->
+        <!-- Box mid-y in viewBox 720×680: Box1=88, Box2=180, Box3=276, Box4=372, Box5=468, Box6=564 -->
+        <svg class="loop-after-svg" viewBox="0 0 720 680" preserveAspectRatio="none" aria-hidden="true">
+          <path class="loop-line" d="M 60 564 L 30 564 L 30 276 L 58 276" />
+          <polygon class="loop-arrow" points="58,276 50,272 50,280" />
+          <text class="loop-label" x="20" y="420"
+                text-anchor="middle"
+                transform="rotate(-90 20 420)">วน Sprint ถัดไป</text>
+        </svg>
+
+        <div class="flow-after">
+          <!-- Row 1 -->
+          <div class="box gray main-box">
+            <div class="b-title">1. รับ Requirement</div>
+            <div class="b-desc">จาก stakeholder / ลูกค้า</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">สรุป + จัดหมวด req</div>
+          </div>
+          <div class="v-gap-main"></div>
+          <div class="v-gap-blank"></div>
+          <div class="v-gap-blank"></div>
+
+          <!-- Row 2 -->
+          <div class="box purple main-box">
+            <div class="b-title">2. Sprint Grooming / Refinement</div>
+            <div class="b-desc">วิเคราะห์ req, สร้าง Backlog</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">ร่าง user story + estimate</div>
+          </div>
+          <div class="v-gap-main"></div>
+          <div class="v-gap-blank"></div>
+          <div class="v-gap-blank"></div>
+
+          <!-- Row 3 -->
+          <div class="box blue main-box">
+            <div class="b-title">3. Sprint Planning</div>
+            <div class="b-desc">ดึง Item Backlog มา Plan</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">แนะนำ priority + capacity</div>
+          </div>
+          <div class="v-gap-main"></div>
+          <div class="v-gap-blank"></div>
+          <div class="v-gap-blank"></div>
+
+          <!-- Row 4 -->
+          <div class="box green main-box">
+            <div class="b-title">4. Daily Stand Up</div>
+            <div class="b-desc">Sync งาน + แก้ blocker</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">code + test + แก้ blocker</div>
+          </div>
+          <div class="v-gap-main"></div>
+          <div class="v-gap-blank"></div>
+          <div class="v-gap-blank"></div>
+
+          <!-- Row 5 -->
+          <div class="box amber main-box">
+            <div class="b-title">5. Sprint Review</div>
+            <div class="b-desc">Demo ผลงานให้ stakeholder</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">สร้าง demo + release note</div>
+          </div>
+          <div class="v-gap-main"></div>
+          <div class="v-gap-blank"></div>
+          <div class="v-gap-blank"></div>
+
+          <!-- Row 6 -->
+          <div class="box red main-box">
+            <div class="b-title">6. Retrospective</div>
+            <div class="b-desc">ดี = ทำต่อ, ไม่ดี = ปรับปรุง</div>
+          </div>
+          <div class="h-arrow"></div>
+          <div class="box green ai-box">
+            <div class="b-title">AI Agent</div>
+            <div class="b-desc">วิเคราะห์ metric + insight</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ai-summary">
+        <div class="s-title">AI Agent ช่วยทุกขั้นตอน</div>
+        <div class="s-desc">ลดงาน manual, เร่งความเร็ว, เพิ่มคุณภาพ</div>
+      </div>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- SECTION 3: DEV ROLE AFTER AI          -->
+    <!-- ===================================== -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Dev เปลี่ยนจาก “คนเขียนโค้ด” เป็น “คนคุม AI”</div>
+        <div class="panel-subtitle">บทบาทใหม่ที่สำคัญกว่าเดิม — เพราะ AI ตัดสินใจแทนไม่ได้</div>
+      </div>
+
+      <div class="role-header">
+        <h3>บทบาทใหม่ของ Dev (6 หน้าที่หลัก)</h3>
+      </div>
+
+      <div class="role-grid">
+        <div class="role-card purple">
+          <div class="r-title">1. Architect</div>
+          <ul class="r-list">
+            <li>ออกแบบ system architecture</li>
+            <li>ตัดสินใจเลือก tech stack</li>
+            <li>วาง pattern ให้ AI ทำตาม</li>
+          </ul>
+        </div>
+        <div class="role-card blue">
+          <div class="r-title">2. Prompt Engineer</div>
+          <ul class="r-list">
+            <li>เขียน prompt/spec ให้ชัดเจน</li>
+            <li>แตก task ให้ AI ทำได้</li>
+            <li>กำหนด context ที่ต้องใช้</li>
+          </ul>
+        </div>
+        <div class="role-card amber">
+          <div class="r-title">3. Code Reviewer</div>
+          <ul class="r-list">
+            <li>ตรวจ PR ที่ AI สร้าง</li>
+            <li>หา bug, security issue</li>
+            <li>ยืนยันว่าตรงตาม business</li>
+          </ul>
+        </div>
+        <div class="role-card red">
+          <div class="r-title">4. Debugger / Problem Solver</div>
+          <ul class="r-list">
+            <li>แก้ปัญหาที่ AI แก้ไม่ได้</li>
+            <li>เทส edge case ยับ ๆ</li>
+            <li>Production incident</li>
+          </ul>
+        </div>
+        <div class="role-card green">
+          <div class="r-title">5. Domain Expert</div>
+          <ul class="r-list">
+            <li>เข้าใจ business จริง ๆ</li>
+            <li>คุยกับ user / stakeholder</li>
+            <li>แปล req เป็น tech solution</li>
+          </ul>
+        </div>
+        <div class="role-card rose">
+          <div class="r-title">6. Quality Gatekeeper</div>
+          <ul class="r-list">
+            <li>รับผิดชอบ production</li>
+            <li>ตัดสินใจ deploy / rollback</li>
+            <li>ดูแล performance, cost</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="role-header">
+        <h3>เปรียบเทียบ: เวลาที่ใช้ในแต่ละงาน</h3>
+      </div>
+
+      <div class="compare-block">
+        <div class="compare-row">
+          <div class="c-label">เขียน code เอง</div>
+          <div class="c-bars">
+            <div class="c-bar-line">
+              <span class="tag">ก่อน</span>
+              <div class="bar"><div class="bar-fill before" style="width: 70%;"></div></div>
+              <span class="pct">70%</span>
+            </div>
+            <div class="c-bar-line">
+              <span class="tag">หลัง</span>
+              <div class="bar"><div class="bar-fill after-red" style="width: 10%;"></div></div>
+              <span class="pct">10%</span>
+            </div>
+          </div>
+          <div class="c-arrow">↓ 60%</div>
+        </div>
+
+        <div class="compare-row">
+          <div class="c-label">Review / ตรวจสอบ</div>
+          <div class="c-bars">
+            <div class="c-bar-line">
+              <span class="tag">ก่อน</span>
+              <div class="bar"><div class="bar-fill before" style="width: 10%;"></div></div>
+              <span class="pct">10%</span>
+            </div>
+            <div class="c-bar-line">
+              <span class="tag">หลัง</span>
+              <div class="bar"><div class="bar-fill after-green" style="width: 35%;"></div></div>
+              <span class="pct">35%</span>
+            </div>
+          </div>
+          <div class="c-arrow">↑ 25%</div>
+        </div>
+
+        <div class="compare-row">
+          <div class="c-label">ออกแบบ / คิด</div>
+          <div class="c-bars">
+            <div class="c-bar-line">
+              <span class="tag">ก่อน</span>
+              <div class="bar"><div class="bar-fill before" style="width: 10%;"></div></div>
+              <span class="pct">10%</span>
+            </div>
+            <div class="c-bar-line">
+              <span class="tag">หลัง</span>
+              <div class="bar"><div class="bar-fill after-purple" style="width: 30%;"></div></div>
+              <span class="pct">30%</span>
+            </div>
+          </div>
+          <div class="c-arrow">↑ 20%</div>
+        </div>
+
+        <div class="compare-row">
+          <div class="c-label">คุยกับคน / business</div>
+          <div class="c-bars">
+            <div class="c-bar-line">
+              <span class="tag">ก่อน</span>
+              <div class="bar"><div class="bar-fill before" style="width: 10%;"></div></div>
+              <span class="pct">10%</span>
+            </div>
+            <div class="c-bar-line">
+              <span class="tag">หลัง</span>
+              <div class="bar"><div class="bar-fill after-blue" style="width: 25%;"></div></div>
+              <span class="pct">25%</span>
+            </div>
+          </div>
+          <div class="c-arrow">↑ 15%</div>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="ins-title">หัวใจสำคัญ: Dev ไม่ได้หายไป แต่ “ยกระดับขึ้น”</div>
+        <ul>
+          <li>AI ทำงาน routine ได้ดี แต่ “ตัดสินใจ” ไม่ได้ → Dev ต้องเป็นคนตัดสินใจ</li>
+          <li>AI ไม่เข้าใจ business context ลึก ๆ → Dev ต้องเป็นสะพานเชื่อม</li>
+          <li>AI สร้าง bug แต่ไม่เหมือนคน → Dev ต้องเป็นด่านสุดท้ายก่อน production</li>
+          <li>AI ไม่รับผิดชอบเมื่อระบบล่ม → Dev ยังต้อง on-call เสมอ</li>
+          <li>Dev junior → ต้องเรียนรู้เร็วขึ้น เพื่อ review งาน AI ได้</li>
+          <li>Dev senior → คุณค่าสูงขึ้น เพราะประสบการณ์ตัดสินใจหายาก</li>
+        </ul>
+      </div>
+    </section>
+
+    <nav style="margin: 2.5rem 0 1rem; padding: 1.25rem 1.5rem; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: 'Inter', system-ui, sans-serif;">
+      <a href="5.ai_coding_paradigms.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #4338ca; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all .2s;"><span style="font-size: 18px;">←</span><span><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>5. AI Coding Paradigms</span></a>
+      <span style="font-size: 11px; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → 2 → 3 → 4 → 5 → <strong style="color:#4338ca">6</strong> → 7</span>
+      <a href="7.benefits-workspace-agent-team.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99,102,241,0.30);"><span style="text-align:right"><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.80;font-weight:500;">Next</small>7. Why Workspace + Agents</span><span style="font-size: 18px;">→</span></a>
+    </nav>
+
+  </div>
+</body>
+</html>

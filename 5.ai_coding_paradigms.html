@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coding Paradigms · Executive Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Surfaces */
+  --bg: #f5f6fb;
+  --bg-card: #ffffff;
+  --bg-alt: #f8fafc;
+  --bg-soft: #f1f5f9;
+
+  /* Ink */
+  --ink: #0f172a;
+  --ink-dim: #475569;
+  --ink-faint: #94a3b8;
+
+  /* Lines */
+  --line: #e8ebf2;
+  --line-strong: #d1d5db;
+
+  /* Brand */
+  --brand: #0f172a;
+  --accent: #6366f1;
+  --accent-2: #8b5cf6;
+  --accent-3: #ec4899;
+
+  /* Semantic */
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Pastels (preserve API) */
+  --purple: #ede9fe;
+  --purple-ink: #5b21b6;
+  --purple-line: #c4b5fd;
+  --teal: #ccfbf1;
+  --teal-ink: #0f766e;
+  --teal-line: #5eead4;
+  --blue: #dbeafe;
+  --blue-ink: #1e40af;
+  --blue-line: #93c5fd;
+  --orange: #ffedd5;
+  --orange-ink: #9a3412;
+  --orange-line: #fdba74;
+  --coral: #ffe4d6;
+  --coral-ink: #c2410c;
+  --coral-line: #fdba74;
+  --pink: #fce7f3;
+  --pink-ink: #be185d;
+  --pink-line: #f9a8d4;
+  --green: #dcfce7;
+  --green-ink: #15803d;
+  --green-line: #86efac;
+  --amber: #fef3c7;
+  --amber-ink: #92400e;
+  --amber-line: #fcd34d;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 18px 44px rgba(15, 23, 42, 0.08), 0 6px 14px rgba(15, 23, 42, 0.05);
+  --shadow-glow: 0 10px 32px rgba(99, 102, 241, 0.20);
+
+  /* Radii */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  /* Easing */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 100% 30%, rgba(236, 72, 153, 0.06), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 70%, rgba(14, 165, 233, 0.05), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: rgba(99, 102, 241, 0.18); color: var(--ink); }
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 2.5rem 5rem;
+}
+
+/* HERO BANNER */
+.hero-banner {
+  background:
+    radial-gradient(circle at 15% 25%, rgba(236, 72, 153, 0.35), transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.30), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.25), transparent 60%),
+    linear-gradient(135deg, #1e1b4b 0%, #312e81 35%, #4338ca 65%, #6366f1 100%);
+  margin: 0 -2.5rem 3rem;
+  padding: 4rem 4rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.10), transparent 40%),
+    radial-gradient(circle at 75% 60%, rgba(255,255,255,0.06), transparent 45%);
+  pointer-events: none;
+}
+
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.hero-banner-inner {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-eyebrow .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 12px #4ade80;
+}
+
+.hero-banner h1 {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 800;
+  font-size: 2.9rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: white;
+  margin-bottom: 1.1rem;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 80%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-banner .hero-lead {
+  font-size: 16.5px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.8;
+  max-width: 920px;
+  margin-bottom: 1.75rem;
+}
+
+.hero-banner .hero-lead strong {
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.25s var(--ease);
+}
+
+.hero-tag:hover {
+  background: rgba(255,255,255,0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* CARD HEADER GRADIENT (for section cards) */
+.card-gradient-header {
+  background:
+    radial-gradient(circle at 90% 50%, rgba(236, 72, 153, 0.25), transparent 50%),
+    linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #7c3aed 100%);
+  color: white;
+  padding: 1.65rem 1.9rem;
+  border-radius: var(--r) var(--r) 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-gradient-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 90% 50%, rgba(255,255,255,0.10), transparent 50%);
+  pointer-events: none;
+}
+
+.card-gradient-header::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #f472b6, #818cf8, #22d3ee);
+}
+
+.card-gradient-header .card-title {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 1.18rem;
+  letter-spacing: -0.015em;
+  color: white;
+  position: relative;
+}
+
+.card-gradient-header .card-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.82);
+  margin-top: 5px;
+  position: relative;
+}
+
+/* HEADER */
+.brand-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 2rem;
+  align-items: center;
+  padding: 1.5rem 1.75rem;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin: 0 0 2.5rem;
+}
+
+.brand-logo {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #ec4899 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  border-radius: var(--r-sm);
+  letter-spacing: -0.02em;
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255,255,255,0.20);
+}
+
+.brand-info .org {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.brand-info .sub {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+
+.brand-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.brand-meta .label {
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 600;
+}
+
+.brand-meta .value {
+  font-size: 12.5px;
+  color: var(--ink);
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: var(--green-ink);
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border: 1px solid var(--green-line);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18);
+}
+
+.status-pill .dot {
+  width: 7px; height: 7px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* PAGE TITLE */
+.page-title {
+  margin-bottom: 2.5rem;
+}
+
+.page-title h1 {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+.page-title .lead {
+  font-size: 15.5px;
+  color: var(--ink-dim);
+  max-width: 920px;
+  line-height: 1.75;
+}
+
+.page-title .lead strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* TIMELINE */
+.timeline-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-body {
+  padding: 2.25rem;
+  position: relative;
+}
+
+.timeline-track {
+  position: relative;
+  padding-left: 0;
+}
+
+.timeline-rail {
+  position: absolute;
+  left: 33px;
+  top: 24px;
+  bottom: 24px;
+  width: 3px;
+  background: linear-gradient(180deg,
+    #60a5fa 0%,
+    #6366f1 20%,
+    #8b5cf6 40%,
+    #a855f7 60%,
+    #ec4899 80%,
+    #06b6d4 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+}
+
+.timeline-era {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2.75rem;
+  position: relative;
+}
+
+.timeline-era:last-child { margin-bottom: 0; }
+
+.timeline-marker {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--accent);
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.02em;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.22), inset 0 0 0 4px var(--bg-card);
+  transition: transform 0.3s var(--ease);
+}
+
+.timeline-era:hover .timeline-marker { transform: scale(1.06); }
+
+.timeline-era.era-1 .timeline-marker { border-color: #60a5fa; color: #1e40af; box-shadow: 0 6px 20px rgba(96, 165, 250, 0.30), inset 0 0 0 4px var(--bg-card); }
+.timeline-era.era-2 .timeline-marker { border-color: #6366f1; color: #4338ca; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.30), inset 0 0 0 4px var(--bg-card); }
+.timeline-era.era-3 .timeline-marker { border-color: #8b5cf6; color: #6b21a8; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.30), inset 0 0 0 4px var(--bg-card); }
+.timeline-era.era-4 .timeline-marker { border-color: #a855f7; color: #7e22ce; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.30), inset 0 0 0 4px var(--bg-card); }
+.timeline-era.era-5 .timeline-marker { border-color: #ec4899; color: #be185d; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.30), inset 0 0 0 4px var(--bg-card); }
+.timeline-era.era-6 .timeline-marker {
+  border-color: #06b6d4;
+  color: #0e7490;
+  font-size: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #ecfeff 100%);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.32), inset 0 0 0 4px var(--bg-card);
+  position: relative;
+}
+.timeline-era.era-6 .timeline-marker::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px dashed #06b6d4;
+  opacity: 0.45;
+  animation: era6-rotate 18s linear infinite;
+}
+@keyframes era6-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.timeline-content {
+  padding-top: 6px;
+}
+
+.timeline-period {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.timeline-era-title {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.85rem;
+}
+
+.timeline-desc {
+  font-size: 14.5px;
+  color: var(--ink-dim);
+  line-height: 1.75;
+  margin-bottom: 1.1rem;
+}
+
+.timeline-cells {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.timeline-cell {
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 1rem 1.1rem;
+  position: relative;
+  transition: all 0.2s var(--ease);
+}
+
+.timeline-cell:hover {
+  background: var(--bg-card);
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-cell::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ink-faint);
+  opacity: 0.4;
+}
+
+.timeline-cell.tech::before { background: var(--blue-ink); opacity: 0.6; }
+.timeline-cell.improve::before { background: var(--green-ink); opacity: 0.6; }
+.timeline-cell.dev::before { background: var(--orange-ink); opacity: 0.6; }
+
+.timeline-cell .cell-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.timeline-cell.tech .cell-label { color: var(--blue-ink); }
+.timeline-cell.improve .cell-label { color: var(--green-ink); }
+.timeline-cell.dev .cell-label { color: var(--orange-ink); }
+
+.timeline-cell .cell-body {
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
+.timeline-cell .cell-body strong {
+  font-weight: 700;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* PAGE TITLE OLD (kept for reference, but hidden) */
+
+/* KPI ROW */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpi {
+  position: relative;
+  padding: 1.5rem 1.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+}
+
+.kpi:nth-child(2)::before { background: linear-gradient(180deg, #8b5cf6, #ec4899); }
+.kpi:nth-child(3)::before { background: linear-gradient(180deg, #ec4899, #f43f5e); }
+.kpi:nth-child(4)::before { background: linear-gradient(180deg, #06b6d4, #6366f1); }
+
+.kpi .k-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.6rem;
+}
+
+.kpi .k-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 0.55rem;
+}
+
+.kpi:nth-child(2) .k-value { background: linear-gradient(135deg, #6d28d9 0%, #ec4899 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi:nth-child(3) .k-value { background: linear-gradient(135deg, #be185d 0%, #f43f5e 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi:nth-child(4) .k-value { background: linear-gradient(135deg, #0e7490 0%, #4338ca 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+.kpi .k-delta {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+
+.kpi .k-delta .up { color: var(--success); font-weight: 700; }
+
+/* HEALTH ROW */
+.health-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.health-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 1.4rem 1.5rem;
+  border-radius: var(--r);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.1rem;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.health-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.health-grade {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.3rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  width: 58px; height: 58px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(16,185,129,0.04));
+  border: 1px solid rgba(16,185,129,0.20);
+}
+
+.health-grade.a { color: var(--success); }
+.health-grade.b {
+  color: var(--info);
+  background: linear-gradient(135deg, rgba(6,182,212,0.10), rgba(6,182,212,0.04));
+  border-color: rgba(6,182,212,0.22);
+}
+.health-grade.c {
+  color: var(--warn);
+  background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.04));
+  border-color: rgba(245,158,11,0.22);
+}
+
+.health-info .title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 5px;
+}
+
+.health-info .status {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.health-info .note {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.55;
+}
+
+.health-icon {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--ink-faint);
+  width: 32px;
+  text-align: right;
+  opacity: 0.45;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 3.25rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+}
+
+.section-head h2 {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.section-head .meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+.section-head .badge {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* FEATURE CARDS */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.5rem 1.55rem 1.4rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: 0.45rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s var(--ease);
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--line-strong);
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+  opacity: 0.85;
+}
+
+.feature-card:nth-child(2)::before { background: linear-gradient(90deg, #8b5cf6, #a855f7, #d946ef); }
+.feature-card:nth-child(3)::before { background: linear-gradient(90deg, #f97316, #ec4899, #8b5cf6); }
+
+.feature-card .f-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+
+.feature-card .f-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  line-height: 1.35;
+  margin: 6px 0 2px;
+}
+
+.feature-card .f-percent {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 0.65rem 0 0.25rem;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.feature-card:nth-child(2) .f-percent { background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.feature-card:nth-child(3) .f-percent { background: linear-gradient(135deg, #c2410c 0%, #ec4899 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+.feature-card .f-note {
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
+.feature-card .f-bar {
+  height: 6px;
+  background: var(--bg-soft);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.feature-card .f-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 100px;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.30);
+}
+
+/* DIAGRAM SECTION */
+.diagram-section {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 2.25rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.diagram-section .d-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+}
+
+.diagram-section h3 {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.diagram-section .d-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+.diagram-section .d-cap {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line-strong);
+  font-style: italic;
+  line-height: 1.65;
+}
+
+.flow-svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-svg text {
+  font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+  fill: var(--ink);
+}
+.flow-svg .t-title { font-size: 14px; font-weight: 600; }
+.flow-svg .t-sub { font-size: 12px; fill: var(--ink-dim); font-weight: 400; }
+.flow-svg .t-section {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--ink-faint);
+}
+.flow-svg .arrow {
+  stroke: #9ca3af;
+  stroke-width: 1.2;
+  fill: none;
+}
+.flow-svg .sec-frame {
+  stroke: var(--pink-ink);
+  stroke-width: 0.8;
+  stroke-dasharray: 6 4;
+  fill: none;
+  opacity: 0.55;
+}
+.flow-svg .sec-line {
+  stroke: var(--pink-ink);
+  stroke-width: 0.6;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  fill: none;
+}
+.flow-svg .sec-label {
+  fill: var(--pink-ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.flow-svg .box {
+  stroke-width: 1.2;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+.flow-svg .box:hover { filter: brightness(0.96); }
+.flow-svg .box.user { fill: var(--teal); stroke: var(--teal-line); }
+.flow-svg .box.user-text { fill: var(--teal-ink); }
+.flow-svg .box.agent { fill: var(--purple); stroke: var(--purple-line); }
+.flow-svg .box.agent-text { fill: var(--purple-ink); }
+.flow-svg .box.neutral { fill: #f5f5f4; stroke: var(--line-strong); }
+.flow-svg .box.neutral-text { fill: var(--ink-dim); }
+.flow-svg .box.orch { fill: var(--orange); stroke: var(--orange-line); }
+.flow-svg .box.orch-text { fill: var(--orange-ink); }
+.flow-svg .box.dev { fill: var(--blue); stroke: var(--blue-line); }
+.flow-svg .box.dev-text { fill: var(--blue-ink); }
+.flow-svg .box.test { fill: var(--coral); stroke: var(--coral-line); }
+.flow-svg .box.test-text { fill: var(--coral-ink); }
+.flow-svg .box.ops { fill: var(--green); stroke: var(--green-line); }
+.flow-svg .box.ops-text { fill: var(--green-ink); }
+.flow-svg .box.sec { fill: var(--pink); stroke: var(--pink-line); }
+.flow-svg .box.sec-text { fill: var(--pink-ink); }
+
+/* COMPARISON TABLE */
+.compare-table {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 180px repeat(3, 1fr);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s var(--ease);
+}
+
+.compare-row:last-child { border-bottom: none; }
+.compare-row:not(.head):hover { background: var(--bg-alt); }
+
+.compare-row.head {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid var(--line-strong);
+}
+
+.compare-row.head .compare-cell {
+  font-family: 'Inter', sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.compare-cell {
+  padding: 1.2rem 1.35rem;
+  border-right: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
+.compare-cell:last-child { border-right: none; }
+
+.compare-cell.label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: var(--bg-alt);
+  display: flex;
+  align-items: center;
+}
+
+.compare-cell strong {
+  font-weight: 700;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* PHASE LIST */
+.phase-list {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.phase-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 2fr;
+  gap: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+  position: relative;
+  transition: background 0.2s var(--ease);
+}
+
+.phase-row:hover { background: var(--bg-alt); }
+.phase-row:last-child { border-bottom: none; }
+
+.phase-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 36px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.phase-row:hover::before { opacity: 1; }
+
+.phase-row .phase-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  padding-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phase-row .phase-num::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);
+}
+
+.phase-row .phase-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.phase-row .phase-body {
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+
+.phase-row .phase-body strong {
+  color: var(--ink);
+  font-weight: 700;
+  background: linear-gradient(120deg, transparent 0%, transparent 50%, rgba(99, 102, 241, 0.12) 50%);
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+/* SUMMARY */
+.summary-block {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.6rem 1.55rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s var(--ease);
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+}
+
+.summary-card.wins::before { background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7); }
+.summary-card.focus::before { background: linear-gradient(90deg, #6366f1, #818cf8, #a78bfa); }
+.summary-card.asks::before { background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a); }
+
+.summary-card .s-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  font-family: 'Inter', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border-radius: 10px;
+}
+
+.summary-card.wins .s-icon {
+  color: var(--success);
+  background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04));
+  border: 1px solid rgba(16,185,129,0.22);
+}
+.summary-card.focus .s-icon {
+  color: var(--accent);
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.04));
+  border: 1px solid rgba(99,102,241,0.22);
+}
+.summary-card.asks .s-icon {
+  color: var(--warn);
+  background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04));
+  border: 1px solid rgba(245,158,11,0.22);
+}
+
+.summary-card .s-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 5px;
+}
+
+.summary-card .s-title {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-weight: 700;
+  font-size: 16.5px;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+}
+
+.summary-card .s-body {
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.75;
+}
+
+/* FOOTER */
+.report-footer {
+  margin-top: 4rem;
+  padding: 1.75rem 1.75rem;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.report-footer .sources {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .health-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .container { padding: 0 1.25rem 3rem; }
+  .hero-banner { margin: 0 -1.25rem 2rem; padding: 2.5rem 1.5rem; border-radius: 0 0 18px 18px; }
+  .hero-banner h1 { font-size: 2rem; }
+  .brand-header { grid-template-columns: auto 1fr; gap: 1rem; padding: 1.1rem 1.2rem; }
+  .brand-header > *:nth-child(n+3) { grid-column: 1 / -1; }
+  .kpi-row { grid-template-columns: 1fr; }
+  .feature-grid, .summary-block { grid-template-columns: 1fr; }
+  .timeline-cells { grid-template-columns: 1fr; }
+  .timeline-body { padding: 1.5rem; }
+  .compare-row { grid-template-columns: 1fr; }
+  .compare-cell { border-right: none; border-bottom: 1px solid var(--line); }
+  .compare-cell.label { font-size: 10.5px; }
+  .compare-row.head { display: none; }
+  .phase-row { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.25rem 1.4rem; }
+  .page-title h1 { font-size: 1.75rem; }
+  .report-footer { flex-direction: column; align-items: flex-start; padding: 1.25rem 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-banner-inner">
+      <div class="hero-eyebrow"><span class="dot"></span>Executive Brief · Q2 · 2026</div>
+      <h1>AI Coding Paradigms: Assistant → Agent → Agent Team</h1>
+      <p class="hero-lead">
+        รายงานเชิงเปรียบเทียบและไทม์ไลน์วิวัฒนาการของ AI ในงานพัฒนาซอฟต์แวร์ จาก <strong>AI Assistant</strong> ที่ทำงานเป็นผู้ช่วยทีละบรรทัด สู่ <strong>AI Agent</strong> ที่รับเป้าหมายไปทำเอง และ <strong>Agent Team</strong> ที่หลาย Agent ทำงานร่วมกันโดยมี Security ครอบคลุมทุกขั้นตอน
+      </p>
+      <div class="hero-tags">
+        <span class="hero-tag">AI Assistant</span>
+        <span class="hero-tag">AI Agent</span>
+        <span class="hero-tag">Multi-Agent</span>
+        <span class="hero-tag">Orchestrator Pattern</span>
+        <span class="hero-tag">Shift-left Security</span>
+        <span class="hero-tag">2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND HEADER -->
+  <header class="brand-header">
+    <div class="brand-logo">AI</div>
+    <div class="brand-info">
+      <div class="org">AI Engineering · Executive Brief</div>
+      <div class="sub">AI-Assisted Coding Paradigms Analysis</div>
+    </div>
+    <div class="brand-meta">
+      <div class="label">Reporting Period</div>
+      <div class="value">Q2 · 2026</div>
+    </div>
+    <div class="brand-meta">
+      <div class="label">Date</div>
+      <div class="value">20 May 2026 · v2.0</div>
+    </div>
+    <div class="status-pill"><span class="dot"></span>READY</div>
+  </header>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="k-label">Paradigms Compared</div>
+      <div class="k-value">3</div>
+      <div class="k-delta">Assistant · Agent · Team</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Roles in Team Mode</div>
+      <div class="k-value">10</div>
+      <div class="k-delta"><span class="up">▲</span> Orchestrator + 8 specialists + Security</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Security Coverage</div>
+      <div class="k-value">100%</div>
+      <div class="k-delta">Cross-cutting across all roles</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Read Time</div>
+      <div class="k-value">12<span style="font-size:1rem;font-weight:500;color:var(--ink-faint);"> min</span></div>
+      <div class="k-delta">Full report</div>
+    </div>
+  </div>
+
+  <!-- HEALTH ROW -->
+  <div class="health-row">
+    <div class="health-card">
+      <div class="health-grade a">A+</div>
+      <div class="health-info">
+        <div class="title">Adoption Maturity</div>
+        <div class="status">Production-ready</div>
+        <div class="note">ทั้ง 3 paradigms มี tool พร้อมใช้งานจริง</div>
+      </div>
+      <div class="health-icon">✓</div>
+    </div>
+    <div class="health-card">
+      <div class="health-grade b">▲</div>
+      <div class="health-info">
+        <div class="title">Industry Direction</div>
+        <div class="status">Moving toward agents</div>
+        <div class="note">Multi-agent systems เริ่มเป็นมาตรฐาน</div>
+      </div>
+      <div class="health-icon">→</div>
+    </div>
+    <div class="health-card">
+      <div class="health-grade c">$</div>
+      <div class="health-info">
+        <div class="title">Cost Profile</div>
+        <div class="status">Low → High</div>
+        <div class="note">Team mode = หลาย LLM call ต่อ task</div>
+      </div>
+      <div class="health-icon">⏱</div>
+    </div>
+  </div>
+
+  <!-- FEATURE GRID -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Paradigm Snapshot</div>
+      <div class="card-sub">3 paradigms · ระดับความซับซ้อนและบทบาทของคนที่ต่างกัน</div>
+    </div>
+    <div class="feature-grid" style="background: var(--bg-card); padding: 1.5rem; border: 1px solid var(--line); border-top: none; border-radius: 0 0 12px 12px;">
+      <div class="feature-card" style="border-color: var(--line-strong);">
+        <div class="f-tag">PARADIGM 01</div>
+        <div class="f-name">AI Assistant<br><span style="font-weight:400;font-size:13px;color:var(--ink-faint);">เช่น Copilot, Tabnine</span></div>
+        <div class="f-percent">L1</div>
+        <div class="f-note">นักพัฒนาเป็นคนขับ AI เสนอแนะทีละบรรทัด เห็นเฉพาะไฟล์ที่เปิด ไม่รันคำสั่งเอง</div>
+        <div class="f-bar"><div class="f-bar-fill" style="width:33%;background:var(--blue-ink);"></div></div>
+      </div>
+      <div class="feature-card" style="border-color: var(--line-strong);">
+        <div class="f-tag">PARADIGM 02</div>
+        <div class="f-name">Default Agent<br><span style="font-weight:400;font-size:13px;color:var(--ink-faint);">เช่น Claude Code, Cursor</span></div>
+        <div class="f-percent">L2</div>
+        <div class="f-note">AI เป็นคนขับ รับเป้าหมาย วางแผน เขียน แก้ ทดสอบเอง ใช้เครื่องมือใน terminal ได้</div>
+        <div class="f-bar"><div class="f-bar-fill" style="width:66%;background:var(--purple-ink);"></div></div>
+      </div>
+      <div class="feature-card" style="border-color: var(--line-strong);">
+        <div class="f-tag">PARADIGM 03</div>
+        <div class="f-name">Agent Team<br><span style="font-weight:400;font-size:13px;color:var(--ink-faint);">Multi-agent orchestration</span></div>
+        <div class="f-percent">L3</div>
+        <div class="f-note">หลาย Agent เฉพาะทาง ทำงานขนาน คุมโดย Orchestrator มี Security ครอบทุกขั้น</div>
+        <div class="f-bar"><div class="f-bar-fill" style="width:100%;background:var(--orange-ink);"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Evolution Timeline · จาก AI Auto Complete สู่ AI Software Organization</div>
+      <div class="card-sub">6 ยุคของ AI ใน software development · ตัวอย่าง · ความสามารถ · บทบาทของ Dev ในแต่ละยุค</div>
+    </div>
+
+    <div class="timeline-wrap" style="border-radius: 0 0 12px 12px; border-top: none; margin-bottom: 2.5rem;">
+      <div class="timeline-body">
+        <div class="timeline-track">
+          <div class="timeline-rail"></div>
+
+          <!-- ERA 1 — AI Auto Complete -->
+          <div class="timeline-era era-1">
+            <div class="timeline-marker">2018</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— 2018–2020 · ยุค AI Auto Complete</div>
+              <h3 class="timeline-era-title">AI Auto Complete Era</h3>
+              <p class="timeline-desc">
+                AI เริ่มช่วยเติม code ระดับ token/บรรทัด ผ่าน GitHub Copilot Prototype, IntelliSense++, Tab Completion ทำงานตามไวยากรณ์ ไม่มี context ทั้ง project ไม่เข้าใจ architecture หรือ business
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">GitHub Copilot Prototype · IntelliSense++ · Tab Completion · ctags</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">เติม code · constructor · property · loop · boilerplate · syntax help</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>Driver 95% · AI 5%</strong>นักพัฒนาเขียนทั้งหมด ไม่มี context ไม่เข้า architecture</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ERA 2 — AI Assistant -->
+          <div class="timeline-era era-2">
+            <div class="timeline-marker">2021</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— 2021–2023 · ยุค AI Assistant</div>
+              <h3 class="timeline-era-title">AI Assistant Era</h3>
+              <p class="timeline-desc">
+                ChatGPT และ Copilot Chat เปลี่ยน AI เป็นผู้ช่วยที่เข้าใจ conversation, requirement และอธิบาย architecture ได้ — ยุคแรกของ Prompt Engineering และ Spec → Code workflow
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">OpenAI ChatGPT · GitHub Copilot Chat · Bard · Claude 1/2</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">generate function · explain code · debug · refactor · generate SQL/API · spec → code</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>Architect + Reviewer</strong>AI = Junior Developer · ยุคแรกของ Prompt Engineering</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ERA 3 — AI Pair Programmer -->
+          <div class="timeline-era era-3">
+            <div class="timeline-marker">2023</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— 2023–2024 · ยุค AI Pair Programmer · context-centric</div>
+              <h3 class="timeline-era-title">AI Pair Programmer Era</h3>
+              <p class="timeline-desc">
+                จุดเปลี่ยน — AI เริ่ม “เห็นทั้ง project” อ่านหลายไฟล์ เข้าใจ dependency refactor ข้าม module ได้ โลกขยับจาก code-centric → context-centric ต้องมี CLAUDE.md, ARCHITECTURE.md, repo rules
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">Cursor · Continue · Codeium · multi-file context · @-mention · shared rules</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">อ่านหลายไฟล์ · เข้าใจ dependency · refactor ข้าม module · generate test · analyze architecture</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>Tech Lead</strong>AI = Mid/Senior Developer · จัดการ context + coding standards</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ERA 4 — AI Agent -->
+          <div class="timeline-era era-4">
+            <div class="timeline-marker">2024</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— 2024–2025 · ยุค AI Agent · Autonomous Task Execution</div>
+              <h3 class="timeline-era-title">AI Agent Era</h3>
+              <p class="timeline-desc">
+                AI ไม่ได้แค่ “ตอบ” แต่ “ลงมือทำ” — มี memory, tools, planning, retry รัน task end-to-end อ่าน spec แก้ code รัน test เปิด PR deploy ได้ ยุคของ OpenSpec, Spec-driven Development และ AI Workflow
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">Claude Code · Cursor Agent · Devin · OpenSpec · MCP · agentic loop · tool use</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">อ่าน spec · แก้ code · run test · เปิด PR · deploy · workflow · memory + planning + retry</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>Product/Architecture Owner</strong>AI = Autonomous Engineer · ระวัง context drift · token cost</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ERA 5 — Multi-Agent / Agent Team -->
+          <div class="timeline-era era-5">
+            <div class="timeline-marker">2025</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— 2025–2026 · ยุค Multi-Agent · ปัจจุบัน</div>
+              <h3 class="timeline-era-title">Multi-Agent / Agent Team Era</h3>
+              <p class="timeline-desc">
+                AI ตัวเดียว “ไม่พอ” เกิด Orchestrator + Subagents + Reviewer + Specialist Agents ทำงานขนานเหมือนทีมจริง AI บริหารงาน software engineering ทั้งระบบ — parallel execution, PR review, conflict resolution, workflow orchestration
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">Orchestrator · Backend/Frontend/DevOps Agent · Test/Review/Security Agent · A2A · LangGraph · CrewAI</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">parallel execution · architecture coordination · PR review · conflict resolution · workflow orchestration · spec coverage</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>System Thinker + AI Orchestrator</strong>Architecture Governor · Quality Controller · ไม่ใช่ Coder แล้ว</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ERA 6 — AI Software Organization -->
+          <div class="timeline-era era-6">
+            <div class="timeline-marker">Future</div>
+            <div class="timeline-content">
+              <div class="timeline-period">— Next · ยุคที่กำลังจะมา</div>
+              <h3 class="timeline-era-title">AI Software Organization</h3>
+              <p class="timeline-desc">
+                ทีม Agent ทำงานเหมือนองค์กรอิสระ — มี governance, audit trail, observability, AgentOps มนุษย์ขยับเป็น “คนออกแบบระบบของการสร้าง software” ไม่ใช่ผู้เขียน code อีกต่อไป
+              </p>
+              <div class="timeline-cells">
+                <div class="timeline-cell tech">
+                  <div class="cell-label">ตัวอย่าง</div>
+                  <div class="cell-body">AgentOps · AI SDLC governance · AI audit trail · AI observability · secure-by-design SDLC</div>
+                </div>
+                <div class="timeline-cell improve">
+                  <div class="cell-label">AI ทำได้</div>
+                  <div class="cell-body">end-to-end product delivery · self-organizing teams · adaptive workflows · cross-agent learning · policy enforcement</div>
+                </div>
+                <div class="timeline-cell dev">
+                  <div class="cell-label">Dev อยู่ตรงไหน</div>
+                  <div class="cell-body"><strong>Architecture Governor</strong>ออกแบบระบบของการสร้าง software · policy · safety · quality gates</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Default Agent vs. Agent Team — Workflow Comparison</div>
+      <div class="card-sub">FIG. 01 · เปรียบเทียบ flow การทำงานสองรูปแบบเคียงข้างกัน</div>
+    </div>
+    <div class="diagram-section" style="border-radius: 0 0 12px 12px; border-top: none;">
+      <svg class="flow-svg" viewBox="0 0 1120 1180" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>เปรียบเทียบ flow Default Agent กับ Agent Team</title>
+      <desc>ภาพแสดง Default Agent ทำงานคนเดียวด้านซ้าย และ Agent Team ที่มี Security ครอบทุก Agent ด้านขวา</desc>
+
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- HEADERS -->
+      <text class="t-section" x="270" y="30" text-anchor="middle">Default Agent</text>
+      <text class="t-sub" x="270" y="50" text-anchor="middle">Agent ตัวเดียวทำทุกอย่าง</text>
+
+      <text class="t-section" x="800" y="30" text-anchor="middle">Agent Team</text>
+      <text class="t-sub" x="800" y="50" text-anchor="middle">Security ครอบคลุมทุก Agent</text>
+
+      <!-- Divider -->
+      <line x1="540" y1="20" x2="540" y2="1160" stroke="#d4d2cc" stroke-width="0.8" stroke-dasharray="6 6"/>
+
+      <!-- ============================== -->
+      <!-- LEFT COLUMN: DEFAULT AGENT     -->
+      <!-- ============================== -->
+
+      <!-- Default Agent boundary frame (1 Agent + description) -->
+      <rect x="100" y="186" width="340" height="208" rx="14"
+            fill="rgba(139, 92, 246, 0.04)"
+            stroke="#8b5cf6"
+            stroke-width="1.2"
+            stroke-dasharray="8 5"/>
+      <rect x="120" y="174" width="140" height="24" rx="4" fill="white" stroke="#8b5cf6" stroke-width="1"/>
+      <text x="190" y="190" text-anchor="middle" style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; fill: #6d28d9; letter-spacing: 0.08em; text-transform: uppercase;">Default Agent</text>
+
+      <!-- User -->
+      <rect class="box user" x="120" y="80" width="300" height="70" rx="6"/>
+      <text class="t-title box user-text" x="270" y="112" text-anchor="middle">User</text>
+      <text class="t-sub box user-text" x="270" y="132" text-anchor="middle">บอกเป้าหมาย</text>
+      <line class="arrow" x1="270" y1="150" x2="270" y2="200" marker-end="url(#a)"/>
+
+      <!-- 1 Agent -->
+      <rect class="box agent" x="180" y="200" width="180" height="70" rx="6"/>
+      <text class="t-title box agent-text" x="270" y="230" text-anchor="middle">1 Agent</text>
+      <text class="t-sub box agent-text" x="270" y="250" text-anchor="middle">ทำทุกหน้าที่ในตัว</text>
+
+      <!-- All-in-one description -->
+      <rect class="box neutral" x="120" y="300" width="300" height="80" rx="6"/>
+      <text class="t-sub box neutral-text" x="270" y="332" text-anchor="middle">วิเคราะห์ ออกแบบ เขียน</text>
+      <text class="t-sub box neutral-text" x="270" y="354" text-anchor="middle">ทดสอบ ดูแลความปลอดภัย deploy</text>
+
+      <!-- Left side context section -->
+      <text class="t-section" x="270" y="850" text-anchor="middle">บริบทและความจำ</text>
+      <rect class="box dev" x="120" y="870" width="300" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="270" y="900" text-anchor="middle">บริบทเดียวยาวต่อเนื่อง</text>
+      <text class="t-sub box dev-text" x="270" y="920" text-anchor="middle">เสี่ยงล้นในงานใหญ่</text>
+
+      <text class="t-section" x="270" y="970" text-anchor="middle">ความเชี่ยวชาญ</text>
+      <rect class="box dev" x="120" y="990" width="300" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="270" y="1020" text-anchor="middle">รู้กว้าง ไม่ลึกเฉพาะทาง</text>
+      <text class="t-sub box dev-text" x="270" y="1040" text-anchor="middle">โปรมต์เดียวคุมทุกบทบาท</text>
+
+      <rect class="box neutral" x="120" y="1095" width="300" height="55" rx="6"/>
+      <text class="t-sub box neutral-text" x="270" y="1128" text-anchor="middle">งานเล็ก เริ่มง่าย ต้นทุนต่ำ</text>
+
+      <!-- ============================== -->
+      <!-- RIGHT COLUMN: AGENT TEAM       -->
+      <!-- ============================== -->
+
+      <!-- Agent Team boundary frame (Orchestrator → DevOps) -->
+      <rect x="530" y="186" width="506" height="618" rx="14"
+            fill="rgba(139, 92, 246, 0.04)"
+            stroke="#8b5cf6"
+            stroke-width="1.2"
+            stroke-dasharray="8 5"/>
+      <rect x="552" y="174" width="120" height="24" rx="4" fill="white" stroke="#8b5cf6" stroke-width="1"/>
+      <text x="612" y="190" text-anchor="middle" style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; fill: #6d28d9; letter-spacing: 0.08em; text-transform: uppercase;">Agent Team</text>
+
+      <!-- User -->
+      <rect class="box user" x="650" y="80" width="300" height="70" rx="6"/>
+      <text class="t-title box user-text" x="800" y="112" text-anchor="middle">User</text>
+      <text class="t-sub box user-text" x="800" y="132" text-anchor="middle">บอกเป้าหมาย</text>
+      <line class="arrow" x1="800" y1="150" x2="800" y2="200" marker-end="url(#a)"/>
+
+      <!-- Orchestrator -->
+      <rect class="box orch" x="680" y="200" width="240" height="70" rx="6"/>
+      <text class="t-title box orch-text" x="800" y="230" text-anchor="middle">Orchestrator</text>
+      <text class="t-sub box orch-text" x="800" y="250" text-anchor="middle">แจกงาน คุมภาพรวม</text>
+
+      <!-- ============================== -->
+      <!-- LAYER 1: BA · Backend · Frontend · Security -->
+      <!-- ============================== -->
+      <text class="t-section" x="595" y="335" text-anchor="end">Layer 1</text>
+
+      <rect class="box agent" x="610" y="345" width="105" height="70" rx="6"/>
+      <text class="t-title box agent-text" x="662" y="375" text-anchor="middle">BA</text>
+      <text class="t-sub box agent-text" x="662" y="395" text-anchor="middle">วิเคราะห์</text>
+
+      <rect class="box dev" x="725" y="345" width="105" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="777" y="375" text-anchor="middle">Backend</text>
+      <text class="t-sub box dev-text" x="777" y="395" text-anchor="middle">API, DB</text>
+
+      <rect class="box dev" x="840" y="345" width="105" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="892" y="375" text-anchor="middle">Frontend</text>
+      <text class="t-sub box dev-text" x="892" y="395" text-anchor="middle">UI, UX</text>
+
+      <rect class="box sec" x="955" y="345" width="65" height="70" rx="6"/>
+      <text class="t-title box sec-text" x="987" y="375" text-anchor="middle">Sec</text>
+      <text class="t-sub box sec-text" x="987" y="395" text-anchor="middle">threat</text>
+
+      <!-- Orchestrator → BA, Backend, Frontend -->
+      <line class="arrow" x1="720" y1="270" x2="662" y2="345" marker-end="url(#a)"/>
+      <line class="arrow" x1="800" y1="270" x2="777" y2="345" marker-end="url(#a)"/>
+      <line class="arrow" x1="880" y1="270" x2="892" y2="345" marker-end="url(#a)"/>
+
+      <!-- BA → Orchestrator feedback loop -->
+      <path class="arrow" d="M 610 380 Q 555 380 555 320 Q 555 230 680 235" marker-end="url(#a)" style="stroke: #6366f1; stroke-dasharray: 4 3; fill: none;"/>
+      <text class="t-sub" x="568" y="305" text-anchor="middle" style="fill: #4338ca; font-weight: 500; font-size: 11px;">confirm</text>
+
+      <!-- BA → Backend (handoff requirement) -->
+      <line class="arrow" x1="715" y1="380" x2="725" y2="380" marker-end="url(#a)"/>
+
+      <!-- Security ↔ team in layer 1 (dashed) -->
+      <line class="sec-line" x1="945" y1="380" x2="955" y2="380"/>
+
+      <!-- Backend → Tester API, Frontend → Tester UI -->
+      <line class="arrow" x1="777" y1="415" x2="777" y2="455" marker-end="url(#a)"/>
+      <line class="arrow" x1="892" y1="415" x2="892" y2="455" marker-end="url(#a)"/>
+
+      <!-- ============================== -->
+      <!-- LAYER 2: Tester · Security -->
+      <!-- ============================== -->
+      <text class="t-section" x="595" y="445" text-anchor="end">Layer 2</text>
+
+      <rect class="box test" x="725" y="455" width="105" height="70" rx="6"/>
+      <text class="t-title box test-text" x="777" y="485" text-anchor="middle">Tester</text>
+      <text class="t-sub box test-text" x="777" y="505" text-anchor="middle">API test</text>
+
+      <rect class="box test" x="840" y="455" width="105" height="70" rx="6"/>
+      <text class="t-title box test-text" x="892" y="485" text-anchor="middle">Tester</text>
+      <text class="t-sub box test-text" x="892" y="505" text-anchor="middle">UI test</text>
+
+      <rect class="box sec" x="955" y="455" width="65" height="70" rx="6"/>
+      <text class="t-title box sec-text" x="987" y="485" text-anchor="middle">Sec</text>
+      <text class="t-sub box sec-text" x="987" y="505" text-anchor="middle">scan</text>
+
+      <!-- Security ↔ tester (dashed) -->
+      <line class="sec-line" x1="945" y1="490" x2="955" y2="490"/>
+
+      <!-- Testers → QA / E2E (layer 3) -->
+      <line class="arrow" x1="777" y1="525" x2="700" y2="610" marker-end="url(#a)"/>
+      <line class="arrow" x1="892" y1="525" x2="850" y2="610" marker-end="url(#a)"/>
+
+      <!-- ============================== -->
+      <!-- LAYER 3: QA · E2E Test · Security -->
+      <!-- ============================== -->
+      <text class="t-section" x="595" y="600" text-anchor="end">Layer 3</text>
+
+      <rect class="box test" x="610" y="610" width="105" height="70" rx="6"/>
+      <text class="t-title box test-text" x="662" y="640" text-anchor="middle">QA</text>
+      <text class="t-sub box test-text" x="662" y="660" text-anchor="middle">เกณฑ์คุณภาพ</text>
+
+      <rect class="box test" x="725" y="610" width="220" height="70" rx="6"/>
+      <text class="t-title box test-text" x="835" y="640" text-anchor="middle">E2E Test</text>
+      <text class="t-sub box test-text" x="835" y="660" text-anchor="middle">ทดสอบทั้งระบบรวมกัน</text>
+
+      <rect class="box sec" x="955" y="610" width="65" height="70" rx="6"/>
+      <text class="t-title box sec-text" x="987" y="640" text-anchor="middle">Sec</text>
+      <text class="t-sub box sec-text" x="987" y="660" text-anchor="middle">pentest</text>
+
+      <!-- QA → E2E -->
+      <line class="arrow" x1="715" y1="645" x2="725" y2="645" marker-end="url(#a)"/>
+
+      <!-- Security ↔ E2E (dashed) -->
+      <line class="sec-line" x1="945" y1="645" x2="955" y2="645"/>
+
+      <!-- E2E → DevOps -->
+      <line class="arrow" x1="835" y1="680" x2="800" y2="720" marker-end="url(#a)"/>
+
+      <!-- ============================== -->
+      <!-- LAYER 4: DevOps · Security -->
+      <!-- ============================== -->
+      <text class="t-section" x="595" y="710" text-anchor="end">Layer 4</text>
+
+      <rect class="box ops" x="660" y="720" width="285" height="70" rx="6"/>
+      <text class="t-title box ops-text" x="802" y="750" text-anchor="middle">DevOps</text>
+      <text class="t-sub box ops-text" x="802" y="770" text-anchor="middle">CI/CD, deploy</text>
+
+      <rect class="box sec" x="955" y="720" width="65" height="70" rx="6"/>
+      <text class="t-title box sec-text" x="987" y="750" text-anchor="middle">Sec</text>
+      <text class="t-sub box sec-text" x="987" y="770" text-anchor="middle">hardening</text>
+
+      <!-- Security ↔ DevOps (dashed) -->
+      <line class="sec-line" x1="945" y1="755" x2="955" y2="755"/>
+
+      <!-- Right side context section -->
+      <text class="t-section" x="800" y="850" text-anchor="middle">บริบทและความจำ</text>
+      <rect class="box dev" x="600" y="870" width="400" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="800" y="900" text-anchor="middle">แต่ละตัวมีบริบทแยก</text>
+      <text class="t-sub box dev-text" x="800" y="920" text-anchor="middle">Security แชร์ข้อมูลข้ามทีม</text>
+
+      <text class="t-section" x="800" y="970" text-anchor="middle">ความเชี่ยวชาญ</text>
+      <rect class="box dev" x="600" y="990" width="400" height="70" rx="6"/>
+      <text class="t-title box dev-text" x="800" y="1020" text-anchor="middle">แต่ละตัวจูนเฉพาะทาง</text>
+      <text class="t-sub box dev-text" x="800" y="1040" text-anchor="middle">Security ฝังในทุกขั้นตอน</text>
+
+      <rect class="box neutral" x="600" y="1095" width="400" height="55" rx="6"/>
+      <text class="t-sub box neutral-text" x="800" y="1128" text-anchor="middle">งานใหญ่ ปลอดภัยตั้งแต่ต้นทาง</text>
+    </svg>
+
+    <div class="d-cap">FIG. 01 — Default Agent ทำงานคนเดียวด้านซ้าย เปรียบเทียบกับ Agent Team ที่ Security เป็นชั้นแนวขวางครอบคลุมทุก Agent ด้านขวา</div>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Side-by-side Comparison</div>
+      <div class="card-sub">7 มิติเปรียบเทียบทั้ง 3 paradigms</div>
+    </div>
+    <div class="compare-table" style="border-radius: 0 0 12px 12px; border-top: none;">
+      <div class="compare-row head">
+        <div class="compare-cell label" style="background:transparent;">มิติเปรียบเทียบ</div>
+        <div class="compare-cell">AI Assistant</div>
+        <div class="compare-cell">Default Agent</div>
+        <div class="compare-cell">Agent Team</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">เหมาะกับ</div>
+        <div class="compare-cell"><strong>งานเล็ก ทีละบรรทัด</strong>เร่งความเร็วของนักพัฒนาเอง</div>
+        <div class="compare-cell"><strong>งานกลาง หลายขั้น</strong>ปล่อยให้ AI ทำเองได้ทั้งงาน</div>
+        <div class="compare-cell"><strong>งานใหญ่ ซับซ้อน</strong>หลายสาย ทำขนาน คุณภาพสูง</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">บทบาทคน</div>
+        <div class="compare-cell"><strong>คนขับ</strong>ตัดสินใจทุกบรรทัด</div>
+        <div class="compare-cell"><strong>คนสั่งงาน</strong>กำหนดเป้าหมาย รีวิวผลลัพธ์</div>
+        <div class="compare-cell"><strong>คนกำกับ</strong>ออกแบบ workflow ระหว่าง agent</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">บริบท</div>
+        <div class="compare-cell">ไฟล์ที่เปิดอยู่</div>
+        <div class="compare-cell">ทั้ง repo · บริบทเดียวยาว</div>
+        <div class="compare-cell">แยกตามบทบาท · ลึกเฉพาะทาง</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">ต้นทุน</div>
+        <div class="compare-cell"><strong style="color:var(--success);">ต่ำ</strong></div>
+        <div class="compare-cell"><strong style="color:var(--warn);">กลาง</strong></div>
+        <div class="compare-cell"><strong style="color:var(--danger);">สูง</strong> หลาย LLM call</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">ความเร็ว setup</div>
+        <div class="compare-cell">ติดตั้ง extension · 5 นาที</div>
+        <div class="compare-cell">รัน CLI · 15 นาที</div>
+        <div class="compare-cell">ออกแบบ workflow · หลายวัน</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">ความเสี่ยง</div>
+        <div class="compare-cell"><strong style="color:var(--success);">ต่ำ</strong> คนเห็นทุกบรรทัด</div>
+        <div class="compare-cell"><strong style="color:var(--warn);">กลาง</strong> ต้องรีวิวผลลัพธ์</div>
+        <div class="compare-cell"><strong style="color:var(--danger);">สูง</strong> ถ้า contract ไม่ชัด</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell label">Security</div>
+        <div class="compare-cell">นักพัฒนาเป็นผู้ดู</div>
+        <div class="compare-cell">รวมในตัว Agent</div>
+        <div class="compare-cell"><strong style="color:var(--pink-ink);">ครอบทุกบทบาท</strong>shift-left by design</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASES -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Security as a Cross-cutting Concern</div>
+      <div class="card-sub">4 phases · shift-left security · ความปลอดภัยฝังในทุกขั้นตอน</div>
+    </div>
+
+    <div class="phase-list" style="border-radius: 0 0 12px 12px; border-top: none;">
+      <div class="phase-row">
+        <div class="phase-num">PHASE 01</div>
+        <div class="phase-title">ขั้นวิเคราะห์</div>
+        <div class="phase-body">Security ทำงานคู่กับ <strong>BA</strong> เพื่อทำ threat modeling ระบุข้อมูลละเอียดอ่อน เส้นทางโจมตี และความเสี่ยงตั้งแต่ก่อนเขียนโค้ดบรรทัดแรก</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">PHASE 02</div>
+        <div class="phase-title">ขั้นพัฒนา</div>
+        <div class="phase-body">Security ตรวจสอบโค้ดจาก <strong>Backend</strong> และ <strong>Frontend</strong> เน้น input validation, authentication, secret management, XSS, CSRF, SQL injection</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">PHASE 03</div>
+        <div class="phase-title">ขั้นทดสอบ</div>
+        <div class="phase-body">Security ออกแบบ test case ที่มุมโจมตีร่วมกับ <strong>QA</strong> และ <strong>Tester</strong> เช่น fuzzing, penetration test, OWASP ZAP scan ในขั้น E2E</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">PHASE 04</div>
+        <div class="phase-title">ขั้นส่งมอบ</div>
+        <div class="phase-body">Security ตรวจ <strong>DevOps</strong> pipeline สแกน container image, dependency vulnerability, IaC misconfig และตั้งค่า cloud ที่ปลอดภัย</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <div class="card-gradient-header" style="border-radius: 12px 12px 0 0;">
+      <div class="card-title">Executive Summary &amp; Recommendations</div>
+      <div class="card-sub">Key takeaways · ข้อเสนอเชิงตัดสินใจสำหรับผู้บริหารและทีมพัฒนา</div>
+    </div>
+
+    <div class="summary-block" style="background: var(--bg-card); padding: 1.5rem; border: 1px solid var(--line); border-top: none; border-radius: 0 0 12px 12px; margin-bottom: 0;">
+      <div class="summary-card wins">
+        <div class="s-icon">★</div>
+        <div class="s-label">Wins</div>
+        <div class="s-title">ทั้ง 3 paradigms มีที่ทาง</div>
+        <div class="s-body">ไม่ใช่การแทนที่กัน แต่เป็นการเลือกใช้ตามบริบท Assistant เร่งงานเล็ก Agent ทำงานกลาง Team รับงานใหญ่ ทีมที่เก่งจะใช้ทั้งสามอย่างผสมกัน</div>
+      </div>
+      <div class="summary-card focus">
+        <div class="s-icon">▲</div>
+        <div class="s-label">Focus Next</div>
+        <div class="s-title">เริ่มจาก Assistant ก้าวสู่ Team</div>
+        <div class="s-body">เริ่มที่ Assistant เพื่อสร้างความคุ้นเคย ขยับไป Default Agent เมื่อมั่นใจในผลลัพธ์ ลงทุนใน Agent Team เมื่อโจทย์ใหญ่กว่าที่ Agent เดียวทำไหว</div>
+      </div>
+      <div class="summary-card asks">
+        <div class="s-icon">!</div>
+        <div class="s-label">Asks</div>
+        <div class="s-title">Security ฝังตั้งแต่ต้น</div>
+        <div class="s-body">Bug ด้านความปลอดภัยที่จับได้ตอนวิเคราะห์ ราคาถูกกว่าจับได้ตอน production หลายร้อยเท่า ออกแบบ Agent Team ให้ Security เป็นชั้นแนวขวาง ไม่ใช่ขั้นตอนสุดท้าย</div>
+      </div>
+    </div>
+  </div>
+
+  <nav style="margin: 2rem 0 1.25rem; padding: 1.25rem 1.5rem; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: 'Inter', system-ui, sans-serif;">
+    <a href="4.multi-agent-architecture.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #4338ca; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);"><span style="font-size: 18px;">←</span><span><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.65;font-weight:500;">Previous</small>4. Multi-Agent Architecture</span></a>
+    <span style="font-size: 11px; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">📚 1 → 2 → 3 → 4 → <strong style="color:#4338ca">5</strong> → 6</span>
+    <a href="6.traditional-scrum-workflow.html" style="display: inline-flex; align-items: center; gap: .65rem; padding: .7rem 1.2rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99,102,241,0.30);"><span style="text-align:right"><small style="display:block;font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;opacity:.80;font-weight:500;">Next</small>6. Scrum: Before vs After AI</span><span style="font-size: 18px;">→</span></a>
+  </nav>
+
+  <!-- FOOTER -->
+  <footer class="report-footer">
+    <div class="sources">Sources: industry analysis · Anthropic Claude Code docs · GitHub Copilot docs · OWASP DevSecOps · 2026</div>
+    <div>AI Engineering · Internal Brief · v1.0 · 20 May 2026</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
