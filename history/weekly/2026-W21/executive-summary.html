@@ -1588,8 +1588,15 @@
 </div>
 <script>
 (async () => {
+  // Base-path detection — works on root deploy + sub-path deploy (GitHub Pages) + localhost
+  const getBase = () => {
+    const m = location.pathname.match(/(.*?)\/history\//);
+    if (m) return m[1] + '/';
+    return location.pathname.replace(/\/[^/]*$/, '/') || '/';
+  };
+  const BASE = getBase();
   try {
-    const res = await fetch('/history/index.json', { cache: 'no-store' });
+    const res = await fetch(BASE + 'history/index.json', { cache: 'no-store' });
     if (!res.ok) return;
     const idx = await res.json();
     const dailyList = Array.isArray(idx.daily) ? idx.daily : [];
@@ -1610,7 +1617,7 @@
     if (current === 'today') sel.value = 'today';
     sel.addEventListener('change', (e) => {
       const v = e.target.value;
-      location.href = v === 'today' ? '/' + file : '/history/daily/' + v + '/' + file;
+      location.href = v === 'today' ? BASE + file : BASE + 'history/daily/' + v + '/' + file;
     });
     wrap.style.display = 'block';
   } catch (_) { /* file:// or missing index → hidden */ }
