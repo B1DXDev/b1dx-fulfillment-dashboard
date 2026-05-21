@@ -123,6 +123,25 @@
 
 ---
 
+## Phase 5 — Webhook Peak Load Initiative
+
+### Sprint WH-CAP — 11/11 Readiness
+> Owner: Sompon (Benz) · 8 tickets, ~5-7 dev-days · onboarded 2026-05-19 · deadline 11/11 peak
+
+#### Webhook Capacity
+| ID | งาน | สถานะ | หมายเหตุ |
+|---|---|---|---|
+| WH-CAP-04 | Queue safety: x-max-length + DLX + message TTL | ✅ | Benz, 2026-05-21 (PR #18) |
+| WH-CAP-01 | Worker concurrency + Shopee per-webhook resync rewrite | ⬜ | Benz · P1 (blocks 07,08) |
+| WH-CAP-02 | Publisher channel pool + Confirm mode + reconnect | ⬜ | Benz · P2 |
+| WH-CAP-03 | HTTP server timeouts + body size cap | ⬜ | Benz · P2 |
+| WH-CAP-05 | WebhookEvent idempotency (unique index + Upsert) | ⬜ | Benz · P2 |
+| WH-CAP-06 | Bounded fan-out fallback (errgroup) | ⬜ | Benz · P2 |
+| WH-CAP-07 | Per-platform/per-shop rate limiter (token bucket) | ⬜ | Benz · blocked by WH-CAP-01 |
+| WH-CAP-08 | Horizontal scale worker pods + queue contention test | ⬜ | Benz · blocked by WH-CAP-01 |
+
+---
+
 ## Ad-hoc — งานนอกแผน
 > งานที่เพิ่มระหว่างทาง ไม่ได้อยู่ใน phase เดิม
 
