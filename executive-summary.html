@@ -1598,7 +1598,9 @@
     const wrap = document.getElementById('histDropdown');
     const m = location.pathname.match(/\/history\/daily\/([^/]+)\//);
     const current = m ? m[1] : 'today';
-    const file = location.pathname.endsWith('progress.html') ? 'progress.html' : 'executive-summary.html';
+    const file = location.pathname.endsWith('progress.html') ? 'progress.html'
+               : location.pathname.endsWith('backlog.html') ? 'backlog.html'
+               : 'executive-summary.html';
     sel.appendChild(new Option('Today (latest)', 'today'));
     [...dailyList].reverse().forEach(d => {
       const opt = new Option(d, d);
