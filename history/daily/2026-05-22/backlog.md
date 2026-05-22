@@ -1714,6 +1714,41 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
+### 🆕 [P2] WH-CAP-09 — Async admin sync endpoints (move /sync HTTP → queue-backed jobs) `[sompon-benz]`
+
+**Found:** 2026-05-22 | **Type:** Refactor / API ergonomics | **Repo:** `webhook`
+**Source:** WH-CAP-03 review — `WriteTimeout=10s` ใหม่จะ timeout endpoints ที่ทำ paginated sync
+**Plan:** `tasks/plans/WH-CAP-09/plan.md` (TBD)
+**Mockup:** n/a
+**Effort:** ~3-4h
+**Depends on:** WH-CAP-03 (creates the WriteTimeout constraint), WH-CAP-04 (queue safety baseline)
+
+#### Symptom
+- หลัง WH-CAP-03 deploy: POST /shopee/sync, /shopee/products/sync, /lazada/sync, /lazada/products/sync จะคืน timeout (~10s) เพราะ handler ทำ paginated marketplace fetch ที่ใช้เวลา 30s-2min
+- Scheduler ปกติ (เรียกผ่าน service ตรง) ไม่กระทบ — เฉพาะ manual admin trigger ผ่าน HTTP
+
+#### Root cause
+- 4 admin sync handlers ทำงาน synchronous: `c.JSON()` รอจน `SyncRecentOrders` / `SyncProducts` วน paginate marketplace API จนจบ
+- WriteTimeout 10s ของ WH-CAP-03 จำเป็นต่อ security ปิดช่อง slow-loris — ปรับขึ้นจะลด safety
+
+#### Fix
+- เปลี่ยน 4 admin sync handlers เป็น **async job pattern**:
+  1. POST /sync → enqueue job (RabbitMQ message หรือ DB row `sync_jobs` table) → คืน 202 + `{"job_id": "..."}` ทันที (<10s)
+  2. New endpoint GET /sync/jobs/{id} → คืน status (pending/running/done/failed) + count + error
+  3. Worker consume job → run sync ใน background (no HTTP timeout)
+- หรือทางง่ายกว่า: spawn goroutine + return 202 พร้อม progress endpoint (ไม่ persist, hi เริ่ม fresh ทุก deploy แต่ scope แคบกว่า)
+
+#### Test
+- Unit: handler returns 202 + job_id immediately
+- Integration: job_id status transitions running → done; sync result == direct call result
+- Manual: trigger /sync ด้วย body ที่ทำให้ sync วน > 30s → handler คืน 202 ภายใน 1s + GET /sync/jobs/{id} เห็น running → done
+
+#### Out of Scope
+- Sync job retry policy (ใช้ RabbitMQ DLX จาก WH-CAP-04 ครอบ)
+- Web UI สำหรับ admin trigger + monitor (CLI / Postman พอสำหรับ ops)
+
+---
+
 ### 🆕 [P3] FIX-FE-VITEST-FAILURES-01 — Fix 56 failing vitest tests across 11 files (mock drift) `[wat]`
 
 **Found:** 2026-05-18 | **Type:** FE test maintenance | **Repo:** `b1dx-oms-fulfillment-web`
