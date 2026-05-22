@@ -1976,6 +1976,59 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
+### ✅ [P2] FE-OD-FIDELITY-01f — Order Timeline (Status History) 100% mockup fidelity `[srattha]` `Done 2026-05-22`
+
+**Found:** 2026-05-22 (user chat report) | **Type:** FE visual fidelity polish | **Repo:** `b1dx-oms-fulfillment-web`
+**Depends on:** FE-OD-FIDELITY-01d (merged — partial timeline polish done, fidelity gaps remain)
+**Plan:** `tasks/plans/FE-OD-FIDELITY-01f/plan.md`
+**Mockup:** `docs/mockups/order-detail-improve.html` § `renderTimeline()` (lines 1218–1261) + CSS `.od-card-*` (177–192), `.od-tl-*` (256–287), `.spill.s*` (289–308)
+
+#### Gap (current vs mockup)
+- Card title `"Status History"` text-sm bold foreground (mockup = `"STATUS HISTORY"` mono 10.5px bold muted tracking-.06em)
+- Missing `{n} events` badge (mockup mono 9.5px dim)
+- Has `⟶ Flow` button in header (mockup ไม่มี)
+- Sort = desc newest top (mockup = asc oldest top → newest bottom per TIMELINE_DATA)
+- Dot.done: bg-current/20 circle ภายใน 1.5px (mockup = bg currentColor solid + ✓ checkmark SVG polyline)
+- Dot.current: bg-transparent + circle 2px ภายใน (mockup = transparent + animate-pulse + 8px solid inner dot)
+- Line = 1px bg-border (mockup = 2px bg-`--bdr`)
+- Status row: ไม่มี `● ปัจจุบัน` indicator (mockup = amber 10px อยู่ข้าง pill ของ latest)
+- Pill: `bg-current/10` (mockup = `spill.s###` token bg per status — amber-bg/ind-bg/teal-bg/red-bg/etc.)
+- Meta row: ขาด `✓` ตอนท้าย row ของ done items
+- Note: ใช้ severity-driven warn/error tint (mockup = `issue` flag → amber border+bg+text)
+- Severity badge `⚠ warn` / `✕ error` pill แยก (mockup ไม่มี — รวมเป็น note style แทน)
+
+#### Goals
+1. Card chrome `bg-[var(--bg2)] border-[var(--bdr)] rounded-[var(--radius)]` no shadow
+2. Mono header "STATUS HISTORY" + mono `{n} events` badge
+3. Asc sort entries (oldest → newest)
+4. Dot.done bg-current/13 + ✓ checkmark SVG polyline (1.5,4.5 → 3.5,7 → 7.5,1.5)
+5. Dot.current bg-transparent + animate-pulse + 8px solid inner dot
+6. 2px vertical line `bg-[var(--bdr)]`
+7. Status row: colored label + `spill.s###` 8.5px mono pill + amber `● ปัจจุบัน` for latest
+8. Meta row 10.5px dim: actor + mono ts + `✓` for done
+9. Note default `bg-[var(--bg3)]` border `--bdr`; issue (severity warn/error OR toStatus∈{600,620,800,900}) → amber bg+border+text
+10. ลบปุ่ม `⟶ Flow` (mockup ไม่มี)
+11. ลบ severity-badge pill (รวมเข้า issue note)
+
+#### Test
+- Unit: 14 cases — asc sort, label+pill+actor+ts, note text, empty state, header text + events badge, no Flow button, latest dot pulse single instance, done dots ✓ SVG, ● ปัจจุบัน, ✓ in meta, issue note for severity warn/error/toStatus∈issue-codes
+- E2E: 7 cases — header "STATUS HISTORY", `{n} events` badge regex, no Flow button, asc sort by data-to-status, ● ปัจจุบัน indicator, latest dot pulse, screenshot artifact
+- Regression: 01d E2E severity-badge test → issue-note test (pass ✓)
+
+#### Out of Scope
+- BE/DTO change — `severity?: 'warn' | 'error'` field คงอยู่ใน schema
+- `OrderDetailView` orchestration (props signature ไม่เปลี่ยน)
+- Sidebar / Order Info / Items / Hero (01a/b/c/d/e done or separate)
+- Status color palette/token rework (ใช้ tokens ที่มีใน globals.css)
+
+#### Status (2026-05-22)
+- Plan Draft → Confirmed → In Progress → In Review → ✅ Done
+- PR #242 merged manual squash on `b1dx-oms-fulfillment-web` (main `6d11ad0`)
+- Unit 14/14 ✅, E2E 01f 7/7 ✅, E2E 01d 5/5 ✅
+- Post-review fix-up: dropped `orange` token (750 → red per mockup priority), `mt-1.5` → `mt-[5px]` on note, removed redundant `isLast`, E04 e2e strict monotonic via `data-occurred-at`
+
+---
+
 ### ✅ [P3] FONT-SIZE-STD-PREF-01 — Standardize font-size scale + improve user preference UI `[wat]` ✅ Done 2026-05-17 (PR #201)
 
 **Found:** 2026-05-16 | **Type:** FE design-system + UX improvement + minor bug | **Repo:** `b1dx-oms-fulfillment-web`
