@@ -556,6 +556,26 @@
 
 ## GROUP 6.8 — Known Issues (พบจาก Code Review) `P2`
 
+### [P3] FE-OD-FIDELITY-01e-followup: MSW fixtures for skipped E2E in OrderItems Section `[1h]`
+
+**Goal:** ปลด `test.skip` 2 cases ใน `e2e/order-detail/od-fidelity-01e-items-section.spec.ts` ที่รอ MSW mock support
+**Type:** FE (test infra)
+**Effort:** S (~1h)
+**Files:**
+
+- `apps/b1dx-oms-fulfillment/src/mocks/msw/db/` — เพิ่ม fixture `ord-status-100` (status=100 → all items pill warn ⟳)
+- `apps/b1dx-oms-fulfillment/src/mocks/msw/db/` — เพิ่ม fixture `ord-with-gift` (มี item `unitPrice==0 && lineTotal==0` หรือถ้า BE มี `isGift` flag → ใช้ตรงนั้น)
+- `e2e/order-detail/od-fidelity-01e-items-section.spec.ts` ลบ `test.skip` 2 cases → un-skip
+
+**Test cases:**
+
+- [ ] E2E: gift row shows GIFT tag + green ฿0 (แถม) total — pass
+- [ ] E2E: status=100 order → all match pills show ⟳ "กำลังจับคู่" — pass
+
+**Background:** เกิดจาก code review FE-OD-FIDELITY-01e (2026-05-22) — unit tests cover behavior ครบแล้ว, แต่ E2E ต้องการ fixture เพิ่ม
+
+---
+
 ### [P2] FIX-INTEGRATION-TESTS: Integration Tests 5 ตัว fail
 
 **Goal:** แก้ Integration Tests 5 ตัวที่ fail ใน `GetRolesUserCountTests` + `CustomRoleSliceTests` + `AuthorizationSliceTests`
@@ -1816,7 +1836,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P2] FE-OD-FIDELITY-01a — Order Detail: wire missing sections (Customer / Payment / Shipping) `[wat]`
+### ✅ [P2] FE-OD-FIDELITY-01a — Order Detail: wire missing sections (Customer / Payment / Shipping) `[srattha]` `Done 2026-05-22`
 
 **Found:** 2026-05-17 | **Type:** FE visual fidelity gap | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user audit 2026-05-17 — "order detail ไม่เหมือน mock; expected เหมือน mockup 100%"
@@ -1841,7 +1861,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P2] FE-OD-FIDELITY-01b — Order Detail: Status Flow Bar (horizontal state machine) `[wat]`
+### ✅ [P2] FE-OD-FIDELITY-01b — Order Detail: Status Flow Bar (horizontal state machine) `[srattha]` `merged: 2026-05-22`
 
 **Found:** 2026-05-17 | **Type:** FE missing component | **Repo:** `b1dx-oms-fulfillment-web`
 **Depends on:** FE-OD-FIDELITY-01a (merged)
@@ -1866,7 +1886,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P2] FE-OD-FIDELITY-01c — Order Detail: Hero + Info section polish `[wat]`
+### ✅ [P2] FE-OD-FIDELITY-01c — Order Detail: Hero + Info section polish `[srattha]` `merged: 2026-05-22`
 
 **Found:** 2026-05-17 | **Type:** FE visual fidelity polish | **Repo:** `b1dx-oms-fulfillment-web`
 **Depends on:** FE-OD-FIDELITY-01a (merged)
@@ -1891,7 +1911,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P2] FE-OD-FIDELITY-01d — Order Detail: Timeline + Sidebar polish `[wat]`
+### 🆕 [P2] FE-OD-FIDELITY-01d — Order Detail: Timeline + Sidebar polish `[srattha]`
 
 **Found:** 2026-05-17 | **Type:** FE visual fidelity polish | **Repo:** `b1dx-oms-fulfillment-web`
 **Depends on:** FE-OD-FIDELITY-01a (merged)
@@ -1914,6 +1934,45 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 #### Out of Scope
 - Sidebar internal sections (already OK per audit), Customer/Payment/Shipping wiring (01a), Status flow bar (01b), Hero/info polish (01c)
+
+---
+
+### 🆕 [P2] FE-OD-FIDELITY-01e — Order Detail: Items Section od-card fidelity `[srattha]`
+
+**Found:** 2026-05-22 (user chat report) | **Type:** FE visual fidelity polish | **Repo:** `b1dx-oms-fulfillment-web`
+**Depends on:** FE-OD-FIDELITY-01a (merged)
+**Plan:** `tasks/plans/FE-OD-FIDELITY-01e/plan.md`
+**Mockup:** `docs/mockups/order-detail-improve.html` §`.od-card` items (lines 177–254, 1168–1216)
+
+#### Gap
+- Card uses `shadow-sm` + `rounded-xl` (mockup = no shadow + `--radius` + `--bg2`)
+- Card title `text-body font-semibold` (mockup = mono 10.5px bold tracking-.06em)
+- Table th no bg, `border-b-2` (mockup = `--bg3` fill + border 1px)
+- Item icon 34×34 (mockup = 30×30 with `--bdr2`)
+- **Missing match-status pill** ใต้ SKU (`✓ Matched` / `⟳ กำลังจับคู่` / `✕ ไม่พบ SKU`)
+- Gift indicator = "ของแถม" pill (mockup = mono 8px `GIFT` tag)
+- Totals layout: `justify-end` mini-cols ฝั่งขวา (mockup = 4 full-width equal-flex cols + indigo TOTAL bg + 15px value)
+- Discount =0 → `−฿0` (mockup = `—` em-dash)
+
+#### Goals
+1. Rebuild card chrome to use `--bg2`/`--bg3`/`--bdr`/`--bdr2`/`--dim`/`--muted`/`--radius`
+2. Card header/title/badge typography per mockup
+3. Table th/td padding 9px 12px + th `--bg3` background
+4. Item icon 30×30 + rounded-7px + `--bdr2` border
+5. Add match-status pill (3 states) — derive from `orderStatus===100` cascade + optional per-item override
+6. Gift tag mono 8px green-bg border + "GIFT" label
+7. 4-col full-width totals row + indigo TOTAL col + 15px value
+8. Discount em-dash when 0/undefined
+
+#### Test
+- Unit: 14 cases — card chrome, title/badge style, 3 item rows, icon 30px, gift tag, gift total, match pill default/warn/err, 4 totals cols, TOTAL indigo+15px, discount em-dash, th bg
+- E2E: 4 cases (items visible, 4 th columns, first row icon+name+sku+match pill, totals 4 cols TOTAL 15px); 2 skipped pending mock data (gift item + status=100 order)
+
+#### Out of Scope
+- BE schema change for per-item match status / gift flag
+- Real SKU matching logic (FE derive จาก orderStatus เหมือน mockup)
+- Other sections (01a/b/c/d done)
+- Items price/total calculation logic
 
 ---
 
@@ -4797,3 +4856,42 @@ Squash-merging the BASE of a stacked PR (e.g., merge PR #80 first) does NOT upda
 - `FIX-PIM-FE-03-FOOTER-BUTTONS` — buttons existed since FE-03 merge
 
 ---
+
+## Issues Backlog — Profile Settings Security Tab
+
+### [P2] FIX-PRFSETTINGS-SECURITY-V3 — Security tab ไม่ตรง mockup v3 `[srattha]` `[FE]`
+
+**Found:** 2026-05-21 | **Type:** UI fidelity | **Repo:** `b1dx-oms-fulfillment-web`
+**Mockup Ref:** `docs/mockups/profile_settings_v3.html` § Tab 1 Security
+
+**Symptom:** Tab Security ใน `/profile/settings` ไม่ตรง mockup v3 — 3 ส่วนหลักขาดหาย/ไม่ครบ แม้ tasks FE-PRFSETTINGS-16/17/18/19 ถูก mark done ใน sprint
+
+**Root Cause:** Tasks ถูก mark done ใน `current-sprint.md` แต่ component files ที่ plan ระบุไม่ได้ถูกสร้างจริง — implementation ยังเป็น simplified version จาก FE-PRFSETTINGS-05 (v1) ไม่ใช่ v3
+
+**Gap (current vs mockup v3):**
+
+| Element | Mockup v3 | Current | สถานะ |
+|---|---|---|---|
+| 2FA Nudge Banner | Amber dismissible banner (🔐 + ข้อความ + ✕ ปิด) | ❌ ไม่มี | MISSING |
+| 2FA row | status tag (ปิดอยู่/เปิดอยู่) + 🔔 nudge btn + enable/disable | badge + btn เท่านั้น | INCOMPLETE |
+| Trusted Devices | "จัดการ ▾" toggle → expandable device list + delete per item | single summary row เท่านั้น | INCOMPLETE |
+| Active Sessions section | card แยก: session list + "อุปกรณ์นี้" tag + IP/browser meta + Revoke per session + "Logout ทั้งหมด" | ❌ ไม่มีเลย | MISSING |
+| Activity Log | filter chips (ทั้งหมด/Login/Actions/Errors) + expandable row detail | simple list ไม่มี filter/expand | INCOMPLETE |
+
+**Files to CREATE:**
+- `features/users/components/Tab1Security/ActiveSessionsSection.tsx` + `.test.tsx`
+- `features/users/components/Tab1Security/ActivityLogSection.tsx` + `.test.tsx`
+- `features/users/components/Tab1Security/TrustedDevicesExpand.tsx` + `.test.tsx`
+
+**Files to MODIFY:**
+- `features/users/components/Tab1Security/Tab1Security.tsx` — 2FA row + Nudge banner + wire sub-components
+
+**Test Cases:**
+- [ ] regression: 2FA nudge banner แสดงเมื่อ 2FA ปิด + ซ่อนได้ด้วยปุ่ม ✕
+- [ ] regression: Trusted Devices row กด "จัดการ ▾" → expand/collapse device list
+- [ ] regression: Active Sessions section แสดง session list + current device tag + Revoke button
+- [ ] regression: Activity Log filter chips กรอง type (login/action/error) ได้
+- [ ] regression: Activity Log row click → expand detail (IP, browser, OS)
+- [ ] visual: screenshot vs mockup v3 § Tab 1 ผ่านทุก element
+
+**Dependencies:** FE-PRFSETTINGS-11 (types) ✅ merged
