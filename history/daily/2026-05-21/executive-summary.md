@@ -5,8 +5,8 @@
 
 # ─── Hero ────────────────────────────────────────────────────────────────
 reporting_period: "Week 20–21 · 16–31 May 2026"
-report_date: "18 May 2026"
-sprint_day: 3
+report_date: "21 May 2026"
+sprint_day: 6
 sprint_days_total: 14
 sprint_status: "ON TRACK"
 sprint_period: "16 → 31 May 2026 · Q2 Sprint"
@@ -218,7 +218,7 @@ sources:
   - "tasks/current-sprint.md"
   - "git log 16–18 May · 4 repos"
   - "gh pr list (FE #192–206)"
-footer_conf: "BeOne Digital · Internal &amp; Confidential · v2.2 · 18 May 2026 · Day 3/14"
+footer_conf: "BeOne Digital · Internal &amp; Confidential · v2.2 · 21 May 2026 · Day 6/14"
 ---
 
 <!--

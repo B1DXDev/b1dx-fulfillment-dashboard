@@ -29,7 +29,7 @@ health:
 features:
   - { id: "01", name: "Order Mgmt<br>(OAD + Bulk)",         pct: 85, state: "active", status: "OAD-INT-01 PR #192 review" }
   - { id: "02", name: "Sync<br>Order",                       pct: 80, state: "active", status: "Live · stable" }
-  - { id: "03", name: "PIM<br>(Product Master)",             pct: 85, state: "active", status: "BE 01a/01b/01c-1 ✓" }
+  - { id: "03", name: "PIM<br>(Product Master)",             pct: 60, state: "active", status: "BE 01a/01b/01c-1 ✓" }
   - { id: "04", name: "RBAC<br>(Permissions)",               pct: 90, state: "active", status: "PERM-FE-ORDERS-01 ✓" }
   - { id: "05", name: "Courier Settings<br>(CRSET-02/03/04)", pct: 85, state: "active", status: "02A/B/C/03/04 ✓ · 02D fix" }
   - { id: "06", name: "Webhook (Go)<br>4-repo onboarding",   pct: 15, state: "active", status: "Submodule + agent ✓" }
