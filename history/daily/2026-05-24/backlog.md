@@ -2159,9 +2159,9 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P0] QA-ORDER-SM-01 — Order Module Test Artifacts (state machine HTML + matrix + step-by-step cases) `[wat]`
+### ✅ [P0] QA-ORDER-SM-01 — Order Module Test Artifacts (state machine HTML + matrix + step-by-step cases) `[wat]` `[DONE 2026-05-24 — PR #91]`
 
-**Found:** 2026-05-24 | **Type:** Documentation / QA artifacts (no Order Module code change) | **Repo:** `b1dx-fulfillment-workspace` (docs only)
+**Found:** 2026-05-24 | **Done:** 2026-05-24 (same day) | **PR:** #91 (merged to main) | **Type:** Documentation / QA artifacts (no Order Module code change) | **Repo:** `b1dx-fulfillment-workspace` (docs only)
 **Source:** user request 2026-05-24 — เช็ค state machine ที่หน้า Order List + Order Detail ก่อน รวม role permission ครบทุกเคส
 **Plan:** `tasks/plans/QA-ORDER-SM-01/plan.md`
 **Priority Doc:** `tasks/assignments/2026-05-wat-priority.md` (Block 0 — TOP)
