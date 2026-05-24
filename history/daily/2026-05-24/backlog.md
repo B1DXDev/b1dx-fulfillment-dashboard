@@ -2159,7 +2159,41 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P1] BUG-FE-PRINT-LABEL-01 — Print Label ไม่ปริ้นจริง (2 flows: BulkPrintLabelDialog + OrderActionDialog 480→490) `[wat]`
+### 🆕 [P0] QA-ORDER-SM-01 — Order Module Test Artifacts (state machine HTML + matrix + step-by-step cases) `[wat]`
+
+**Found:** 2026-05-24 | **Type:** Documentation / QA artifacts (no Order Module code change) | **Repo:** `b1dx-fulfillment-workspace` (docs only)
+**Source:** user request 2026-05-24 — เช็ค state machine ที่หน้า Order List + Order Detail ก่อน รวม role permission ครบทุกเคส
+**Plan:** `tasks/plans/QA-ORDER-SM-01/plan.md`
+**Priority Doc:** `tasks/assignments/2026-05-wat-priority.md` (Block 0 — TOP)
+
+#### Goal
+Self-served QA test artifacts for Order Module — HTML state machine diagram (visual) + matrix doc (state×role×action) + step-by-step manual test cases ครบทุก scenario (Order List + Order Detail).
+
+#### Slices (4)
+| ID | Title | Effort | Output |
+|---|---|---|---|
+| **SM-01a** | HTML mermaid state machine flow doc | 1d | `docs/guides/9.order-state-machine.html` |
+| **SM-01b** | Test matrix verified vs code (5 matrices) | 0.5d | `docs/testing/order-module/test-matrix.md` |
+| **SM-01c** | Order List step-by-step TCs (~80-100 cases) | 2d | `docs/testing/order-module/tc-order-list.md` |
+| **SM-01d** | Order Detail step-by-step TCs (~80-120 cases) | 2d | `docs/testing/order-module/tc-order-detail.md` |
+
+#### Scope
+- 4 deliverables ใน `docs/guides/` + `docs/testing/order-module/`
+- 8-col Excel-friendly format (NOT 15-col QA-TC-FORMAT template — deferred)
+- Cross-check vs `OrderStatusTransitionService.cs`, `order-action-permissions.ts`, `bulkActions.ts`, `OrderContextMenu.tsx`, `OrderActionPanel.tsx`
+
+#### Out of Scope
+- ❌ Modify Order Module code (pure docs)
+- ❌ Playwright `.spec.ts` codegen (manual first)
+- ❌ BE / Sync Worker / Webhook test cases
+- ❌ 15-col template adoption (QA-TC-FORMAT-01 deferred)
+
+**Effort:** XL, ~5.5d total (44h) | **Priority:** P0 (user pivot — block 0)
+**Branch:** `docs/qa-order-sm-01` (parent) + per-slice branches
+
+---
+
+### 🆕 [P1] BUG-FE-PRINT-LABEL-01 `[POSTPONED — QA-ORDER-SM-01 prioritized]` — Print Label ไม่ปริ้นจริง (2 flows: BulkPrintLabelDialog + OrderActionDialog 480→490) `[wat]`
 
 **Found:** 2026-05-16 | **Type:** FE behavior bug | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user report 2026-05-16 — `/orders` → `order-osm-st480` → ⋯ → "Print Shipping Label" (Flow A) หรือ "🏷 Label" transition 480→490 (Flow B) → submit → dialog แสดง complete + toast แต่ "ไม่ปริ้น label จริง"
@@ -2217,7 +2251,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P1] BUG-FE-MOCK-UUID-01 — MSW mock user IDs ไม่ใช่ UUID → "เริ่มแพ็ค" (400→450) submit fail "Invalid uuid" `[wat]`
+### 🆕 [P1] BUG-FE-MOCK-UUID-01 `[POSTPONED — QA-ORDER-SM-01 prioritized]` — MSW mock user IDs ไม่ใช่ UUID → "เริ่มแพ็ค" (400→450) submit fail "Invalid uuid" `[wat]`
 
 **Found:** 2026-05-16 | **Type:** FE mock data bug | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user report 2026-05-16 — `/orders` → `order-osm-st400` → ⋯ → select "มอบหมาย WH Worker" → click "เริ่มแพ็ค" → field error "Invalid uuid"
