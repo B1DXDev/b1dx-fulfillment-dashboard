@@ -1843,12 +1843,12 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 ### 🆕 [P3] WS-WEBHOOK-SUBMODULE-01 — Add webhook repo as submodule + webhook-coder expert agent + docs `[wat]` (reassigned: wat → sompon-benz → wat on 2026-05-19)
 
 **Found:** 2026-05-18 | **Type:** Workspace infra / docs | **Repo:** `b1dx-fulfillment-workspace`
-**Source:** internal — integrate `B1DXDev/webhook` (Go service) into 4-repo workspace pattern
+**Source:** internal — integrate `B1DXDev/b1dx-marketplace-webhook` (Go service) into 4-repo workspace pattern
 **Plan:** `tasks/plans/WS-WEBHOOK-SUBMODULE-01/plan.md`
 **Mockup:** n/a (no UI)
 
 #### Scope
-- Submodule: `webhook-repo/` → `https://github.com/B1DXDev/webhook.git`
+- Submodule: `b1dx-marketplace-webhook/` → `https://github.com/B1DXDev/b1dx-marketplace-webhook.git`
 - Config: `workspace.local.example.json` + `workspace.local.json` → `webhook_repo_path`
 - Doc: `CLAUDE.md` repos table + folder ref + agent table + ห้ามเขียน submodule list
 - Agent: NEW `agents/webhook-coder.md` (Go + Docker/Caddy expert; pattern แบบ `sync-worker-coder.md`)
@@ -1858,7 +1858,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 #### Test
 - `git submodule status` → 4 submodules (be / web / sync-worker / webhook)
-- `webhook-repo/go.mod` + `Dockerfile` + `Caddyfile` exist
+- `b1dx-marketplace-webhook/go.mod` + `Dockerfile` + `Caddyfile` exist
 - `workspace.local.json` parse + `webhook_repo_path` resolves to real dir
 - `agents/webhook-coder.md` sections: Required Context / Verify Gate / Stack / Patterns / Done Gate
 - `node scripts/gen-progress.mjs` exit 0
