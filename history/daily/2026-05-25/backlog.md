@@ -2238,6 +2238,56 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
+### 🆕 [P3] QA-TC-FORMAT-01 — Standardized 12-col Test Case Template + Tooling (epic — 8 slices) `[wat]` `[ACTIVE — Block 1A first]`
+
+**Found:** 2026-05-24 | **Type:** Documentation + tooling (no app code change) | **Repo:** `b1dx-fulfillment-workspace` (docs + scripts) + cross-repo loaders (FE/BE/Webhook)
+**Source:** user request 2026-05-24 — post Block 0 done; devs (wat/srattha/nuchit) ต้องการ template เดียวกัน + test cases สำหรับ task ใหม่ทุก feature/bug
+**Plan:** `tasks/plans/QA-TC-FORMAT-01/plan.md` (parent epic)
+**Priority Doc:** `tasks/assignments/2026-05-wat-priority.md` § Block 1A (revised — split from full Block 1)
+
+#### Goal
+Standardize test case format ทั่ว 4 repos → devs/reviewers/loaders ใช้ template เดียวกัน · Phase 2 unlock auto-spec generation (Playwright/xUnit/Go).
+
+#### Decision Record (locked 2026-05-24)
+**12-col schema** (vs 15-col / 10-col / 8-col): TC ID, Module, Role, Test Type, Priority, Pre-Conditions, Scenario, Test Steps, Test Data, Expected Result, Status (manual), Defect/Notes (manual). Drop Sub-module (= H2 section), Severity (= Priority), Actual Result (manual Excel), Executed By/Date (= git blame).
+
+#### Slices (8) — Recommended order ตาม dependency
+
+| # | ID | Title | Effort | Depends |
+|---|---|---|---|---|
+| 1 | **QA-TC-01** | Template (12-col) + CSV + workflow guide | 0.5d | — |
+| 2 | QA-TC-02 | CLAUDE.md + plan template + PR template wire | 0.5d | #1 |
+| 3 | QA-TC-06 | Playwright loader (FE TS) | 1d | #1 |
+| 4 | QA-TC-04 | Generator script (permutation matrix) | 1d | #1, #3 |
+| 5 | QA-TC-05 | Validator script (lint + sync) | 1d | #4 |
+| 6 | QA-TC-07 | xUnit loader (BE + Worker) | 1d | #1, #3 |
+| 7 | QA-TC-08 | Go test loader (Webhook) | 0.5d | #1, #3 |
+| 8 | QA-TC-03 | Agent prompts update (10 agents) | 1d | #1, #2 |
+
+**Critical path:** #1 → #2/#3 parallel → #4/#6/#7 → #5/#8 → #8 (agents last)
+
+#### Scope
+- 8 slice deliverables (per-slice plan.md ภายใต้ epic)
+- Cover 4 repos: FE (Playwright/Vitest) + BE (xUnit) + Sync (xUnit) + Webhook (Go test)
+- Pattern: `docs/testing/_templates/` directory ตั้ง standard
+
+#### Out of Scope
+- ❌ Bulk migrate legacy 243 TCs (Order Module) — forward-looking template · lazy migrate on touch
+- ❌ Jira/Xray/TestRail import — internal team, no external tool
+- ❌ App code change (FE/BE/Sync/Webhook) — pure docs + tooling
+- ❌ Performance/load test template — functional only
+
+#### Test
+- Per-slice plan.md ระบุ verify steps
+- Adoption check: 1 TC ใน Block 2 P1 bug (BUG-FE-MOCK-UUID-01) ใช้ template ผ่าน reviewer
+- Loader smoke: parse 1 known TC → emit spec (Playwright/xUnit/Go)
+- Validator: detect missing col / invalid Priority value / TC ID dup
+
+**Effort:** XL, ~5.5d total (revised from 6.5d under 12-col decision) | **Priority:** P3 (process standardization; block Phase 2 auto-spec)
+**Branch:** `docs/qa-tc-format-01` (parent) + per-slice branches (`docs/qa-tc-0{1..8}-{slug}`)
+
+---
+
 ### ✅ [P0] QA-ORDER-SM-01 — Order Module Test Artifacts (state machine HTML + matrix + step-by-step cases) `[wat]` `[DONE 2026-05-24 — PR #91]`
 
 **Found:** 2026-05-24 | **Done:** 2026-05-24 (same day) | **PR:** #91 (merged to main) | **Type:** Documentation / QA artifacts (no Order Module code change) | **Repo:** `b1dx-fulfillment-workspace` (docs only)
