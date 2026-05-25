@@ -1706,11 +1706,11 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P3] WH-CAP-08 — Horizontal scale worker pods + queue contention test `[sompon-benz]`
+### [x] [P3] WH-CAP-08 — Horizontal scale worker pods + queue contention test `[sompon-benz]` ✅ Done 2026-05-25 (PR webhook#26)
 
 **Found:** 2026-05-19 | **Type:** Infra / scaling | **Repo:** `webhook` + deploy
 **Source:** WH-CAP Initiative (post-WH-CAP-01 scaling option)
-**Plan:** `tasks/plans/WH-CAP-08/plan.md` (TBD)
+**Plan:** [`tasks/plans/WH-CAP-08/plan.md`](plans/WH-CAP-08/plan.md) (Status: Done — merged `ba86b04`)
 **Mockup:** n/a
 **Effort:** ~1h infra + test
 **Depends on:** WH-CAP-01 (vertical scale ต้องทำก่อน horizontal)
