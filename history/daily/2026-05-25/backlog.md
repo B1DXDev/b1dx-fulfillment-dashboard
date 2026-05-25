@@ -1383,11 +1383,11 @@ ALTER TABLE oms.orders ADD COLUMN IF NOT EXISTS go_received_at timestamptz NULL;
 
 > Done issues archived → tasks/archive/2026-04-backlog.md
 
-### 🆕 [IMPROVE][P2] FE-OD-IMPROVE-100 — Order Detail · Order info section theme/i18n `[srattha]`
+### ✅ [IMPROVE][P2] FE-OD-IMPROVE-100 — Order Detail · Order info section theme/i18n `[srattha]` `merged: 2026-05-25`
 
 **Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
 **Source:** GitHub issue [#100](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/100) (parent #97 — Order Detail UI/i18n match mockup 100%)
-**Plan:** `tasks/plans/FE-OD-IMPROVE-100/plan.md`
+**Plan:** `tasks/plans/FE-OD-IMPROVE-100/plan.md` (Done — PR #247, FE main `2ddcd52`)
 **Mockup ref (BLOCKING):** `docs/mockups/order-detail-improve.html` § `.od-card → ORDER INFO` (`renderInfoGrid`)
 **Effort:** S~M · ~3h
 
