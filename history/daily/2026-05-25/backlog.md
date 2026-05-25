@@ -1383,6 +1383,61 @@ ALTER TABLE oms.orders ADD COLUMN IF NOT EXISTS go_received_at timestamptz NULL;
 
 > Done issues archived → tasks/archive/2026-04-backlog.md
 
+### 🆕 [IMPROVE][P2] FE-OD-IMPROVE-100 — Order Detail · Order info section theme/i18n `[srattha]`
+
+**Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
+**Source:** GitHub issue [#100](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/100) (parent #97 — Order Detail UI/i18n match mockup 100%)
+**Plan:** `tasks/plans/FE-OD-IMPROVE-100/plan.md`
+**Mockup ref (BLOCKING):** `docs/mockups/order-detail-improve.html` § `.od-card → ORDER INFO` (`renderInfoGrid`)
+**Effort:** S~M · ~3h
+
+#### Symptom
+- `OrderInfoSection.tsx` ใช้ Tailwind raw + cell structure 7 cells (Order No · Platform · Service Policy · SLA · Payment · Tracking · [COD]) ไม่ตรง mockup ที่ใช้ 6 cells (Order ID · Platform · Service Policy · **Courier** · Payment · **COD เสมอ**)
+- Hardcoded strings: `✏ แก้ไข` (L116), `toLocaleString("th-TH")` (L211), `toLocaleString("en-GB")` formatSla (L71–80)
+- `PAYMENT_STATUS_LABELS` hardcoded Thai dict (L21–30) — ไม่รองรับ 2 ภาษา
+- Payment method sub ใช้ `normalizeEnum().replace(/_/g, " ")` (L181) — ไม่ใช่ i18n
+
+#### Root cause
+- Component สร้างก่อน i18n infra พร้อม + ไม่มี locale-aware date/currency formatter ส่วนกลาง
+
+#### Fix
+- Rebuild Order info section ตาม mockup (6 cells, COD always-shown)
+- เอา hardcoded strings ออกทั้งหมด → ใช้ `t()` + `formatDateTime`/`formatCurrency` ผ่าน `useI18nFormatter()` ใหม่
+- เพิ่ม i18n keys: `order_detail.{edit, courier, no_courier, no_tracking, no_cod, cod_yes, payment_confirmed, payment_pending, sla_24h, sla_6h}` + `orders.payment.{paid, pending, partial, cod_pending, cod_collected, refunded, failed, waived}` + `orders.payment_method.{cod, bank_transfer, ...}`
+
+#### Test
+- Unit (OrderInfoSection cell render + i18n key + formatter call) + Unit (`formatters.test.ts`) + E2E `od-improve-100-order-info.spec.ts` (8 cases incl. screenshot vs mockup)
+
+---
+
+### ✅ [IMPROVE][P2] FE-OD-IMPROVE-99B — Order Status Labels · i18n support (100–900) `[srattha]` `merged: 2026-05-25`
+
+> **Note:** เดิม claim เป็น FE-OD-IMPROVE-100 — rename เป็น 99B เพราะเป็น follow-up ของ -99 (status labels i18n out-of-scope ใน -99) bundled ใน PR #246 เดียวกัน. GitHub issue #100 จริงๆ คือ Order info theme/i18n (entry ด้านบน)
+
+**Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
+**Source:** Manual report — `/orders/order-osm-st700` (status node labels Thai hardcoded, ไม่รองรับ 2 ภาษา)
+**Plan:** `tasks/plans/FE-OD-IMPROVE-99B-status-i18n/plan.md` (Done)
+**Parent:** Follow-up of FE-OD-IMPROVE-99 (line 98 of -99 plan: status labels i18n out-of-scope, addressed here)
+**Effort:** S · ~2h
+
+#### Symptom
+- `ORDER_STATUS_LABELS` ใน [`orderStatus.ts`](../web-repo/apps/b1dx-oms-fulfillment/src/features/orders/types/domain/orderStatus.ts#L24-L38) เป็น Thai hardcoded `Record<number, string>` — ไม่เปลี่ยนตาม `i18n.language`
+- ขาด 3 codes: 550 (OutForDelivery), 750 (CancelRequested), 900 (Returned) — render เป็น number fallback
+- 8 consumer files ใช้ `ORDER_STATUS_LABELS[code]` โดยตรง
+
+#### Root cause
+- Labels defined inline ใน TS file ไม่ได้ resolve ผ่าน i18n resources
+
+#### Fix
+- Convert `ORDER_STATUS_LABELS` → `ORDER_STATUS_LABEL_KEYS` (key paths) + `useOrderStatusLabel(code)` hook
+- Add `orders.status.*` namespace ใน th.json + en.json (16 keys)
+- Migrate 8 consumer files
+
+#### Test
+- Unit (key coverage symmetry) + component (update existing) + E2E `od-improve-100-status-labels.spec.ts` (5 cases)
+
+---
+
 ### 🆕 [IMPROVE][P2] FE-OD-IMPROVE-99 — Order Detail State Machine connector logic + theme/i18n `[srattha]`
 
 **Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
