@@ -1383,6 +1383,30 @@ ALTER TABLE oms.orders ADD COLUMN IF NOT EXISTS go_received_at timestamptz NULL;
 
 > Done issues archived → tasks/archive/2026-04-backlog.md
 
+### 🆕 [IMPROVE][P2] FE-OD-IMPROVE-99 — Order Detail State Machine connector logic + theme/i18n `[srattha]`
+
+**Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
+**Source:** GitHub issue [#99](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/99) (parent #97)
+**Plan:** `tasks/plans/FE-OD-IMPROVE-99/plan.md`
+**Mockup:** `docs/mockups/order-detail-improve.html` § `.od-flow`
+**Effort:** S · ~2h
+
+#### Symptom
+- Connector ของ node ปัจจุบันใน Order State Machine ไม่แสดง active ทางขวา (เช่น status=100 → ขวาเป็นเส้นจาง ทั้งที่ควร active)
+- Header `"Order State Machine"` + `"… steps · Complete"` ยัง hardcoded EN
+
+#### Root cause
+- [`OrderStatusFlowBar.tsx:185-206`](../web-repo/apps/b1dx-oms-fulfillment/src/features/orders/components/order-detail/OrderStatusFlowBar.tsx#L185-L206) ใช้ `isDone` (klass === "completed" ของ node ซ้าย) → ถ้า node ซ้ายเป็น `current` → connector ทางขวาของ current จะถูก mark false ผิดเจตนา
+
+#### Fix
+- เปลี่ยน rule: connector "done" เมื่อ `klass(left) !== "future"` (completed **หรือ** current)
+- i18n: `order_detail.state_machine_title` / `steps` / `complete_suffix` (en + th)
+
+#### Test
+- Component unit + E2E ครอบคลุม 3 cases (status 100 / 400 / 700) + i18n + regression `od-fidelity-01b`
+
+---
+
 ### 🎯 WH-CAP Initiative — Peak Load Readiness (11/11 / 12.12) `[sompon-benz]`
 
 **Found:** 2026-05-19 | **Type:** Capacity initiative | **Repo:** `webhook`
