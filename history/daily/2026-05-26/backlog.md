@@ -2297,7 +2297,7 @@ Standardize test case format ทั่ว 4 repos → devs/reviewers/loaders ใ
 |---|---|---|---|---|
 | 1 | ✅ **QA-TC-01** | Template (12-col) + CSV + workflow guide — **Done PR #110, 2026-05-25** | 0.5d | — |
 | 2 | **QA-TC-02** | CLAUDE.md + plan template + PR template wire — 🟡 **In Progress** (issue #111, PR #119) | 0.5d | ✅ #1 |
-| 3 | QA-TC-06 | Playwright loader (FE TS) | 1d | #1 |
+| 3 | **QA-TC-06** | Playwright loader (FE TS) — 🟡 **In Progress** (issue #113, branch `docs/qa-tc-06-pw-loader`) | 1d | ✅ #1 |
 | 4 | QA-TC-04 | Generator script (permutation matrix) | 1d | #1, #3 |
 | 5 | QA-TC-05 | Validator script (lint + sync) | 1d | #4 |
 | 6 | QA-TC-07 | xUnit loader (BE + Worker) | 1d | #1, #3 |
