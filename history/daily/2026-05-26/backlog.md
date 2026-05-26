@@ -1,5 +1,9 @@
 # Product Backlog — b1dx OMS Fulfillment
 
+> **⚠ FROZEN 2026-05-26 — read-only legacy reference.**
+> New tasks: `gh issue create --project "Fulfillment"` (see workspace `CLAUDE.md § Task Assignment`)
+> ไฟล์นี้คงไว้อ่านอย่างเดียว — ห้าม append entry ใหม่
+>
 > อัพเดทล่าสุด: 2026-05-01 — archived done tasks to 2026-05-backlog.md
 > Source: docs/mockups/b1dx_full_app_v0.html + feature requests + spec analysis
 > Sprint Plan: `tasks/sprints/sprint-plan.md`
