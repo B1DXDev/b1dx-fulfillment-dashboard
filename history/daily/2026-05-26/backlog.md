@@ -2266,6 +2266,18 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
+### 🆕 [P3] WORKFLOW-GH-SYNC-01 — GitHub Issue ↔ plan.md ↔ Project board auto-sync `[wat]` `[ACTIVE — In Progress]`
+
+**Found:** 2026-05-26 | **Type:** Workflow tooling (no app code change) | **Repo:** `b1dx-fulfillment-workspace` (scripts + docs)
+**Source:** user request 2026-05-26 — GH Project board ค้าง Todo แม้งานเริ่มแล้ว · agent + dev ต้อง sync state ทั้ง 3 จุด (plan.md / GH issue / Project board) ด้วยมือ → automate
+**Plan:** [`tasks/plans/WORKFLOW-GH-SYNC-01/plan.md`](plans/WORKFLOW-GH-SYNC-01/plan.md)
+**Issue:** [#123](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/123) (auto-created by script during build trigger)
+**Branch:** `chore/workflow-gh-sync-01`
+**Effort:** M, ~6h | **Priority:** P3 (foundational — unlocks Slice B/C/D + dovetails with QA-TC-* epic)
+**Scope:** core `scripts/gh-issue-sync.mjs` + CLAUDE.md + plan template + assignments README · Slice B/C/D deferred
+
+---
+
 ### 🆕 [P3] QA-TC-FORMAT-01 — Standardized 12-col Test Case Template + Tooling (epic — 8 slices) `[wat]` `[ACTIVE — Block 1A first]`
 
 **Found:** 2026-05-24 | **Type:** Documentation + tooling (no app code change) | **Repo:** `b1dx-fulfillment-workspace` (docs + scripts) + cross-repo loaders (FE/BE/Webhook)
