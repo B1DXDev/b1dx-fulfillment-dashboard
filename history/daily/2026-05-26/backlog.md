@@ -1383,6 +1383,34 @@ ALTER TABLE oms.orders ADD COLUMN IF NOT EXISTS go_received_at timestamptz NULL;
 
 > Done issues archived → tasks/archive/2026-04-backlog.md
 
+### ✅ [IMPROVE][P2] FE-OD-IMPROVE-102 — Order Detail · Main scroll move to outermost container `[srattha]` `merged: 2026-05-26`
+
+**Found:** 2026-05-26 | **Type:** Improvement | **Repo:** `web`
+**Source:** GitHub issue [#102](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/102) (parent #97 — Order Detail UI/i18n match mockup 100%)
+**Plan:** `tasks/plans/FE-OD-IMPROVE-102/plan.md` (Done — PR #249, FE main `20f8d05`)
+**Mockup ref (BLOCKING):** `docs/mockups/order-detail-improve.html` § `.demo-shell` / `.demo-body` / `.od-layout` (no inner overflow rules)
+**Test Cases:** `docs/testing/order-module/tc-order-detail.md` § FE-OD-IMPROVE-102 — `TC_OMS-DETAIL_100`..`_105` (6 cases, 12-col)
+**Effort:** XS · ~1h
+
+#### Symptom
+- `OrderDetailView.tsx` (L417-446) มี nested scroll: outer wrapper ใส่ `md:overflow-hidden h-full` + main column `flex-1 md:overflow-y-auto` + sidebar `w-72 md:overflow-y-auto` → **2 scroll tracks แยกกันบน desktop**
+- UX เพี้ยน: sticky header/footer ไม่ทำงาน, mobile scroll lag, sidebar กับ main ไม่ scroll พร้อมกัน
+
+#### Root cause
+- Component สร้างตอนแรกใช้ pattern "fixed-height columns" — ไม่ตรงกับ mockup intent (`.demo-shell` + `.demo-body` page-level scroll, `.od-layout {align-items:start}` ไม่ sticky)
+
+#### Fix
+- Outer wrapper เปลี่ยนเป็น single scroll container: `flex-1 overflow-y-auto` + `data-testid="order-detail-scroll"`
+- เพิ่ม inner layout wrapper: `flex flex-col md:flex-row min-h-full`
+- ลบ `md:overflow-y-auto` ออกจาก main + sidebar columns
+- ไม่แตะ AppShell (cross-cutting), ไม่แตะ flow bar internal scroll (overflow-x ภายใน)
+
+#### Test
+- E2E `od-improve-102-scroll-outermost.spec.ts` (6 cases — E1-E6 ครอบคลุม outer overflow, no nested scroll main/sidebar, synced scroll, mobile stack, mobile scroll smooth)
+- Regression: `od-fidelity-01d-timeline-sidebar.spec.ts` + `od-fidelity-01b-status-flow.spec.ts`
+
+---
+
 ### ✅ [IMPROVE][P2] FE-OD-IMPROVE-100 — Order Detail · Order info section theme/i18n `[srattha]` `merged: 2026-05-25`
 
 **Found:** 2026-05-25 | **Type:** Improvement | **Repo:** `web`
