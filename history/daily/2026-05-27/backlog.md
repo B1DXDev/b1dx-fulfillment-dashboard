@@ -1825,7 +1825,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P2] WH-CAP-09 — Async admin sync endpoints (move /sync HTTP → queue-backed jobs) `[sompon-benz]`
+### [x] [P2] WH-CAP-09 — Async admin sync endpoints (move /sync HTTP → queue-backed jobs) `[sompon-benz]` ✅ Done 2026-05-27 (PR webhook#27, merged `a4d5a38`)
 
 **Found:** 2026-05-22 | **Type:** Refactor / API ergonomics | **Repo:** `webhook`
 **Source:** WH-CAP-03 review — `WriteTimeout=10s` ใหม่จะ timeout endpoints ที่ทำ paginated sync
