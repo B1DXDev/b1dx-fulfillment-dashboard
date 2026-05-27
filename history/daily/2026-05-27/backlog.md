@@ -1829,7 +1829,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 **Found:** 2026-05-22 | **Type:** Refactor / API ergonomics | **Repo:** `webhook`
 **Source:** WH-CAP-03 review — `WriteTimeout=10s` ใหม่จะ timeout endpoints ที่ทำ paginated sync
-**Plan:** [`tasks/plans/WH-CAP-09/plan.md`](plans/WH-CAP-09/plan.md) (Status: Draft) · `claimed: 2026-05-27 sompon-benz` · branch `feat/wh-cap-09-async-sync-jobs`
+**Plan:** [`tasks/plans/WH-CAP-09/plan.md`](plans/WH-CAP-09/plan.md) (Status: In Review) · `claimed: 2026-05-27 sompon-benz` · PR webhook [#27](https://github.com/B1DXDev/b1dx-marketplace-webhook/pull/27)
 **Note:** scope จริง = 6 endpoints (Shopee/Lazada/TikTok × products/orders) ไม่ใช่ 4 — TikTok ก็โดน WriteTimeout เหมือนกัน
 **Mockup:** n/a
 **Effort:** ~3-4h
