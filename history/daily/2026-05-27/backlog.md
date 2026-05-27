@@ -2271,15 +2271,16 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### 🆕 [P3] WORKFLOW-GH-SYNC-01 — GitHub Issue ↔ plan.md ↔ Project board auto-sync `[wat]` `[ACTIVE — In Progress]`
+### ✅ [P3] WORKFLOW-GH-SYNC-01 — GitHub Issue ↔ plan.md ↔ Project board auto-sync `[wat]` `[✅ Done — PR #124 merged 2026-05-26]`
 
-**Found:** 2026-05-26 | **Type:** Workflow tooling (no app code change) | **Repo:** `b1dx-fulfillment-workspace` (scripts + docs)
-**Source:** user request 2026-05-26 — GH Project board ค้าง Todo แม้งานเริ่มแล้ว · agent + dev ต้อง sync state ทั้ง 3 จุด (plan.md / GH issue / Project board) ด้วยมือ → automate
-**Plan:** [`tasks/plans/WORKFLOW-GH-SYNC-01/plan.md`](plans/WORKFLOW-GH-SYNC-01/plan.md)
-**Issue:** [#123](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/123) (auto-created by script during build trigger)
-**Branch:** `chore/workflow-gh-sync-01`
-**Effort:** M, ~6h | **Priority:** P3 (foundational — unlocks Slice B/C/D + dovetails with QA-TC-* epic)
-**Scope:** core `scripts/gh-issue-sync.mjs` + CLAUDE.md + plan template + assignments README · Slice B/C/D deferred
+**Found:** 2026-05-26 | **Done:** 2026-05-26 (same day) | **Type:** Workflow tooling | **Repo:** `b1dx-fulfillment-workspace`
+**Source:** user request 2026-05-26 — GH Project board ค้าง Todo แม้งานเริ่มแล้ว → automate
+**Plan:** [`tasks/plans/WORKFLOW-GH-SYNC-01/plan.md`](plans/WORKFLOW-GH-SYNC-01/plan.md) (Status: Done)
+**Issue:** [#123](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/123) (CLOSED · Project: Done)
+**PR:** [#124](https://github.com/B1DXDev/b1dx-fulfillment-workspace/pull/124) — feat + M1-M4 review fixes
+**Branch:** `chore/workflow-gh-sync-01` (merged)
+**Effort:** M, ~6h actual | **Priority:** P3 (foundational — unlocks Slice B/C/D)
+**Slice split:** A ✅ Done · B/C/D 🟢 Todo (deferred — use Slice A as baseline 2-3 task ก่อน prioritize)
 
 ---
 
@@ -2302,7 +2303,7 @@ Standardize test case format ทั่ว 4 repos → devs/reviewers/loaders ใ
 |---|---|---|---|---|
 | 1 | ✅ **QA-TC-01** | Template (12-col) + CSV + workflow guide — **Done PR #110, 2026-05-25** | 0.5d | — |
 | 2 | **QA-TC-02** | CLAUDE.md + plan template + PR template wire — 🟡 **In Progress** (issue #111, PR #119) | 0.5d | ✅ #1 |
-| 3 | **QA-TC-06** | Playwright loader (FE TS) — 🟡 **In Progress** (issue #113, branch `docs/qa-tc-06-pw-loader`) | 1d | ✅ #1 |
+| 3 | ✅ **QA-TC-06** | Playwright loader (FE TS) — **Done PR #250 (FE) + #125 (workspace), merged 2026-05-26** | 1d | ✅ #1 |
 | 4 | QA-TC-04 | Generator script (permutation matrix) | 1d | #1, #3 |
 | 5 | QA-TC-05 | Validator script (lint + sync) | 1d | #4 |
 | 6 | QA-TC-07 | xUnit loader (BE + Worker) | 1d | #1, #3 |
