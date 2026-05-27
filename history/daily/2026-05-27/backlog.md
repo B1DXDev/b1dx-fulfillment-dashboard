@@ -137,7 +137,7 @@
 ## GROUP 2 — ERP Order Sync (oms_erp_db → OmsDb) `P1`
 
 > **Spec:** `docs/specs/sync-order-erp.md` ✅ Ready
-> **Working dir:** `sync_worker_repo_path` จาก `workspace.local.json`
+> **Working dir:** sync worker repo (clone แยกจาก `b1dx.omsorders.sync.worker` — workspace ไม่ orchestrate แล้วตั้งแต่ 2026-05-23, ดู `tasks/plans/WS-TNI-PATTERN-01/plan.md`)
 
 ### [P2] S2-ERP-06: FulfillmentRequest Auto-Create ❌
 
@@ -1561,8 +1561,8 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - 11/11 peak ~500 ออร์เดอร์/วินาที queue โต ~500x → broker disk เต็มใน 5-10 นาที
 
 #### Root cause
-- [internal/adapter/queue/rabbitmq_consumer.go:50](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_consumer.go#L50) ใช้ `ch.Qos(1, 0, false)` + ประมวลผล 1 goroutine sequentially (`processDelivery` loop) — comment ระบุชัดว่า "Process one message at a time"
-- [rabbitmq_consumer.go:155-162](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_consumer.go#L155) เรียก Shopee `SyncRecentOrders(1 hour)` ต่อ webhook 1 event = paginated `GetOrderList` + `GetOrderDetail` หลายสิบ batch → 2-10 วินาที/webhook + ชน rate limit Shopee (~1000/min/shop)
+- [internal/adapter/queue/rabbitmq_consumer.go:50](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_consumer.go#L50) ใช้ `ch.Qos(1, 0, false)` + ประมวลผล 1 goroutine sequentially (`processDelivery` loop) — comment ระบุชัดว่า "Process one message at a time"
+- [rabbitmq_consumer.go:155-162](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_consumer.go#L155) เรียก Shopee `SyncRecentOrders(1 hour)` ต่อ webhook 1 event = paginated `GetOrderList` + `GetOrderDetail` หลายสิบ batch → 2-10 วินาที/webhook + ชน rate limit Shopee (~1000/min/shop)
 
 #### Fix
 - `ch.Qos(50, 0, false)` + spawn N worker goroutines อ่าน `msgs` channel เดียวกัน (ack ใน goroutine นั้น ๆ)
@@ -1597,7 +1597,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - ลำดับเหตุการณ์ตอน peak: queue โต → RabbitMQ memory alarm → flow control → publish block → Gin handler hang → OOM api process
 
 #### Root cause
-- [internal/adapter/queue/rabbitmq_publisher.go:90-94](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_publisher.go#L90) `QueueDeclare` ไม่ตั้ง `x-max-length`, ไม่ตั้ง `x-overflow`, ไม่มี DLX, ไม่มี TTL
+- [internal/adapter/queue/rabbitmq_publisher.go:90-94](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_publisher.go#L90) `QueueDeclare` ไม่ตั้ง `x-max-length`, ไม่ตั้ง `x-overflow`, ไม่มี DLX, ไม่มี TTL
 
 #### Fix
 - ตั้ง args ตอน declare main queue:
@@ -1632,7 +1632,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - **Target:** ingress ceiling 5-10k publishes/sec, durability ผ่าน Confirm ACK, auto-reconnect
 
 #### Root cause
-- [internal/adapter/queue/rabbitmq_publisher.go:18,50](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_publisher.go#L18) ใช้ shared `*amqp.Channel` ตัวเดียว — channel ไม่ thread-safe
+- [internal/adapter/queue/rabbitmq_publisher.go:18,50](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_publisher.go#L18) ใช้ shared `*amqp.Channel` ตัวเดียว — channel ไม่ thread-safe
 - ไม่เรียก `channel.Confirm(false)` + ไม่ subscribe `NotifyPublish`
 - ไม่ subscribe `NotifyClose` + ไม่มี recreate channel/connection
 - ไม่มี publish timeout
@@ -1668,7 +1668,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - **Target:** at-least-once delivery + DB-level dedup, 1 webhook event = 1 row regardless of retry count
 
 #### Root cause
-- [internal/adapter/repository/gorm_webhook_event.go:19-28](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/repository/gorm_webhook_event.go#L19) `Create` เป็น plain INSERT ไม่ใช่ Upsert
+- [internal/adapter/repository/gorm_webhook_event.go:19-28](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/repository/gorm_webhook_event.go#L19) `Create` เป็น plain INSERT ไม่ใช่ Upsert
 - ไม่มี unique index บน `(platform, external_event_id)` หรือ equivalent ที่ platform ส่งมาเป็น dedup key
 
 #### Fix
@@ -1699,7 +1699,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - **Target:** ReadTimeout 5s / WriteTimeout 10s / IdleTimeout 60s, MaxBodyBytes 1MB → connection cleanup เร็ว
 
 #### Root cause
-- [cmd/api/main.go:424](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/cmd/api/main.go#L424) ใช้ `r.Run(":port")` — Go default timeouts = 0 (unlimited), no `MaxHeaderBytes` override
+- [cmd/api/main.go:424](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/cmd/api/main.go#L424) ใช้ `r.Run(":port")` — Go default timeouts = 0 (unlimited), no `MaxHeaderBytes` override
 - ไม่มี middleware `http.MaxBytesReader`
 
 #### Fix
@@ -1741,8 +1741,8 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 - **Target:** max 8 concurrent fan-out goroutines (errgroup-bounded) หรือ skip + log WARN เมื่อ resolve ไม่ได้
 
 #### Root cause
-- [rabbitmq_consumer.go:193-202](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_consumer.go#L193) `fanOutLazada` spawn `go func()` per entry ไม่จำกัด
-- [rabbitmq_consumer.go:223-232](D:/Project/Project_2026/b1dx/b1dx-workspace/webhook/internal/adapter/queue/rabbitmq_consumer.go#L223) `fanOutTikTok` เช่นเดียวกัน
+- [rabbitmq_consumer.go:193-202](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_consumer.go#L193) `fanOutLazada` spawn `go func()` per entry ไม่จำกัด
+- [rabbitmq_consumer.go:223-232](D:/Project/Project_2026/b1dx/b1dx-workspace/b1dx-marketplace-webhook/internal/adapter/queue/rabbitmq_consumer.go#L223) `fanOutTikTok` เช่นเดียวกัน
 
 #### Fix
 - ใช้ `golang.org/x/sync/errgroup` + `SetLimit(8)` หรือ semaphore

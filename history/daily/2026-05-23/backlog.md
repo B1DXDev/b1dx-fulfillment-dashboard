@@ -133,7 +133,7 @@
 ## GROUP 2 — ERP Order Sync (oms_erp_db → OmsDb) `P1`
 
 > **Spec:** `docs/specs/sync-order-erp.md` ✅ Ready
-> **Working dir:** `sync_worker_repo_path` จาก `workspace.local.json`
+> **Working dir:** sync worker repo (clone แยกจาก `b1dx.omsorders.sync.worker` — workspace ไม่ orchestrate แล้วตั้งแต่ 2026-05-23, ดู `tasks/plans/WS-TNI-PATTERN-01/plan.md`)
 
 ### [P2] S2-ERP-06: FulfillmentRequest Auto-Create ❌
 

@@ -1843,12 +1843,12 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 ### 🆕 [P3] WS-WEBHOOK-SUBMODULE-01 — Add webhook repo as submodule + webhook-coder expert agent + docs `[wat]` (reassigned: wat → sompon-benz → wat on 2026-05-19)
 
 **Found:** 2026-05-18 | **Type:** Workspace infra / docs | **Repo:** `b1dx-fulfillment-workspace`
-**Source:** internal — integrate `B1DXDev/b1dx-marketplace-webhook` (Go service) into 4-repo workspace pattern
+**Source:** internal — integrate `B1DXDev/webhook` (Go service) into 4-repo workspace pattern
 **Plan:** `tasks/plans/WS-WEBHOOK-SUBMODULE-01/plan.md`
 **Mockup:** n/a (no UI)
 
 #### Scope
-- Submodule: `b1dx-marketplace-webhook/` → `https://github.com/B1DXDev/b1dx-marketplace-webhook.git`
+- Submodule: `webhook-repo/` → `https://github.com/B1DXDev/webhook.git`
 - Config: `workspace.local.example.json` + `workspace.local.json` → `webhook_repo_path`
 - Doc: `CLAUDE.md` repos table + folder ref + agent table + ห้ามเขียน submodule list
 - Agent: NEW `agents/webhook-coder.md` (Go + Docker/Caddy expert; pattern แบบ `sync-worker-coder.md`)
@@ -1858,7 +1858,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 #### Test
 - `git submodule status` → 4 submodules (be / web / sync-worker / webhook)
-- `b1dx-marketplace-webhook/go.mod` + `Dockerfile` + `Caddyfile` exist
+- `webhook-repo/go.mod` + `Dockerfile` + `Caddyfile` exist
 - `workspace.local.json` parse + `webhook_repo_path` resolves to real dir
 - `agents/webhook-coder.md` sections: Required Context / Verify Gate / Stack / Patterns / Done Gate
 - `node scripts/gen-progress.mjs` exit 0
@@ -2159,41 +2159,7 @@ WH-CAP-04 (1h) → WH-CAP-01 (1d) → WH-CAP-03/05/06 parallel (2h each) → WH-
 
 ---
 
-### ✅ [P0] QA-ORDER-SM-01 — Order Module Test Artifacts (state machine HTML + matrix + step-by-step cases) `[wat]` `[DONE 2026-05-24 — PR #91]`
-
-**Found:** 2026-05-24 | **Done:** 2026-05-24 (same day) | **PR:** #91 (merged to main) | **Type:** Documentation / QA artifacts (no Order Module code change) | **Repo:** `b1dx-fulfillment-workspace` (docs only)
-**Source:** user request 2026-05-24 — เช็ค state machine ที่หน้า Order List + Order Detail ก่อน รวม role permission ครบทุกเคส
-**Plan:** `tasks/plans/QA-ORDER-SM-01/plan.md`
-**Priority Doc:** `tasks/assignments/2026-05-wat-priority.md` (Block 0 — TOP)
-
-#### Goal
-Self-served QA test artifacts for Order Module — HTML state machine diagram (visual) + matrix doc (state×role×action) + step-by-step manual test cases ครบทุก scenario (Order List + Order Detail).
-
-#### Slices (4)
-| ID | Title | Effort | Output |
-|---|---|---|---|
-| **SM-01a** | HTML mermaid state machine flow doc | 1d | `docs/guides/9.order-state-machine.html` |
-| **SM-01b** | Test matrix verified vs code (5 matrices) | 0.5d | `docs/testing/order-module/test-matrix.md` |
-| **SM-01c** | Order List step-by-step TCs (~80-100 cases) | 2d | `docs/testing/order-module/tc-order-list.md` |
-| **SM-01d** | Order Detail step-by-step TCs (~80-120 cases) | 2d | `docs/testing/order-module/tc-order-detail.md` |
-
-#### Scope
-- 4 deliverables ใน `docs/guides/` + `docs/testing/order-module/`
-- 8-col Excel-friendly format (NOT 15-col QA-TC-FORMAT template — deferred)
-- Cross-check vs `OrderStatusTransitionService.cs`, `order-action-permissions.ts`, `bulkActions.ts`, `OrderContextMenu.tsx`, `OrderActionPanel.tsx`
-
-#### Out of Scope
-- ❌ Modify Order Module code (pure docs)
-- ❌ Playwright `.spec.ts` codegen (manual first)
-- ❌ BE / Sync Worker / Webhook test cases
-- ❌ 15-col template adoption (QA-TC-FORMAT-01 deferred)
-
-**Effort:** XL, ~5.5d total (44h) | **Priority:** P0 (user pivot — block 0)
-**Branch:** `docs/qa-order-sm-01` (parent) + per-slice branches
-
----
-
-### 🆕 [P1] BUG-FE-PRINT-LABEL-01 `[POSTPONED — QA-ORDER-SM-01 prioritized]` — Print Label ไม่ปริ้นจริง (2 flows: BulkPrintLabelDialog + OrderActionDialog 480→490) `[wat]`
+### 🆕 [P1] BUG-FE-PRINT-LABEL-01 — Print Label ไม่ปริ้นจริง (2 flows: BulkPrintLabelDialog + OrderActionDialog 480→490) `[wat]`
 
 **Found:** 2026-05-16 | **Type:** FE behavior bug | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user report 2026-05-16 — `/orders` → `order-osm-st480` → ⋯ → "Print Shipping Label" (Flow A) หรือ "🏷 Label" transition 480→490 (Flow B) → submit → dialog แสดง complete + toast แต่ "ไม่ปริ้น label จริง"
@@ -2251,7 +2217,7 @@ Self-served QA test artifacts for Order Module — HTML state machine diagram (v
 
 ---
 
-### 🆕 [P1] BUG-FE-MOCK-UUID-01 `[POSTPONED — QA-ORDER-SM-01 prioritized]` — MSW mock user IDs ไม่ใช่ UUID → "เริ่มแพ็ค" (400→450) submit fail "Invalid uuid" `[wat]`
+### 🆕 [P1] BUG-FE-MOCK-UUID-01 — MSW mock user IDs ไม่ใช่ UUID → "เริ่มแพ็ค" (400→450) submit fail "Invalid uuid" `[wat]`
 
 **Found:** 2026-05-16 | **Type:** FE mock data bug | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user report 2026-05-16 — `/orders` → `order-osm-st400` → ⋯ → select "มอบหมาย WH Worker" → click "เริ่มแพ็ค" → field error "Invalid uuid"
@@ -2312,7 +2278,7 @@ Self-served QA test artifacts for Order Module — HTML state machine diagram (v
 
 ---
 
-### [x] [P1] PERM-FE-ORDERS-01 — `/orders` FE permission gates ขาดทั้ง bulk action bar + Actions column (primary + kebab) — render ครบทุก role `[wat]` ✅ Done 2026-05-24 (PR #244)
+### 🆕 [P1] PERM-FE-ORDERS-01 — `/orders` FE permission gates ขาดทั้ง bulk action bar + Actions column (primary + kebab) — render ครบทุก role `[wat]`
 
 **Found:** 2026-05-16 | **Type:** FE authorization gap (security UX) | **Repo:** `b1dx-oms-fulfillment-web`
 **Source:** user request 2026-05-16 — code audit `/orders` "check permission of each role that can action bulkaction and actions in Actions column"
@@ -5017,252 +4983,3 @@ Squash-merging the BASE of a stacked PR (e.g., merge PR #80 first) does NOT upda
 - [ ] visual: screenshot vs mockup v3 § Tab 1 ผ่านทุก element
 
 **Dependencies:** FE-PRFSETTINGS-11 (types) ✅ merged
-
----
-
-### 🎯 CI-GATE Initiative — PR-gated test enforcement (4 repos) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** CI/Infra | **Repos:** FE, BE, Sync Worker, Webhook
-**Source:** Roadmap doc `docs/guides/9.ci-roadmap.html` (2026-05-23)
-**Trigger:** Test ครบทุก repo แต่ไม่มี GH Action บังคับ → bug หลุดเข้า main ได้
-**Status:** Tickets opened, no work started
-
-#### TL;DR — ไม่มีระบบบังคับ test ก่อน merge
-
-- 4 repos มี test เขียนแล้ว แต่ไม่มี `.github/workflows/ci.yml`
-- Dev ต้องจำเอง (CLAUDE.md rule) → discipline-dependent → ลืมได้
-- Incident reference: EOD-FE-04 (2026-04-27) merged โดย visual fidelity ไม่ครบ
-
-#### Solution — 2 phases (Phase 3 deferred)
-
-**Phase 1 (Test Gate, ~5d):** บังคับ test run ทุก PR + branch protection
-**Phase 2 (Quality Gates, ~7d):** @critical smoke + husky pre-push + visual regression + coverage
-
-#### Tickets summary
-
-| ID | P | Phase | Repo | Effort | ผลที่ได้ |
-|---|---|---|---|---|---|
-| CI-WEBHOOK-GATE-01 | P1 | 1 | webhook | ~3h | go test gate ทุก PR |
-| CI-BE-GATE-01 | P1 | 1 | BE | ~4h | dotnet test gate ทุก PR |
-| CI-SYNC-GATE-01 | P1 | 1 | sync-worker | ~4h | dotnet test gate (TestContainers) |
-| CI-FE-GATE-01 | P1 | 1 | FE | ~6h | lint + typecheck + vitest + Playwright |
-| CI-FE-CRITICAL-01 | P2 | 2 | FE | ~4h | @critical smoke set (~30s pre-push) |
-| CI-HUSKY-01 | P2 | 2 | all 4 | ~3h | pre-push hook ลด CI fail loop |
-| CI-VISUAL-01 | P2 | 2 | FE | ~6h | toHaveScreenshot baseline (mockup fidelity auto) |
-| CI-COVERAGE-01 | P2 | 2 | all 4 | ~4h | Codecov badge + PR comment delta |
-
-**Recommended execution order (Phase 1 first):**
-CI-WEBHOOK-GATE-01 (ง่ายสุด pilot) → CI-BE-GATE-01 + CI-SYNC-GATE-01 (parallel) → CI-FE-GATE-01 → user ตั้ง branch protection → Phase 2 tickets
-
-> **Note:** Branch protection setup ทำหลัง workflow merge ลง main สำเร็จ + run pass 1 รอบ. Agent print `gh` cmd ให้ user รัน (Tier 1 stop). AI auto-review (Phase 3) deferred — ต้องตั้ง ANTHROPIC_API_KEY + spend cap.
-
----
-
-### 🆕 [P1] CI-WEBHOOK-GATE-01 — Webhook CI workflow (go test gate) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** CI/Infra | **Repo:** `webhook`
-**Source:** CI-GATE Initiative (Phase 1)
-**Plan:** `tasks/plans/CI-WEBHOOK-GATE-01/plan.md` (TBD)
-**Effort:** ~3h
-**Depends on:** — (pilot ticket — ง่ายสุด ใช้ตรวจ pattern)
-
-#### Goal
-สร้าง `.github/workflows/ci.yml` ใน webhook repo. ทุก PR auto-run `go vet` + `go build` + `go test`. Fail → block merge.
-
-#### Scope
-- NEW `.github/workflows/ci.yml` — trigger `pull_request` + `push: main`
-- Setup Go 1.25 + actions/cache@v4
-- Steps: `go vet ./...` + `go build ./...` + `go test ./... -race -count=1`
-- Upload test log artifact on failure
-- Concurrency: cancel-in-progress
-
-#### Done Gate
-- [ ] PR สร้าง workflow merged ลง main
-- [ ] CI run pass บน main 1 รอบ
-- [ ] Branch protection ตั้งแล้ว (check name = `ci`)
-- [ ] Test PR ใหม่ — fail = merge button disabled
-
----
-
-### 🆕 [P1] CI-BE-GATE-01 — BE CI workflow (dotnet test gate) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** CI/Infra | **Repo:** `b1dx-oms-fulfillment-api`
-**Source:** CI-GATE Initiative (Phase 1)
-**Plan:** `tasks/plans/CI-BE-GATE-01/plan.md` (TBD)
-**Effort:** ~4h
-**Depends on:** —
-
-#### Goal
-สร้าง `.github/workflows/ci.yml` ใน BE repo. ทุก PR auto-run `dotnet build` + `dotnet test`.
-
-#### Scope
-- NEW `.github/workflows/ci.yml` — trigger `pull_request` + `push: main`
-- Setup .NET 10 + nuget cache
-- Steps: `dotnet restore` + `dotnet build --configuration Release` + `dotnet test --no-build`
-- Upload trx artifact on failure
-- ตรวจ env vars / secrets ที่ unit + integration test ต้องใช้ (connection string, etc.) — ถ้าขาด → ระบุใน plan
-
-#### Done Gate
-- [ ] PR merged + CI run pass บน main 1 รอบ
-- [ ] Branch protection ตั้งแล้ว
-- [ ] Test PR ใหม่ — fail = block merge
-
----
-
-### 🆕 [P1] CI-SYNC-GATE-01 — Sync Worker CI workflow (dotnet + TestContainers) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** CI/Infra | **Repo:** `b1dx.omsorders.sync.worker`
-**Source:** CI-GATE Initiative (Phase 1)
-**Plan:** `tasks/plans/CI-SYNC-GATE-01/plan.md` (TBD)
-**Effort:** ~4h
-**Depends on:** —
-
-#### Goal
-สร้าง `.github/workflows/ci.yml` ใน Sync Worker repo. รัน `dotnet test` รวม TestContainers integration test.
-
-#### Scope
-- NEW `.github/workflows/ci.yml` — `ubuntu-latest` (รองรับ Docker for TestContainers)
-- Setup .NET 10 + nuget cache + Docker (built-in on ubuntu-latest)
-- Steps: `dotnet build` + `dotnet test --logger trx`
-- ถ้า TestContainers fail → ลอง `services:` block (Postgres, RabbitMQ)
-- Upload trx + container log on failure
-
-#### Done Gate
-- [ ] PR merged + CI run pass บน main 1 รอบ
-- [ ] TestContainers ทำงานจริงใน CI (Docker available)
-- [ ] Branch protection ตั้งแล้ว
-- [ ] Test PR — fail = block merge
-
----
-
-### 🆕 [P1] CI-FE-GATE-01 — FE CI workflow (vitest + Playwright) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** CI/Infra | **Repo:** `b1dx-oms-fulfillment-web`
-**Source:** CI-GATE Initiative (Phase 1)
-**Plan:** `tasks/plans/CI-FE-GATE-01/plan.md` (TBD)
-**Effort:** ~6h (longest — Playwright setup)
-**Depends on:** — (but Webhook/BE/Sync ลำดับก่อน เพื่อ test pattern)
-
-#### Goal
-สร้าง `.github/workflows/ci.yml` ใน FE repo. รัน lint + typecheck + vitest + Playwright (chromium).
-
-#### Scope
-- NEW `.github/workflows/ci.yml` — `pull_request` + `push: main`
-- Setup pnpm 9 + Node 22 + cache pnpm-lock + cache Playwright browsers
-- Steps:
-  1. `pnpm install --frozen-lockfile`
-  2. `pnpm lint && pnpm typecheck`
-  3. `pnpm test` (Vitest unit)
-  4. `pnpm exec playwright install chromium --with-deps`
-  5. `pnpm exec playwright test --project=chromium --reporter=html,list` (env `NEXT_PUBLIC_MSW=1`)
-- Upload `playwright-report/` artifact on failure (retention 14 days)
-- Concurrency: cancel-in-progress
-- Timeout: 30min
-
-#### Done Gate
-- [ ] PR merged + CI run pass บน main 1 รอบ (Playwright + Vitest ทั้งคู่)
-- [ ] Branch protection ตั้งแล้ว
-- [ ] Test PR ใหม่ — fail = block merge
-- [ ] Verify cache hit rate ดี (boot time ครั้งที่ 2 < 1min)
-
----
-
-### 🆕 [P2] CI-FE-CRITICAL-01 — @critical smoke set + CI fast lane (FE) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** Test infra | **Repo:** `b1dx-oms-fulfillment-web`
-**Source:** CI-GATE Initiative (Phase 2)
-**Plan:** `tasks/plans/CI-FE-CRITICAL-01/plan.md` (TBD)
-**Effort:** ~4h
-**Depends on:** CI-FE-GATE-01
-
-#### Goal
-Tag test 5-10 ตัวครอบ flow หลัก ด้วย `@critical`. รันก่อน full suite (~30s) → fail เร็ว ประหยัด CI minutes + dev pre-push ได้.
-
-#### Scope
-- เลือก critical flows: login + perm gate + bulk action + transition 450/800 + integrations sync
-- เพิ่ม `@critical` tag ใน test title (~10 tests)
-- Update `ci.yml` — 2-step job: critical smoke ก่อน (`-g @critical`) แล้วค่อย full suite
-- Document tag convention ใน `e2e/README.md` (ถ้ามี) หรือ inline comment
-
-#### Done Gate
-- [ ] 10 tests tagged `@critical` covering core flows
-- [ ] CI runs smoke ก่อน full suite (`-g @critical`)
-- [ ] Smoke time < 45s บน CI
-- [ ] PR comment / annotation บอกว่า smoke pass ก่อน full suite
-
----
-
-### 🆕 [P2] CI-HUSKY-01 — Husky pre-push hook (4 repos) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** Dev tooling | **Repos:** FE, BE, Sync, Webhook
-**Source:** CI-GATE Initiative (Phase 2)
-**Plan:** `tasks/plans/CI-HUSKY-01/plan.md` (TBD)
-**Effort:** ~3h (4 repos × ~45min)
-**Depends on:** CI-FE-CRITICAL-01 (FE smoke set ต้องพร้อมก่อน)
-
-#### Goal
-ติดตั้ง husky pre-push hook ใน 4 repos. ก่อน push → run smoke (~30s) → fail = ห้าม push → ลด CI fail loop.
-
-#### Scope
-- FE: husky + lint-staged → `pnpm exec playwright test -g @critical`
-- BE: pre-push git hook (bash script) → `dotnet test --filter Category=Critical` (ต้อง tag test ก่อน)
-- Sync: same as BE
-- Webhook: `go test ./... -run Critical -short`
-
-#### Done Gate
-- [ ] Husky/git hook ติดตั้งใน 4 repos (auto-install on `pnpm install` / `npm install`)
-- [ ] Pre-push fail = exit non-zero → push aborted
-- [ ] Document `--no-verify` escape hatch + กฎห้ามใช้ (CLAUDE.md)
-
----
-
-### 🆕 [P2] CI-VISUAL-01 — Visual regression baselines (FE) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** Test infra | **Repo:** `b1dx-oms-fulfillment-web`
-**Source:** CI-GATE Initiative (Phase 2)
-**Plan:** `tasks/plans/CI-VISUAL-01/plan.md` (TBD)
-**Effort:** ~6h
-**Depends on:** CI-FE-GATE-01
-
-#### Goal
-ทำ visual regression สำหรับ `/orders` 6 roles × order detail × bulk ops. Pixel-diff auto detect mockup drift. แทน manual screenshot review (CLAUDE.md "Mockup Visual Fidelity BLOCKING" rule).
-
-#### Scope
-- ใช้ `await expect(page).toHaveScreenshot('orders-{role}.png')`
-- Stabilize timestamps + animations: `animations: 'disabled'` + freeze date
-- Baseline ครั้งแรก: `--update-snapshots` (manual approve PR)
-- `maxDiffPixels: 100` กัน font sub-pixel
-- ใส่ใน existing `permissions.spec.ts` หรือสร้าง `visual.spec.ts` ใหม่
-- CI: ใช้ docker container เดียวกับ baseline (font/render consistent)
-
-#### Done Gate
-- [ ] 6 roles × order list baseline บันทึก
-- [ ] Order detail baseline (3 statuses: 400, 490, 700)
-- [ ] PR diff visible เมื่อ UI change
-- [ ] False positive rate < 5% (animation, timestamp, async data)
-
----
-
-### 🆕 [P2] CI-COVERAGE-01 — Coverage reporter (4 repos) `[wat]`
-
-**Found:** 2026-05-23 | **Type:** Test infra | **Repos:** FE, BE, Sync, Webhook
-**Source:** CI-GATE Initiative (Phase 2)
-**Plan:** `tasks/plans/CI-COVERAGE-01/plan.md` (TBD)
-**Effort:** ~4h
-**Depends on:** CI-{FE,BE,SYNC,WEBHOOK}-GATE-01
-
-#### Goal
-ใส่ coverage reporter + PR comment delta. ดูแลไม่ให้ coverage ลด.
-
-#### Scope
-- FE: `pnpm test --coverage` → upload to Codecov
-- BE/Sync: `dotnet test --collect:"XPlat Code Coverage"` → coverlet → Codecov
-- Webhook: `go test -coverprofile=coverage.out` → Codecov
-- PR comment via `codecov/codecov-action@v4`
-- README badge 4 repos
-
-#### Done Gate
-- [ ] Codecov account + token ตั้งเสร็จ (org-level secret)
-- [ ] 4 workflows upload coverage
-- [ ] PR comment แสดง delta (+/-%)
-- [ ] Badge ใน README ทุก repo
