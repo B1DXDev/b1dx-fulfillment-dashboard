@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX · Agentic Workflow — Flow Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#0c0e1a; --panel:#141627; --panel2:#1a1d33; --surface:#fff;
+    --ink:#0b0f1a; --ink2:#1f2937; --ink3:#475569; --muted:#64748b; --muted2:#94a3b8;
+    --line:#2a2e48; --line-l:#e6e9f0;
+    --indigo:#6366f1; --violet:#8b5cf6; --fuchsia:#c026d3;
+    --blue:#3b82f6; --amber:#f59e0b; --emerald:#10b981; --rose:#f43f5e; --cyan:#06b6d4;
+    --grad-brand:linear-gradient(135deg,#6366f1,#8b5cf6 50%,#c026d3);
+    --r:14px;
+  }
+  body{ font-family:'Inter','IBM Plex Sans Thai',-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:#e2e8f0; line-height:1.55; padding:32px 20px 80px; }
+  .wrap{ max-width:1240px; margin:0 auto; }
+  code,.mono{ font-family:'JetBrains Mono',monospace; }
+
+  header{ text-align:center; margin-bottom:14px; }
+  .kicker{ display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+    color:#c4b5fd; background:rgba(139,92,246,.14); border:1px solid rgba(139,92,246,.35);
+    padding:6px 16px; border-radius:999px; }
+  h1{ font-size:2.1rem; font-weight:900; letter-spacing:-.02em; margin:14px 0 6px; color:#fff; }
+  header p{ color:#94a3b8; font-size:1rem; max-width:62ch; margin:0 auto; }
+
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin:22px 0 30px; font-size:.78rem; color:#94a3b8; }
+  .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .sw{ width:26px; height:16px; border-radius:5px; display:inline-block; border:1px solid; }
+  .sw.base{ background:#1e2236; border-color:#3a3f5e; }
+  .sw.dec{ background:rgba(99,102,241,.2); border-color:#6366f1; }
+  .sw.sec{ background:rgba(244,63,94,.18); border-color:#f43f5e; }
+  .sw.gate{ background:rgba(16,185,129,.16); border-color:#10b981; }
+  .sw.skip{ background:transparent; border-color:#3a3f5e; border-style:dashed; }
+
+  /* spine: entry → classify → router */
+  .spine{ display:flex; flex-direction:column; align-items:center; gap:0; margin-bottom:8px; }
+  .varr{ width:2px; height:26px; background:linear-gradient(#6366f1,#8b5cf6); position:relative; }
+  .varr::after{ content:"▼"; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); color:#8b5cf6; font-size:.7rem; }
+
+  .node{ border-radius:12px; padding:12px 20px; font-weight:700; text-align:center; }
+  .entry{ background:#1e1b4b; border:1px solid #4c1d95; color:#c4b5fd; font-family:'JetBrains Mono',monospace; font-size:.92rem; }
+  .classify{ background:var(--grad-brand); color:#fff; padding:16px 28px; box-shadow:0 10px 30px -8px rgba(139,92,246,.6); }
+  .classify .t{ font-size:1.05rem; font-weight:800; }
+  .classify .s{ font-size:.78rem; font-weight:500; opacity:.9; margin-top:2px; }
+
+  .router{ background:#141627; border:1.5px solid #6366f1; border-radius:14px; padding:12px 24px;
+    color:#a5b4fc; font-weight:800; font-size:.95rem; position:relative; }
+  .router .sub{ font-size:.72rem; font-weight:500; color:#64748b; margin-top:2px; }
+
+  /* fan of routes */
+  .fan{ font-size:.72rem; color:#64748b; text-align:center; margin:10px 0 4px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; }
+
+  .routes{ display:flex; flex-direction:column; gap:14px; margin-top:6px; }
+  .route{ background:#141627; border:1px solid var(--line); border-radius:var(--r); padding:14px 16px;
+    display:grid; grid-template-columns:150px 1fr; gap:16px; align-items:center; position:relative; overflow:hidden; }
+  .route::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; }
+  .route.feature::before{ background:var(--violet); }
+  .route.bug::before{ background:var(--blue); }
+  .route.ui::before{ background:var(--cyan); }
+  .route.mig::before{ background:var(--amber); }
+  .route.svc::before{ background:var(--emerald); }
+  .route.chore::before{ background:var(--muted2); }
+  .route.spike::before{ background:#a78bfa; }
+
+  .rlabel .name{ font-weight:800; font-size:.92rem; color:#fff; }
+  .rlabel .when{ font-size:.7rem; color:#64748b; margin-top:3px; line-height:1.35; }
+  .rlabel .risk{ display:inline-block; margin-top:5px; font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:6px; }
+  .risk.hi{ background:rgba(244,63,94,.18); color:#fda4af; }
+  .risk.md{ background:rgba(245,158,11,.18); color:#fcd34d; }
+  .risk.lo{ background:rgba(100,116,139,.2); color:#cbd5e1; }
+
+  .track{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .step{ font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:600; padding:7px 11px;
+    border-radius:8px; white-space:nowrap; }
+  .s-base{ background:#1e2236; border:1px solid #3a3f5e; color:#cbd5e1; }
+  .s-dec{ background:rgba(99,102,241,.18); border:1px solid #6366f1; color:#c4b5fd; }
+  .s-sec{ background:rgba(244,63,94,.16); border:1px solid rgba(244,63,94,.5); color:#fda4af; }
+  .s-gate{ background:rgba(16,185,129,.14); border:1px solid rgba(16,185,129,.5); color:#6ee7b7; }
+  .s-skip{ background:transparent; border:1px dashed #3a3f5e; color:#475569; text-decoration:line-through; }
+  .s-par{ background:#1e2236; border:1px solid #3a3f5e; color:#cbd5e1; }
+  .ar{ color:#475569; font-weight:800; font-size:.85rem; }
+  .par{ color:#6366f1; font-weight:800; font-size:.95rem; padding:0 2px; }
+
+  /* overlays section */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:26px; }
+  .ov{ background:#141627; border:1px solid var(--line); border-radius:var(--r); padding:20px 22px; }
+  .ov.sec{ border-color:rgba(244,63,94,.4); }
+  .ov.gate{ border-color:rgba(16,185,129,.4); }
+  .ov h3{ font-size:1.02rem; font-weight:800; color:#fff; margin-bottom:10px; display:flex; gap:9px; align-items:center; }
+  .ov h3 .dot{ width:11px; height:11px; border-radius:4px; }
+  .ov p{ font-size:.86rem; color:#94a3b8; margin-bottom:10px; }
+  .ov ul{ list-style:none; }
+  .ov li{ font-size:.82rem; color:#cbd5e1; padding:5px 0 5px 20px; position:relative; }
+  .ov li::before{ content:"›"; position:absolute; left:4px; color:var(--violet); font-weight:800; }
+  .ov code{ background:rgba(255,255,255,.07); padding:1px 6px; border-radius:5px; font-size:.92em; color:#e2e8f0; }
+
+  .sectitle{ font-size:.78rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#64748b;
+    margin:34px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+
+  /* loop bar */
+  .loop{ margin-top:26px; background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(192,38,211,.1));
+    border:1px solid rgba(139,92,246,.35); border-radius:var(--r); padding:16px 22px; display:flex;
+    align-items:center; gap:14px; flex-wrap:wrap; justify-content:center; font-size:.84rem; }
+  .loop .step{ background:#1a1d33; border:1px solid #3a3f5e; color:#cbd5e1; }
+  .loop .lp{ color:#c4b5fd; font-weight:800; }
+
+  .foot{ text-align:center; color:#475569; font-size:.78rem; margin-top:40px; }
+  .foot code{ color:#64748b; }
+
+  @media(max-width:820px){
+    .grid2{ grid-template-columns:1fr; }
+    .route{ grid-template-columns:1fr; gap:10px; }
+    .route::before{ width:100%; height:4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="kicker">B1DX · Agentic Workflow</span>
+    <h1>Flow — Dynamic Routing</h1>
+    <p>งานเข้าทางเดียว → <b style="color:#c4b5fd">classify</b> → <b style="color:#c4b5fd">router</b> เลือกเส้นทางตามชนิด+ความเสี่ยง → agent เดินตาม route ที่เลือก (ข้ามขั้นที่ไม่จำเป็น) → gate คุมก่อน commit</p>
+  </header>
+
+  <div class="legend">
+    <span><i class="sw base"></i> ขั้นปกติ (agent)</span>
+    <span><i class="sw dec"></i> ตัดสินใจ / classify</span>
+    <span><i class="sw sec"></i> security (conditional)</span>
+    <span><i class="sw gate"></i> gate (บังคับก่อน commit)</span>
+    <span><i class="sw skip"></i> ข้ามตาม route</span>
+    <span style="color:#6366f1; font-weight:700">∥ = ทำขนาน</span>
+  </div>
+
+  <!-- SPINE -->
+  <div class="spine">
+    <div class="node entry">/lead "&lt;คำขอ developer&gt;"</div>
+    <div class="varr"></div>
+    <div class="node classify">
+      <div class="t">PHASE 0 · CLASSIFY</div>
+      <div class="s">LLM อ่าน request → ระบุ task_type + risk → ประกาศ route ที่เลือก</div>
+    </div>
+    <div class="varr"></div>
+    <div class="node router">
+      ⚙ WORKFLOW ROUTER
+      <div class="sub">agents/_shared/workflow-router.md — เลือก 1 ใน 7 route ด้านล่าง</div>
+    </div>
+  </div>
+
+  <div class="fan">▼ แตกเป็นเส้นทางตามชนิดงาน ▼</div>
+
+  <!-- ROUTES -->
+  <div class="routes">
+
+    <div class="route feature">
+      <div class="rlabel">
+        <div class="name">🟣 feature</div>
+        <div class="when">ฟีเจอร์ใหม่ / ต้องออกแบบ</div>
+        <span class="risk hi">risk: any</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-base">architect</span><span class="ar">→</span>
+        <span class="step s-base">spec-writer</span><span class="ar">→</span>
+        <span class="step s-base">ui-tester · scaffold</span><span class="ar">→</span>
+        <span class="step s-base">be</span><span class="par">∥</span><span class="step s-base">fe</span><span class="ar">→</span>
+        <span class="step s-gate">verify</span><span class="ar">→</span>
+        <span class="step s-base">ui-tester · run</span><span class="ar">→</span>
+        <span class="step s-base">reviewer</span>
+      </div>
+    </div>
+
+    <div class="route bug">
+      <div class="rlabel">
+        <div class="name">🔵 bug-fix</div>
+        <div class="when">แก้บั๊กของเดิม ไม่เปลี่ยน contract</div>
+        <span class="risk lo">risk: low</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-skip">architect</span>
+        <span class="step s-skip">spec</span><span class="ar">→</span>
+        <span class="step s-base">regression test (red)</span><span class="ar">→</span>
+        <span class="step s-base">be | fe · fix</span><span class="ar">→</span>
+        <span class="step s-gate">verify</span>
+      </div>
+    </div>
+
+    <div class="route ui">
+      <div class="rlabel">
+        <div class="name">🔷 ui-only</div>
+        <div class="when">แก้ UI ไม่แตะ API</div>
+        <span class="risk lo">risk: low</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-skip">be</span>
+        <span class="step s-skip">architect</span><span class="ar">→</span>
+        <span class="step s-base">spec (FE)</span><span class="ar">→</span>
+        <span class="step s-base">ui-tester · scaffold</span><span class="ar">→</span>
+        <span class="step s-base">fe</span><span class="ar">→</span>
+        <span class="step s-gate">verify</span><span class="ar">→</span>
+        <span class="step s-base">ui-tester · run</span>
+      </div>
+    </div>
+
+    <div class="route mig">
+      <div class="rlabel">
+        <div class="name">🟠 migration</div>
+        <div class="when">schema / data / breaking change</div>
+        <span class="risk md">risk: ≥ medium (บังคับ)</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-base">architect (บังคับ)</span><span class="ar">→</span>
+        <span class="step s-base">spec + ADR</span><span class="ar">→</span>
+        <span class="step s-base">be · migration + down script</span><span class="ar">→</span>
+        <span class="step s-gate">verify</span><span class="ar">→</span>
+        <span class="step s-base">reviewer</span>
+      </div>
+    </div>
+
+    <div class="route svc">
+      <div class="rlabel">
+        <div class="name">🟢 sync / webhook</div>
+        <div class="when">ERP sync · marketplace ingestion</div>
+        <span class="risk md">risk: med</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-base">spec</span><span class="ar">→</span>
+        <span class="step s-base">sync-worker | webhook coder</span>
+        <span class="par">(±be)</span><span class="ar">→</span>
+        <span class="step s-gate">verify (go / dotnet)</span><span class="ar">→</span>
+        <span class="step s-base">reviewer</span>
+      </div>
+    </div>
+
+    <div class="route chore">
+      <div class="rlabel">
+        <div class="name">⚪ chore / docs</div>
+        <div class="when">config / เอกสาร — ไม่มี logic</div>
+        <span class="risk lo">risk: low</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-skip">test gates ทั้งหมด</span><span class="ar">→</span>
+        <span class="step s-base">coder</span><span class="ar">→</span>
+        <span class="step s-gate">verify build เฉพาะที่แตะ</span>
+      </div>
+    </div>
+
+    <div class="route spike">
+      <div class="rlabel">
+        <div class="name">🟪 spike</div>
+        <div class="when">research / proof-of-concept</div>
+        <span class="risk lo">risk: n/a</span>
+      </div>
+      <div class="track">
+        <span class="step s-dec">classify</span><span class="ar">→</span>
+        <span class="step s-base">architect / research</span><span class="ar">→</span>
+        <span class="step s-skip">implement</span><span class="ar">→</span>
+        <span class="step s-base">output: ADR / recommendation</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- OVERLAYS -->
+  <div class="sectitle">2 ชั้นที่ซ้อนทับทุก route</div>
+  <div class="grid2">
+    <div class="ov sec">
+      <h3><span class="dot" style="background:var(--rose)"></span> Risk Override — Security (conditional)</h3>
+      <p>ไม่ใช่ทุกงานเรียก security — แต่ถ้า classify เจอ surface เสี่ยง จะ <b style="color:#fda4af">บังคับ inject</b> เข้า route หลักอัตโนมัติ แม้ user ไม่ขอ</p>
+      <ul>
+        <li>แตะ <code>auth · JWT · tenant · payment · PII · OAuth · file-upload</code></li>
+        <li>→ inject <span class="step s-sec" style="display:inline-block">🛡 security:threat</span> ก่อน build</li>
+        <li>→ inject <span class="step s-sec" style="display:inline-block">🛡 security:scan</span> ขนานกับ coders</li>
+        <li>→ inject <span class="step s-sec" style="display:inline-block">🛡 security:pentest</span> หลัง ui-tester</li>
+        <li>→ บังคับ <code>reviewer (opus)</code> + finding High = Tier 1 stop</li>
+      </ul>
+    </div>
+    <div class="ov gate">
+      <h3><span class="dot" style="background:var(--emerald)"></span> Gates — บังคับทุก route (ไม่แตะ)</h3>
+      <p>Hard Gates เดิมยังคุมทุกเส้นทาง — dynamic เปลี่ยนแค่ "เรียกใคร" ไม่เปลี่ยน "อะไรบังคับก่อน commit"</p>
+      <ul>
+        <li><code>plan.md</code> lifecycle: Draft → Confirmed → In Progress → Done</li>
+        <li>Pre-Build Plan Gate + user trigger (<code>build</code> / <code>ลุย</code>)</li>
+        <li>Verify gate: <code>build · test · lint · typecheck</code> ต้องผ่าน</li>
+        <li>Commit/Push boundary: agent stage ได้ แต่รอ user สั่ง</li>
+        <li>Auto-Proceed Stop List (13 เงื่อนไข) ยังทำงาน</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FEEDBACK LOOP -->
+  <div class="sectitle">ปิดลูป — feedback กลับเข้า classify</div>
+  <div class="loop">
+    <span class="step">deploy</span><span class="lp">→</span>
+    <span class="step">monitor (Grafana / Sentry)</span><span class="lp">→</span>
+    <span class="step">incident / bug พบใหม่</span><span class="lp">→</span>
+    <span class="step s-dec" style="background:rgba(99,102,241,.18); border-color:#6366f1; color:#c4b5fd">กลับเข้า Phase 0 classify</span>
+    <span class="lp" style="font-size:1.2rem">↻</span>
+  </div>
+
+  <div class="foot">
+    B1DX Fulfillment Workspace · Agentic Workflow Flow Diagram · 2026-05-29<br>
+    อ้างอิง: <code>agents/orchestrator.md</code> · <code>agents/_shared/workflow-router.md</code> (ใหม่) · <code>tasks/plans/{TICKET-ID}/plan.md</code>
+  </div>
+
+</div>
+</body>
+</html>

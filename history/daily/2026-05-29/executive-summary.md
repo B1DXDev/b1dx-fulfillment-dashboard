@@ -29,7 +29,7 @@ health:
 features:
   - { id: "01", name: "Order Mgmt<br>(Detail + OAD)",        pct: 90, state: "active", status: "Detail rebuild ✓ · OAD-INT-01 review" }
   - { id: "02", name: "Sync<br>Order",                       pct: 80, state: "active", status: "Live · stable" }
-  - { id: "03", name: "PIM<br>(Product Master)",             pct: 85, state: "active", status: "BE Wave 2 ปิด ✓ · FE wire-up ✓" }
+  - { id: "03", name: "PIM<br>(Product Master)",             pct: 90, state: "active", status: "BE Wave 2 ปิด ✓ · FE wire-up ✓" }
   - { id: "04", name: "RBAC<br>(Permissions)",               pct: 92, state: "active", status: "Order perm matrix ✓" }
   - { id: "05", name: "Courier Settings<br>(CRSET-02..04)",  pct: 95, state: "active", status: "02H + Detail fidelity ✓" }
   - { id: "06", name: "Webhook (Go)<br>Capacity + Recon",    pct: 70, state: "active", status: "WH-CAP-01..09 ✓ · WH-RECON-01/02 ✓" }

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX · Agent → Agentic → Dynamic Workflow (Slides)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --ink:#0b0f1a; --ink2:#1f2937; --ink3:#475569; --muted:#64748b; --muted2:#94a3b8;
+    --line:#e6e9f0; --soft:#f7f9fc; --surface:#fff;
+    --indigo:#6366f1; --violet:#8b5cf6; --fuchsia:#c026d3; --emerald:#10b981;
+    --blue:#3b82f6; --amber:#f59e0b; --rose:#f43f5e; --cyan:#06b6d4;
+    --grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#c026d3 100%);
+    --grad-dark:linear-gradient(135deg,#0b0f1a 0%,#1e1b4b 45%,#4c1d95 100%);
+    --grad-emerald:linear-gradient(135deg,#34d399,#059669);
+    --grad-amber:linear-gradient(135deg,#fbbf24,#d97706);
+    --grad-rose:linear-gradient(135deg,#fb7185,#be123c);
+    --grad-blue:linear-gradient(135deg,#60a5fa,#2563eb);
+  }
+  html,body{ font-family:'Inter','IBM Plex Sans Thai',-apple-system,"Segoe UI",sans-serif;
+    background:#0a0c14; color:var(--ink2); -webkit-font-smoothing:antialiased; overflow:hidden; }
+  code,.mono{ font-family:'JetBrains Mono',monospace; }
+
+  .deck{ width:100vw; height:100vh; position:relative; }
+  .slide{ position:absolute; inset:0; display:none; flex-direction:column; justify-content:center;
+    padding:6vh 8vw; background:var(--surface); overflow:auto; }
+  .slide.active{ display:flex; animation:fade .4s ease; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  .slide.dark{ background:var(--grad-dark); color:#fff; }
+
+  /* chrome */
+  .nav{ position:fixed; bottom:18px; right:24px; z-index:50; display:flex; gap:8px; align-items:center; }
+  .nav button{ background:rgba(99,102,241,.14); border:1px solid rgba(99,102,241,.3); color:var(--indigo);
+    width:38px; height:38px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-weight:700;
+    display:grid; place-items:center; transition:.15s; }
+  .nav button:hover{ background:var(--indigo); color:#fff; }
+  .counter{ position:fixed; bottom:24px; left:24px; z-index:50; font-size:.8rem; color:var(--muted2);
+    font-family:'JetBrains Mono',monospace; font-weight:600; }
+  .slide.dark ~ .counter{ color:rgba(255,255,255,.6); }
+  .pbar{ position:fixed; top:0; left:0; height:4px; background:var(--grad-brand); z-index:60; transition:width .3s; }
+  .hint{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:50;
+    font-size:.72rem; color:var(--muted2); font-family:'JetBrains Mono',monospace; }
+
+  /* typography */
+  .eyebrow{ font-size:.8rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--violet); margin-bottom:18px; }
+  .slide.dark .eyebrow{ color:#c4b5fd; }
+  h1{ font-size:clamp(2rem,5vw,3.6rem); font-weight:900; letter-spacing:-.025em; line-height:1.08; color:var(--ink); }
+  .slide.dark h1{ color:#fff; }
+  h2{ font-size:clamp(1.6rem,3.6vw,2.6rem); font-weight:850; letter-spacing:-.02em; line-height:1.12;
+    color:var(--ink); margin-bottom:6px; }
+  .slide.dark h2{ color:#fff; }
+  .lead{ font-size:clamp(1rem,2vw,1.3rem); color:var(--ink3); max-width:54ch; line-height:1.55; margin-top:14px; }
+  .slide.dark .lead{ color:#cbd5e1; }
+  .big{ font-size:clamp(1.1rem,2.4vw,1.5rem); font-weight:600; }
+
+  .level-tag{ display:inline-flex; align-items:center; gap:10px; padding:7px 16px; border-radius:999px;
+    font-weight:800; font-size:.85rem; letter-spacing:.04em; }
+  .lv0{ background:#f1f5f9; color:#64748b; }
+  .lv25{ background:#eff6ff; color:#2563eb; }
+  .lv50{ background:#fffbeb; color:#b45309; }
+  .lv75{ background:#f5f3ff; color:#7c3aed; }
+  .lv100{ background:#ecfdf5; color:#059669; }
+
+  /* anatomy / cards */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:28px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:24px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:24px; }
+  .card{ border:1px solid var(--line); border-radius:16px; padding:22px 24px; background:var(--soft); }
+  .slide.dark .card{ background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.12); }
+  .card .ic{ font-size:1.7rem; margin-bottom:10px; }
+  .card h3{ font-size:1.1rem; font-weight:800; color:var(--ink); margin-bottom:6px; }
+  .slide.dark .card h3{ color:#fff; }
+  .card p{ font-size:.92rem; color:var(--ink3); line-height:1.5; }
+  .slide.dark .card p{ color:#cbd5e1; }
+
+  .chip{ display:inline-block; padding:5px 13px; border-radius:8px; font-family:'JetBrains Mono',monospace;
+    font-size:.82rem; font-weight:600; background:#fff; border:1px solid var(--line); margin:4px 4px 4px 0; color:var(--ink2); }
+  .slide.dark .chip{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16); color:#e2e8f0; }
+
+  /* compare table */
+  table{ width:100%; border-collapse:collapse; margin-top:22px; font-size:clamp(.85rem,1.5vw,1rem); }
+  th{ text-align:left; padding:13px 16px; background:var(--soft); font-weight:800; color:var(--ink2);
+    border-bottom:2px solid var(--line); font-size:.82rem; text-transform:uppercase; letter-spacing:.05em; }
+  td{ padding:13px 16px; border-bottom:1px solid var(--line); color:var(--ink3); vertical-align:top; }
+  .slide.dark th{ background:rgba(255,255,255,.06); color:#fff; border-color:rgba(255,255,255,.14); }
+  .slide.dark td{ color:#cbd5e1; border-color:rgba(255,255,255,.1); }
+  .dimcol{ font-weight:800; color:var(--ink); }
+  .slide.dark .dimcol{ color:#fff; }
+
+  /* ladder */
+  .ladder{ display:flex; flex-direction:column; gap:12px; margin-top:24px; }
+  .rung{ display:grid; grid-template-columns:90px 1fr; gap:20px; align-items:center;
+    padding:16px 22px; border-radius:14px; background:var(--soft); border:1px solid var(--line);
+    border-left:6px solid var(--indigo); }
+  .rung .lv{ font-size:1.6rem; font-weight:900; font-family:'JetBrains Mono',monospace; }
+  .rung .desc h4{ font-size:1.05rem; font-weight:800; color:var(--ink); }
+  .rung .desc p{ font-size:.88rem; color:var(--muted); margin-top:2px; }
+  .rung.r0{ border-left-color:#94a3b8; } .rung.r0 .lv{ color:#94a3b8; }
+  .rung.r25{ border-left-color:var(--blue); } .rung.r25 .lv{ color:var(--blue); }
+  .rung.r50{ border-left-color:var(--amber); } .rung.r50 .lv{ color:var(--amber); }
+  .rung.r75{ border-left-color:var(--violet); } .rung.r75 .lv{ color:var(--violet); }
+  .rung.r100{ border-left-color:var(--emerald); } .rung.r100 .lv{ color:var(--emerald); }
+
+  /* flow nodes */
+  .flow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:24px; }
+  .fnode{ font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:700; padding:10px 16px;
+    border-radius:10px; background:#fff; border:1px solid var(--line); color:var(--ink2); }
+  .slide.dark .fnode{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.18); color:#e2e8f0; }
+  .fnode.hot{ background:rgba(244,63,94,.16); border-color:rgba(244,63,94,.45); color:#fb7185; }
+  .fnode.dim{ opacity:.4; text-decoration:line-through; }
+  .farr{ color:var(--muted2); font-weight:800; font-size:1.1rem; }
+
+  .callout{ border-radius:14px; padding:18px 24px; margin-top:24px; font-size:clamp(.95rem,1.8vw,1.15rem);
+    background:linear-gradient(135deg,#eef2ff,#faf5ff); border:1px solid #ddd6fe; color:var(--ink2); line-height:1.5; }
+  .slide.dark .callout{ background:rgba(139,92,246,.16); border-color:rgba(139,92,246,.4); color:#e9d5ff; }
+  .callout b{ color:var(--violet); } .slide.dark .callout b{ color:#d8b4fe; }
+
+  .kv{ font-size:clamp(1rem,2vw,1.25rem); margin-top:10px; color:var(--ink3); }
+  .slide.dark .kv{ color:#cbd5e1; }
+  .kv b{ color:var(--ink); } .slide.dark .kv b{ color:#fff; }
+
+  .formula{ font-family:'JetBrains Mono',monospace; font-size:clamp(1rem,2.4vw,1.5rem); font-weight:700;
+    text-align:center; padding:24px; border-radius:16px; background:var(--soft); border:1px dashed var(--line);
+    margin-top:26px; color:var(--ink2); line-height:1.8; }
+  .slide.dark .formula{ background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.2); color:#e2e8f0; }
+  .formula .plus{ color:var(--violet); } .formula .res{ color:var(--emerald); }
+
+  ul.pts{ list-style:none; margin-top:20px; }
+  ul.pts li{ padding:11px 0 11px 36px; position:relative; font-size:clamp(.95rem,1.8vw,1.15rem);
+    color:var(--ink3); border-bottom:1px solid var(--line); }
+  .slide.dark ul.pts li{ color:#cbd5e1; border-color:rgba(255,255,255,.1); }
+  ul.pts li:last-child{ border-bottom:none; }
+  ul.pts li::before{ content:"→"; position:absolute; left:0; top:11px; color:var(--violet); font-weight:900; }
+  ul.pts li b{ color:var(--ink); } .slide.dark ul.pts li b{ color:#fff; }
+
+  .titlewrap .num{ font-family:'JetBrains Mono',monospace; font-size:clamp(4rem,14vw,11rem); font-weight:900;
+    background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    line-height:.9; letter-spacing:-.04em; }
+
+  @media(max-width:760px){
+    .grid2,.grid3,.grid4{ grid-template-columns:1fr; }
+    .slide{ padding:5vh 6vw; }
+    .rung{ grid-template-columns:64px 1fr; gap:12px; }
+  }
+</style>
+</head>
+<body>
+<div class="pbar" id="pbar"></div>
+<div class="deck" id="deck">
+
+  <!-- 1 TITLE -->
+  <section class="slide dark active titlewrap" style="justify-content:center; align-items:flex-start">
+    <div class="num">0→100</div>
+    <div class="eyebrow" style="margin-top:24px">B1DX Team · Knowledge Session</div>
+    <h1>Agent → Agentic → Workflow<br>→ Dynamic Workflow</h1>
+    <p class="lead">ไล่ตั้งแต่พื้นฐานจน advance — เพื่อให้ทุกคนในทีมเข้าใจคำที่เราใช้กันตรงกัน ก่อนตัดสินใจ refactor</p>
+    <div style="margin-top:30px; display:flex; gap:14px; flex-wrap:wrap">
+      <span class="chip">Agent</span><span class="chip">Agentic</span>
+      <span class="chip">Agentic Workflow</span><span class="chip">Dynamic Workflow</span>
+      <span class="chip">vs Multi-agent</span>
+    </div>
+  </section>
+
+  <!-- 2 MAP / journey -->
+  <section class="slide">
+    <div class="eyebrow">แผนที่การเดินทาง</div>
+    <h2>5 ระดับ — จากโมเดลเปล่า สู่ระบบที่เลือกเส้นทางเอง</h2>
+    <div class="ladder">
+      <div class="rung r0"><div class="lv">0</div><div class="desc"><h4>LLM</h4><p>โมเดลภาษา — รับ prompt ตอบ text เฉยๆ ไม่ทำอะไรต่อ</p></div></div>
+      <div class="rung r25"><div class="lv">25</div><div class="desc"><h4>Agent</h4><p>LLM + tools + เป้าหมาย + loop — "ลงมือทำ" ได้เอง</p></div></div>
+      <div class="rung r50"><div class="lv">50</div><div class="desc"><h4>Agentic (คุณสมบัติ)</h4><p>ระดับ "ความเป็นตัวของตัวเอง" — ตัดสินใจ/วางแผน/แก้ทางเอง</p></div></div>
+      <div class="rung r75"><div class="lv">75</div><div class="desc"><h4>Agentic Workflow</h4><p>ร้อย agent หลายตัว + มีการตัดสินใจในตัว flow</p></div></div>
+      <div class="rung r100"><div class="lv">100</div><div class="desc"><h4>Dynamic Workflow</h4><p>เส้นทางเปลี่ยนตามชนิดงาน/ความเสี่ยง — ไม่ตายตัว</p></div></div>
+    </div>
+  </section>
+
+  <!-- 3 Level 0 LLM -->
+  <section class="slide">
+    <span class="level-tag lv0">LEVEL 0 · พื้นฐานที่สุด</span>
+    <h2 style="margin-top:18px">เริ่มจาก LLM เปล่า ๆ</h2>
+    <p class="lead">โมเดลภาษา (เช่น Claude) รับข้อความ → ตอบข้อความ. ฉลาดแต่ "ทำอะไรเองไม่ได้" — อ่านไฟล์ไม่ได้ รันคำสั่งไม่ได้ จำรอบที่แล้วไม่ได้</p>
+    <div class="formula">prompt <span class="plus">→</span> [ LLM ] <span class="plus">→</span> text</div>
+    <div class="callout"><b>ข้อจำกัด:</b> เป็นแค่ "สมอง" ที่ไม่มีมือ ไม่มีความจำ ไม่มีเป้าหมายต่อเนื่อง — ตอบจบเป็นครั้ง ๆ</div>
+  </section>
+
+  <!-- 4 Level 25 Agent def -->
+  <section class="slide">
+    <span class="level-tag lv25">LEVEL 25 · Agent คืออะไร</span>
+    <h2 style="margin-top:18px">Agent = LLM ที่ "ลงมือทำ" ได้</h2>
+    <p class="lead">เอา LLM มาใส่ 4 อย่าง แล้วให้มันวน loop จนบรรลุเป้าหมาย — นี่คือ agent</p>
+    <div class="grid4">
+      <div class="card"><div class="ic">🎯</div><h3>Goal</h3><p>เป้าหมายที่ต้องทำให้สำเร็จ ไม่ใช่แค่ตอบคำถาม</p></div>
+      <div class="card"><div class="ic">🛠️</div><h3>Tools</h3><p>อ่าน/เขียนไฟล์, รันคำสั่ง, เรียก API — "มือ" ของมัน</p></div>
+      <div class="card"><div class="ic">🧠</div><h3>Context/Memory</h3><p>รู้สถานะปัจจุบัน + บทบาทของตัวเอง</p></div>
+      <div class="card"><div class="ic">🔁</div><h3>Loop</h3><p>ทำ → ดูผล → ตัดสินใจ step ถัดไป จนเสร็จ</p></div>
+    </div>
+    <div class="formula" style="margin-top:22px">LLM <span class="plus">+</span> Tools <span class="plus">+</span> Goal <span class="plus">+</span> Loop <span class="plus">=</span> <span class="res">Agent</span></div>
+  </section>
+
+  <!-- 5 Agent example b1dx -->
+  <section class="slide">
+    <span class="level-tag lv25">LEVEL 25 · ตัวอย่างจริงใน b1dx</span>
+    <h2 style="margin-top:18px">10 agents ที่เรามีอยู่แล้ว</h2>
+    <p class="lead">แต่ละไฟล์ใน <code>agents/*.md</code> คือ agent หนึ่งตัว — มี role + tools + done-gate ของตัวเอง</p>
+    <div style="margin-top:24px">
+      <span class="chip">orchestrator</span><span class="chip">architect</span><span class="chip">spec-writer</span>
+      <span class="chip">be-coder</span><span class="chip">fe-coder</span><span class="chip">sync-worker-coder</span>
+      <span class="chip">webhook-coder</span><span class="chip">ui-tester</span><span class="chip">reviewer</span>
+      <span class="chip">sprint-planner</span>
+    </div>
+    <div class="callout"><b>be-coder</b> = Agent: เป้าหมาย "เขียน .NET ตาม spec" · tools "edit/bash/git" · loop "build→test→fix จนผ่าน" · done-gate <code>dotnet build && dotnet test</code></div>
+  </section>
+
+  <!-- 6 Level 50 Agentic -->
+  <section class="slide dark">
+    <span class="level-tag lv50">LEVEL 50 · Agentic คืออะไร</span>
+    <h2 style="margin-top:18px">"Agentic" เป็น <u>คุณสมบัติ</u> ไม่ใช่ของชิ้นหนึ่ง</h2>
+    <p class="lead">Agent = คำนาม (ตัวตน) · Agentic = คำคุณศัพท์ (ระดับความเป็นตัวของตัวเอง). ยิ่ง agentic = ยิ่งตัดสินใจเองได้มาก ไม่ต้องสั่งทีละ step</p>
+    <div class="grid3">
+      <div class="card"><div class="ic">🧭</div><h3>วางแผนเอง</h3><p>แตกงานใหญ่เป็น step ย่อยได้เอง</p></div>
+      <div class="card"><div class="ic">🔀</div><h3>ตัดสินใจเอง</h3><p>เลือกว่าจะทำอะไรต่อจากผลลัพธ์ที่เห็น</p></div>
+      <div class="card"><div class="ic">🩹</div><h3>แก้ทางเอง</h3><p>เจอ error → หา root cause → ลองใหม่</p></div>
+    </div>
+    <div class="callout"><b>สเกล:</b> สั่งทีละบรรทัด (ไม่ agentic) ⟶ บอกเป้าหมายแล้วมันจัดการเอง (agentic เต็มที่). มันเป็น "เข็มวัด" ไม่ใช่ on/off</div>
+  </section>
+
+  <!-- 7 Agent vs Agentic table -->
+  <section class="slide">
+    <div class="eyebrow">เคลียร์จุดสับสนที่ 1</div>
+    <h2>Agent ≠ Agentic</h2>
+    <table>
+      <thead><tr><th style="width:18%"></th><th>Agent</th><th>Agentic</th></tr></thead>
+      <tbody>
+        <tr><td class="dimcol">ชนิดคำ</td><td>คำนาม — "ตัวตน"</td><td>คำคุณศัพท์ — "คุณสมบัติ"</td></tr>
+        <tr><td class="dimcol">ตอบคำถาม</td><td>ใคร/อะไรทำงาน</td><td>ทำงานแบบอิสระแค่ไหน</td></tr>
+        <tr><td class="dimcol">วัดยังไง</td><td>มี/ไม่มี</td><td>มาก/น้อย (สเกล)</td></tr>
+        <tr><td class="dimcol">ตัวอย่าง</td><td>"be-coder เป็น agent"</td><td>"flow นี้ agentic เพราะเลือกทางเอง"</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">พูดได้ว่า <b>"agent ที่ทำตัว agentic"</b> — agent คือตัว, agentic คือพฤติกรรมของมัน</div>
+  </section>
+
+  <!-- 8 Level 75 Agentic Workflow -->
+  <section class="slide">
+    <span class="level-tag lv75">LEVEL 75 · Agentic Workflow คืออะไร</span>
+    <h2 style="margin-top:18px">ร้อย agent หลายตัว + ให้ระบบตัดสินใจ</h2>
+    <p class="lead">เมื่องานใหญ่เกินกว่า agent ตัวเดียว — เราเอาหลายตัวมาต่อกัน โดยมี "ตัวประสาน" (orchestrator) ที่ตัดสินใจว่าใครทำอะไรต่อ</p>
+    <div class="flow">
+      <span class="fnode">orchestrator</span><span class="farr">→</span>
+      <span class="fnode">architect</span><span class="farr">→</span>
+      <span class="fnode">spec-writer</span><span class="farr">→</span>
+      <span class="fnode">be ∥ fe</span><span class="farr">→</span>
+      <span class="fnode">reviewer</span>
+    </div>
+    <div class="callout"><b>เส้นแบ่งสำคัญ:</b> ถ้าตัวประสาน "ตัดสินใจด้วย LLM" (เลือกทาง, ประเมินว่าพอหรือยัง, แก้เมื่อ fail) = <b>agentic</b> workflow. ถ้าเดินตาม if-else ตายตัว = แค่ scripted/pipeline</div>
+  </section>
+
+  <!-- 9 Scripted vs Agentic -->
+  <section class="slide dark">
+    <div class="eyebrow">เคลียร์จุดสับสนที่ 2</div>
+    <h2>Scripted Workflow vs Agentic Workflow</h2>
+    <table>
+      <thead><tr><th style="width:22%">มิติ</th><th>Scripted (pipeline)</th><th>Agentic</th></tr></thead>
+      <tbody>
+        <tr><td class="dimcol">เส้นทาง</td><td>ตายตัว เขียน hardcode</td><td>ตัดสินด้วย LLM ตาม context</td></tr>
+        <tr><td class="dimcol">เจอเคสใหม่</td><td>ต้องแก้โค้ด flow</td><td>ปรับตัวได้เอง</td></tr>
+        <tr><td class="dimcol">"พอหรือยัง"</td><td>จบตาม step</td><td>ประเมินเอง / loop จน done</td></tr>
+        <tr><td class="dimcol">b1dx ตอนนี้</td><td>← อยู่ตรงนี้ (3-phase non-negotiable)</td><td>← เป้าหมาย</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>b1dx วันนี้:</b> มี agents ครบ + มี orchestrator ประสานงาน — แต่ flow ยัง scripted (ทุกงานเดิน Phase 1→1.5→2→3 เหมือนกัน)</div>
+  </section>
+
+  <!-- 10 Level 100 Dynamic Workflow -->
+  <section class="slide">
+    <span class="level-tag lv100">LEVEL 100 · Dynamic Workflow คืออะไร</span>
+    <h2 style="margin-top:18px">เส้นทางเปลี่ยนตามชนิดงาน</h2>
+    <p class="lead">รูปแบบที่ชัดที่สุดของ agentic workflow: <b>classify ก่อน → เลือก route → ข้าม step ที่ไม่ต้อง</b>. งานคนละแบบเดินคนละเส้น</p>
+    <div style="margin-top:20px">
+      <div class="flow" style="margin-top:10px">
+        <span style="font-size:.8rem; color:var(--rose); font-weight:800; width:90px">bug-fix</span>
+        <span class="fnode">classify</span><span class="farr">→</span>
+        <span class="fnode dim">architect</span><span class="fnode dim">spec</span><span class="farr">→</span>
+        <span class="fnode">regression test</span><span class="farr">→</span>
+        <span class="fnode">fix</span><span class="farr">→</span><span class="fnode">verify</span>
+      </div>
+      <div class="flow" style="margin-top:14px">
+        <span style="font-size:.8rem; color:var(--violet); font-weight:800; width:90px">feature/HIGH</span>
+        <span class="fnode">classify</span><span class="farr">→</span>
+        <span class="fnode">architect→spec</span><span class="farr">→</span>
+        <span class="fnode hot">🛡 security</span><span class="farr">→</span>
+        <span class="fnode">be ∥ fe</span><span class="farr">→</span>
+        <span class="fnode">reviewer</span>
+      </div>
+    </div>
+    <div class="callout"><b>Dynamic = "งานเลือกเส้นทางของตัวเอง"</b> — bug เล็กข้าม design, OAuth บังคับ security. นี่คือสิ่งที่ b1dx กำลังจะ refactor ไปหา</div>
+  </section>
+
+  <!-- 11 Agentic vs Multi-agent -->
+  <section class="slide dark">
+    <div class="eyebrow">เคลียร์จุดสับสนที่ 3 (ถามบ่อยสุด)</div>
+    <h2>"Agentic" ต่างจาก "Multi-agent" ยังไง</h2>
+    <p class="lead">คนละแกนกันคนละเรื่อง — ไม่ใช่ของคู่แข่ง</p>
+    <table>
+      <thead><tr><th style="width:22%"></th><th>Multi-agent</th><th>Agentic</th></tr></thead>
+      <tbody>
+        <tr><td class="dimcol">แกนที่พูดถึง</td><td><b>จำนวน</b> agent (มากกว่า 1)</td><td><b>ระดับความอิสระ</b>ในการตัดสินใจ</td></tr>
+        <tr><td class="dimcol">คำถาม</td><td>"มีกี่ตัว?"</td><td>"ตัดสินใจเองแค่ไหน?"</td></tr>
+        <tr><td class="dimcol">ตรงข้ามคือ</td><td>Single-agent (ตัวเดียว)</td><td>Scripted (ตายตัว)</td></tr>
+        <tr><td class="dimcol">เป็นอิสระต่อกัน</td><td colspan="2">✓ มี multi-agent ที่ scripted ก็ได้ · มี single-agent ที่ agentic ก็ได้</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>b1dx = multi-agent (10 ตัว) + กำลังเพิ่มความ agentic</b> — เรามีหลายตัวอยู่แล้ว สิ่งที่เพิ่มคือให้ระบบ "เลือกเส้นทางเอง"</div>
+  </section>
+
+  <!-- 12 the 4 quadrant -->
+  <section class="slide">
+    <div class="eyebrow">มองเป็น 2 แกน</div>
+    <h2>จำนวน × ความอิสระ = 4 แบบ</h2>
+    <div class="grid2" style="margin-top:26px">
+      <div class="card" style="border-left:6px solid #94a3b8"><h3>Single + Scripted</h3><p>agent ตัวเดียว ทำตาม step ตายตัว · เช่น สคริปต์ automation ธรรมดา</p></div>
+      <div class="card" style="border-left:6px solid var(--blue)"><h3>Single + Agentic</h3><p>agent ตัวเดียวแต่ตัดสินใจเอง · เช่น Claude Code แก้ bug ตัวเดียวจบ</p></div>
+      <div class="card" style="border-left:6px solid var(--amber)"><h3>Multi + Scripted</h3><p>หลายตัวแต่เดินท่อตายตัว · <b>← b1dx ตอนนี้</b></p></div>
+      <div class="card" style="border-left:6px solid var(--emerald)"><h3>Multi + Agentic</h3><p>หลายตัว + เลือกเส้นทางเอง · <b>← เป้าหมาย (dynamic workflow)</b></p></div>
+    </div>
+  </section>
+
+  <!-- 13 putting together -->
+  <section class="slide dark">
+    <div class="eyebrow">ภาพรวมความสัมพันธ์</div>
+    <h2>ทุกคำซ้อนกันเป็นชั้น ไม่ใช่แทนกัน</h2>
+    <div class="formula" style="text-align:left; line-height:2.2; margin-top:30px">
+      <span class="res">Dynamic Workflow</span><br>
+      &nbsp;&nbsp;└─ เป็นแบบหนึ่งของ <span style="color:var(--violet)">Agentic Workflow</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ ที่ร้อย <span style="color:var(--blue)">Agents</span> หลายตัว (multi-agent)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ แต่ละตัวทำตัว <span style="color:var(--amber)">agentic</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ บนฐาน <span style="color:#94a3b8">LLM</span>
+    </div>
+  </section>
+
+  <!-- 14 b1dx where we are -->
+  <section class="slide">
+    <span class="level-tag lv75">b1dx · เราอยู่ตรงไหน</span>
+    <h2 style="margin-top:18px">มีของครบ 75 — ขาดก้าวสุดท้าย</h2>
+    <ul class="pts">
+      <li><b>✓ Agents (10 ตัว)</b> — ครบ มี role + tools + done-gate</li>
+      <li><b>✓ Multi-agent</b> — orchestrator ประสานหลายตัวได้แล้ว</li>
+      <li><b>✓ State + Gates</b> — plan.md lifecycle, stop list, verify gates</li>
+      <li><b>△ Scripted → Agentic</b> — flow ยังตายตัว (Phase 1→1.5→2→3 ทุกงาน)</li>
+      <li><b>○ Dynamic routing</b> — ยังไม่มี classify + route table</li>
+    </ul>
+    <div class="callout">ก้าวสุดท้าย = ยก routing จาก prose (ในหัว orchestrator) ขึ้นเป็น <b>declarative step</b> (<code>workflow-router.md</code> + Phase 0 classify)</div>
+  </section>
+
+  <!-- 15 takeaways -->
+  <section class="slide dark">
+    <div class="eyebrow">สรุปให้จำ</div>
+    <h2>5 ประโยคที่อยากให้ทีมจำกลับไป</h2>
+    <ul class="pts">
+      <li><b>Agent</b> = LLM + tools + goal + loop → "ตัวที่ลงมือทำ"</li>
+      <li><b>Agentic</b> = คุณสมบัติ "ตัดสินใจเองได้มากแค่ไหน" (สเกล ไม่ใช่ on/off)</li>
+      <li><b>Agentic Workflow</b> = ร้อย agent + ให้ระบบตัดสินใจเส้นทาง (ไม่ใช่ if-else)</li>
+      <li><b>Dynamic Workflow</b> = agentic workflow ที่เลือก route ตามชนิดงาน/risk</li>
+      <li><b>Agentic ≠ Multi-agent</b> — คนละแกน (ความอิสระ vs จำนวน); b1dx มี multi อยู่แล้ว กำลังเพิ่ม agentic</li>
+    </ul>
+  </section>
+
+  <!-- 16 closing -->
+  <section class="slide dark" style="justify-content:center; align-items:center; text-align:center">
+    <div class="eyebrow">ก้าวต่อไป</div>
+    <h1 style="max-width:18ch">จาก scripted สู่ dynamic<br>ทีละสัปดาห์</h1>
+    <p class="lead" style="margin:18px auto 0">เอกสารต่อ: <code>dynamic-workflow-security-agent-proposal.html</code> (what/why) · <code>agent-refactor-to-agentic-workflows.html</code> (before→after)</p>
+    <div style="margin-top:30px"><span class="chip">คำถาม / discussion ได้เลย 🙌</span></div>
+  </section>
+
+</div>
+
+<div class="pbar" id="progress"></div>
+<div class="counter" id="counter">1 / 16</div>
+<div class="hint">← → เปลี่ยนสไลด์ · F = fullscreen</div>
+<div class="nav">
+  <button onclick="go(-1)" aria-label="prev">‹</button>
+  <button onclick="go(1)" aria-label="next">›</button>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  function show(n){
+    i = Math.max(0, Math.min(slides.length-1, n));
+    slides.forEach((s,idx)=> s.classList.toggle('active', idx===i));
+    counter.textContent = (i+1)+' / '+slides.length;
+    progress.style.width = ((i+1)/slides.length*100)+'%';
+  }
+  function go(d){ show(i+d); }
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); go(1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+    else if(e.key==='Home'){ show(0); } else if(e.key==='End'){ show(slides.length-1); }
+    else if(e.key.toLowerCase()==='f'){
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+  });
+  // click right/left half to navigate
+  document.getElementById('deck').addEventListener('click', e=>{
+    if(e.target.closest('button')||e.target.closest('a')) return;
+    go(e.clientX > window.innerWidth/2 ? 1 : -1);
+  });
+  show(0);
+</script>
+</body>
+</html>

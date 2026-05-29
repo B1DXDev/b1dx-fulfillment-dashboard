@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX · Refactor Agents → Agentic Workflows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#f4f6fa; --surface:#fff; --ink:#0b0f1a; --ink2:#1f2937; --ink3:#475569;
+    --muted:#64748b; --muted2:#94a3b8; --line:#e6e9f0; --soft:#f7f9fc;
+    --indigo:#4f46e5; --violet:#7c3aed; --emerald:#059669; --emerald-soft:#ecfdf5;
+    --blue:#2563eb; --blue-soft:#eff6ff; --amber:#b45309; --amber-soft:#fffbeb;
+    --rose:#e11d48; --rose-soft:#fff1f2;
+    --grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#c026d3 100%);
+    --grad-dark:linear-gradient(135deg,#0b0f1a 0%,#1e1b4b 45%,#4c1d95 100%);
+    --r-md:12px; --r-lg:18px; --r-xl:24px;
+    --sh-sm:0 1px 2px rgba(15,23,42,.04),0 2px 6px rgba(15,23,42,.05);
+    --sh-md:0 4px 6px -1px rgba(15,23,42,.05),0 12px 24px -8px rgba(15,23,42,.08);
+    --sh-lg:0 32px 64px -12px rgba(15,23,42,.18),0 8px 16px -4px rgba(15,23,42,.06);
+  }
+  html,body{ font-family:'Inter','IBM Plex Sans Thai',-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink2); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
+  code,.mono{ font-family:'JetBrains Mono',monospace; font-size:.86em; }
+
+  .hero{ background:var(--grad-dark); color:#fff; border-radius:var(--r-xl); padding:48px 44px;
+    box-shadow:var(--sh-lg); position:relative; overflow:hidden; }
+  .hero::after{ content:""; position:absolute; right:-80px; top:-80px; width:320px; height:320px;
+    background:radial-gradient(circle,rgba(139,92,246,.4),transparent 70%); }
+  .hero .kicker{ display:inline-flex; gap:8px; align-items:center; font-size:.74rem; font-weight:700;
+    letter-spacing:.12em; text-transform:uppercase; color:#c4b5fd; background:rgba(255,255,255,.08);
+    padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.14); }
+  .hero h1{ font-size:2.45rem; font-weight:900; letter-spacing:-.02em; margin:18px 0 12px; line-height:1.12; }
+  .hero p{ color:#cbd5e1; font-size:1.05rem; max-width:720px; }
+  .hero .meta{ margin-top:24px; display:flex; gap:24px; flex-wrap:wrap; font-size:.85rem; color:#a5b4fc; }
+  .hero .meta b{ color:#fff; }
+
+  /* TL;DR strip */
+  .tldr{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:-30px 12px 38px; position:relative; z-index:2; }
+  .tldr .box{ background:var(--surface); border-radius:var(--r-lg); padding:22px 24px; box-shadow:var(--sh-md);
+    border:1px solid var(--line); }
+  .tldr .box.before{ border-top:4px solid var(--rose); }
+  .tldr .box.after{ border-top:4px solid var(--emerald); }
+  .tldr .tag{ font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+  .tldr .before .tag{ color:var(--rose); } .tldr .after .tag{ color:var(--emerald); }
+  .tldr h3{ font-size:1.15rem; font-weight:800; color:var(--ink); margin:6px 0 8px; }
+  .tldr p{ font-size:.88rem; color:var(--ink3); }
+
+  section{ background:var(--surface); border-radius:var(--r-xl); padding:36px 38px; margin-bottom:24px;
+    box-shadow:var(--sh-sm); border:1px solid var(--line); }
+  .sec-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+  .sec-num{ width:34px; height:34px; flex:none; display:grid; place-items:center; border-radius:10px;
+    background:var(--grad-brand); color:#fff; font-weight:800; font-size:.95rem; box-shadow:var(--sh-sm); }
+  .sec-head h2{ font-size:1.4rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); }
+  .sec-sub{ color:var(--muted); font-size:.92rem; margin:2px 0 24px 48px; }
+  h3.blk{ font-size:1.05rem; font-weight:700; color:var(--ink); margin:26px 0 12px; }
+
+  table{ width:100%; border-collapse:collapse; margin:8px 0; font-size:.88rem; }
+  th{ text-align:left; font-weight:700; color:var(--ink2); background:var(--soft);
+    padding:11px 14px; border-bottom:2px solid var(--line); font-size:.8rem;
+    text-transform:uppercase; letter-spacing:.04em; }
+  td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink3); vertical-align:top; }
+  tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--soft); }
+  .col-dim{ font-weight:700; color:var(--ink2); width:20%; }
+  td.before-cell{ background:rgba(225,29,72,.04); }
+  td.after-cell{ background:rgba(5,150,105,.05); }
+
+  .badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:.72rem; font-weight:700; }
+  .b-red{ background:var(--rose-soft); color:var(--rose); }
+  .b-amber{ background:var(--amber-soft); color:var(--amber); }
+  .b-green{ background:var(--emerald-soft); color:var(--emerald); }
+  .b-blue{ background:var(--blue-soft); color:var(--blue); }
+  .b-gray{ background:#f1f5f9; color:var(--muted); }
+  .b-violet{ background:#f5f3ff; color:var(--violet); }
+
+  /* side-by-side flow */
+  .vs{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:18px 0; }
+  .panel{ border-radius:var(--r-lg); padding:22px; }
+  .panel.b{ background:#fff5f6; border:1px solid #fecdd3; }
+  .panel.a{ background:#f0fdf4; border:1px solid #bbf7d0; }
+  .panel .ptag{ font-size:.74rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px; }
+  .panel.b .ptag{ color:var(--rose); } .panel.a .ptag{ color:var(--emerald); }
+  .step{ display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:.76rem;
+    padding:7px 11px; border-radius:7px; margin:6px 0; }
+  .panel.b .step{ background:#fff; border:1px solid #fecdd3; color:#9f1239; }
+  .panel.a .step{ background:#fff; border:1px solid #bbf7d0; color:#065f46; }
+  .step.dim{ opacity:.5; }
+  .branch{ font-size:.72rem; color:var(--muted); font-weight:700; margin:14px 0 4px; }
+
+  .callout{ border-radius:var(--r-lg); padding:18px 22px; margin:18px 0; font-size:.92rem;
+    display:flex; gap:14px; align-items:flex-start; }
+  .callout .ico{ font-size:1.3rem; flex:none; }
+  .callout.key{ background:linear-gradient(135deg,#eef2ff,#faf5ff); border:1px solid #ddd6fe; color:var(--ink2); }
+  .callout.good{ background:var(--emerald-soft); border:1px solid #a7f3d0; color:#065f46; }
+  .callout.warn{ background:var(--amber-soft); border:1px solid #fde68a; color:#92400e; }
+
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; font-size:.78rem; color:var(--muted); margin-top:8px; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .dot{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  .timeline{ position:relative; margin:20px 0 8px; padding-left:0; }
+  .twk{ display:grid; grid-template-columns:120px 1fr; gap:18px; padding:16px 0; border-bottom:1px solid var(--line); }
+  .twk:last-child{ border-bottom:none; }
+  .twk .w{ font-weight:800; color:var(--violet); font-size:.9rem; }
+  .twk .w small{ display:block; color:var(--muted2); font-weight:600; font-size:.72rem; }
+  .twk ul{ padding-left:18px; font-size:.88rem; color:var(--ink3); } .twk li{ margin:3px 0; }
+
+  ul.clean{ list-style:none; }
+  ul.clean li{ padding:8px 0 8px 28px; position:relative; font-size:.92rem; color:var(--ink3);
+    border-bottom:1px solid var(--line); }
+  ul.clean li:last-child{ border-bottom:none; }
+  ul.clean li::before{ content:"✓"; position:absolute; left:0; top:8px; color:var(--emerald); font-weight:800; }
+
+  .footer{ text-align:center; color:var(--muted2); font-size:.82rem; margin-top:40px; }
+
+  @media(max-width:780px){
+    .tldr,.vs{ grid-template-columns:1fr; } .hero h1{ font-size:1.9rem; }
+    section{ padding:26px 22px; } .twk{ grid-template-columns:1fr; gap:6px; }
+  }
+  @media print{ body{ background:#fff; } section,.tldr .box{ box-shadow:none; } .hero{ box-shadow:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="kicker">● Refactor Plan · เปรียบเทียบ Before → After</span>
+    <h1>Refactor Agents → Agentic Workflows</h1>
+    <p>เปลี่ยน orchestration layer จาก <b style="color:#fff">procedural prose pipeline</b> (ทุกงานเดิน 3 phases เหมือนกัน) เป็น <b style="color:#fff">declarative agentic workflow</b> ที่ classify → route → ใช้ structured handoff. <b style="color:#fff">ตัว agent ทั้ง 10 ไม่ต้องเขียนใหม่</b> — สิ่งที่เปลี่ยนคือวิธีเรียกใช้</p>
+    <div class="meta">
+      <span>📅 <b>2026-05-29</b></span>
+      <span>✍️ <b>jnuchit@gmail.com</b></span>
+      <span>🎯 เห็นภาพการ refactor ก่อนตัดสินใจ</span>
+    </div>
+  </div>
+
+  <div class="tldr">
+    <div class="box before">
+      <div class="tag">● ปัจจุบัน — Procedural</div>
+      <h3>Orchestrator เป็น "สคริปต์ในหัว"</h3>
+      <p>logic การ route ฝังเป็น prose ใน <code>orchestrator.md §5.2/§17</code> · dispatch ผ่าน prose template · ทุก request เดิน Phase 1→1.5→2→3 เหมือนกันหมด · handoff = ก๊อปข้อความยาว</p>
+    </div>
+    <div class="box after">
+      <div class="tag">● เป้าหมาย — Agentic</div>
+      <h3>Workflow เป็น "ผังที่ประกาศได้"</h3>
+      <p>classify เป็น step แรก · route table แยกไฟล์ · งานต่างชนิดเดินคนละเส้น · handoff = structured contract · route ที่เลือกถูกประกาศ + บันทึกใน ledger</p>
+    </div>
+  </div>
+
+  <!-- 1. 4 SHIFTS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">1</div><h2>4 การเปลี่ยนหลัก (Paradigm Shift)</h2></div>
+    <div class="sec-sub">นิยามของ "agentic workflow" คือ 4 คุณสมบัตินี้ที่ procedural pipeline ไม่มี</div>
+
+    <table>
+      <thead><tr><th>มิติ</th><th style="width:38%">ปัจจุบัน (Procedural)</th><th style="width:38%">หลัง Refactor (Agentic)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="col-dim">① Routing</td>
+          <td class="before-cell">Implicit — orchestrator อ่าน prose แล้วตัดสินใจในหัว ทุกงานมักลง full pipeline</td>
+          <td class="after-cell"><b>Declarative</b> — <code>workflow-router.md</code> มี route table; classify → เลือกเส้น → ข้าม phase ที่ไม่ต้อง</td>
+        </tr>
+        <tr>
+          <td class="col-dim">② Handoff</td>
+          <td class="before-cell">Prose dispatch template (<code>orchestrator §10</code>) — ก๊อปข้อความยาว เสี่ยงตกหล่น</td>
+          <td class="after-cell"><b>Structured contract</b> — input/output schema ต่อ stage (spec path, branch, TC IDs, done-gate) ตรวจครบก่อนส่ง</td>
+        </tr>
+        <tr>
+          <td class="col-dim">③ Control flow</td>
+          <td class="before-cell">Fixed sequence — "3 Phases Non-Negotiable"</td>
+          <td class="after-cell"><b>Conditional + parallel</b> — node รัน/ข้าม ตาม type · security เป็น conditional node ตาม risk</td>
+        </tr>
+        <tr>
+          <td class="col-dim">④ Observability</td>
+          <td class="before-cell">รู้ว่าเกิดอะไรจาก chat log เท่านั้น</td>
+          <td class="after-cell"><b>Announced + logged</b> — orchestrator ประกาศ route ที่เลือก + เขียน Routing section ใน <code>plan.md</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout key">
+      <span class="ico">🔑</span>
+      <div><b>สรุปแก่น:</b> agentic workflow = <b>"งานเลือกเส้นทางของตัวเองตาม context"</b> ไม่ใช่ "ทุกงานเดินท่อเดียว". เรามีวัตถุดิบครบแล้ว (10 agents · plan.md state · stop list) — แค่ยก routing จาก prose ขึ้นเป็น declarative step</div>
+    </div>
+  </section>
+
+  <!-- 2. SIDE BY SIDE FLOW -->
+  <section>
+    <div class="sec-head"><div class="sec-num">2</div><h2>เห็นภาพ: เส้นทางงานเดียวกัน</h2></div>
+    <div class="sec-sub">ตัวอย่าง — งาน "แก้ bug ปุ่มไม่ disable" (FE bug-fix เล็ก)</div>
+
+    <div class="vs">
+      <div class="panel b">
+        <div class="ptag">✗ ปัจจุบัน — เดิน full pipeline</div>
+        <div class="step">1. Phase 1 — architect/spec design</div>
+        <div class="step">2. Phase 1.5 — ui-tester scaffold</div>
+        <div class="step">3. Phase 2 — dispatch BE ∥ FE</div>
+        <div class="step">4. Phase 3 — verify ทุก repo</div>
+        <div class="step">5. ui-tester run + reviewer</div>
+        <p style="font-size:.82rem; color:#9f1239; margin-top:14px">→ ลาก architect, spec-writer, BE coder, ui-tester ทั้งที่งานแตะแค่ 1 ไฟล์ FE — เปลือง token + ช้า</p>
+      </div>
+      <div class="panel a">
+        <div class="ptag">✓ หลัง refactor — route: bug-fix</div>
+        <div class="step">0. classify → <b>bug-fix / low risk</b></div>
+        <div class="step dim">— architect (skip)</div>
+        <div class="step dim">— spec-writer (skip)</div>
+        <div class="step">1. regression test (reproduce)</div>
+        <div class="step">2. FE coder fix</div>
+        <div class="step">3. verify (lint+typecheck+e2e)</div>
+        <p style="font-size:.82rem; color:#065f46; margin-top:14px">→ 3 ขั้น แทน 5 phase · เรียกแค่ 2 agent · accountability ยังอยู่ครบใน plan.md</p>
+      </div>
+    </div>
+
+    <div class="sec-sub" style="margin:24px 0 12px 0">ตัวอย่าง — งาน "เพิ่ม OAuth login marketplace" (feature เสี่ยงสูง)</div>
+    <div class="vs">
+      <div class="panel b">
+        <div class="ptag">✗ ปัจจุบัน — security เป็น optional</div>
+        <div class="step">1. Phase 1 — design</div>
+        <div class="step">2. Phase 1.5 — scaffold</div>
+        <div class="step">3. Phase 2 — BE ∥ FE</div>
+        <div class="step">4. Phase 3 — verify</div>
+        <div class="step">5. reviewer (ถ้านึกออกว่าควรเรียก)</div>
+        <p style="font-size:.82rem; color:#9f1239; margin-top:14px">→ threat modeling ไม่มี · security ขึ้นกับว่า orchestrator "นึกได้" ไหม</p>
+      </div>
+      <div class="panel a">
+        <div class="ptag">✓ หลัง refactor — route + risk override</div>
+        <div class="step">0. classify → <b>feature / HIGH (OAuth)</b></div>
+        <div class="step">1. architect → spec</div>
+        <div class="step" style="border-color:#fda4af; color:#9f1239">🛡 security:threat (บังคับ)</div>
+        <div class="step">2. BE ∥ FE + 🛡 security:scan</div>
+        <div class="step">3. ui-tester → 🛡 security:pentest</div>
+        <div class="step">4. reviewer (opus, บังคับ)</div>
+        <p style="font-size:.82rem; color:#065f46; margin-top:14px">→ risk override <b>บังคับ</b> security เข้า flow อัตโนมัติ — ไม่พึ่งความจำคน</p>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:#fff;border:1px solid #bbf7d0"></span> ขั้นที่รัน</span>
+      <span><span class="dot" style="background:#fff;border:1px solid #fecdd3;opacity:.5"></span> ข้ามตาม route</span>
+      <span><span class="dot" style="background:#fda4af"></span> security node (conditional)</span>
+    </div>
+  </section>
+
+  <!-- 3. PER-AGENT IMPACT -->
+  <section>
+    <div class="sec-head"><div class="sec-num">3</div><h2>ผลกระทบต่อ agent แต่ละตัว</h2></div>
+    <div class="sec-sub">ข่าวดี — agent body แทบไม่ต้องแก้ ส่วนใหญ่แค่ "ถูกเรียกแบบมีเงื่อนไข"</div>
+
+    <table>
+      <thead><tr><th>Agent</th><th>เปลี่ยนอะไร</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td><b>orchestrator</b></td><td>เพิ่ม Phase 0 (classify) · §4 จาก "non-negotiable" → "route กำหนด phase" · อ้าง router</td><td><span class="badge b-amber">แก้หลัก</span></td></tr>
+        <tr><td><b>architect</b></td><td>body เดิม — เปลี่ยนเป็น conditional (เรียกเฉพาะ feature/migration/greenfield)</td><td><span class="badge b-green">คงเดิม</span></td></tr>
+        <tr><td><b>spec-writer</b></td><td>body เดิม — skip ใน bug-fix/chore route</td><td><span class="badge b-green">คงเดิม</span></td></tr>
+        <tr><td><b>be / fe / sync / webhook coder</b></td><td>body เดิม — รับ structured handoff แทน prose (ดีขึ้น, ไม่ตกหล่น)</td><td><span class="badge b-green">คงเดิม</span></td></tr>
+        <tr><td><b>ui-tester</b></td><td>body เดิม (มี 2-mode อยู่แล้ว) — skip ใน chore/spike route</td><td><span class="badge b-green">คงเดิม</span></td></tr>
+        <tr><td><b>reviewer</b></td><td>body เดิม — risk override บังคับเรียก (opus) เมื่อแตะ sensitive surface</td><td><span class="badge b-blue">+ trigger rule</span></td></tr>
+        <tr><td><b>sprint-planner</b></td><td>ไม่เกี่ยวกับ build route — คงเดิม</td><td><span class="badge b-green">คงเดิม</span></td></tr>
+        <tr><td><b>🆕 security</b></td><td>agent ใหม่ 4-mode (เริ่ม threat) — conditional node ตาม risk</td><td><span class="badge b-violet">เพิ่มใหม่</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout good">
+      <span class="ico">✅</span>
+      <div><b>8 / 10 agent body ไม่ต้องแตะ.</b> การ refactor นี้คือเรื่องของ <b>orchestration layer</b> (วิธีร้อย agent) — ไม่ใช่ rewrite ตัว agent. ความเสี่ยงต่ำ, rollback ง่าย (ลบ router + คืน §4 เดิม)</div>
+    </div>
+  </section>
+
+  <!-- 4. WHAT WE BUILD -->
+  <section>
+    <div class="sec-head"><div class="sec-num">4</div><h2>Artifact ที่ต้องสร้าง / แก้</h2></div>
+    <div class="sec-sub">รวม 6 ไฟล์ — ใหม่ 3 แก้ 3</div>
+    <table>
+      <thead><tr><th>ไฟล์</th><th>ทำอะไร</th><th>ชนิด</th></tr></thead>
+      <tbody>
+        <tr><td><code>agents/_shared/workflow-router.md</code></td><td>route table + classification rules + risk override — หัวใจของ dynamic</td><td><span class="badge b-violet">ใหม่</span></td></tr>
+        <tr><td><code>.claude/commands/lead.md</code></td><td>entry point เดียว: classify → ประกาศ route → dispatch</td><td><span class="badge b-violet">ใหม่</span></td></tr>
+        <tr><td><code>agents/security.md</code></td><td>security agent (threat mode ก่อน)</td><td><span class="badge b-violet">ใหม่</span></td></tr>
+        <tr><td><code>agents/orchestrator.md</code></td><td>เพิ่ม Phase 0 · §4 route-driven · handoff contract</td><td><span class="badge b-amber">แก้</span></td></tr>
+        <tr><td><code>tasks/plans/_template.md</code></td><td>เพิ่ม <code>## Routing</code> + <code>## Security Review</code></td><td><span class="badge b-amber">แก้</span></td></tr>
+        <tr><td><code>CLAUDE.md</code></td><td>เพิ่ม security เข้า Agent Roles + Test Type <code>Security</code></td><td><span class="badge b-amber">แก้</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5. MIGRATION -->
+  <section>
+    <div class="sec-head"><div class="sec-num">5</div><h2>แผน Migration — 3 สัปดาห์ (incremental)</h2></div>
+    <div class="sec-sub">ไม่ big-bang — ของเดิมยังใช้ได้ตลอด ทยอยเปิด route ทีละชนิด</div>
+
+    <div class="timeline">
+      <div class="twk">
+        <div class="w">Week 1<small>Foundation</small></div>
+        <ul>
+          <li>สร้าง <code>workflow-router.md</code> + route table (feature / bug-fix / chore ก่อน)</li>
+          <li>เพิ่ม Phase 0 classify ใน orchestrator (ยังไม่บังคับ skip — แค่ประกาศ route)</li>
+          <li>ทดลองกับงานจริง 2-3 ใบ → ดูว่า classify ตรงไหม</li>
+        </ul>
+      </div>
+      <div class="twk">
+        <div class="w">Week 2<small>Dynamic routing</small></div>
+        <ul>
+          <li>เปิด skip จริงต่อ route (bug-fix ข้าม architect/spec ได้)</li>
+          <li>เพิ่ม <code>/lead</code> command + Routing section ใน plan.md</li>
+          <li>เพิ่ม route: ui-only / migration / sync / webhook / spike</li>
+        </ul>
+      </div>
+      <div class="twk">
+        <div class="w">Week 3<small>Security node</small></div>
+        <ul>
+          <li>สร้าง <code>agents/security.md</code> (threat mode)</li>
+          <li>ผูก risk override → inject security:threat + reviewer บังคับ</li>
+          <li>เพิ่ม Test Type <code>Security</code> + Security Review ใน plan template</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="ico">⚠️</span>
+      <div><b>กฎความปลอดภัยของ migration:</b> Hard Gates เดิม (branch discipline, commit boundary, verify gates, plan.md lifecycle) <u>ห้ามแตะ</u> — เปลี่ยนแค่ "เรียก agent ตัวไหนเมื่อไหร่" ไม่เปลี่ยน "อะไรที่บังคับก่อน commit"</div>
+    </div>
+  </section>
+
+  <!-- DECISION -->
+  <section style="background:var(--grad-dark); color:#fff; border:none">
+    <div class="sec-head"><div class="sec-num" style="background:rgba(255,255,255,.15)">?</div>
+      <h2 style="color:#fff">ขอ Decision จากทีม</h2></div>
+    <ul class="clean" style="margin-top:8px">
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">เห็นด้วยกับแนวทาง incremental 3 สัปดาห์ หรืออยากเริ่มแค่ route bug-fix ก่อนพิสูจน์?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">classification ใครเป็นคนตัดสิน — orchestrator auto หรือ dev เลือก type ตอนเปิดงาน?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">route ชุดแรก (feature/bug-fix/chore) พอไหม หรือต้องมี migration ตั้งแต่ต้น?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">security node — รวมในเฟสนี้ หรือแยกเป็น proposal ต่างหาก (มีเอกสารแยกแล้ว)?</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    B1DX Fulfillment Workspace · Refactor Agents → Agentic Workflows · 2026-05-29<br>
+    อ้างอิง: <code>agents/orchestrator.md §4/§5.2/§10/§17</code> · <code>agents/_shared/workflow-protocol.md</code> · <code>CLAUDE.md</code> · เอกสารคู่กัน: <code>dynamic-workflow-security-agent-proposal.html</code>
+  </div>
+
+</div>
+</body>
+</html>

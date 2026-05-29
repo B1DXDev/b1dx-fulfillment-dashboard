@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B1DX · Dynamic Workflow + Security Agent — Team Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#f4f6fa; --surface:#fff; --ink:#0b0f1a; --ink2:#1f2937; --ink3:#475569;
+    --muted:#64748b; --muted2:#94a3b8; --line:#e6e9f0; --soft:#f7f9fc;
+    --indigo:#4f46e5; --violet:#7c3aed; --emerald:#059669; --emerald-soft:#ecfdf5;
+    --blue:#2563eb; --blue-soft:#eff6ff; --amber:#b45309; --amber-soft:#fffbeb;
+    --rose:#e11d48; --rose-soft:#fff1f2; --cyan:#0891b2;
+    --grad-brand:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#c026d3 100%);
+    --grad-dark:linear-gradient(135deg,#0b0f1a 0%,#1e1b4b 45%,#4c1d95 100%);
+    --grad-rose:linear-gradient(135deg,#f43f5e 0%,#be123c 100%);
+    --grad-emerald:linear-gradient(135deg,#10b981 0%,#059669 100%);
+    --r-md:12px; --r-lg:18px; --r-xl:24px;
+    --sh-sm:0 1px 2px rgba(15,23,42,.04),0 2px 6px rgba(15,23,42,.05);
+    --sh-md:0 4px 6px -1px rgba(15,23,42,.05),0 12px 24px -8px rgba(15,23,42,.08);
+    --sh-lg:0 32px 64px -12px rgba(15,23,42,.18),0 8px 16px -4px rgba(15,23,42,.06);
+  }
+  html,body{ font-family:'Inter','IBM Plex Sans Thai',-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink2); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
+  code,.mono{ font-family:'JetBrains Mono',monospace; font-size:.86em; }
+
+  /* Hero */
+  .hero{ background:var(--grad-dark); color:#fff; border-radius:var(--r-xl); padding:48px 44px;
+    box-shadow:var(--sh-lg); position:relative; overflow:hidden; }
+  .hero::after{ content:""; position:absolute; right:-80px; top:-80px; width:320px; height:320px;
+    background:radial-gradient(circle,rgba(139,92,246,.4),transparent 70%); }
+  .hero .kicker{ display:inline-flex; gap:8px; align-items:center; font-size:.74rem; font-weight:700;
+    letter-spacing:.12em; text-transform:uppercase; color:#c4b5fd; background:rgba(255,255,255,.08);
+    padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.14); }
+  .hero h1{ font-size:2.5rem; font-weight:900; letter-spacing:-.02em; margin:18px 0 12px; line-height:1.12; }
+  .hero p{ color:#cbd5e1; font-size:1.05rem; max-width:680px; }
+  .hero .meta{ margin-top:24px; display:flex; gap:24px; flex-wrap:wrap; font-size:.85rem; color:#a5b4fc; }
+  .hero .meta b{ color:#fff; font-weight:600; }
+
+  /* Stat row */
+  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:-32px 12px 40px;
+    position:relative; z-index:2; }
+  .stat{ background:var(--surface); border-radius:var(--r-lg); padding:22px 20px; box-shadow:var(--sh-md);
+    border:1px solid var(--line); }
+  .stat .n{ font-size:2rem; font-weight:900; letter-spacing:-.02em;
+    background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .stat .l{ font-size:.78rem; color:var(--muted); font-weight:600; margin-top:4px; }
+  .stat .s{ font-size:.72rem; color:var(--muted2); margin-top:2px; }
+
+  /* Sections */
+  section{ background:var(--surface); border-radius:var(--r-xl); padding:36px 38px; margin-bottom:24px;
+    box-shadow:var(--sh-sm); border:1px solid var(--line); }
+  .sec-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+  .sec-num{ width:34px; height:34px; flex:none; display:grid; place-items:center; border-radius:10px;
+    background:var(--grad-brand); color:#fff; font-weight:800; font-size:.95rem; box-shadow:var(--sh-sm); }
+  .sec-head h2{ font-size:1.4rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); }
+  .sec-sub{ color:var(--muted); font-size:.92rem; margin:2px 0 24px 48px; }
+  h3{ font-size:1.05rem; font-weight:700; color:var(--ink); margin:26px 0 12px; }
+
+  /* Tables */
+  table{ width:100%; border-collapse:collapse; margin:8px 0; font-size:.9rem; }
+  th{ text-align:left; font-weight:700; color:var(--ink2); background:var(--soft);
+    padding:11px 14px; border-bottom:2px solid var(--line); font-size:.82rem;
+    text-transform:uppercase; letter-spacing:.04em; }
+  td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink3); vertical-align:top; }
+  tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--soft); }
+
+  /* Badges */
+  .badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:.72rem;
+    font-weight:700; letter-spacing:.02em; }
+  .b-red{ background:var(--rose-soft); color:var(--rose); }
+  .b-amber{ background:var(--amber-soft); color:var(--amber); }
+  .b-green{ background:var(--emerald-soft); color:var(--emerald); }
+  .b-blue{ background:var(--blue-soft); color:var(--blue); }
+  .b-gray{ background:#f1f5f9; color:var(--muted); }
+  .b-violet{ background:#f5f3ff; color:var(--violet); }
+
+  /* Cards */
+  .cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:18px 0; }
+  .card{ border:1px solid var(--line); border-radius:var(--r-lg); padding:20px 22px; background:var(--soft); }
+  .card.accent{ border-left:4px solid var(--indigo); }
+  .card h4{ font-size:1rem; font-weight:700; color:var(--ink); margin-bottom:8px; display:flex; gap:8px; align-items:center; }
+  .card p{ font-size:.88rem; color:var(--ink3); }
+  .card ul{ margin:8px 0 0 0; padding-left:18px; font-size:.86rem; color:var(--ink3); }
+  .card li{ margin:4px 0; }
+
+  /* Callout */
+  .callout{ border-radius:var(--r-lg); padding:18px 22px; margin:18px 0; font-size:.92rem;
+    display:flex; gap:14px; align-items:flex-start; }
+  .callout .ico{ font-size:1.3rem; flex:none; }
+  .callout.key{ background:linear-gradient(135deg,#eef2ff,#faf5ff); border:1px solid #ddd6fe; color:var(--ink2); }
+  .callout.warn{ background:var(--amber-soft); border:1px solid #fde68a; color:#92400e; }
+  .callout.good{ background:var(--emerald-soft); border:1px solid #a7f3d0; color:#065f46; }
+
+  /* Flow diagram */
+  .flow{ background:#0f1320; border-radius:var(--r-lg); padding:26px 24px; margin:16px 0; overflow-x:auto; }
+  .flow .row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  .flow .lbl{ font-size:.72rem; color:#64748b; font-weight:700; text-transform:uppercase;
+    letter-spacing:.08em; width:88px; flex:none; }
+  .node{ font-family:'JetBrains Mono',monospace; font-size:.78rem; font-weight:600; padding:7px 13px;
+    border-radius:8px; white-space:nowrap; }
+  .n-base{ background:#1e293b; color:#cbd5e1; border:1px solid #334155; }
+  .n-sec{ background:rgba(244,63,94,.16); color:#fda4af; border:1px solid rgba(244,63,94,.4); }
+  .n-skip{ background:transparent; color:#475569; border:1px dashed #334155; text-decoration:line-through; }
+  .n-cond{ background:rgba(124,58,237,.16); color:#c4b5fd; border:1px solid rgba(124,58,237,.4); }
+  .arr{ color:#475569; font-weight:700; }
+
+  ul.clean{ list-style:none; }
+  ul.clean li{ padding:8px 0 8px 28px; position:relative; font-size:.92rem; color:var(--ink3);
+    border-bottom:1px solid var(--line); }
+  ul.clean li:last-child{ border-bottom:none; }
+  ul.clean li::before{ content:"✓"; position:absolute; left:0; top:8px; color:var(--emerald); font-weight:800; }
+
+  .footer{ text-align:center; color:var(--muted2); font-size:.82rem; margin-top:40px; }
+  .pill-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+
+  @media(max-width:760px){
+    .stats{ grid-template-columns:repeat(2,1fr); }
+    .cards{ grid-template-columns:1fr; }
+    .hero h1{ font-size:1.9rem; }
+    section{ padding:26px 22px; }
+  }
+  @media print{ body{ background:#fff; } section,.stat{ box-shadow:none; } .hero{ box-shadow:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="kicker">● Proposal · Draft</span>
+    <h1>Dynamic Workflow + Security Agent</h1>
+    <p>ยกระดับ b1dx-fulfillment-workspace จาก <b style="color:#fff">static 3-phase pipeline</b> สู่ <b style="color:#fff">dynamic agentic workflow</b> ที่ route ตามประเภทงาน + เพิ่ม Security agent เป็น conditional node ตาม risk</p>
+    <div class="meta">
+      <span>📅 <b>2026-05-29</b></span>
+      <span>✍️ <b>jnuchit@gmail.com</b></span>
+      <span>🎯 นำเสนอทีมเพื่อขอ feedback ก่อนลงมือ</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="n">10</div><div class="l">Agents ปัจจุบัน</div><div class="s">orchestrator → sprint-planner</div></div>
+    <div class="stat"><div class="n">1 → N</div><div class="l">Workflow Routes</div><div class="s">static เส้นเดียว → dynamic</div></div>
+    <div class="stat"><div class="n">+1</div><div class="l">Security Agent</div><div class="s">4 modes, เริ่ม threat</div></div>
+    <div class="stat"><div class="n">~30%</div><div class="l">Security Coverage</div><div class="s">PR-time review เท่านั้น</div></div>
+  </div>
+
+  <!-- 1. CURRENT STATE -->
+  <section>
+    <div class="sec-head"><div class="sec-num">1</div><h2>สถานะปัจจุบัน</h2></div>
+    <div class="sec-sub">เรามีของดีครบแล้ว — แต่ทุกงานเดินเส้นเดียวกันหมด</div>
+
+    <div class="cards">
+      <div class="card accent">
+        <h4>✅ สิ่งที่แข็งแรงอยู่แล้ว</h4>
+        <ul>
+          <li><b>10 agents</b> + shared constitution (<code>_shared/*.md</code>)</li>
+          <li><b>Orchestrator</b> เป็นตัวกลาง spawn subagent</li>
+          <li><b>Plan Gate</b> + Auto-Proceed Stop List (13 เงื่อนไข)</li>
+          <li><b>State machine</b>: plan.md lifecycle + GH Issue sync</li>
+          <li><b>12-col TC format</b> + verify gates ต่อ stack</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--amber)">
+        <h4>⚠️ ข้อจำกัด: Static Pipeline</h4>
+        <p><code>orchestrator.md §4</code> ระบุ <b>"3 Phases (Non-Negotiable)"</b> — ทุก request เดินเส้นเดียวกัน:</p>
+        <p style="margin-top:10px; font-family:'JetBrains Mono',monospace; font-size:.78rem; color:var(--ink2)">
+          Phase 1 → Phase 1.5 → Phase 2 → Phase 3</p>
+        <p style="margin-top:10px">bug-fix เล็ก ๆ ก็ต้องลาก architect + spec-writer + ui-tester เต็ม pipeline → เปลือง token + ช้า</p>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <span class="ico">🔑</span>
+      <div><b>Insight สำคัญ:</b> routing logic <u>มีอยู่แล้ว</u> แต่กระจายเป็น prose ใน <code>orchestrator.md §5.2, §17</code> ("Where does this work go?") — มันยังไม่ถูกยกเป็น <b>ขั้นตอนแรกที่บังคับทำ + ประกาศออกมา</b>. นั่นคือเส้นแบ่งเดียวระหว่าง static pipeline กับ dynamic workflow</div>
+    </div>
+  </section>
+
+  <!-- 2. DYNAMIC WORKFLOW -->
+  <section>
+    <div class="sec-head"><div class="sec-num">2</div><h2>ข้อเสนอ — Dynamic Workflow</h2></div>
+    <div class="sec-sub">เพิ่ม Phase 0 (Classify) + Route Table — งานต่างประเภทเดินคนละเส้น</div>
+
+    <h3>หลักการ</h3>
+    <p style="font-size:.92rem">Orchestrator <b>classify ก่อน</b> ว่างานคือ type อะไร + risk เท่าไหร่ → <b>ประกาศ route ที่เลือก</b> → ค่อย dispatch. แต่ละ type ข้าม phase ที่ไม่จำเป็นได้ (มี accountability ผ่าน plan.md)</p>
+
+    <h3>Route Table (ตัวอย่าง)</h3>
+    <table>
+      <thead><tr><th>Task Type</th><th>Route</th><th>ข้าม</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-violet">feature</span></td><td>architect? → spec → ui-tester(1.5) → BE∥FE → verify → reviewer? → ui-tester(3)</td><td>—</td></tr>
+        <tr><td><span class="badge b-blue">bug-fix</span></td><td>regression test → BE|FE fix → verify</td><td>architect, spec</td></tr>
+        <tr><td><span class="badge b-blue">ui-only</span></td><td>spec(FE) → ui-tester(1.5) → FE → verify → ui-tester(3)</td><td>BE, architect</td></tr>
+        <tr><td><span class="badge b-amber">migration</span></td><td>architect <b>(บังคับ)</b> → spec → BE → verify</td><td>FE · risk≥medium</td></tr>
+        <tr><td><span class="badge b-green">sync / webhook</span></td><td>spec → sync/webhook-coder → verify (stack gates)</td><td>FE</td></tr>
+        <tr><td><span class="badge b-gray">chore / docs</span></td><td>coder → verify build เฉพาะที่แตะ</td><td>test gates ทั้งหมด</td></tr>
+        <tr><td><span class="badge b-gray">spike</span></td><td>architect/research → ADR / recommendation</td><td>implement ทั้งหมด</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="ico">🛡️</span>
+      <div><b>Risk Override (ซ้อนทับ route หลัก):</b> ถ้าแตะ <code>auth / JWT / tenant-isolation / payment / PII / OAuth / file-upload</code> → บังคับ inject <b>Security agent</b> + Reviewer (opus) เสมอ แม้ user ไม่ขอ</div>
+    </div>
+  </section>
+
+  <!-- 3. SECURITY AGENT -->
+  <section>
+    <div class="sec-head"><div class="sec-num">3</div><h2>เพิ่ม Security Agent</h2></div>
+    <div class="sec-sub">1 agent · 4 modes — เติม gap ที่ Reviewer §8 (PR-time) ครอบไม่ถึง</div>
+
+    <div class="callout good">
+      <span class="ico">💡</span>
+      <div><b>Recommendation:</b> สร้าง <b>1 agent</b> (<code>agents/security.md</code>) ที่มี 4 mode — ไม่ใช่ 4 agents แยก (กัน context switch + ซ้ำ CLAUDE.md ต่อ repo) คล้าย UI Tester ที่มี scaffold + run. <b>เริ่ม <code>threat</code> mode ก่อน</b> — ROI สูงสุด</div>
+    </div>
+
+    <h3>4 Modes</h3>
+    <table>
+      <thead><tr><th>Mode</th><th>Phase</th><th>ทำอะไร</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-red">threat</span></td><td>1</td><td>STRIDE / attack surface ก่อนเขียนโค้ด</td><td>spec แตะ auth/tenant/PII/external API</td></tr>
+        <tr><td><span class="badge b-amber">scan</span></td><td>2</td><td>อ่าน SAST/secret/dep report → block PR ไหม</td><td>ทุก build (∥ coders)</td></tr>
+        <tr><td><span class="badge b-blue">pentest</span></td><td>3</td><td>DAST + IDOR + auth bypass test</td><td>payment/OAuth/file-upload/public endpoint</td></tr>
+        <tr><td><span class="badge b-gray">hardening</span></td><td>Quarterly</td><td>TLS / secret rotation / WAF / RBAC baseline</td><td>sprint-end / new repo / new integration</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Gap ที่ปิด (เทียบ 4-layer)</h3>
+    <table>
+      <thead><tr><th>Layer</th><th>ตอนนี้</th><th>หลังเพิ่ม</th></tr></thead>
+      <tbody>
+        <tr><td>L1 — Threat modeling</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">threat mode</span></td></tr>
+        <tr><td>L2 — SAST / secret / dep scan</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">scan mode + CI</span></td></tr>
+        <tr><td>L3 — Penetration test</td><td><span class="badge b-amber">บางส่วน (Reviewer §8)</span></td><td><span class="badge b-green">pentest mode</span></td></tr>
+        <tr><td>L4 — Infra hardening</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">hardening mode</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn" style="margin-top:18px">
+      <span class="ico">⚠️</span>
+      <div><b>ห้าม duplicate Reviewer §8</b> (OWASP/tenant/JWT/secrets มีอยู่แล้ว). Security agent <u>เติม</u> สิ่งที่ Reviewer ทำไม่ได้เพราะมาช้า (PR-time) — โดยเฉพาะ pre-design + scan automation + post-deploy</div>
+    </div>
+  </section>
+
+  <!-- 4. INTEGRATED FLOW -->
+  <section>
+    <div class="sec-head"><div class="sec-num">4</div><h2>ภาพรวม Flow ใหม่</h2></div>
+    <div class="sec-sub">Security เป็น conditional node ที่ถูก trigger โดย risk — ไม่ใช่ทุก feature (กัน bottleneck)</div>
+
+    <div class="flow">
+      <div class="row"><span class="lbl">feature (high-risk)</span>
+        <span class="node n-base">classify</span><span class="arr">→</span>
+        <span class="node n-base">architect</span><span class="arr">→</span>
+        <span class="node n-base">spec</span><span class="arr">→</span>
+        <span class="node n-sec">security:threat</span><span class="arr">→</span>
+        <span class="node n-base">BE∥FE</span><span class="arr">+</span>
+        <span class="node n-sec">security:scan</span><span class="arr">→</span>
+        <span class="node n-base">ui-tester</span><span class="arr">→</span>
+        <span class="node n-sec">security:pentest</span><span class="arr">→</span>
+        <span class="node n-base">reviewer</span>
+      </div>
+      <div class="row"><span class="lbl">bug-fix</span>
+        <span class="node n-base">classify</span><span class="arr">→</span>
+        <span class="node n-skip">architect</span><span class="arr">→</span>
+        <span class="node n-skip">spec</span><span class="arr">→</span>
+        <span class="node n-base">regression test</span><span class="arr">→</span>
+        <span class="node n-base">fix</span><span class="arr">→</span>
+        <span class="node n-base">verify</span>
+      </div>
+      <div class="row"><span class="lbl">chore/docs</span>
+        <span class="node n-base">classify</span><span class="arr">→</span>
+        <span class="node n-skip">all test gates</span><span class="arr">→</span>
+        <span class="node n-base">coder</span><span class="arr">→</span>
+        <span class="node n-base">verify build</span>
+      </div>
+      <div class="row" style="margin-top:18px; gap:14px; font-size:.72rem; color:#64748b">
+        <span><span class="node n-base" style="padding:3px 8px">base</span> ขั้นปกติ</span>
+        <span><span class="node n-sec" style="padding:3px 8px">security</span> conditional (risk)</span>
+        <span><span class="node n-cond" style="padding:3px 8px">cond</span> optional</span>
+        <span><span class="node n-skip" style="padding:3px 8px">skip</span> ข้ามตาม route</span>
+      </div>
+    </div>
+
+    <h3>Hook เข้า Hard Gates ที่มีอยู่ (ไม่ต้องรื้อ)</h3>
+    <table>
+      <thead><tr><th>CLAUDE.md Gate</th><th>Security Hook</th></tr></thead>
+      <tbody>
+        <tr><td>Pre-Build Plan Gate § Test Plan</td><td>เพิ่ม <b>Threat Cases</b> (TC ID + STRIDE category)</td></tr>
+        <tr><td>Auto-Proceed Stop List · Tier 1 #5 (Security)</td><td>finding <b>High</b> → trigger Tier 1 stop อัตโนมัติ</td></tr>
+        <tr><td>12-col TC format</td><td>เพิ่ม Test Type = <code>Security</code> (ค่าที่ 6)</td></tr>
+        <tr><td>plan.md lifecycle</td><td>เพิ่ม <code>## Security Review</code> — link threat doc + scan result</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5. PLAN -->
+  <section>
+    <div class="sec-head"><div class="sec-num">5</div><h2>แผนลงมือ</h2></div>
+    <div class="sec-sub">เรียงตาม ROI — ไม่ต้องรื้อ agent ทั้ง 10 ตัว</div>
+
+    <table>
+      <thead><tr><th>#</th><th>ทำอะไร</th><th>ไฟล์</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>สร้าง route table + Phase 0 classify</td><td><code>agents/_shared/workflow-router.md</code> (ใหม่)</td><td><span class="badge b-green">S</span></td></tr>
+        <tr><td>2</td><td>แก้ orchestrator §4 ให้ route กำหนด phase ที่รัน</td><td><code>agents/orchestrator.md</code></td><td><span class="badge b-amber">M</span></td></tr>
+        <tr><td>3</td><td>เพิ่ม <code>/lead</code> command บังคับ classify + ประกาศ route</td><td><code>.claude/commands/lead.md</code> (ใหม่)</td><td><span class="badge b-green">S</span></td></tr>
+        <tr><td>4</td><td>สร้าง Security agent (เริ่ม threat mode)</td><td><code>agents/security.md</code> (ใหม่)</td><td><span class="badge b-amber">M</span></td></tr>
+        <tr><td>5</td><td>เพิ่ม Routing + Security Review ใน plan template</td><td><code>tasks/plans/_template.md</code></td><td><span class="badge b-green">S</span></td></tr>
+        <tr><td>6</td><td>เพิ่ม <code>Security</code> เป็น Test Type ที่ 6</td><td><code>CLAUDE.md</code> + TC templates</td><td><span class="badge b-green">S</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="cards" style="margin-top:24px">
+      <div class="card" style="border-left:4px solid var(--emerald)">
+        <h4>🚀 แนะนำเริ่มที่</h4>
+        <p><b>#1 + #2</b> (dynamic routing) ได้ผลเยอะสุด เปลี่ยนโครงน้อยสุด — แล้วตามด้วย <b>#4</b> (security threat mode) เพราะ route table จะพร้อมรับ security node พอดี</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--violet)">
+        <h4>📐 หลักที่ยึด</h4>
+        <ul>
+          <li>1 agent หลาย mode &gt; แตกย่อยจนซ้ำ context</li>
+          <li>Security trigger เฉพาะ high-risk surface</li>
+          <li>เริ่ม mode เดียว ขยายเมื่อ workflow นิ่ง</li>
+          <li>ไม่ duplicate gate ที่มีอยู่</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DECISION -->
+  <section style="background:var(--grad-dark); color:#fff; border:none">
+    <div class="sec-head"><div class="sec-num" style="background:rgba(255,255,255,.15)">?</div>
+      <h2 style="color:#fff">ขอ Decision จากทีม</h2></div>
+    <ul class="clean" style="margin-top:8px">
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">เห็นชอบเปลี่ยน static → dynamic workflow (Phase 0 classify) ไหม?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">Security agent — 1 agent 4 modes ตามเสนอ หรืออยากแยก?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">เริ่ม <code style="color:#fda4af">threat</code> mode ก่อน หรือทำ <code style="color:#fda4af">scan</code> (CI) ก่อนเพราะ automate ได้?</li>
+      <li style="color:#cbd5e1; border-color:rgba(255,255,255,.12)">Risk surface list — auth/JWT/tenant/payment/PII/OAuth ครบไหม ขาดอะไร?</li>
+    </ul>
+    <div class="pill-row" style="margin-top:18px">
+      <span class="badge" style="background:rgba(255,255,255,.12); color:#fff">Next: เริ่ม #1 + #2 หลังทีม approve</span>
+    </div>
+  </section>
+
+  <div class="footer">
+    B1DX Fulfillment Workspace · Dynamic Workflow + Security Agent Proposal · 2026-05-29<br>
+    อ้างอิง: <code>agents/orchestrator.md</code> · <code>agents/_shared/workflow-protocol.md</code> · <code>docs/security-agent-proposal.html</code>
+  </div>
+
+</div>
+</body>
+</html>
