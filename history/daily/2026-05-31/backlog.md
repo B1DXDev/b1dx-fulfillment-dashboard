@@ -300,109 +300,16 @@
 
 ## GROUP 3 — Access Control `P1`
 
-> Done items archived → tasks/archive/2026-04-backlog.md
-
-### [P1] User Management (Add / Edit / Detail)
-
-**Goal:** Admin จัดการ User ในระบบ — เพิ่ม, แก้ไข, ดูรายละเอียด, deactivate
-**Screens:** `ac-users`
-**Spec:** `docs/specs/user-management.md` ✅
-**Notes:** Spec ครบ — Sprint 4 (ตรวจสอบ build status ก่อน → complete ส่วนที่ขาด)
-
-### [P2] User Form: Multiple Role Assignments
-
-**Goal:** Add/Edit user drawer รองรับ multiple roles
-**Type:** FE only — `UserFormDrawer.tsx`, `userForm.ts`, `useAddUser.ts`, `useUpdateUser.ts`, MSW
-**Detail:**
-
-- Replace single `roleId` dropdown → dynamic list of role assignments (add/remove rows)
-- Each row: role select + conditional scope (brand/warehouse) + remove button
-- At least 1 role required
-- Schema: `roleAssignments: { roleId, brandId?, warehouseId? }[]`
-- API payload: `roleAssignments[]` instead of flat `roleId/brandId/warehouseId`
-
-### [P1] S2-RBAC-05: FE — Permission Editor — dirty state + Save + unsaved confirm ❌
-
-**Goal:** PermissionEditor บันทึกได้จริงผ่าน API
-**Type:** FE only | **Effort:** S | **Depends on:** S2-RBAC-04
-**Steps:**
-
-1. Track dirty state per role column (copy initial state → compare on toggle)
-2. Save → `PUT /api/user/roles/{id}/permissions` สำหรับแต่ละ role ที่ dirty
-3. Success toast + reset dirty state
-4. Unsaved-changes confirm dialog (`AlertDialog`) เมื่อออกจากหน้า/เปลี่ยน tab
-5. `pnpm typecheck` ผ่าน
-
-### [P2] S2-RBAC-06: FE + BE — Role Overview cards เพิ่ม user count ❌
-
-**Goal:** card แต่ละ role แสดงจำนวน user ที่ใช้ role นั้น
-**Type:** BE + FE | **Effort:** XS
-**Steps (BE):** เพิ่ม `userCount: int` ใน `RoleResponse` — `LEFT JOIN user_memberships GROUP BY role_key`
-**Steps (FE):** แสดง user count badge ใน `RoleOverviewCards.tsx`
-
-### [P2] S2-RBAC-08b: FE — Users page — Role Quick-Filter Chips ❌
-
-**Goal:** แทน dropdown ด้วย chip row ตาม mockup
-**Type:** FE only | **Effort:** XS | **Depends on:** ไม่มี
-**Spec:** chips `[ทั้งหมด | FF Member | Brand Admin | WH Admin | WH Worker | FF Manager]` — `sys-admin` hidden
-**Steps:**
-
-1. Replace role dropdown → chip row ใน `app/(app)/users/page.tsx`
-2. Active chip: `bg-primary text-white`, inactive: `border`
-3. Click chip → update `roleKey` URL param + reset `page=1`
-
-### [P2] S2-RBAC-10: FE — Users page — Bulk Action Bar ❌
-
-**Goal:** เลือกหลาย user พร้อมกัน → deactivate / export
-**Type:** FE only | **Effort:** S | **Depends on:** ไม่มี
-
-### [P2] S2-RBAC-11: FE — UserDetailDrawer — Reset Password button ❌
-
-**Type:** FE only | **Effort:** XS | **Depends on:** ไม่มี
-**Steps:**
-
-1. เพิ่มปุ่ม "รีเซ็ตรหัสผ่าน" ใน footer (ซ่อนถ้า status = locked/disabled)
-2. Confirm dialog: "ส่ง email รีเซ็ตรหัสผ่านไปยัง {email}?"
-3. `POST /api/identity/auth/forgot-password` → success toast
-
-### [P2] S2-RBAC-12: FE — UserDetailDrawer — Change Role dialog ❌
-
-**Type:** FE only | **Effort:** S | **Depends on:** S2-RBAC-04
-
-### [P2] S2-RBAC-13: FE — Users page — URL state sync (`useSearchParams`) ❌
-
-**Type:** FE only | **Effort:** S | **Depends on:** ไม่มี
-**Params:** `q`, `roleKey`, `status`, `page`, `pageSize`
-
-### [P1] S2-RBAC-14: FE — Permission Editor Wire → Real API ❌
-
-**Type:** FE only | **Effort:** S | **Depends on:** S2-RBAC-05, S2-RBAC-15b
-
-### [P1] S2-RBAC-15: BE — อัปเดต `role_permissions` schema รองรับ 4 states ❌
-
-**Type:** BE only | **Effort:** M | **Depends on:** ไม่มี
-**Steps:**
-
-1. Migration: เพิ่ม column `state varchar(10) DEFAULT 'allow'` + `override_value varchar(20) NULL`
-2. อัปเดต `RolePermission` domain entity + EF config
-3. อัปเดต `PUT /api/user/roles/{id}/permissions`
-4. อัปเดต `GET /api/user/roles`
-5. `dotnet build && dotnet test` ผ่าน
-
-### [P2] S2-RBAC-16: BE — อัปเดต seed data ให้ตรงกับ Default Permission Matrix v2 ❌
-
-**Type:** BE only | **Effort:** XS | **Depends on:** S2-RBAC-15
-
-### [P2] S2-RH-02: FE — Wire RoleHierarchyTab → Real API ❌
-
-**Goal:** `RoleHierarchyTab` แสดงข้อมูลจาก API จริง + สร้าง/ลบ rule ได้
-**Type:** FE only | **Effort:** S | **Depends on:** S2-RH-01 ✅
-
-### [P2] Status Permissions
-
-**Goal:** กำหนดว่า Role ไหนทำ action อะไรกับ Order status ได้บ้าง
-**Screens:** `ac-stperm`
-**Notes:** permission matrix ระดับ status transition
+> **Audited 2026-05-31** — all items migrated to GH Issues. Backlog entries removed.
+>
+> **✅ Confirmed Done (code audit — 10 items):**
+> User Management (List/Add/Edit/Detail) · S2-RBAC-05 (PermissionEditor dirty+Save) · S2-RBAC-06 (role userCount) · S2-RBAC-10 (Bulk Action Bar) · S2-RBAC-11 (Reset Password) · S2-RBAC-12 (Change Role dialog) · S2-RBAC-14 (PermissionEditor→API) · S2-RBAC-15 (4-state schema) · S2-RBAC-16 (seed v3) · S2-RH-02 (RoleHierarchyTab→API)
+>
+> **📋 Open (4 items) → Epic [#257](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/257):**
+> - [FF-USER-001 #258](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/258) — User Form: Multiple Role Assignments
+> - [FF-USER-002 #259](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/259) — Users page: Role Quick-Filter Chips
+> - [FF-USER-003 #260](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/260) — Users page: URL state sync
+> - [FF-USER-004 #261](https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/261) — Status Permissions: wire to real BE API
 
 ---
 
