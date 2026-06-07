@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATCH-WORKER-01 — Auto-Match SKU Report</title>
+<style>
+  :root {
+    --blue: #4a9eed; --blue-lt: #a5d8ff; --blue-dark: #1e5f9e;
+    --purple: #8b5cf6; --purple-lt: #d0bfff; --purple-dark: #5b21b6;
+    --green: #22c55e; --green-lt: #b2f2bb; --green-dark: #15803d;
+    --amber: #f59e0b; --amber-lt: #fff3bf;
+    --red: #ef4444; --red-lt: #ffc9c9;
+    --teal-lt: #c3fae8;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+    --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: var(--gray-900); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%);
+    color: #fff; padding: 40px 48px 32px;
+  }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 15px; color: rgba(255,255,255,.7); margin-top: 6px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .header-meta span { font-size: 13px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1080px; margin: 0 auto; padding: 32px 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-500); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: block; width: 3px; height: 14px; border-radius: 2px; background: var(--purple); }
+
+  /* ── STAT CARDS ── */
+  .stat-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; border-left: 4px solid var(--purple); }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--gray-900); margin-top: 4px; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin: 32px 0 16px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-container { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .flow-embed { border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; text-align: center; background: var(--gray-50); padding: 20px; }
+  .flow-embed a { display: inline-flex; align-items: center; gap: 8px; background: var(--purple); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .flow-embed a:hover { background: var(--purple-dark); }
+  .flow-embed p { font-size: 13px; color: var(--gray-500); margin-top: 10px; }
+
+  /* ── FLOW STEPS ── */
+  .flow-steps { display: flex; flex-direction: column; gap: 0; }
+  .flow-step { display: flex; gap: 16px; align-items: flex-start; }
+  .flow-step-line { display: flex; flex-direction: column; align-items: center; }
+  .flow-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .flow-line { width: 2px; flex: 1; min-height: 20px; background: var(--gray-200); }
+  .flow-content { padding-bottom: 20px; flex: 1; }
+  .flow-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .flow-content p { font-size: 13px; color: var(--gray-500); }
+  .flow-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+
+  /* ── COMPONENT TABLE ── */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { background: var(--gray-50); text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200); }
+  .comp-table td { padding: 11px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: var(--gray-50); }
+  code { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; background: var(--gray-100); padding: 2px 6px; border-radius: 4px; color: var(--purple-dark); }
+
+  /* ── FILE DIFF ── */
+  .file-list { display: flex; flex-direction: column; gap: 6px; }
+  .file-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; background: var(--gray-50); font-size: 13px; }
+  .file-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; flex-shrink: 0; min-width: 42px; text-align: center; }
+  .badge-new { background: var(--green-lt); color: var(--green-dark); }
+  .badge-mod { background: var(--blue-lt); color: var(--blue-dark); }
+  .file-path { font-family: monospace; font-size: 12px; color: var(--gray-700); }
+
+  /* ── TEST ── */
+  .test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .test-item { background: var(--gray-50); border-radius: 8px; padding: 14px; border: 1px solid var(--gray-200); }
+  .test-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .test-item ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .test-item li { font-size: 12px; color: var(--gray-700); display: flex; align-items: flex-start; gap: 6px; }
+  .test-item li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  /* ── DECISION ── */
+  .decision-box { background: var(--amber-lt); border: 1px solid var(--amber); border-radius: 8px; padding: 14px 18px; }
+  .decision-box h4 { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 8px; }
+  .decision-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .decision-box li { font-size: 13px; color: #78350f; display: flex; gap: 8px; }
+  .decision-box li span.label { font-weight: 700; min-width: 36px; }
+
+  /* ── TAG ── */
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .tag-blue { background: var(--blue-lt); color: var(--blue-dark); }
+  .tag-purple { background: var(--purple-lt); color: var(--purple-dark); }
+  .tag-green { background: var(--green-lt); color: var(--green-dark); }
+  .tag-red { background: var(--red-lt); color: #b91c1c; }
+  .tag-amber { background: var(--amber-lt); color: #92400e; }
+
+  /* ── ALERT ── */
+  .alert { padding: 14px 18px; border-radius: 8px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+  .alert-warn { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+  .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; padding: 32px 24px; font-size: 12px; color: var(--gray-500); }
+</style>
+</head>
+<body>
+
+<!-- ─────────────── HEADER ─────────────── -->
+<div class="header">
+  <div class="header-badge">MATCH-WORKER-01</div>
+  <h1>Auto-Match Marketplace SKU → Product</h1>
+  <div class="header-sub">feat/match-worker-01-auto-match · b1dx.omsorders.sync.worker</div>
+  <div class="header-meta">
+    <span><strong>สถานะ:</strong> Merged into main</span>
+    <span><strong>วันที่:</strong> 29 May 2026</span>
+    <span><strong>Author:</strong> Nuchit (Claude Opus 4.8)</span>
+    <span><strong>FF-WORKSPACE-013</strong> UUID v7 fixes bundled</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ─────────────── STATS ─────────────── -->
+  <div class="grid-3" style="margin-top:24px;">
+    <div class="stat-card" style="border-color:var(--blue);">
+      <div class="stat-label">Files Changed</div>
+      <div class="stat-value">19</div>
+      <div class="stat-sub">+950 lines inserted</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--green);">
+      <div class="stat-label">Unit Tests</div>
+      <div class="stat-value">11</div>
+      <div class="stat-sub">MatchStatusCalculator (5) + SkuMatchService (6)</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--purple);">
+      <div class="stat-label">Integration Tests</div>
+      <div class="stat-value">7</div>
+      <div class="stat-sub">TestContainers schema (pending Docker)</div>
+    </div>
+  </div>
+
+  <!-- ─────────────── OBJECTIVE ─────────────── -->
+  <div class="section-title">Objective</div>
+  <div class="card">
+    <p style="font-size:15px; line-height:1.8; color:var(--gray-700);">
+      หลังจาก Sync Worker upsert marketplace order เข้าระบบสำเร็จแล้ว
+      ให้ <strong>auto-resolve SKU code</strong> ของแต่ละ order item กับตาราง <code>sku_mappings</code>
+      แล้วเขียนผลการ match ลงในฐานข้อมูลทันที — mirror logic เดียวกับ BE-02 (manual match)
+      เพื่อให้ order ที่ sync เข้ามาได้รับสถานะ match โดยอัตโนมัติโดยไม่ต้อง trigger ด้วย manual action
+    </p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
+      <span class="tag tag-blue">Sync Worker</span>
+      <span class="tag tag-purple">Auto-Match</span>
+      <span class="tag tag-green">SKU Resolution</span>
+      <span class="tag tag-amber">Multi-Shop Cache</span>
+    </div>
+  </div>
+
+  <!-- ─────────────── FLOW ─────────────── -->
+  <div class="section-title">Process Flow</div>
+  <div class="flow-container">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;">
+      <div class="flow-steps">
+        <!-- 1 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--blue);">1</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>Sync Worker Tick <span class="flow-tag tag-blue">Trigger</span></h4>
+            <p>BackgroundService ตื่นขึ้นตาม interval</p>
+          </div>
+        </div>
+        <!-- 2 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--blue);">2</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>ClaimUnsynced()</h4>
+            <p>Lock batch ของ orders ที่ยังไม่ sync ใน DB</p>
+          </div>
+        </div>
+        <!-- 3 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--blue);">3</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>UpsertOrderAsync() <span class="flow-tag tag-blue">Existing</span></h4>
+            <p>Upsert orders + order_items ลงใน OMS DB (idempotent)</p>
+          </div>
+        </div>
+        <!-- 4 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--purple);">4</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>ShopCredentialCache.Resolve() <span class="flow-tag tag-purple">New</span></h4>
+            <p>Lookup <code>integration_credentials</code> → <code>oms_shop_id</code><br>Cache per shop per sync-run · unlinked shop → unmatched + warn</p>
+          </div>
+        </div>
+        <!-- 5 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--purple);">5</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>SkuMappingRepository.GetAsync() <span class="flow-tag tag-purple">New</span></h4>
+            <p>Query <code>sku_mappings</code> · Cache ทั้งหมดไว้ในหน่วยความจำ per sync-run</p>
+          </div>
+        </div>
+        <!-- 6 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--purple);">6</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>SkuMatchService.MatchItems() <span class="flow-tag tag-purple">New</span></h4>
+            <p>Match แต่ละ item SKU กับ mapping → <code>List&lt;SkuMatchResult&gt;</code></p>
+          </div>
+        </div>
+        <!-- 7 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--purple);">7</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <h4>MatchStatusCalculator.Calculate() <span class="flow-tag tag-purple">New</span></h4>
+            <p>คำนวณ <code>match_status</code> → matched / partial / unmatched<br>Byte-for-byte mirror ของ BE-02 calculator</p>
+          </div>
+        </div>
+        <!-- 8 -->
+        <div class="flow-step">
+          <div class="flow-step-line">
+            <div class="flow-dot" style="background:var(--green);">8</div>
+          </div>
+          <div class="flow-content">
+            <h4>ApplyAutoMatchAsync() SQL Write <span class="flow-tag tag-green">Output</span></h4>
+            <p>Bulk write ผลลง DB พร้อม <code>oms_shop_id</code> via COALESCE</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Decision + Output -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="decision-box">
+          <h4>Branch: oms_shop_id found?</h4>
+          <ul>
+            <li><span class="label" style="color:var(--green-dark);">YES</span> → ดำเนินการ match ต่อ</li>
+            <li><span class="label" style="color:#b91c1c;">NO</span> → ตั้ง <code>match_status = unmatched</code> + log warning แล้วข้ามไป order ถัดไป (ไม่ crash)</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border:1px solid var(--green); padding:18px;">
+          <div class="card-title" style="color:var(--green-dark);">Output Fields</div>
+          <table style="width:100%; font-size:13px; border-collapse:collapse;">
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <td style="padding:8px 0; font-weight:600; color:var(--gray-500); font-size:11px; text-transform:uppercase;">Table</td>
+              <td style="padding:8px 0; font-weight:600; color:var(--gray-500); font-size:11px; text-transform:uppercase;">Column</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <td style="padding:8px 0;"><code>orders</code></td>
+              <td style="padding:8px 0;"><code>match_status</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <td style="padding:8px 0;"><code>orders</code></td>
+              <td style="padding:8px 0;"><code>oms_shop_id</code> (via COALESCE)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <td style="padding:8px 0;"><code>order_items</code></td>
+              <td style="padding:8px 0;"><code>matched_product_id</code></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;"><code>order_items</code></td>
+              <td style="padding:8px 0;"><code>matched_at</code></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="flow-embed">
+          <a href="https://excalidraw.com/#json=sluW87XMNgtGANboqW-p7,oIa5tFo-UIEbJXOLSbTteQ" target="_blank">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            เปิด Flow Diagram (Excalidraw)
+          </a>
+          <p>คลิกเพื่อดู interactive diagram แบบเต็ม</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── COMPONENTS ─────────────── -->
+  <div class="section-title">Architecture — Components ใหม่</div>
+  <div class="card">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Class / Interface</th>
+          <th>ทำอะไร</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-purple">Application</span></td>
+          <td><code>ISkuMatchService</code></td>
+          <td>Interface สำหรับ match item SKU → <code>SkuMatchResult</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">Application</span></td>
+          <td><code>SkuMatchService</code></td>
+          <td>Implement match โดยใช้ SKU mapping dictionary จาก repository</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">Application</span></td>
+          <td><code>MatchStatusCalculator</code></td>
+          <td>คำนวณ <code>matched / partial / unmatched</code> จาก List&lt;SkuMatchResult&gt; — mirror BE-02</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">Domain</span></td>
+          <td><code>SkuMatchResult</code></td>
+          <td>Value object: <code>ItemId</code>, <code>ProductId?</code>, <code>IsMatched</code></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">Domain</span></td>
+          <td><code>ShopCredential</code> (updated)</td>
+          <td>เพิ่ม <code>OmsShopId</code> property สำหรับ multi-shop resolution</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Infrastructure</span></td>
+          <td><code>ISkuMappingRepository</code></td>
+          <td>Interface: GetAsync(oms_shop_id) → Dictionary&lt;sku, product_id&gt;</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Infrastructure</span></td>
+          <td><code>SkuMappingRepository</code></td>
+          <td>Query <code>sku_mappings</code> ด้วย Dapper + cache per sync-run</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Infrastructure</span></td>
+          <td><code>ShopCredentialCache</code> (updated)</td>
+          <td>Resolve <code>tenant_id + shop_id → oms_shop_id</code> จาก <code>integration_credentials</code> (cached)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Infrastructure</span></td>
+          <td><code>MarketplaceOrderRepository</code> (updated)</td>
+          <td>เพิ่ม <code>ApplyAutoMatchAsync()</code> + fix UpsertOrderAsync returning effectiveOrderId</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">SQL</span></td>
+          <td><code>MarketplaceSql</code> (updated)</td>
+          <td>เพิ่ม SQL สำหรับ bulk update order_items + orders พร้อม COALESCE</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─────────────── FILES ─────────────── -->
+  <div class="section-title">Files Changed (19 files)</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">New Files</div>
+      <div class="file-list">
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Application/Abstractions/Services/ISkuMatchService.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Application/Services/SkuMatchService.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Application/Services/MatchStatusCalculator.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Domain/Models/SkuMatchResult.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Infrastructure/Persistence/ISkuMappingRepository.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Infrastructure/Persistence/Repositories/SkuMappingRepository.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Tests/Application/Services/SkuMatchServiceTests.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Tests/Application/Services/MatchStatusCalculatorTests.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-new">NEW</span><span class="file-path">Tests/Integration/MarketplaceOrderSyncServiceAutoMatchTests.cs</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Modified Files</div>
+      <div class="file-list">
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Application/Services/MarketplaceOrderSyncService.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Infrastructure/Persistence/MarketplaceOrderRepository.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Infrastructure/Persistence/Sql/MarketplaceSql.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Infrastructure/ShopCredentialCache.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Domain/Models/ShopCredential.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">DependencyInjection.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">Tests/IntegrationTestBase.cs</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">b1dx.omsorders.sync.worker.Tests.csproj</span></div>
+        <div class="file-item"><span class="file-badge badge-mod">MOD</span><span class="file-path">b1dx.omsorders.sync.worker.slnx</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── FF-WORKSPACE-013 ─────────────── -->
+  <div class="section-title">FF-WORKSPACE-013 Fixes (Bundled)</div>
+  <div class="card">
+    <p style="font-size:13px; color:var(--gray-500); margin-bottom:16px;">UUID v7 + Schema fixes ที่ถูก bundle เข้ามาใน branch เดียวกัน (6 commits)</p>
+    <table class="comp-table">
+      <thead><tr><th>Commit</th><th>การเปลี่ยนแปลง</th></tr></thead>
+      <tbody>
+        <tr><td><code>ba952e4</code></td><td>Rename PK columns: <code>orders.order_id → id</code>, <code>order_items.item_id → id</code></td></tr>
+        <tr><td><code>8f387cd</code></td><td>ใช้ <code>Guid.CreateVersion7()</code> สำหรับ order + item IDs</td></tr>
+        <tr><td><code>9659d0d</code></td><td>Cast <code>shop_id::text</code> ใน ClaimUnsynced/GetUnsynced SQL (แก้ type mismatch)</td></tr>
+        <tr><td><code>b6ae2f7</code></td><td>Replace <code>Guid.NewGuid()</code> → <code>CreateVersion7()</code> ทุก repository</td></tr>
+        <tr><td><code>b4d274b</code></td><td>Rename <code>address_id → id</code> ใน InsertOrderAddress SQL</td></tr>
+        <tr><td><code>0e1d8ee</code></td><td>Update OrderTransformationServiceTests</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─────────────── TEST ─────────────── -->
+  <div class="section-title">Test Coverage</div>
+  <div class="test-grid">
+    <div class="test-item">
+      <h4 style="color:var(--purple-dark);">MatchStatusCalculator — 5 tests</h4>
+      <ul>
+        <li>All items matched → status = matched</li>
+        <li>Some items matched → status = partial</li>
+        <li>No items matched → status = unmatched</li>
+        <li>Empty list → status = unmatched</li>
+        <li>Mixed null product ids</li>
+      </ul>
+    </div>
+    <div class="test-item">
+      <h4 style="color:var(--purple-dark);">SkuMatchService — 6 tests</h4>
+      <ul>
+        <li>SKU found in mapping → matched</li>
+        <li>SKU not found → unmatched</li>
+        <li>Multiple items mixed</li>
+        <li>Empty items list</li>
+        <li>Null SKU code handling</li>
+        <li>Case sensitivity</li>
+      </ul>
+    </div>
+    <div class="test-item" style="grid-column: span 2;">
+      <h4 style="color:var(--blue-dark);">Integration Tests — 7 tests (TestContainers)</h4>
+      <ul>
+        <li>Full sync flow with auto-match: all matched</li>
+        <li>Full sync flow: partial match</li>
+        <li>Full sync flow: unmatched (no mapping)</li>
+        <li>Shop not linked → unmatched fallback</li>
+        <li>Re-sync same order → idempotent match result</li>
+        <li>Multiple shops in same sync run</li>
+        <li>Cache invalidation between runs</li>
+      </ul>
+      <div class="alert alert-warn" style="margin-top:12px; font-size:12px;">
+        <span>⚠</span>
+        <span>Integration tests ยังรัน TestContainers ไม่ได้ขณะ commit — xunit v2/v3 conflict + ต้องการ Docker daemon. Tracked สำหรับ fix ถัดไป</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── BUG FIX NOTE ─────────────── -->
+  <div class="section-title">Bug Fix พบระหว่าง Build</div>
+  <div class="alert alert-info">
+    <span>ℹ</span>
+    <div>
+      <strong>UpsertOrderAsync returning incorrect GUID</strong> — เดิม method return freshly-generated GUID แทน <code>effectiveOrderId</code>
+      ทำให้ order ที่ sync ซ้ำ (re-sync/update) ได้ ID ผิด · Fixed ใน <code>MarketplaceOrderRepository.cs</code>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  MATCH-WORKER-01 · Generated 2026-06-07 · b1dx-fulfillment-workspace
+</div>
+
+</body>
+</html>
