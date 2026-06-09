@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normalize vs Denormalize — สรุปง่าย ๆ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #0ea5e9);
+      color: white;
+      text-align: center;
+      padding: 52px 24px 44px;
+    }
+    header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+    header p  { font-size: 1rem; opacity: 0.85; }
+
+    /* ── Layout ── */
+    .page { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    /* ── Rule card ── */
+    .rule {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .box {
+      border-radius: 14px;
+      padding: 28px 26px;
+    }
+    .box-write {
+      background: #eff6ff;
+      border: 2px solid #3b82f6;
+    }
+    .box-read {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+    }
+    .box-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .box-write .box-label { color: #1d4ed8; }
+    .box-read  .box-label { color: #15803d; }
+    .box h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
+    .box-write h2 { color: #1e40af; }
+    .box-read  h2 { color: #166534; }
+    .box p { font-size: 14px; color: #334155; line-height: 1.7; }
+    .box .keyword {
+      display: inline-block;
+      background: white;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .box-write .keyword { color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .box-read  .keyword { color: #15803d; border: 1px solid #bbf7d0; }
+
+    /* ── Arrow ── */
+    .arrow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 8px 0 24px;
+      color: #64748b;
+      font-size: 13px;
+    }
+    .arrow-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, #22c55e);
+      border-radius: 2px;
+    }
+    .arrow-text {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 4px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    /* ── Diagram ── */
+    .diagram {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 28px 28px;
+      margin-bottom: 32px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #94a3b8;
+      overflow-x: auto;
+    }
+    .d-white  { color: #f1f5f9; }
+    .d-blue   { color: #60a5fa; }
+    .d-green  { color: #4ade80; }
+    .d-yellow { color: #fbbf24; }
+    .d-muted  { color: #475569; }
+
+    /* ── Analogy cards ── */
+    .analogy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .analogy-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 20px 18px;
+      text-align: center;
+    }
+    .analogy-icon { font-size: 2rem; margin-bottom: 10px; }
+    .analogy-card h3 { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .analogy-row { font-size: 12px; color: #475569; margin-bottom: 4px; line-height: 1.5; }
+    .analogy-row strong { color: #1e293b; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+    .flow h3 { font-size: 14px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+    .flow-steps { display: flex; flex-direction: column; gap: 0; }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .flow-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .flow-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .flow-line {
+      width: 2px;
+      flex: 1;
+      min-height: 24px;
+      background: #e2e8f0;
+      margin: 4px 0;
+    }
+    .flow-content { padding: 4px 0 24px; }
+    .flow-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .flow-desc  { font-size: 13px; color: #475569; line-height: 1.6; }
+    .flow-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    /* ── Summary ── */
+    .summary {
+      background: linear-gradient(135deg, #1e3a8a, #0ea5e9);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      color: white;
+    }
+    .summary h2 { font-size: 1.4rem; margin-bottom: 16px; }
+    .summary-pills {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .pill {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: 6px 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .summary p { opacity: 0.85; font-size: 15px; line-height: 1.8; }
+
+    @media (max-width: 620px) {
+      .rule { grid-template-columns: 1fr; }
+      .analogy-grid { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Normalize vs Denormalize</h1>
+  <p>เก็บให้ถูกที่ source &nbsp;·&nbsp; เตรียมให้เร็วที่ read layer</p>
+</header>
+
+<div class="page">
+
+  <!-- ── 2 Box Rule ── -->
+  <div class="rule">
+    <div class="box box-write">
+      <div class="box-label">Write / Source</div>
+      <h2>Normalize</h2>
+      <p>เก็บข้อมูลแต่ละชนิดไว้ <strong>ที่เดียว</strong> ตารางอื่นอ้างอิงผ่าน Foreign Key แทนการคัดลอก</p>
+      <p style="margin-top:10px">แก้ email ลูกค้า <strong>ครั้งเดียว</strong> → ถูกทุก order ทันที</p>
+      <span class="keyword">เก็บให้ถูกต้อง</span>
+    </div>
+    <div class="box box-read">
+      <div class="box-label">Read / Report</div>
+      <h2>Denormalize</h2>
+      <p>คำนวณ JOIN <strong>ไว้ล่วงหน้า</strong> เก็บผลลัพธ์สำเร็จรูป ดึงมาแสดงได้เลยโดยไม่ต้องคิดใหม่</p>
+      <p style="margin-top:10px">รายงานที่เคยรอ 3 ชั่วโมง → <strong>2 วินาที</strong></p>
+      <span class="keyword">ดึงให้เร็ว</span>
+    </div>
+  </div>
+
+  <!-- ── Arrow ── -->
+  <div class="arrow-row">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">คำนวณ / sync / refresh ไว้ล่วงหน้า</div>
+    <div class="arrow-line"></div>
+  </div>
+
+  <!-- ── Diagram ── -->
+  <div class="diagram">
+<span class="d-blue">┌─────────────────────────────────────────────────────────┐</span>
+<span class="d-blue">│  WRITE  —  Normalized (Source of Truth)                 │</span>
+<span class="d-blue">│                                                         │</span>
+<span class="d-blue">│</span>  <span class="d-white">customers</span> <span class="d-muted">──┐</span>                                          <span class="d-blue">│</span>
+<span class="d-blue">│</span>  <span class="d-white">products</span>  <span class="d-muted">──┼──→</span> <span class="d-yellow">orders</span> <span class="d-muted">(FK อ้างอิงเท่านั้น)</span>             <span class="d-blue">│</span>
+<span class="d-blue">│</span>  <span class="d-white">warehouses</span><span class="d-muted">──┘</span>                                          <span class="d-blue">│</span>
+<span class="d-blue">│                                                         │</span>
+<span class="d-blue">│</span>  <span class="d-muted">แก้ที่เดียว = ถูกทุกที่  ·  ไม่มีข้อมูลซ้ำ              </span><span class="d-blue">│</span>
+<span class="d-blue">└────────────────────────────┬────────────────────────────┘</span>
+                             <span class="d-muted">│  Materialized View / ETL / CDC</span>
+                             <span class="d-muted">│  คำนวณ JOIN ไว้ล่วงหน้า</span>
+                             <span class="d-muted">↓</span>
+<span class="d-green">┌─────────────────────────────────────────────────────────┐</span>
+<span class="d-green">│  READ  —  Denormalized (Pre-computed)                   │</span>
+<span class="d-green">│                                                         │</span>
+<span class="d-green">│</span>  <span class="d-white">order_summary_view</span>                                      <span class="d-green">│</span>
+<span class="d-green">│</span>  <span class="d-muted">├──</span> <span class="d-white">ชื่อลูกค้า</span>   <span class="d-muted">← รวมมาจาก customers แล้ว</span>          <span class="d-green">│</span>
+<span class="d-green">│</span>  <span class="d-muted">├──</span> <span class="d-white">ชื่อสินค้า</span>   <span class="d-muted">← รวมมาจาก products แล้ว</span>           <span class="d-green">│</span>
+<span class="d-green">│</span>  <span class="d-muted">└──</span> <span class="d-white">ยอดรวม</span>       <span class="d-muted">← คำนวณแล้ว ไม่ต้อง SUM ใหม่</span>      <span class="d-green">│</span>
+<span class="d-green">│                                                         │</span>
+<span class="d-green">│</span>  <span class="d-muted">1 query  ·  ไม่มี JOIN  ·  &lt; 1 วินาที                 </span><span class="d-green">│</span>
+<span class="d-green">└─────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <!-- ── Flow ── -->
+  <div class="flow">
+    <h3>ทำงานอย่างไรในทางปฏิบัติ</h3>
+    <div class="flow-steps">
+
+      <div class="flow-step">
+        <div class="flow-left">
+          <div class="flow-dot" style="background:#3b82f6">1</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-title" style="color:#1d4ed8">ผู้ใช้สั่งซื้อ / แก้ข้อมูล</div>
+          <div class="flow-desc">เขียนลง Normalized DB — แต่ละตารางเก็บข้อมูลของตัวเอง ไม่ซ้ำซ้อน</div>
+          <span class="flow-tag" style="background:#dbeafe;color:#1d4ed8">Primary DB (PostgreSQL)</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-left">
+          <div class="flow-dot" style="background:#a855f7">2</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-title" style="color:#7e22ce">ระบบคำนวณและเตรียมข้อมูล</div>
+          <div class="flow-desc">Materialized View / ETL job ทุกคืน / CDC real-time — JOIN ตารางและคำนวณผลลัพธ์ไว้ล่วงหน้า</div>
+          <span class="flow-tag" style="background:#f3e8ff;color:#7e22ce">อัตโนมัติ — ผู้ใช้ไม่รู้สึก</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-left">
+          <div class="flow-dot" style="background:#22c55e">3</div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-title" style="color:#15803d">ผู้ใช้ดูรายงาน / Dashboard</div>
+          <div class="flow-desc">ดึงจาก Read Layer โดยตรง — ไม่มี JOIN ไม่กระทบ Production ได้ผลทันที</div>
+          <span class="flow-tag" style="background:#dcfce7;color:#15803d">Read Layer (View / Cache / Data Warehouse)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Analogy ── -->
+  <div class="analogy-grid">
+    <div class="analogy-card">
+      <div class="analogy-icon">🍽️</div>
+      <h3>ร้านอาหาร</h3>
+      <div class="analogy-row"><strong>Normalize:</strong> ครัวเก็บวัตถุดิบแยก</div>
+      <div class="analogy-row"><strong>Denormalize:</strong> จัดจานพร้อมเสิร์ฟ</div>
+    </div>
+    <div class="analogy-card">
+      <div class="analogy-icon">🏢</div>
+      <h3>สำนักงาน</h3>
+      <div class="analogy-row"><strong>Normalize:</strong> แต่ละแผนกเก็บข้อมูลของตัวเอง</div>
+      <div class="analogy-row"><strong>Denormalize:</strong> รายงาน CFO รวบมาให้แล้ว</div>
+    </div>
+    <div class="analogy-card">
+      <div class="analogy-icon">🛒</div>
+      <h3>ซูเปอร์มาร์เก็ต</h3>
+      <div class="analogy-row"><strong>Normalize:</strong> โกดังเก็บของแยกประเภท</div>
+      <div class="analogy-row"><strong>Denormalize:</strong> จัดวางชั้นวางพร้อมขาย</div>
+    </div>
+  </div>
+
+  <!-- ── Summary ── -->
+  <div class="summary">
+    <h2>จำสั้น ๆ</h2>
+    <div class="summary-pills">
+      <div class="pill">Write = เก็บให้ถูก</div>
+      <div class="pill">Read = เตรียมให้เร็ว</div>
+      <div class="pill">ทั้งสองทำคนละชั้น ไม่ขัดกัน</div>
+    </div>
+    <p>ไม่ต้องเลือกอย่างใดอย่างหนึ่ง —<br/>
+    Normalize ที่ต้นทาง ให้ข้อมูลถูกต้องเสมอ<br/>
+    Denormalize ที่ปลายทาง ให้รายงานเร็วโดยไม่กระทบระบบหลัก</p>
+  </div>
+
+</div>
+</body>
+</html>

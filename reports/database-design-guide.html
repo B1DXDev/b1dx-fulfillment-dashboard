@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Design Guide — สำหรับระบบ E-Commerce Scale</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #3b82f6;
+      --accent: #0ea5e9;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── Cover ─── */
+    .cover {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0ea5e9 100%);
+      color: white;
+      padding: 64px 40px 56px;
+      text-align: center;
+    }
+    .cover-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 4px 16px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .cover h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+    .cover p { font-size: 1.05rem; opacity: 0.85; max-width: 560px; margin: 0 auto 28px; }
+    .cover-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      font-size: 13px;
+      opacity: 0.75;
+      flex-wrap: wrap;
+    }
+
+    /* ─── Layout ─── */
+    .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ─── TOC ─── */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+    }
+    .toc h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 16px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: var(--primary); text-decoration: none; font-size: 14px; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ─── Section ─── */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 40px;
+      margin-bottom: 28px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-number {
+      background: var(--primary);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .section h2 { font-size: 1.3rem; color: var(--primary); font-weight: 700; }
+    .section h3 { font-size: 1rem; font-weight: 600; color: var(--text); margin: 20px 0 10px; }
+    .section p { color: #334155; margin-bottom: 12px; }
+
+    /* ─── Code ─── */
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 8px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 14px 0;
+    }
+    code {
+      background: #e0e7ef;
+      color: #1e3a8a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ─── Table ─── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: var(--primary);
+      color: white;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ─── Callout ─── */
+    .callout {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .callout.info    { background: #eff6ff; border-left: 4px solid var(--primary-light); }
+    .callout.success { background: #f0fdf4; border-left: 4px solid var(--success); }
+    .callout.warning { background: #fffbeb; border-left: 4px solid var(--warning); }
+    .callout.danger  { background: #fef2f2; border-left: 4px solid var(--danger); }
+    .callout strong  { display: block; margin-bottom: 4px; }
+
+    /* ─── Badge / Tag ─── */
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-green  { background: #dcfce7; color: #15803d; }
+    .tag-red    { background: #fee2e2; color: #b91c1c; }
+    .tag-blue   { background: #dbeafe; color: #1d4ed8; }
+    .tag-orange { background: #ffedd5; color: #c2410c; }
+
+    /* ─── Comparison grid ─── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .compare-box {
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .compare-box.bad  { background: #fef2f2; border: 1px solid #fecaca; }
+    .compare-box.good { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .compare-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .compare-box.bad  h4 { color: var(--danger); }
+    .compare-box.good h4 { color: var(--success); }
+    .compare-box ul { padding-left: 16px; font-size: 13px; }
+    .compare-box li { margin-bottom: 4px; }
+
+    /* ─── Architecture diagram ─── */
+    .arch-layer {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 8px 0;
+      position: relative;
+    }
+    .arch-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .arch-layer.layer1 { border-left: 4px solid #3b82f6; }
+    .arch-layer.layer2 { border-left: 4px solid #a855f7; }
+    .arch-layer.layer3 { border-left: 4px solid #f59e0b; }
+    .arch-layer.layer4 { border-left: 4px solid #10b981; }
+    .arch-arrow { text-align: center; color: var(--muted); font-size: 20px; margin: 4px 0; }
+
+    /* ─── Phase timeline ─── */
+    .phases { display: flex; gap: 0; margin: 16px 0; }
+    .phase {
+      flex: 1;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 13px;
+      position: relative;
+    }
+    .phase:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 18px;
+      z-index: 1;
+    }
+    .phase.ph1 { background: #eff6ff; border-radius: 8px 0 0 8px; border: 1px solid #bfdbfe; }
+    .phase.ph2 { background: #faf5ff; border-top: 1px solid #e9d5ff; border-bottom: 1px solid #e9d5ff; }
+    .phase.ph3 { background: #fffbeb; border-top: 1px solid #fde68a; border-bottom: 1px solid #fde68a; border-radius: 0 8px 8px 0; border-right: 1px solid #fde68a; }
+    .phase strong { display: block; font-size: 12px; margin-bottom: 4px; }
+
+    /* ─── Summary card ─── */
+    .summary-card {
+      background: linear-gradient(135deg, #1e3a8a, #1e40af);
+      color: white;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-top: 32px;
+      text-align: center;
+    }
+    .summary-card h3 { font-size: 1.3rem; margin-bottom: 12px; }
+    .summary-card p { opacity: 0.9; font-size: 15px; max-width: 680px; margin: 0 auto; line-height: 1.8; }
+
+    /* ─── Footer ─── */
+    .footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 640px) {
+      .cover h1 { font-size: 1.7rem; }
+      .section { padding: 24px 20px; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .phases { flex-direction: column; }
+      .phase::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Cover ─── -->
+<div class="cover">
+  <div class="cover-badge">Technical Reference</div>
+  <h1>Database Design Guide</h1>
+  <p>หลักการออกแบบฐานข้อมูลสำหรับระบบ E-Commerce ตั้งแต่ระดับเริ่มต้นถึงหลักร้อยล้าน Record</p>
+  <div class="cover-meta">
+    <span>เวอร์ชัน 1.0</span>
+    <span>มิถุนายน 2569</span>
+    <span>ครอบคลุม: UUID · Normalization · Partitioning · Data Warehouse</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ─── TOC ─── -->
+  <div class="toc">
+    <h2>สารบัญ</h2>
+    <ol>
+      <li><a href="#s1">UUID / Primary Key / Foreign Key — เลือกใช้อย่างไร</a></li>
+      <li><a href="#s2">ปัญหาของการยัดทุกอย่างไว้ใน Record เดียว</a></li>
+      <li><a href="#s3">Normalization คืออะไร ทำไมต้องทำ</a></li>
+      <li><a href="#s4">ทำไมต้องแยก Product / Images / Prices</a></li>
+      <li><a href="#s5">อธิบายให้ผู้บริหารเข้าใจ</a></li>
+      <li><a href="#s6">Normalize ที่ Source, Denormalize ที่ Read Layer</a></li>
+      <li><a href="#s7">Architecture สำหรับหลักร้อยล้าน Record</a></li>
+      <li><a href="#s8">Partitioning — เพิ่มทีหลังได้ไหม</a></li>
+    </ol>
+  </div>
+
+  <!-- ─── Section 1 ─── -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>UUID / Primary Key / Foreign Key — เลือกใช้อย่างไร</h2>
+    </div>
+
+    <h3>ปัญหาของ UUID v4 เป็น PK</h3>
+    <p>UUID v4 สุ่มแบบ random ทำให้ B-Tree index <strong>แตกกระจาย (fragmented)</strong> เพราะทุก insert กระจายทั่ว index แทนที่จะ append ต่อท้าย ส่งผลให้ page splits บ่อย = query ช้า + insert ช้า</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>ขนาด</th>
+            <th>Insert Speed</th>
+            <th>Index Locality</th>
+            <th>Global Unique</th>
+            <th>ใช้เมื่อ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>bigserial</code></td>
+            <td>8B</td>
+            <td><span class="tag tag-green">เร็วสุด</span></td>
+            <td><span class="tag tag-green">Sequential</span></td>
+            <td><span class="tag tag-red">Single DB</span></td>
+            <td>Default สำหรับทุก table</td>
+          </tr>
+          <tr>
+            <td><code>uuid v7</code></td>
+            <td>16B</td>
+            <td><span class="tag tag-blue">ดี</span></td>
+            <td><span class="tag tag-green">Time-ordered</span></td>
+            <td><span class="tag tag-green">ใช่</span></td>
+            <td>Multi-DB / API exposed / Distributed</td>
+          </tr>
+          <tr>
+            <td><code>uuid v4</code></td>
+            <td>16B</td>
+            <td><span class="tag tag-red">ช้า</span></td>
+            <td><span class="tag tag-red">Random</span></td>
+            <td><span class="tag tag-green">ใช่</span></td>
+            <td><strong>หลีกเลี่ยงเป็น PK table ใหญ่</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Pattern ที่แนะนำ — Dual Key</h3>
+    <pre><code>CREATE TABLE orders (
+    id          bigserial    PRIMARY KEY,       -- internal FK (8B, sequential, เร็ว)
+    public_id   uuid         NOT NULL DEFAULT gen_random_uuid(),  -- external/API
+    UNIQUE (public_id)
+);
+
+-- API/URL ใช้ public_id  → ป้องกัน enumeration
+-- JOIN ภายในใช้ id       → bigint เร็วกว่า uuid 2x</code></pre>
+
+    <div class="callout info">
+      <div class="callout-icon">💡</div>
+      <div><strong>กฎง่าย ๆ</strong> FK ทุก column ต้องมี Index แยกเสมอ — PostgreSQL ไม่ auto-create ให้เหมือน MySQL</div>
+    </div>
+  </div>
+
+  <!-- ─── Section 2 ─── -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>ปัญหาของการยัดทุกอย่างไว้ใน Record เดียว</h2>
+    </div>
+
+    <p>สมมติตาราง <code>orders</code> เก็บทุกอย่างรวมกัน:</p>
+    <pre><code>| order_id | customer_name | customer_email | product_name | price | category | warehouse |
+|----------|---------------|----------------|--------------|-------|----------|-----------|
+| 1        | สมชาย         | som@email.com  | iPhone 15    | 35000 | มือถือ   | กรุงเทพ   |
+| 2        | สมชาย         | som@email.com  | iPhone 15    | 35000 | มือถือ   | กรุงเทพ   |
+| 3        | สมชาย         | som@email.com  | Samsung S24  | 28000 | มือถือ   | กรุงเทพ   |</code></pre>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>ปัญหา</th><th>อธิบาย</th><th>ผลกระทบ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Redundancy</strong></td>
+            <td>ข้อมูลลูกค้า / สินค้าซ้ำทุก record</td>
+            <td>Storage โตเร็วโดยไม่จำเป็น</td>
+          </tr>
+          <tr>
+            <td><strong>Update Anomaly</strong></td>
+            <td>แก้ email ลูกค้า → ต้องแก้ทุก row</td>
+            <td>ถ้า crash กลางทาง = ข้อมูลไม่ consistent</td>
+          </tr>
+          <tr>
+            <td><strong>Insert Anomaly</strong></td>
+            <td>อยากเพิ่มสินค้าใหม่ แต่ยังไม่มี order</td>
+            <td>ทำไม่ได้ — ต้องมี order ก่อน</td>
+          </tr>
+          <tr>
+            <td><strong>Delete Anomaly</strong></td>
+            <td>ลบ order ที่มีสินค้าเดียว</td>
+            <td>ข้อมูลสินค้านั้นหายไปจาก DB</td>
+          </tr>
+          <tr>
+            <td><strong>Schema บวม</strong></td>
+            <td>GROUP BY string อาจมี typo</td>
+            <td>"มือถือ" vs "มือถือ " = 2 กลุ่ม รายงานผิด</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── Section 3 ─── -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Normalization คืออะไร ทำไมต้องทำ</h2>
+    </div>
+
+    <p><strong>Normalization</strong> คือการจัดเก็บข้อมูลแต่ละชนิดไว้ใน "ที่เดียว" และให้ตารางอื่น <strong>อ้างอิง</strong> ผ่าน Foreign Key แทนการคัดลอก</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Normal Form</th><th>กฎ</th><th>ตัวอย่างที่ fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1NF</strong></td>
+            <td>ทุก cell มีค่าเดียว — ไม่มี array ใน column</td>
+            <td><code>tags = "A,B,C"</code> → แยก table <code>product_tags</code></td>
+          </tr>
+          <tr>
+            <td><strong>2NF</strong></td>
+            <td>ทุก column ขึ้นกับ PK ทั้งหมด</td>
+            <td><code>product_name</code> ใน <code>order_items</code> → ย้ายไป <code>products</code></td>
+          </tr>
+          <tr>
+            <td><strong>3NF</strong></td>
+            <td>ไม่มี column ขึ้นกับ column อื่น (non-PK)</td>
+            <td><code>category_name</code> ขึ้นกับ <code>category_id</code> → แยก <code>categories</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-box bad">
+        <h4>❌ ไม่ Normalize</h4>
+        <ul>
+          <li>แก้ที่เดียว ไม่ถูกทุกที่</li>
+          <li>ข้อมูลซ้ำ = storage waste</li>
+          <li>รายงานอาจผิด</li>
+          <li>Schema แก้ยาก</li>
+        </ul>
+      </div>
+      <div class="compare-box good">
+        <h4>✅ Normalize</h4>
+        <ul>
+          <li>แก้ที่เดียว → ถูกทุกที่ทันที</li>
+          <li>FK constraint รับประกัน integrity</li>
+          <li>Storage ประหยัด 40–60%</li>
+          <li>Schema ยืดหยุ่นรองรับการเติบโต</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Section 4 ─── -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>ทำไมต้องแยก Product / Images / Prices</h2>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div><strong>กฎง่าย ๆ</strong> — ถาม "1 สินค้า มีได้กี่ ___?" ถ้าคำตอบคือ <strong>"หลาย"</strong> → ต้องแยกตารางเสมอ</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>สิ่งที่เก็บ</th><th>จำนวนต่อ 1 สินค้า</th><th>เก็บที่ไหน</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ชื่อสินค้า / SKU</td><td>1</td><td>column ใน <code>products</code></td></tr>
+          <tr><td>รูปภาพ</td><td>หลายรูป + มี sort</td><td>แยก <code>product_images</code></td></tr>
+          <tr><td>ราคา</td><td>หลาย tier + มีวันหมดอายุ</td><td>แยก <code>product_prices</code></td></tr>
+          <tr><td>Variant (size/color)</td><td>หลาย variant</td><td>แยก <code>product_variants</code></td></tr>
+          <tr><td>Tag / Category</td><td>หลาย tag</td><td>แยก <code>product_tags</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>โครงสร้างที่ถูกต้อง</h3>
+    <pre><code>CREATE TABLE products (
+    id          bigserial PRIMARY KEY,
+    public_id   uuid UNIQUE DEFAULT gen_random_uuid(),
+    name        text NOT NULL,
+    sku         text UNIQUE NOT NULL
+);
+
+-- 1 สินค้า → หลายรูป, มี sort_order
+CREATE TABLE product_images (
+    id          bigserial PRIMARY KEY,
+    product_id  bigint NOT NULL REFERENCES products(id),
+    url         text NOT NULL,
+    sort_order  int NOT NULL DEFAULT 0,
+    is_primary  boolean NOT NULL DEFAULT false
+);
+
+-- 1 สินค้า → หลาย tier, มีวันหมดอายุ
+CREATE TABLE product_prices (
+    id          bigserial PRIMARY KEY,
+    product_id  bigint NOT NULL REFERENCES products(id),
+    price_type  text NOT NULL,  -- 'retail' | 'wholesale' | 'member' | 'promo'
+    amount      numeric(12,2) NOT NULL,
+    valid_from  timestamptz,
+    valid_until timestamptz
+);</code></pre>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>สถานการณ์</th><th>❌ ไม่แยก</th><th>✅ แยกตาราง</th></tr></thead>
+        <tbody>
+          <tr><td>สินค้ามี 10 รูป</td><td>ต้องเพิ่ม column</td><td>INSERT เพิ่มแถวได้เลย</td></tr>
+          <tr><td>เรียงรูปใหม่</td><td>ทำไม่ได้</td><td>UPDATE <code>sort_order</code></td></tr>
+          <tr><td>Flash Sale มีวันหมดอายุ</td><td>ทำไม่ได้</td><td>ใส่ <code>valid_until</code></td></tr>
+          <tr><td>ราคาต่างสาขา</td><td>ต้อง ALTER TABLE</td><td>เพิ่ม <code>branch_id</code></td></tr>
+          <tr><td>ลบรูปที่ 3</td><td>SET NULL</td><td>DELETE แถวนั้น</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── Section 5 ─── -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>อธิบายให้ผู้บริหารเข้าใจ</h2>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">🏢</div>
+      <div><strong>เปรียบเหมือนการจัดการแฟ้มเอกสารในสำนักงาน</strong><br/>แทนที่จะเขียนชื่อ-ที่อยู่ลูกค้าซ้ำในทุกใบสั่งซื้อ ให้เก็บลูกค้าในสมุดลูกค้าเล่มเดียว แล้วให้ใบสั่งซื้ออ้างอิงรหัสลูกค้าแทน — ลูกค้าย้ายที่อยู่ แก้ที่เดียว ถูกทุกใบทันที</div>
+    </div>
+
+    <h3>ผลกระทบทางธุรกิจ</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ด้าน</th><th>ไม่แยกข้อมูล</th><th>แยกข้อมูล</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>รายงาน</strong></td>
+            <td>ตัวเลขไม่ตรงกันระหว่างรายงาน — ผู้บริหารได้ข้อมูลคนละชุดในการประชุมเดียวกัน</td>
+            <td>ข้อมูล consistent เสมอ เชื่อถือได้</td>
+          </tr>
+          <tr>
+            <td><strong>การเงิน</strong></td>
+            <td>ราคาในระบบกับราคาจริงไม่ตรง → เรียกเก็บเงินผิด / คืนเงินผิด</td>
+            <td>แก้ราคาที่เดียว → ถูกทุก order</td>
+          </tr>
+          <tr>
+            <td><strong>Compliance</strong></td>
+            <td>ข้อมูลลูกค้าไม่ consistent → ปัญหา PDPA</td>
+            <td>จัดการ data lifecycle ได้ถูกต้อง</td>
+          </tr>
+          <tr>
+            <td><strong>Scale</strong></td>
+            <td>ระบบช้าลงเรื่อย ๆ ตามปริมาณข้อมูล แก้ยากมากเมื่อข้อมูลโตแล้ว</td>
+            <td>รองรับข้อมูลหลักล้านได้โดยไม่ช้า</td>
+          </tr>
+          <tr>
+            <td><strong>ค่าใช้จ่าย</strong></td>
+            <td>Storage สูงจากข้อมูลซ้ำ + ค่าแก้ไขข้อมูลในอนาคตสูงมาก</td>
+            <td>ประหยัด storage 40–60% + ค่า maintenance ต่ำ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <pre><code>ตัวอย่างตัวเลข:
+
+สินค้า 1,000 รายการ · ขายได้ 100,000 orders
+
+❌ ไม่แยก: ชื่อสินค้า + ราคา ถูกเก็บซ้ำ 100,000 ครั้ง
+✅ แยก:    เก็บสินค้า 1,000 แถว, orders อ้างอิง product_id
+
+→ ประหยัด storage ~90%
+→ แก้ราคา: 1 คำสั่ง แทน 100,000 คำสั่ง
+→ โอกาสข้อมูลผิดพลาด: ลดลงเกือบเป็นศูนย์</code></pre>
+
+    <div class="summary-card">
+      <h3>สรุปสำหรับผู้บริหาร</h3>
+      <p>การแยกข้อมูลคือการลงทุนด้านความน่าเชื่อถือ — เหมือนการแยกแผนกในบริษัท ฝ่ายบัญชีไม่คัดลอกข้อมูลลูกค้าไว้เอง แต่อ้างอิงจากฝ่ายขายที่เดียว ทำให้ข้อมูลทั้งบริษัทตรงกันเสมอ<br/><br/><strong>ต้นทุน:</strong> เวลาออกแบบเพิ่ม 20–30% ในช่วงแรก &nbsp;|&nbsp; <strong>ผลตอบแทน:</strong> ระบบถูกต้อง เชื่อถือได้ รองรับการเติบโต ลดค่าแก้ไขในอนาคต</p>
+    </div>
+  </div>
+
+  <!-- ─── Section 6 ─── -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Normalize ที่ Source, Denormalize ที่ Read Layer</h2>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">🍽️</div>
+      <div><strong>เปรียบเหมือนร้านอาหาร</strong> — ครัวเก็บวัตถุดิบแยกกัน (เนื้อ / หอม / กระเพรา / ข้าว) แต่จัดจานให้ลูกค้าเห็นครบในที่เดียว ครัวไม่ผสมทุกอย่างไว้ในถุงเดียวล่วงหน้า — แต่จัดจานเมื่อลูกค้าสั่ง</div>
+    </div>
+
+    <h3>3 เครื่องมือสำหรับ Read Layer</h3>
+
+    <h3>1. Materialized View — ง่ายสุด เริ่มต้นที่นี่</h3>
+    <pre><code>CREATE MATERIALIZED VIEW order_summary AS
+SELECT
+    o.id, o.order_no,
+    c.name     AS customer_name,
+    o.total, o.status, o.created_at
+FROM orders o
+JOIN customers c ON c.id = o.customer_id;
+
+-- Query รายงาน → ไม่มี JOIN แล้ว
+SELECT * FROM order_summary WHERE status = 'pending';
+
+-- Refresh ตามกำหนด
+REFRESH MATERIALIZED VIEW CONCURRENTLY order_summary;</code></pre>
+    <p>ผล: query ที่เคยใช้ <strong>800ms</strong> → เหลือ <strong>12ms</strong></p>
+
+    <h3>2. Read Replica — สำหรับ traffic สูง</h3>
+    <pre><code>App → [WRITE] → Primary DB   ← แก้ข้อมูลที่นี่ (source of truth)
+                     │ sync อัตโนมัติ
+                     ↓
+      [READ]  → Replica DB   ← รายงาน / Dashboard ดึงจากที่นี่
+
+ผลดี: Primary ไม่ช้าเพราะรายงาน
+      Replica crash → Write ยังทำงานได้</code></pre>
+
+    <h3>3. Cache (Redis) — สำหรับข้อมูลที่ไม่เปลี่ยนบ่อย</h3>
+    <pre><code>App → ถามใน Cache ก่อน
+         ├── มี  → ส่งกลับทันที (&lt; 1ms)
+         └── ไม่มี → ดึงจาก DB → เก็บ Cache → ส่งกลับ</code></pre>
+
+    <h3>ภาพรวม</h3>
+    <div class="arch-layer layer1">
+      <div class="arch-label" style="color:#3b82f6">WRITE PATH — Normalized (Source of Truth)</div>
+      <code>products / orders / customers</code> — แยกตาราง / มี FK / Consistent เสมอ
+    </div>
+    <div class="arch-arrow">↓ sync / refresh</div>
+    <div class="arch-layer layer4">
+      <div class="arch-label" style="color:#10b981">READ PATH — Denormalized</div>
+      Materialized View / Cache / Read Replica — เร็ว / ไม่มี JOIN / ไม่กระทบ Write
+    </div>
+  </div>
+
+  <!-- ─── Section 7 ─── -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <h2>Architecture สำหรับหลักร้อยล้าน Record</h2>
+    </div>
+
+    <p>ปัญหาหลักคือการใช้ DB เดียวทำทั้ง Transaction และ Report — ต้องแยก 2 โลกออกจากกัน</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>OLTP (Transaction)</th><th>OLAP (Analytics)</th></tr></thead>
+        <tbody>
+          <tr><td>จุดประสงค์</td><td>เขียน / อ่านรายการ</td><td>วิเคราะห์ / รายงาน / BI</td></tr>
+          <tr><td>ข้อมูล</td><td>ปัจจุบัน</td><td>สะสมทุก period</td></tr>
+          <tr><td>Query pattern</td><td>แถวเดียว เร็ว</td><td>หลายล้านแถว + aggregate</td></tr>
+          <tr><td>Storage format</td><td>Row-based</td><td>Column-based</td></tr>
+          <tr><td>เครื่องมือ</td><td>PostgreSQL / MySQL</td><td>ClickHouse / BigQuery / Redshift</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Architecture 4 Layer</h3>
+
+    <div class="arch-layer layer1">
+      <div class="arch-label" style="color:#3b82f6">Layer 1 — OLTP (รับ Transaction)</div>
+      Primary DB · Sharded by tenant/region · Partition by <code>created_at</code> · Index ครบทุก FK
+    </div>
+    <div class="arch-arrow">↓ CDC (Change Data Capture) — Debezium / Kafka</div>
+    <div class="arch-layer layer2">
+      <div class="arch-label" style="color:#a855f7">Layer 2 — Pipeline (ลำเลียงข้อมูล)</div>
+      Event Stream → Kafka → ETL/ELT → Transform · Batch: ทุกคืน / Stream: real-time &lt;1 นาที
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer layer3">
+      <div class="arch-label" style="color:#f59e0b">Layer 3 — Data Warehouse (วิเคราะห์)</div>
+      ClickHouse / BigQuery / Redshift · Columnar storage · Star Schema · Pre-aggregated
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer layer4">
+      <div class="arch-label" style="color:#10b981">Layer 4 — Serving (แสดงผล)</div>
+      Dashboard → Cache (Redis) → API → Data Warehouse · Export → S3 / Object Storage
+    </div>
+
+    <h3>ทำไม Columnar Storage เร็วกว่า</h3>
+    <div class="compare-grid">
+      <div class="compare-box bad">
+        <h4>❌ Row-based (PostgreSQL)</h4>
+        <pre style="font-size:11px;margin:0">[id|amount|status|date]
+[1 |35000 |done  |Jun1]
+[2 |28000 |done  |Jun1]
+
+SUM(amount) → อ่านทุก field
+= 100GB I/O จาก 500M rows</pre>
+      </div>
+      <div class="compare-box good">
+        <h4>✅ Column-based (ClickHouse)</h4>
+        <pre style="font-size:11px;margin:0">[amount]: 35000,28000,15000...
+
+SUM(amount) → อ่านแค่คอลัมน์นี้
+= 4GB I/O จาก 500M rows</pre>
+      </div>
+    </div>
+
+    <h3>Star Schema — โครงสร้างใน Data Warehouse</h3>
+    <pre><code>                    fact_orders           ← ตารางหลัก (ร้อยล้านแถว)
+                    ├── customer_key ─→ dim_customer  (ชื่อ / segment / region)
+                    ├── product_key  ─→ dim_product   (ชื่อ / category / brand)
+                    ├── date_key     ─→ dim_date       (year / month / quarter)
+                    ├── amount
+                    └── quantity
+
+JOIN น้อยกว่า Normalized → aggregate เร็วกว่ามาก</code></pre>
+
+    <h3>ผลลัพธ์ที่ได้</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>รายงาน</th><th>ก่อน (DB เดียว)</th><th>หลัง (แยก Layer)</th></tr></thead>
+        <tbody>
+          <tr><td>ยอดขายวันนี้</td><td>45 วินาที</td><td>&lt; 1 วินาที</td></tr>
+          <tr><td>สรุปรายเดือน</td><td>3 ชั่วโมง</td><td>2 วินาที</td></tr>
+          <tr><td>Top 100 สินค้า</td><td>20 นาที</td><td>&lt; 1 วินาที</td></tr>
+          <tr><td>Export CSV</td><td>Timeout</td><td>30 วินาที</td></tr>
+          <tr><td>กระทบ Production</td><td>ใช่ (ระบบช้า)</td><td>ไม่กระทบเลย</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── Section 8 ─── -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <h2>Partitioning — เพิ่มทีหลังได้ไหม</h2>
+    </div>
+
+    <div class="callout success">
+      <div class="callout-icon">✅</div>
+      <div><strong>ได้</strong> — แต่ PostgreSQL ไม่มี <code>ALTER TABLE ... PARTITION BY</code> ต้องทำผ่าน migration</div>
+    </div>
+
+    <h3>วิธีที่แนะนำ — Zero-Downtime Migration</h3>
+    <pre><code>-- 1. สร้าง table ใหม่ที่ partition แล้ว
+CREATE TABLE orders_partitioned (
+    LIKE orders INCLUDING ALL
+) PARTITION BY RANGE (created_at);
+
+-- 2. สร้าง partitions
+CREATE TABLE orders_2025 PARTITION OF orders_partitioned
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+CREATE TABLE orders_2026 PARTITION OF orders_partitioned
+    FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+
+-- 3. Copy ข้อมูล (batch ทีละ range — ไม่ lock นาน)
+INSERT INTO orders_partitioned
+SELECT * FROM orders WHERE created_at >= '2025-01-01' AND created_at < '2026-01-01';
+
+-- 4. Rename swap (atomic)
+BEGIN;
+  ALTER TABLE orders RENAME TO orders_old;
+  ALTER TABLE orders_partitioned RENAME TO orders;
+COMMIT;
+
+-- 5. Drop เมื่อมั่นใจ
+DROP TABLE orders_old;</code></pre>
+
+    <h3>ควรเพิ่ม Partitioning เมื่อไหร่</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Record Count</th><th>สัญญาณ</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; 1M</td><td>Query ยังเร็ว</td><td>ยังไม่ต้อง — index พอ</td></tr>
+          <tr><td>1M – 5M</td><td>Report เริ่มช้า</td><td>เพิ่ม indexes + Materialized View ก่อน</td></tr>
+          <tr><td>5M – 10M</td><td>EXPLAIN ยัง Seq Scan</td><td><strong>วางแผน Partition</strong> (ทำได้ใน maintenance window)</td></tr>
+          <tr><td>10M+</td><td>ช้าจนรับไม่ได้</td><td>เริ่มทำทันที</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Roadmap การวางแผน (Practical)</h3>
+    <div class="phases">
+      <div class="phase ph1">
+        <strong>Phase 1 · &lt;10M</strong>
+        Materialized View<br/>+ Read Replica<br/><br/>
+        <span class="tag tag-green">ราคา: ถูก</span>
+      </div>
+      <div class="phase ph2">
+        <strong>Phase 2 · 10M–100M</strong>
+        แยก Reporting DB<br/>+ ETL Batch<br/><br/>
+        <span class="tag tag-blue">ราคา: ปานกลาง</span>
+      </div>
+      <div class="phase ph3">
+        <strong>Phase 3 · 100M+</strong>
+        Data Warehouse<br/>+ CDC Stream<br/><br/>
+        <span class="tag tag-orange">ราคา: สูง แต่จำเป็น</span>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">💡</div>
+      <div><strong>เคล็ดลับ</strong> — ออกแบบ <code>created_at NOT NULL</code> ไว้ตั้งแต่แรก เพราะ partition key ต้องไม่เป็น NULL — ทำให้ migration ทีหลังง่ายขึ้นมาก</div>
+    </div>
+  </div>
+
+  <!-- ─── Final Summary ─── -->
+  <div class="summary-card">
+    <h3>สรุปหลักการทั้งหมด</h3>
+    <p>
+      <strong>Normalize ที่ source</strong> เพื่อให้ข้อมูลถูกต้อง ไม่ซ้ำซ้อน แก้ที่เดียวถูกทุกที่
+      &nbsp;·&nbsp;
+      <strong>Denormalize ที่ read layer</strong> เพื่อ report เร็ว ไม่กระทบ production
+      &nbsp;·&nbsp;
+      <strong>Partition ตาม scale</strong> เพิ่มทีหลังได้แต่วางแผนไว้ก่อนดีกว่า
+      &nbsp;·&nbsp;
+      ยิ่งระบบโตต้องแยก OLTP ออกจาก OLAP — ความเร็วรายงานไม่ได้มาจาก optimize query
+      แต่มาจากการ<strong>เตรียมข้อมูลไว้ล่วงหน้า</strong>ก่อนที่จะมีคนกด Export
+    </p>
+  </div>
+
+</div>
+
+<div class="footer">
+  Database Design Guide · จัดทำโดย Claude · มิถุนายน 2569
+</div>
+
+</body>
+</html>
