@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B1DX SSO — Executive Brief</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Sarabun','Segoe UI',sans-serif; background:#f0f4f8; color:#1e293b; font-size:16px; line-height:1.6; }
+
+  /* ---------- layout ---------- */
+  .page { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+
+  /* ---------- hero ---------- */
+  .hero { background:linear-gradient(135deg,#1e3a5f 0%,#3b5998 100%); border-radius:16px; padding:48px 40px 40px; color:#fff; margin-bottom:32px; position:relative; overflow:hidden; }
+  .hero::after { content:''; position:absolute; right:-40px; top:-40px; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.06); }
+  .hero-tag { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#93c5fd; margin-bottom:12px; }
+  .hero h1 { font-size:32px; font-weight:800; line-height:1.2; margin-bottom:8px; }
+  .hero-sub { font-size:15px; color:#cbd5e1; margin-bottom:24px; }
+  .hero-meta { display:flex; gap:24px; flex-wrap:wrap; }
+  .hero-meta span { font-size:13px; color:#93c5fd; }
+  .hero-meta strong { color:#fff; }
+
+  /* ---------- section ---------- */
+  .section { margin-bottom:28px; }
+  .section-title { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#64748b; margin-bottom:14px; padding-left:12px; border-left:3px solid #4f46e5; }
+
+  /* ---------- card ---------- */
+  .card { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .card + .card { margin-top:16px; }
+
+  /* ---------- big number ---------- */
+  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  .stat { background:#fff; border-radius:12px; padding:20px 16px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .stat-num { font-size:34px; font-weight:800; color:#4f46e5; line-height:1; }
+  .stat-label { font-size:12px; color:#64748b; margin-top:6px; }
+
+  /* ---------- compare table ---------- */
+  .compare { width:100%; border-collapse:collapse; font-size:14px; }
+  .compare th { background:#f8fafc; color:#64748b; font-size:11px; letter-spacing:1px; text-transform:uppercase; padding:10px 14px; text-align:left; border-bottom:2px solid #e2e8f0; }
+  .compare td { padding:12px 14px; border-bottom:1px solid #f1f5f9; vertical-align:top; }
+  .compare tr:last-child td { border-bottom:none; }
+  .compare .highlight td { background:#f5f3ff; font-weight:600; }
+  .compare .highlight td:first-child { border-left:3px solid #4f46e5; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-green { background:#dcfce7; color:#15803d; }
+  .badge-blue { background:#dbeafe; color:#1d4ed8; }
+  .badge-amber { background:#fef9c3; color:#a16207; }
+  .badge-purple { background:#f3e8ff; color:#7e22ce; }
+  .badge-gray { background:#f1f5f9; color:#475569; }
+
+  /* ---------- flow ---------- */
+  .flow { display:flex; align-items:center; gap:0; flex-wrap:wrap; margin:16px 0; }
+  .flow-box { background:#4f46e5; color:#fff; border-radius:8px; padding:10px 14px; font-size:13px; font-weight:600; text-align:center; min-width:80px; }
+  .flow-box.light { background:#ede9fe; color:#4f46e5; }
+  .flow-box.green { background:#dcfce7; color:#15803d; }
+  .flow-arr { color:#94a3b8; font-size:18px; padding:0 6px; }
+
+  /* ---------- two-col ---------- */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* ---------- list ---------- */
+  .check-list { list-style:none; }
+  .check-list li { padding:6px 0; padding-left:24px; position:relative; font-size:14px; }
+  .check-list li::before { content:'✓'; position:absolute; left:0; color:#22c55e; font-weight:700; }
+  .x-list { list-style:none; }
+  .x-list li { padding:6px 0; padding-left:24px; position:relative; font-size:14px; color:#64748b; }
+  .x-list li::before { content:'○'; position:absolute; left:0; color:#94a3b8; }
+
+  /* ---------- phase ---------- */
+  .phase-row { display:flex; gap:0; overflow-x:auto; padding-bottom:8px; margin:16px 0; }
+  .phase-item { flex:1; min-width:120px; text-align:center; position:relative; }
+  .phase-item::after { content:''; position:absolute; top:18px; left:50%; width:100%; height:2px; background:#e2e8f0; z-index:0; }
+  .phase-item:last-child::after { display:none; }
+  .phase-dot { width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; position:relative; z-index:1; margin-bottom:8px; }
+  .phase-dot.done { background:#4f46e5; color:#fff; }
+  .phase-dot.active { background:#f59e0b; color:#fff; box-shadow:0 0 0 4px #fef9c3; }
+  .phase-dot.todo { background:#e2e8f0; color:#94a3b8; }
+  .phase-label { font-size:12px; color:#475569; }
+  .phase-sub { font-size:11px; color:#94a3b8; margin-top:2px; }
+
+  /* ---------- pill apps ---------- */
+  .app-pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; border:1.5px solid; }
+  .pill-erp { background:#fef3c7; border-color:#f59e0b; color:#92400e; }
+  .pill-wms { background:#e0f2fe; border-color:#0ea5e9; color:#075985; }
+  .pill-oms { background:#dcfce7; border-color:#22c55e; color:#166534; }
+  .pill-ff  { background:#f3e8ff; border-color:#a855f7; color:#6b21a8; }
+  .pill-crm { background:#fee2e2; border-color:#ef4444; color:#991b1b; }
+  .pill-con { background:#fce7f3; border-color:#ec4899; color:#9d174d; }
+  .pill-ain { background:#f0fdf4; border-color:#86efac; color:#166534; }
+  .pill-doc { background:#f8fafc; border-color:#94a3b8; color:#334155; }
+  .pill-live { animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0)} }
+
+  /* ---------- icon row ---------- */
+  .icon-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+  .icon-item { display:flex; align-items:center; gap:8px; background:#f8fafc; border-radius:8px; padding:8px 14px; font-size:13px; }
+  .icon-item .icon { font-size:18px; }
+
+  /* ---------- note box ---------- */
+  .note { background:#fffbeb; border:1.5px solid #fbbf24; border-radius:10px; padding:14px 18px; font-size:13px; color:#92400e; margin-top:16px; }
+  .note strong { color:#78350f; }
+
+  /* ---------- highlight block ---------- */
+  .hl-box { background:linear-gradient(135deg,#eef2ff,#f5f3ff); border-radius:12px; padding:20px 24px; border:1.5px solid #c7d2fe; margin-top:12px; }
+  .hl-box h3 { font-size:15px; color:#4338ca; margin-bottom:8px; }
+  .hl-box p { font-size:14px; color:#3730a3; }
+
+  /* ---------- security grid ---------- */
+  .sec-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+  .sec-item { background:#f8fafc; border-radius:10px; padding:14px; }
+  .sec-item .sec-icon { font-size:22px; margin-bottom:6px; }
+  .sec-item h4 { font-size:13px; font-weight:700; color:#1e293b; margin-bottom:4px; }
+  .sec-item p { font-size:12px; color:#64748b; }
+
+  footer { text-align:center; color:#94a3b8; font-size:12px; margin-top:48px; }
+
+  @media(max-width:640px) {
+    .stat-row { grid-template-columns:repeat(2,1fr); }
+    .two-col { grid-template-columns:1fr; }
+    .sec-grid { grid-template-columns:repeat(2,1fr); }
+    .hero { padding:32px 20px 28px; }
+    .hero h1 { font-size:24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Executive Brief · B1DX Identity Platform</div>
+    <h1>ระบบ Single Sign-On (SSO)<br>สำหรับ B1DX</h1>
+    <div class="hero-sub">Login ครั้งเดียว เข้าได้ทุกระบบ — ปลอดภัย ตรวจสอบได้ ขยายได้</div>
+    <div class="hero-meta">
+      <span>วันที่จัดทำ <strong>มิถุนายน 2026</strong></span>
+      <span>สถานะ <strong>Design Approved · Pending Build</strong></span>
+      <span>ครอบคลุม <strong>8 ระบบ</strong></span>
+    </div>
+  </div>
+
+  <!-- BIG NUMBERS -->
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">ระบบที่ใช้ SSO ร่วมกัน</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">บัญชี / รหัสผ่าน ต่อพนักงาน</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Social Login ที่รองรับ</div></div>
+    <div class="stat"><div class="stat-num">15<span style="font-size:16px;color:#94a3b8">นาที</span></div><div class="stat-label">อายุ Token (ปลอดภัย)</div></div>
+  </div>
+
+  <!-- WHAT IS SSO -->
+  <div class="section">
+    <div class="section-title">SSO คืออะไร — อธิบายแบบเข้าใจง่าย</div>
+    <div class="card">
+      <div class="hl-box" style="margin-top:0">
+        <h3>🎯 เปรียบให้เข้าใจง่าย</h3>
+        <p>เหมือน <strong>บัตรพนักงานใบเดียว</strong> ที่แตะแล้วเปิดได้ทุกประตู — ไม่ว่าจะเป็นห้องบัญชี, คลังสินค้า, ห้อง CRM หรือ ERP ไม่ต้องพกกุญแจหลายดอก และเมื่อยกเลิกสัญญาพนักงาน ยกเลิกบัตรใบเดียว ประตูทุกบานปิดพร้อมกัน</p>
+      </div>
+      <div class="flow" style="margin-top:20px; justify-content:center;">
+        <div class="flow-box">Login ครั้งเดียว<br><span style="font-size:10px;opacity:.8">auth.b1dx.com</span></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box light">ERP</div>
+        <div class="flow-arr">+</div>
+        <div class="flow-box light">WMS</div>
+        <div class="flow-arr">+</div>
+        <div class="flow-box light">OMS</div>
+        <div class="flow-arr">+</div>
+        <div class="flow-box light">FF</div>
+        <div class="flow-arr">+</div>
+        <div class="flow-box light">...</div>
+      </div>
+      <div style="text-align:center; color:#64748b; font-size:13px; margin-top:8px;">ไม่ต้อง login ซ้ำเมื่อสลับระบบ</div>
+    </div>
+  </div>
+
+  <!-- FRAMEWORK -->
+  <div class="section">
+    <div class="section-title">เราใช้ Framework อะไร?</div>
+    <div class="two-col">
+      <div class="card">
+        <div style="font-size:13px; color:#64748b; margin-bottom:6px;">Protocol มาตรฐานสากล</div>
+        <div style="font-size:20px; font-weight:800; color:#1e293b; margin-bottom:4px;">OIDC + OAuth 2.0</div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:16px;">OpenID Connect บน OAuth 2.0</div>
+        <ul class="check-list">
+          <li>มาตรฐาน Internet (RFC) ที่ทุกระบบรองรับ</li>
+          <li>ใช้ JWT Token พร้อม RS256 (ลายเซ็นดิจิทัล)</li>
+          <li>PKCE — ป้องกัน Code Interception Attack</li>
+          <li>JWKS — ระบบตรวจสอบ Token แบบกระจาย</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:13px; color:#64748b; margin-bottom:6px;">Implementation Stack</div>
+        <div style="font-size:20px; font-weight:800; color:#1e293b; margin-bottom:4px;">ASP.NET Identity + OpenIddict</div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:16px;">บน .NET 10 (Microsoft)</div>
+        <ul class="check-list">
+          <li>OpenIddict = OIDC Server library ระดับ Enterprise</li>
+          <li>ASP.NET Identity = User/Password management</li>
+          <li>Password hash เดิม migrate ได้โดยไม่ต้อง Reset</li>
+          <li>Open Source — ไม่มีค่า License รายเดือน</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE WITH BIG PLAYERS -->
+  <div class="section">
+    <div class="section-title">เทียบกับ SSO ของค่ายใหญ่</div>
+    <div class="card">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>ระบบ SSO</th>
+            <th>เจ้าของ / ค่าย</th>
+            <th>Protocol</th>
+            <th>ราคา</th>
+            <th>ตัวอย่างองค์กรที่ใช้</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td>🏠 <strong>B1DX Identity Platform</strong><br><span style="font-size:11px;color:#6366f1">ระบบของเรา</span></td>
+            <td>B1DX (In-house)</td>
+            <td><span class="badge badge-purple">OIDC + OAuth 2.0</span></td>
+            <td><span class="badge badge-green">ไม่มี License</span></td>
+            <td>8 ระบบ B1DX</td>
+          </tr>
+          <tr>
+            <td>☁️ <strong>Azure AD / Entra ID</strong></td>
+            <td>Microsoft</td>
+            <td><span class="badge badge-blue">OIDC + SAML</span></td>
+            <td><span class="badge badge-amber">$4–22 / user / เดือน</span></td>
+            <td>บริษัทขนาดใหญ่ในไทยและทั่วโลก</td>
+          </tr>
+          <tr>
+            <td>🔐 <strong>Okta</strong></td>
+            <td>Okta (US)</td>
+            <td><span class="badge badge-blue">OIDC + SAML</span></td>
+            <td><span class="badge badge-amber">$2–15 / user / เดือน</span></td>
+            <td>Grab, Shopee, LINE (global)</td>
+          </tr>
+          <tr>
+            <td>🔑 <strong>Auth0</strong></td>
+            <td>Okta (US)</td>
+            <td><span class="badge badge-blue">OIDC + SAML</span></td>
+            <td><span class="badge badge-amber">$23+ / เดือน + per MAU</span></td>
+            <td>Startup ขนาดกลาง</td>
+          </tr>
+          <tr>
+            <td>🏛️ <strong>Keycloak</strong></td>
+            <td>Red Hat / Open Source</td>
+            <td><span class="badge badge-blue">OIDC + SAML</span></td>
+            <td><span class="badge badge-green">Open Source</span><br><span style="font-size:11px;color:#64748b">(ต้อง migrate password)</span></td>
+            <td>ธนาคาร, หน่วยงานรัฐ</td>
+          </tr>
+          <tr>
+            <td>🟢 <strong>Google Identity</strong></td>
+            <td>Google</td>
+            <td><span class="badge badge-blue">OIDC</span></td>
+            <td><span class="badge badge-green">ฟรี (บน Workspace)</span></td>
+            <td>บริษัทที่ใช้ Google Workspace</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="hl-box" style="margin-top:16px;">
+        <h3>🎯 B1DX ใช้ Protocol เดียวกับ Microsoft Azure AD, Okta และ Google</h3>
+        <p>OIDC (OpenID Connect) คือมาตรฐานเดียวกันทุกค่ายใช้ — ความต่างคือเราสร้างเอง ทำให้ <strong>ไม่ต้องจ่าย License รายเดือน, ควบคุม Data 100%, ปรับแต่งได้เต็มที่</strong> และ Password เดิมของ user ไม่ต้อง Reset</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 SYSTEMS -->
+  <div class="section">
+    <div class="section-title">8 ระบบที่ใช้ SSO ร่วมกัน</div>
+    <div class="card">
+      <p style="font-size:14px; color:#475569; margin-bottom:4px;">Login ครั้งเดียวที่ <strong>auth.b1dx.com</strong> → เข้าได้ทุกระบบที่ได้รับสิทธิ์</p>
+      <div class="app-pills">
+        <span class="pill pill-erp">📊 ERP<br><small>บัญชี/การเงิน/ซื้อ-ขาย</small></span>
+        <span class="pill pill-wms">🏭 WMS<br><small>จัดการคลังสินค้า</small></span>
+        <span class="pill pill-oms pill-live">🛒 OMS<br><small>จัดการออเดอร์ ● LIVE</small></span>
+        <span class="pill pill-ff">📦 Fulfillment<br><small>Picking/Packing/Shipping</small></span>
+        <span class="pill pill-crm">👥 CRM<br><small>บริหารลูกค้า</small></span>
+        <span class="pill pill-con">🔗 Connector<br><small>เชื่อมต่อภายนอก</small></span>
+        <span class="pill pill-ain">💳 ALL-IN<br><small>Billing/Subscription</small></span>
+        <span class="pill pill-doc">📄 DOCS<br><small>จัดการเอกสาร</small></span>
+      </div>
+      <div class="note" style="margin-top:16px;">
+        <strong>หมายเหตุ:</strong> ● OMS = ระบบปัจจุบันที่ Live อยู่แล้ว และจะเป็น client แรกที่ migrate ไปใช้ SSO ใหม่
+      </div>
+    </div>
+  </div>
+
+  <!-- SOCIAL LOGIN -->
+  <div class="section">
+    <div class="section-title">Social Login — พนักงาน Login ด้วยอะไรได้บ้าง</div>
+    <div class="card">
+      <p style="font-size:14px; color:#475569; margin-bottom:14px;">Phase 1 รองรับ 7 provider — พนักงานใช้บัญชีที่มีอยู่แล้วได้เลย ไม่ต้องจำรหัสผ่านใหม่</p>
+      <div class="icon-row">
+        <div class="icon-item"><span class="icon">🔵</span> Google</div>
+        <div class="icon-item"><span class="icon">🟦</span> Microsoft</div>
+        <div class="icon-item"><span class="icon">📘</span> Facebook</div>
+        <div class="icon-item"><span class="icon">🔷</span> LinkedIn</div>
+        <div class="icon-item"><span class="icon">🐦</span> X (Twitter)</div>
+        <div class="icon-item"><span class="icon">🐙</span> GitHub</div>
+        <div class="icon-item"><span class="icon">🟢</span> LINE</div>
+      </div>
+      <div style="margin-top:14px; font-size:13px; color:#64748b;">+ Email + OTP (แบบเดิม) ยังใช้ได้ตามปกติ</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS SIMPLE -->
+  <div class="section">
+    <div class="section-title">User Experience — พนักงานใช้งานอย่างไร</div>
+    <div class="two-col">
+      <div class="card">
+        <div style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:12px;">ก่อน SSO (ปัจจุบัน)</div>
+        <ul class="x-list">
+          <li>Login แยกทุกระบบ</li>
+          <li>จำหลายรหัสผ่าน</li>
+          <li>เปลี่ยนรหัสต้องทำทุกระบบ</li>
+          <li>Admin ยกเลิกสิทธิ์ต้องทำทีละระบบ</li>
+          <li>ไม่มี Audit Log รวม</li>
+          <li>ไม่มี Social Login</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px; font-weight:700; color:#22c55e; margin-bottom:12px;">หลัง SSO (ใหม่)</div>
+        <ul class="check-list">
+          <li>Login ครั้งเดียว เข้าได้ทุกระบบ</li>
+          <li>บัญชีเดียว รหัสเดียว (หรือ Social)</li>
+          <li>เปลี่ยนรหัสที่เดียว มีผลทุกระบบ</li>
+          <li>ยกเลิกสิทธิ์พนักงานที่เดียว ตัดทุกระบบ</li>
+          <li>Audit Log รวมศูนย์ ตรวจสอบง่าย</li>
+          <li>Google / Microsoft / LINE / etc.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERMISSION MODEL -->
+  <div class="section">
+    <div class="section-title">โมเดล Permission — ใครเห็นอะไรได้บ้าง</div>
+    <div class="card">
+      <div style="font-size:14px; font-weight:700; margin-bottom:14px;">ระบบแบ่งเป็น 2 ชั้น (Layered Hybrid)</div>
+      <div class="two-col" style="gap:12px;">
+        <div style="background:#f0f4ff; border-radius:10px; padding:16px; border:1.5px solid #c7d2fe;">
+          <div style="font-size:12px; font-weight:700; letter-spacing:1px; color:#6366f1; margin-bottom:8px;">ชั้นที่ 1 — Portal (B1DX Identity)</div>
+          <div style="font-size:13px; color:#3730a3;">
+            <strong>ตอบว่า "ใครคุณ?"</strong><br>
+            - บัญชี / รหัสผ่าน<br>
+            - อยู่ Tenant ไหน (ลูกค้าบริษัทไหน)<br>
+            - มี Role อะไรในระบบไหน<br>
+            - ซื้อ App ไหนบ้าง (Entitlement)
+          </div>
+        </div>
+        <div style="background:#f0fdf4; border-radius:10px; padding:16px; border:1.5px solid #86efac;">
+          <div style="font-size:12px; font-weight:700; letter-spacing:1px; color:#15803d; margin-bottom:8px;">ชั้นที่ 2 — แต่ละ App</div>
+          <div style="font-size:13px; color:#166534;">
+            <strong>ตอบว่า "ทำอะไรได้?"</strong><br>
+            - Permission ละเอียด<br>
+            - ยกเลิก Order ได้ไหม?<br>
+            - เข้าถึงข้อมูล Warehouse ไหน?<br>
+            - แก้ไข Product ได้หรือเปล่า?
+          </div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:12px;">
+        <strong>ทำไมแบ่งสองชั้น?</strong> Portal ไม่บวม ไม่ต้องรู้ business rule ของทุกระบบ — เพิ่มระบบที่ 9, 10 ได้โดยไม่ต้องแก้ Portal
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTITLEMENT / COMMERCIAL GATE -->
+  <div class="section">
+    <div class="section-title">การควบคุมสิทธิ์เข้าใช้ตาม Subscription (Commercial Gate)</div>
+    <div class="card">
+      <p style="font-size:14px; color:#475569; margin-bottom:16px;">Portal ออก Token ให้เข้าระบบ X ได้ก็ต่อเมื่อผ่าน 2 ด่าน</p>
+      <div class="flow" style="justify-content:center; flex-wrap:wrap; gap:8px;">
+        <div class="flow-box">User Login</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box" style="background:#f59e0b;">
+          ด่าน 1<br>
+          <span style="font-size:11px;">Tenant ซื้อ App นี้ไหม?</span>
+        </div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box" style="background:#8b5cf6;">
+          ด่าน 2<br>
+          <span style="font-size:11px;">User มี Role ใน App นี้ไหม?</span>
+        </div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box green">ออก Token<br><span style="font-size:11px;">เข้าระบบได้</span></div>
+      </div>
+      <div style="margin-top:12px; text-align:center; font-size:13px; color:#64748b;">ไม่ผ่านด่านใดด่านหนึ่ง → ปฏิเสธทันที (<em>access_denied</em>)</div>
+    </div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="section">
+    <div class="section-title">ความปลอดภัย — Enterprise Grade</div>
+    <div class="card">
+      <div class="sec-grid">
+        <div class="sec-item">
+          <div class="sec-icon">🔐</div>
+          <h4>PKCE</h4>
+          <p>ป้องกัน Authorization Code ถูกขโมยกลางทาง บังคับทุก Client</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">⏱️</div>
+          <h4>Token TTL 15 นาที</h4>
+          <p>Token หมดอายุเร็ว — ถ้าถูกขโมย ใช้ได้ไม่นาน</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🔄</div>
+          <h4>Refresh Token Rotation</h4>
+          <p>ตรวจจับการใช้ซ้ำ ยกเลิก Session ทั้งหมดทันที</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🚪</div>
+          <h4>Single Logout (SLO)</h4>
+          <p>Logout ที่ระบบใดก็ได้ → ตัดทุก Session ทุกระบบพร้อมกัน</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🔑</div>
+          <h4>Key ใน AWS Secrets Manager</h4>
+          <p>Private Key ไม่เก็บในโค้ด หมุนเวียนได้ทุก 90 วัน</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">📋</div>
+          <h4>Audit Log รวมศูนย์</h4>
+          <p>Login/MFA/Token/Role-Assignment บันทึกครบ ตรวจสอบได้ 365 วัน</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🛡️</div>
+          <h4>MFA / OTP</h4>
+          <p>รองรับ Email OTP พร้อมขยายเป็น TOTP App และ WebAuthn</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🏢</div>
+          <h4>Multi-Tenant Isolation</h4>
+          <p>ข้อมูลแต่ละ Tenant แยกชัดเจน ไม่รั่วข้ามกัน</p>
+        </div>
+        <div class="sec-item">
+          <div class="sec-icon">🔒</div>
+          <h4>aud Per-App</h4>
+          <p>Token ของ OMS ใช้กับ WMS ไม่ได้ — ป้องกัน Token รั่วข้ามระบบ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE DIAGRAM SIMPLE -->
+  <div class="section">
+    <div class="section-title">ภาพรวมสถาปัตยกรรม</div>
+    <div class="card" style="overflow-x:auto;">
+      <div style="font-size:13px; color:#64748b; margin-bottom:16px;">แผนผังแสดงว่าแต่ละ Component ทำงานอย่างไร</div>
+      <div style="background:#1e293b; border-radius:12px; padding:24px; font-family:monospace; font-size:13px; color:#94a3b8; line-height:2; overflow-x:auto; white-space:pre;">
+<span style="color:#60a5fa">Social Login</span>    <span style="color:#94a3b8">┌────────────────────────────────────┐</span>
+<span style="color:#4ade80">Google ────┐</span>    <span style="color:#94a3b8">│</span>     <span style="color:#818cf8">B1DX IDENTITY PLATFORM</span>      <span style="color:#94a3b8">│</span>
+<span style="color:#4ade80">Microsoft ─┤ ──► │  auth.b1dx.com               │</span>
+<span style="color:#4ade80">LINE ──────┤</span>    <span style="color:#94a3b8">│  ┌──────────────┐ ┌──────────┐ │</span>
+<span style="color:#4ade80">Facebook ──┤</span>    <span style="color:#94a3b8">│  │  identity-ui  │ │identity- │ │</span>
+<span style="color:#4ade80">GitHub ────┘</span>    <span style="color:#94a3b8">│  │  (Next.js 15) │ │api       │ │</span>
+                <span style="color:#94a3b8">│  │  Login/OTP   │ │(.NET 10) │ │</span>
+<span style="color:#fbbf24">Email + OTP</span> <span style="color:#94a3b8">──►│  │  Launcher    │ │OpenIddict│ │  ◄── identity_db</span>
+<span style="color:#fbbf24">Password</span>    <span style="color:#94a3b8">──►│  │  Admin UI    │ │JWKS/OIDC │ │     (Postgres)</span>
+                <span style="color:#94a3b8">│  └──────────────┘ └────┬─────┘ │</span>
+                <span style="color:#94a3b8">└───────────────────────┼────────┘</span>
+                                        <span style="color:#94a3b8">│ OIDC Token (JWT RS256)</span>
+                    <span style="color:#94a3b8">────────────────────┼───────────────────</span>
+                    <span style="color:#60a5fa">▼</span>      <span style="color:#60a5fa">▼</span>      <span style="color:#60a5fa">▼</span>      <span style="color:#60a5fa">▼</span>      <span style="color:#60a5fa">▼</span>
+                  <span style="color:#60a5fa">ERP   WMS    OMS    FF    CRM  ...</span>
+                  <span style="color:#94a3b8">(แต่ละระบบ validate Token ผ่าน JWKS)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIGRATION ROADMAP -->
+  <div class="section">
+    <div class="section-title">แผนการดำเนินงาน (Migration Roadmap)</div>
+    <div class="card">
+      <div class="phase-row">
+        <div class="phase-item">
+          <div class="phase-dot done">0</div>
+          <div class="phase-label">สร้าง Portal</div>
+          <div class="phase-sub">Extract จาก OMS<br>ตั้ง DB แยก</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-dot todo">0.5</div>
+          <div class="phase-label">ปรับ Data</div>
+          <div class="phase-sub">Migrate Scope<br>ตรวจสอบ</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-dot todo">1</div>
+          <div class="phase-label">Core Flows</div>
+          <div class="phase-sub">Social Login<br>SLO, Admin UI</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-dot todo">2</div>
+          <div class="phase-label">OMS + FF</div>
+          <div class="phase-sub">Client แรก<br>Dual-token</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-dot todo">3</div>
+          <div class="phase-label">CRM + WMS</div>
+          <div class="phase-sub">ขยาย SSO</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-dot todo">4</div>
+          <div class="phase-label">ครบ 8 ระบบ</div>
+          <div class="phase-sub">ERP/Connector<br>ALL-IN/DOCS</div>
+        </div>
+      </div>
+      <div class="note">
+        <strong>จุดสำคัญ:</strong> Phase 2 ใช้ "Dual-Token" — OMS รับทั้ง Token เดิมและ Token ใหม่ได้พร้อมกัน ทำให้ไม่มี Downtime ระหว่าง Migrate. Password เดิมของ User ทุกคน<strong>ไม่ต้อง Reset</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY BUILD NOT BUY -->
+  <div class="section">
+    <div class="section-title">ทำไมสร้างเอง ไม่ซื้อ Keycloak / Auth0 / Okta?</div>
+    <div class="card">
+      <div class="two-col">
+        <div>
+          <div style="font-size:14px; font-weight:700; color:#dc2626; margin-bottom:10px;">ถ้าใช้ Keycloak / Auth0 / Okta</div>
+          <ul class="x-list">
+            <li><strong>Password Hash ไม่เข้ากัน</strong> — ต้อง Force Reset ทุก User</li>
+            <li>Auth0 คิดค่าบริการตาม MAU (Monthly Active Users)</li>
+            <li>ต้องเรียนรู้ Stack ใหม่ ทีมไม่ถนัด</li>
+            <li>Data อยู่กับ Vendor — ควบคุมได้น้อยกว่า</li>
+            <li>ปรับแต่ง Multi-Tenant Model เดิมยาก</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:10px;">ทำไม B1DX Identity Platform ดีกว่า</div>
+          <ul class="check-list">
+            <li><strong>Password Hash เดิมใช้ได้เลย</strong> — ไม่ต้อง Reset</li>
+            <li>ไม่มีค่า License รายเดือน</li>
+            <li>ทีมถนัด .NET อยู่แล้ว (~70% reuse โค้ดเดิม)</li>
+            <li>Data อยู่ใน Control เรา 100%</li>
+            <li>Multi-Tenant Model ที่มีอยู่แล้วใช้ต่อได้</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVAILABILITY -->
+  <div class="section">
+    <div class="section-title">NFR — ความพร้อมใช้งาน</div>
+    <div class="card">
+      <div class="stat-row" style="margin-bottom:0;">
+        <div class="stat">
+          <div class="stat-num">99.9<span style="font-size:14px;color:#94a3b8">%</span></div>
+          <div class="stat-label">Target Availability<br><span style="font-size:11px;">(8.7 ชม./ปี downtime สูงสุด)</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">&lt;300<span style="font-size:14px;color:#94a3b8">ms</span></div>
+          <div class="stat-label">Auth Endpoint Latency<br><span style="font-size:11px;">(p99)</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">30<span style="font-size:14px;color:#94a3b8">วัน</span></div>
+          <div class="stat-label">Refresh / SSO Session<br><span style="font-size:11px;">(หมด = Login ใหม่)</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">90<span style="font-size:14px;color:#94a3b8">วัน</span></div>
+          <div class="stat-label">Key Rotation<br><span style="font-size:11px;">(หมุนเวียน Signing Key)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION STATUS -->
+  <div class="section">
+    <div class="section-title">สถานะการตัดสินใจ</div>
+    <div class="card">
+      <table class="compare">
+        <thead>
+          <tr><th>หัวข้อ</th><th>สถานะ</th><th>รายละเอียด</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Architecture Decision (ADR-005)</td><td><span class="badge badge-green">Accepted ✓</span></td><td>Owner ratified ครบทุก Decision (D1–D11, Q-A…Q-H) 2026-06-03</td></tr>
+          <tr><td>Protocol เลือก OIDC + OpenIddict</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>มาตรฐานสากล, reuse โค้ดเดิม ~70%</td></tr>
+          <tr><td>Social Login 7 Providers</td><td><span class="badge badge-green">Scoped ✓</span></td><td>Google, Microsoft, Facebook, LinkedIn, X, GitHub, LINE</td></tr>
+          <tr><td>Domain Layout</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>auth.b1dx.com + *.b1dx.com (subdomain)</td></tr>
+          <tr><td>DB = identity_db แยก</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>แยก Logical DB ออกจาก oms_db ทันที</td></tr>
+          <tr><td>Tier-1 Security Review</td><td><span class="badge badge-amber">Pending ⏳</span></td><td>Required ก่อน Build — รอ Security Team Review</td></tr>
+          <tr><td>Cross-Product Buy-in</td><td><span class="badge badge-amber">Pending ⏳</span></td><td>รอ ERP/WMS/CRM/Connector/ALL-IN/DOCS teams</td></tr>
+          <tr><td>Build Start</td><td><span class="badge badge-gray">Gated 🔒</span></td><td>เริ่มได้เมื่อ Security Review + Buy-in ครบ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    B1DX Identity Platform · Executive Brief · จัดทำโดยทีมสถาปัตยกรรม B1DX · มิถุนายน 2026<br>
+    อ้างอิง: ADR-005, Spec b1dx-identity-platform.md
+  </footer>
+
+</div>
+</body>
+</html>
