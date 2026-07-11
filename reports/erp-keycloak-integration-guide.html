@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP × Keycloak — คู่มือ Register App + Login Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #fafbfc;
+    --bg-1: #f4f6fa;
+    --surface: #ffffff;
+    --ink: #0b0f1a;
+    --ink-2: #1f2937;
+    --ink-3: #475569;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --line: #e6e9f0;
+    --line-soft: #eef1f6;
+    --soft: #f7f9fc;
+
+    --indigo: #4f46e5;
+    --indigo-2: #6366f1;
+    --violet: #7c3aed;
+    --fuchsia: #c026d3;
+    --emerald: #059669;
+    --emerald-soft: #ecfdf5;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --amber: #b45309;
+    --amber-soft: #fffbeb;
+    --rose: #e11d48;
+    --rose-soft: #fff1f2;
+
+    --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #c026d3 100%);
+    --grad-dark: linear-gradient(135deg, #0b0f1a 0%, #1e1b4b 45%, #4c1d95 100%);
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+    --r-2xl: 28px;
+
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 2px 6px rgba(15,23,42,.05);
+    --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05), 0 12px 24px -8px rgba(15,23,42,.08);
+    --shadow-lg: 0 32px 64px -12px rgba(15,23,42,.18), 0 8px 16px -4px rgba(15,23,42,.06);
+  }
+
+  html, body {
+    font-family: 'Inter', 'IBM Plex Sans Thai', -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    font-size: 13.5px;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 500px at 12% -10%, #eef2ff 0%, transparent 55%),
+      radial-gradient(700px 420px at 92% 8%, #fae8ff 0%, transparent 55%),
+      radial-gradient(600px 400px at 50% 110%, #e0e7ff 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+    padding: 32px 20px 60px;
+  }
+  a { color: var(--indigo-2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .page {
+    max-width: 1160px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.8);
+  }
+
+  /* ===== HERO ===== */
+  .hero { position: relative; padding: 36px 48px 32px; color: #fff; background: var(--grad-dark); overflow: hidden; isolation: isolate; }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(900px 380px at 90% -25%, rgba(192,38,211,.4), transparent 55%),
+      radial-gradient(800px 400px at -5% 110%, rgba(99,102,241,.5), transparent 55%);
+  }
+  .hero::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; opacity: .75;
+    background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+            mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 25%, transparent 80%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .35; z-index: -1; }
+  .orb-1 { width: 300px; height: 300px; background: #c026d3; top: -100px; right: 5%; animation: float 18s ease-in-out infinite; }
+  .orb-2 { width: 260px; height: 260px; background: #6366f1; bottom: -90px; left: 10%; animation: float 22s ease-in-out infinite reverse; }
+  @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(16px,-12px) scale(1.05)} }
+
+  .hero-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.1); flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #a5b4fc 0%, #c084fc 50%, #f0abfc 100%); display: grid; place-items: center; font-weight: 900; font-size: 16px; color: #1e1b4b; letter-spacing: -.5px; box-shadow: 0 10px 28px -8px rgba(192,38,211,.5), inset 0 1px 0 rgba(255,255,255,.5); }
+  .brand-text .name { font-size: 10px; color: #c7d2fe; text-transform: uppercase; letter-spacing: 2.2px; font-weight: 700; margin-bottom: 2px; }
+  .brand-text .product { font-size: 15px; font-weight: 700; }
+  .badge-pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: .8px; }
+  .badge-dev { background: rgba(99,102,241,.2); color: #a5b4fc; border: 1px solid rgba(165,180,252,.3); }
+  .badge-live { background: rgba(16,185,129,.18); color: #6ee7b7; border: 1px solid rgba(110,231,183,.35); }
+  .badge-live .dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52,211,153,.8); animation: pulse 2s infinite; display: inline-block; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+  .hero-title { font-size: 30px; font-weight: 800; letter-spacing: -1.1px; line-height: 1.18; margin-bottom: 10px; }
+  .hero-title span { background: var(--grad-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 13.5px; color: rgba(255,255,255,.62); max-width: 680px; line-height: 1.65; }
+
+  /* ===== TOC ===== */
+  .toc-bar { background: var(--soft); border-bottom: 1px solid var(--line); padding: 14px 48px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toc-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--muted-2); margin-right: 4px; }
+  .toc-link { font-size: 11.5px; font-weight: 600; color: var(--indigo); text-decoration: none; padding: 4px 10px; border-radius: var(--r-sm); background: transparent; transition: background .15s; }
+  .toc-link:hover { background: #eef2ff; }
+  .toc-sep { color: var(--muted-2); font-size: 11px; }
+
+  /* ===== MAIN CONTENT ===== */
+  .content { padding: 40px 48px; }
+  .content > * + * { margin-top: 40px; }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--line-soft); }
+  .section-icon { width: 38px; height: 38px; border-radius: var(--r-md); display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+  .icon-indigo { background: #eef2ff; } .icon-emerald { background: var(--emerald-soft); } .icon-blue { background: var(--blue-soft); } .icon-amber { background: var(--amber-soft); } .icon-rose { background: var(--rose-soft); } .icon-violet { background: #f5f3ff; }
+  .section-title { font-size: 19px; font-weight: 800; letter-spacing: -.4px; }
+  .section-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--muted-2); font-family: 'JetBrains Mono', monospace; }
+  h3.sub { font-size: 14.5px; font-weight: 700; color: var(--ink-2); margin: 22px 0 12px; letter-spacing: -.2px; }
+  h3.sub::before { content: '▶ '; font-size: 9px; color: var(--indigo); vertical-align: 2px; margin-right: 4px; }
+  p { color: var(--ink-3); line-height: 1.7; }
+  p + p { margin-top: 10px; }
+
+  /* ===== CODE BLOCKS (with copy button) ===== */
+  .code-wrap { margin: 14px 0; position: relative; }
+  .code-label { display: flex; align-items: center; justify-content: space-between; background: #1e1b4b; color: #a5b4fc; padding: 8px 14px; border-radius: var(--r-md) var(--r-md) 0 0; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .5px; }
+  .code-label .lang { color: #6ee7b7; }
+  .copy-btn { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .3px; color: #c7d2fe; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 5px; padding: 3px 9px; cursor: pointer; transition: background .15s, color .15s; }
+  .copy-btn:hover { background: rgba(255,255,255,.16); color: #fff; }
+  .copy-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 1px; }
+  .copy-btn.copied { color: #6ee7b7; border-color: rgba(110,231,183,.4); }
+  pre { background: #0b0f1a; color: #e2e8f0; padding: 16px 18px; border-radius: 0 0 var(--r-md) var(--r-md); overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.75; border: 1px solid #1e2a3a; border-top: none; }
+  pre .cm { color: #64748b; } pre .kw { color: #93c5fd; } pre .str { color: #6ee7b7; } pre .key { color: #c4b5fd; } pre .val { color: #86efac; }
+
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 500; background: #f1f5f9; color: #4f46e5; padding: 1px 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
+
+  /* ===== CALLOUTS ===== */
+  .callout { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--r-md); margin: 14px 0; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+  .callout-body p { font-size: 12.5px; color: inherit; }
+  .callout.info { background: var(--blue-soft); border-left: 3px solid var(--blue); color: var(--blue); } .callout.info p { color: #1e40af; }
+  .callout.warn { background: var(--amber-soft); border-left: 3px solid #d97706; color: var(--amber); } .callout.warn p { color: #92400e; }
+  .callout.danger { background: var(--rose-soft); border-left: 3px solid var(--rose); color: var(--rose); } .callout.danger p { color: #9f1239; }
+  .callout.tip { background: var(--emerald-soft); border-left: 3px solid var(--emerald); color: var(--emerald); } .callout.tip p { color: #065f46; }
+
+  /* ===== TABLES ===== */
+  .tbl-wrap { overflow-x: auto; margin: 14px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th { background: var(--soft); color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .8px; font-size: 10.5px; padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--line-soft); color: var(--ink-3); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--soft); }
+  .td-mono { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--indigo); }
+
+  /* ===== TABS (Dev / Prod switch) ===== */
+  .tabs { display: inline-flex; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin: 4px 0 14px; }
+  .tab-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .4px; padding: 6px 16px; border-radius: 999px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: background .15s, color .15s; }
+  .tab-btn.active { background: var(--indigo); color: #fff; box-shadow: var(--shadow-sm); }
+  .tab-btn:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== CHECKLIST (interactive registration steps) ===== */
+  .steps { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; counter-reset: stepnum; }
+  .step-card { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); transition: border-color .15s, background .15s; }
+  .step-card:has(.step-check:checked) { border-color: #a7f3d0; background: var(--emerald-soft); }
+  .step-check { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--emerald); cursor: pointer; }
+  .step-title { font-size: 13.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+  .step-card:has(.step-check:checked) .step-title { color: var(--emerald); }
+  .step-title .step-n { font-family: 'JetBrains Mono', monospace; color: var(--indigo); margin-right: 6px; }
+  .step-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .step-desc code { font-size: 11px; }
+
+  .progress-wrap { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+  .progress-track { flex: 1; height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--grad-brand); border-radius: 999px; transition: width .35s cubic-bezier(.16,1,.3,1); }
+  .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+  /* ===== FLOW DIAGRAM (mermaid) ===== */
+  .flow-box { background: #f8faff; border: 1px solid #dde3f5; border-radius: var(--r-lg); padding: 20px 24px; margin: 14px 0; overflow-x: auto; }
+  .mermaid { font-family: 'Inter','IBM Plex Sans Thai',sans-serif; }
+
+  /* ===== ACCORDION (FAQ / troubleshooting) ===== */
+  .faq-item { border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 8px; overflow: hidden; background: var(--surface); }
+  .faq-item summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 700; color: var(--ink-2); background: var(--soft); }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::before { content: '▸'; color: var(--indigo); font-size: 12px; transition: transform .15s; flex-shrink: 0; }
+  .faq-item[open] summary::before { transform: rotate(90deg); }
+  .faq-item .faq-body { padding: 12px 16px 14px; font-size: 12.5px; color: var(--ink-3); line-height: 1.65; }
+  .faq-tag { font-size: 9.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--rose-soft); color: var(--rose); margin-left: auto; flex-shrink: 0; }
+
+  /* ===== CARDS ===== */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 14px 0; }
+  .card { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+  .card-header { padding: 14px 16px 12px; display: flex; align-items: center; gap: 10px; }
+  .card-icon { font-size: 20px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+  .card-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .card-body { padding: 0 16px 16px; }
+  .card-body p { font-size: 12px; color: var(--ink-3); }
+  .card.indigo .card-header { background: #eef2ff; border-bottom: 1px solid #e0e7ff; }
+  .card.amber .card-header { background: var(--amber-soft); border-bottom: 1px solid #fde68a; }
+  .card.emerald .card-header { background: var(--emerald-soft); border-bottom: 1px solid #d1fae5; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: .3px; }
+  .tag-indigo { background: #eef2ff; color: var(--indigo); border: 1px solid #c7d2fe; }
+  .tag-emerald { background: var(--emerald-soft); color: #065f46; border: 1px solid #a7f3d0; }
+  .tag-amber { background: var(--amber-soft); color: var(--amber); border: 1px solid #fcd34d; }
+
+  .divider { border: none; border-top: 1px solid var(--line-soft); margin: 36px 0; }
+
+  /* ===== FOOTER ===== */
+  .footer { padding: 20px 48px; background: var(--soft); border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .footer-left { font-size: 11.5px; color: var(--muted); }
+  .footer-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .footer-ref { font-size: 10.5px; color: var(--indigo); text-decoration: none; font-weight: 600; }
+  .footer-ref:hover { text-decoration: underline; }
+
+  .reveal { opacity: 0; transform: translateY(10px); animation: reveal .7s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes reveal { to { opacity: 1; transform: none; } }
+  .reveal:nth-child(1) { animation-delay: .05s; } .reveal:nth-child(2) { animation-delay: .12s; } .reveal:nth-child(3) { animation-delay: .19s; }
+  .reveal:nth-child(4) { animation-delay: .26s; } .reveal:nth-child(5) { animation-delay: .33s; } .reveal:nth-child(6) { animation-delay: .40s; }
+  .reveal:nth-child(7) { animation-delay: .47s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .orb, .badge-live .dot, .progress-fill { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+  }
+
+  @media (max-width: 720px) {
+    .hero, .toc-bar, .content, .footer { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="hero-top">
+      <div class="brand">
+        <div class="logo">B1</div>
+        <div class="brand-text">
+          <div class="name">B1DX Platform</div>
+          <div class="product">Identity &amp; SSO</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <span class="badge-pill badge-dev">🔧 Integration Guide</span>
+        <span class="badge-pill badge-live"><span class="dot"></span>b1dx-erp · realm b1dx</span>
+      </div>
+    </div>
+    <div>
+      <div class="hero-title">ERP × <span>Keycloak</span><br>Register App + Login Flow</div>
+      <div class="hero-sub">คู่มือ register client <code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">b1dx-erp</code> เข้า Keycloak (<code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">keycloak.benzapps.com</code>) + OIDC login flow แบบ interactive สำหรับ dev ที่ยังไม่คุ้นกับ Keycloak</div>
+    </div>
+  </div>
+
+  <!-- ===== TOC ===== -->
+  <nav class="toc-bar">
+    <span class="toc-label">บท</span>
+    <a class="toc-link" href="#s1">1 · Overview</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s2">2 · Register Client</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s3">3 · Login Settings</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s4">4 · Env Vars</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s5">5 · Login Flow</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s6">6 · Troubleshooting</a><span class="toc-sep">·</span>
+    <a class="toc-link" href="#s7">7 · Reference</a>
+  </nav>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- ===== S1: OVERVIEW ===== -->
+    <section id="s1" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-indigo">🏛️</div>
+        <div><div class="section-num">Section 01</div><div class="section-title">Overview</div></div>
+      </div>
+      <p>ระบบ B1DX ทั้ง 8 ระบบ (ERP · WMS · OMS · Fulfillment · CRM · Connector · ALL-IN · DOCS) ใช้ <strong>Keycloak</strong> เป็น Central Identity Provider realm เดียว — <code>b1dx</code>. ERP ต้อง register ตัวเองเป็น <strong>OIDC client</strong> ก่อนถึงจะพา user ไป login ผ่าน Keycloak ได้</p>
+      <div class="cards" style="margin-top:18px;">
+        <div class="card indigo">
+          <div class="card-header"><span class="card-icon">🌐</span><div><div class="card-title">Keycloak Server</div><div class="card-sub">Central IdP</div></div></div>
+          <div class="card-body"><p><code>https://keycloak.benzapps.com</code> — Admin Console ที่ <code>/admin/</code></p></div>
+        </div>
+        <div class="card indigo">
+          <div class="card-header"><span class="card-icon">🏷️</span><div><div class="card-title">Realm</div><div class="card-sub">Shared ทั้ง 8 ระบบ</div></div></div>
+          <div class="card-body"><p><code>b1dx</code> — user login ที่ระบบไหนก็ใช้ account เดียวกันได้ (SSO)</p></div>
+        </div>
+        <div class="card emerald">
+          <div class="card-header"><span class="card-icon">🔑</span><div><div class="card-title">Client ID</div><div class="card-sub">ERP</div></div></div>
+          <div class="card-body"><p><code>b1dx-erp</code> — confidential client, Authorization Code + PKCE</p></div>
+        </div>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-body"><strong>ใครควรอ่านคู่มือนี้</strong><p>Dev ที่กำลังทำให้ ERP app (Next.js, dev ที่ <code>localhost:3000</code>, prod ที่ <code>erp2.b1dx.com</code>) เชื่อมต่อ login กับ Keycloak เป็นครั้งแรก</p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S2: REGISTER CLIENT (interactive checklist) ===== -->
+    <section id="s2" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-emerald">✅</div>
+        <div><div class="section-num">Section 02</div><div class="section-title">Register Client — ทำตามลำดับ (กดติ๊กเก็บ progress ได้)</div></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-label" id="progressLabel">0 / 6 เสร็จ</span>
+      </div>
+
+      <ol class="steps" id="stepList" style="list-style:none;">
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="1">
+          <div>
+            <div class="step-title"><span class="step-n">01</span>Login Admin Console</div>
+            <div class="step-desc">เปิด <code>https://keycloak.benzapps.com/admin/</code> → login ด้วย account ที่มีสิทธิ์ realm admin → เลือก realm <code>b1dx</code> ที่มุมซ้ายบน (ไม่ใช่ <code>master</code>)</div>
+          </div>
+        </li>
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="2">
+          <div>
+            <div class="step-title"><span class="step-n">02</span>Clients → Create client</div>
+            <div class="step-desc">Client type: <code>OpenID Connect</code> · Client ID: <code>b1dx-erp</code> · Name: <code>B1DX ERP</code> (ไม่บังคับ)</div>
+          </div>
+        </li>
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="3">
+          <div>
+            <div class="step-title"><span class="step-n">03</span>Capability config</div>
+            <div class="step-desc">Client authentication: <strong>ON</strong> (confidential — จะได้ secret) · Authentication flow: เปิดแค่ <strong>Standard flow</strong> · ปิด Direct access grants / Implicit flow / Service accounts</div>
+          </div>
+        </li>
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="4">
+          <div>
+            <div class="step-title"><span class="step-n">04</span>Login settings</div>
+            <div class="step-desc">ใส่ Root URL / Redirect URIs / Web origins — ดูค่าตาม tab Dev/Prod ใน <a href="#s3">Section 3</a> ด้านล่าง</div>
+          </div>
+        </li>
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="5">
+          <div>
+            <div class="step-title"><span class="step-n">05</span>Save → copy Client secret</div>
+            <div class="step-desc">กด Save → ไปแท็บ <strong>Credentials</strong> → copy Client secret เก็บไว้ (ห้ามใส่ลง repo ตรง ๆ — ใส่ env/secret manager เท่านั้น)</div>
+          </div>
+        </li>
+        <li class="step-card">
+          <input type="checkbox" class="step-check" data-step="6">
+          <div>
+            <div class="step-title"><span class="step-n">06</span>ตรวจ Client scope mappers</div>
+            <div class="step-desc">ให้มี mapper <code>aud</code> = <code>b1dx-erp</code> (per-app audience) + claims ที่ ERP ใช้ เช่น <code>tenant_id</code>, <code>roles</code></div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S3: LOGIN SETTINGS (Dev/Prod tabs) ===== -->
+    <section id="s3" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🧩</div>
+        <div><div class="section-num">Section 03</div><div class="section-title">Login Settings — ค่าที่ต้องกรอก</div></div>
+      </div>
+      <p>สลับดูค่าระหว่างเครื่อง dev กับ production ได้จากปุ่มด้านล่าง — ใส่ทั้งสองชุดพร้อมกันใน client เดียว (<code>b1dx-erp</code>) เพื่อให้ dev test บนเครื่องได้โดยไม่กระทบ prod</p>
+
+      <div class="tabs" role="tablist" aria-label="Environment">
+        <button class="tab-btn active" data-tab="dev" role="tab" aria-selected="true">DEV · localhost:3000</button>
+        <button class="tab-btn" data-tab="prod" role="tab" aria-selected="false">PROD · erp2.b1dx.com</button>
+      </div>
+
+      <div class="tab-panel active" data-panel="dev">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Field</th><th>ค่า</th></tr></thead>
+            <tbody>
+              <tr><td>Root URL</td><td class="td-mono">http://localhost:3000</td></tr>
+              <tr><td>Valid redirect URIs</td><td class="td-mono">http://localhost:3000/api/auth/keycloak-callback</td></tr>
+              <tr><td>Valid post logout redirect URIs</td><td class="td-mono">http://localhost:3000/*</td></tr>
+              <tr><td>Web origins</td><td class="td-mono">http://localhost:3000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-panel" data-panel="prod">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Field</th><th>ค่า</th></tr></thead>
+            <tbody>
+              <tr><td>Root URL</td><td class="td-mono">https://erp2.b1dx.com</td></tr>
+              <tr><td>Valid redirect URIs</td><td class="td-mono">https://erp2.b1dx.com/api/auth/keycloak-callback</td></tr>
+              <tr><td>Valid post logout redirect URIs</td><td class="td-mono">https://erp2.b1dx.com/*</td></tr>
+              <tr><td>Web origins</td><td class="td-mono">https://erp2.b1dx.com</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body"><strong>Redirect URI ต้อง match แบบ exact</strong><p>Keycloak เช็คแบบ exact string (รวม trailing slash) — พิมพ์ผิดแม้ตัวเดียวจะได้ <code>invalid_redirect_uri</code> ทันที</p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S4: ENV VARS ===== -->
+    <section id="s4" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-amber">🔐</div>
+        <div><div class="section-num">Section 04</div><div class="section-title">Env Vars ฝั่ง ERP App</div></div>
+      </div>
+      <p>หลัง save client แล้ว ใส่ค่าเหล่านี้ใน <code>.env.local</code> (dev) หรือ secret manager (prod) — ชื่อ env var จริงปรับตาม framework/library ที่ ERP ใช้ (เช่น NextAuth)</p>
+
+      <div class="code-wrap">
+        <div class="code-label"><span><span class="lang">env</span> · .env.local (dev)</span><button class="copy-btn" data-copy="env-dev">Copy</button></div>
+        <pre id="env-dev"><span class="key">KEYCLOAK_URL</span>=<span class="val">https://keycloak.benzapps.com</span>
+<span class="key">KEYCLOAK_REALM</span>=<span class="val">b1dx</span>
+<span class="key">KEYCLOAK_CLIENT_ID</span>=<span class="val">b1dx-erp</span>
+<span class="key">KEYCLOAK_CLIENT_SECRET</span>=<span class="val">{secret จากแท็บ Credentials}</span>
+<span class="key">NEXTAUTH_URL</span>=<span class="val">http://localhost:3000</span></pre>
+      </div>
+
+      <div class="callout danger">
+        <div class="callout-icon">🚫</div>
+        <div class="callout-body"><strong>ห้าม commit client secret ลง repo</strong><p>ใส่ <code>.env.local</code> (gitignored) เท่านั้น — prod ใส่ผ่าน secret manager/CI variable</p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S5: LOGIN FLOW (mermaid) ===== -->
+    <section id="s5" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-violet">🔄</div>
+        <div><div class="section-num">Section 05</div><div class="section-title">OIDC Login Flow — Authorization Code + PKCE</div></div>
+      </div>
+      <p>ลำดับที่เกิดขึ้นจริงตอน dev กด login บนเครื่อง — <strong>front-channel</strong> (browser เห็น) สลับกับ <strong>back-channel</strong> (server คุยกันเอง ผ่าน client_secret)</p>
+
+      <div class="flow-box">
+        <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor Dev as Browser (Dev)
+  participant ERP as ERP App (Next.js :3000)
+  participant KC as Keycloak (realm b1dx)
+
+  Dev->>ERP: คลิก "Login"
+  ERP-->>Dev: 302 redirect → /auth (code_challenge, PKCE)
+  Dev->>KC: GET /realms/b1dx/protocol/openid-connect/auth
+  KC-->>Dev: แสดงหน้า Login
+  Dev->>KC: กรอก username / password
+  KC-->>Dev: 302 redirect → callback?code=...
+  Dev->>ERP: callback พร้อม authorization code
+  ERP->>KC: POST /token (code + client_secret + code_verifier)
+  KC-->>ERP: access_token / id_token / refresh_token
+  ERP-->>Dev: Set-Cookie session → เข้าหน้า Dashboard
+        </pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body"><strong>Realm เดียวกันทั้ง 8 ระบบ</strong><p>Dev ที่ login OMS/FF ได้อยู่แล้ว ใช้ account เดิม login ERP ได้เลย — สิทธิ์การเข้าถึงแต่ละระบบยังคุมแยกที่ role/group ฝั่ง app เอง ไม่ได้ปลดล็อกอัตโนมัติ</p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S6: TROUBLESHOOTING (accordion) ===== -->
+    <section id="s6" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-rose">🛠️</div>
+        <div><div class="section-num">Section 06</div><div class="section-title">Troubleshooting — คลิกเพื่อดูวิธีแก้</div></div>
+      </div>
+
+      <details class="faq-item">
+        <summary>invalid_redirect_uri <span class="faq-tag">พบบ่อยสุด</span></summary>
+        <div class="faq-body">Redirect URI ที่ ERP ส่งไปไม่ตรงกับที่ตั้งไว้ใน Keycloak แบบ exact string (รวม trailing slash / http vs https / port) — เช็ค <strong>Clients → b1dx-erp → Login settings → Valid redirect URIs</strong> ให้ตรงกับ callback URL จริงที่ ERP ใช้</div>
+      </details>
+      <details class="faq-item">
+        <summary>PKCE code_verifier mismatch</summary>
+        <div class="faq-body">code_verifier ที่ส่งไปตอนแลก token ต้องเป็นตัวเดียวกับที่ใช้ generate code_challenge ตอน redirect ไป login — ปกติเกิดจาก session/cookie ที่เก็บ code_verifier หายระหว่างทาง (เช่น cookie ถูก block, หรือ redirect ข้าม domain โดยไม่ได้ตั้งใจ)</div>
+      </details>
+      <details class="faq-item">
+        <summary>invalid_client</summary>
+        <div class="faq-body">Client secret ผิด หรือไม่ได้ส่ง client_secret ตอนเรียก <code>/token</code> — <code>b1dx-erp</code> เป็น confidential client จึงต้องส่ง secret เสมอ (ต่างจาก public client อย่าง <code>b1dx-portal</code> ที่ไม่มี secret)</div>
+      </details>
+      <details class="faq-item">
+        <summary>CORS error ตอนเรียกหน้า Keycloak</summary>
+        <div class="faq-body">Origin ของ ERP ไม่ได้อยู่ใน <strong>Web origins</strong> ของ client — เพิ่ม origin จริง (เช่น <code>http://localhost:3000</code>) หรือใช้ <code>+</code> เพื่อ auto-match กับ redirect URIs ที่ตั้งไว้</div>
+      </details>
+      <details class="faq-item">
+        <summary>Login สำเร็จแต่ ERP validate token ไม่ผ่าน</summary>
+        <div class="faq-body">เช็ค issuer URL ที่ ERP ใช้ validate ต้องตรงกับ <code>https://keycloak.benzapps.com/realms/b1dx</code> เป๊ะ ๆ (ผิด scheme/trailing slash ก็ fail) และเช็คว่า clock บนเครื่อง dev sync ตรงเวลาจริง (JWT exp/iat sensitive กับ clock skew)</div>
+      </details>
+      <details class="faq-item">
+        <summary>Login สำเร็จแต่ user ไม่มีสิทธิ์ใช้ฟีเจอร์ใน ERP</summary>
+        <div class="faq-body">Login ผ่าน realm แปลว่า <em>identity</em> ถูกต้อง แต่ <em>authorization</em> ของ ERP ยังต้อง assign role/group ให้ user คนนั้นแยกต่างหาก — ไม่ใช่ bug ฝั่ง Keycloak</div>
+      </details>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== S7: REFERENCE ===== -->
+    <section id="s7" class="reveal">
+      <div class="section-header">
+        <div class="section-icon icon-indigo">📚</div>
+        <div><div class="section-num">Section 07</div><div class="section-title">Reference</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>เอกสาร</th><th>ใช้เมื่อ</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../adr/ADR-009-keycloak-adopted-central-idp.md">ADR-009 — Keycloak Adopted as Central IdP</a></td><td>เหตุผลที่ย้ายจาก OpenIddict มา Keycloak</td></tr>
+            <tr><td><a href="../guides/sso-developer-guide.html">B1DX SSO Developer Guide</a></td><td>ภาพรวม token contract / permission model ทุกระบบ</td></tr>
+            <tr><td><a href="../guides/b1dx-sso-keycloak-architecture.html">B1DX SSO Architecture (Keycloak)</a></td><td>diagram สถาปัตยกรรมเต็มระบบ 8 apps</td></tr>
+            <tr><td><a href="../specs/b1dx-identity-keycloak-spike.md">Keycloak Spike Spec</a></td><td>naming convention client ID ทั้ง 9 ตัว (รวม b1dx-erp)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tag tag-indigo">realm: b1dx</div>
+      <div class="tag tag-emerald" style="margin-left:6px;">client: b1dx-erp</div>
+      <div class="tag tag-amber" style="margin-left:6px;">confidential</div>
+    </section>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <div class="footer-left">B1DX Fulfillment Workspace · docs/reports · อัปเดตล่าสุด 2026-07-11</div>
+    <div class="footer-right">
+      <a class="footer-ref" href="../guides/sso-developer-guide.html">SSO Developer Guide →</a>
+      <a class="footer-ref" href="../guides/b1dx-sso-keycloak-architecture.html">SSO Architecture →</a>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '"Inter","IBM Plex Sans Thai",sans-serif',
+      fontSize: '13px',
+      primaryColor: '#ffffff',
+      primaryTextColor: '#0b0f1a',
+      primaryBorderColor: '#6366f1',
+      lineColor: '#475569',
+      textColor: '#0b0f1a',
+      actorBkg: '#1e1b4b',
+      actorBorder: '#6366f1',
+      actorTextColor: '#e0e7ff',
+      actorLineColor: '#94a3b8',
+      signalColor: '#475569',
+      signalTextColor: '#0b0f1a',
+      noteBkgColor: '#f5f3ff',
+      noteBorderColor: '#7c3aed',
+      noteTextColor: '#3730a3',
+      sequenceNumberColor: '#ffffff'
+    },
+    sequence: { wrap: true, width: 190, mirrorActors: false }
+  });
+</script>
+
+<script>
+  // ---- Dev/Prod tabs ----
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var group = btn.closest('section');
+      group.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      group.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      group.querySelector('.tab-panel[data-panel="' + btn.dataset.tab + '"]').classList.add('active');
+    });
+  });
+
+  // ---- copy-to-clipboard ----
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.dataset.copy);
+      if (!target) return;
+      var text = target.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        var original = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // ---- registration checklist progress (persisted per-browser) ----
+  (function () {
+    var STORAGE_KEY = 'b1dx-erp-keycloak-checklist-v1';
+    var checks = Array.prototype.slice.call(document.querySelectorAll('.step-check'));
+    var fill = document.getElementById('progressFill');
+    var label = document.getElementById('progressLabel');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { saved = {}; }
+
+    function update() {
+      var done = checks.filter(function (c) { return c.checked; }).length;
+      fill.style.width = (done / checks.length * 100) + '%';
+      label.textContent = done + ' / ' + checks.length + ' เสร็จ';
+    }
+
+    checks.forEach(function (c) {
+      if (saved[c.dataset.step]) c.checked = true;
+      c.addEventListener('change', function () {
+        saved[c.dataset.step] = c.checked;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch (e) {}
+        update();
+      });
+    });
+    update();
+  })();
+</script>
+
+</body>
+</html>

@@ -54,7 +54,9 @@
   .flow-box { background:#4f46e5; color:#fff; border-radius:8px; padding:10px 14px; font-size:13px; font-weight:600; text-align:center; min-width:80px; }
   .flow-box.light { background:#ede9fe; color:#4f46e5; }
   .flow-box.green { background:#dcfce7; color:#15803d; }
+  .flow-box.amber { background:#f59e0b; color:#fff; box-shadow:0 0 0 3px #fef3c7; }
   .flow-arr { color:#94a3b8; font-size:18px; padding:0 6px; }
+  .flow-arr.down { display:block; text-align:center; width:100%; margin:6px 0; font-size:15px; }
 
   /* ---------- two-col ---------- */
   .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -135,8 +137,22 @@
     <div class="hero-sub">Login ครั้งเดียว เข้าได้ทุกระบบ — ปลอดภัย ตรวจสอบได้ ขยายได้</div>
     <div class="hero-meta">
       <span>วันที่จัดทำ <strong>มิถุนายน 2026</strong></span>
-      <span>สถานะ <strong>Design Approved · Pending Build</strong></span>
+      <span>สถานะ <strong style="color:#fbbf24">⚠️ Decision Reversed — ดู update ด้านล่าง</strong></span>
       <span>ครอบคลุม <strong>8 ระบบ</strong></span>
+    </div>
+  </div>
+
+  <!-- ⚠️ POST-DECISION UPDATE -->
+  <div class="section" style="margin-top:24px;">
+    <div class="card" style="border:2px solid #f59e0b; background:#fffbeb;">
+      <div style="font-size:14px; font-weight:800; color:#92400e; margin-bottom:6px;">⚠️ อัปเดต 2026-06-18 — มติเปลี่ยนแล้ว</div>
+      <p style="font-size:13.5px; color:#78350f; line-height:1.7; margin:0;">
+        Brief นี้เขียนตอน ADR-005 ยังไม่ build จริง (มิถุนายน 2026 ต้น) — หลังประเมินเชิงลึกเพิ่มเติม ทีมสถาปัตยกรรม<strong>กลับมติ</strong>
+        จาก "สร้าง OIDC server เอง (OpenIddict)" มาเป็น <strong>รับ Keycloak (self-hosted) เป็น Central IdP แทน</strong>
+        ดู <a href="../adr/ADR-009-keycloak-adopted-central-idp.md" style="color:#92400e; text-decoration:underline;">ADR-009 (Accepted, supersedes ADR-005)</a>
+        และ <a href="../guides/sso-developer-guide.html" style="color:#92400e; text-decoration:underline;">SSO Developer Guide</a> สำหรับสถาปัตยกรรมที่ build จริง —
+        เนื้อหาส่วน "ทำไมสร้างเอง ไม่ซื้อ Keycloak" ด้านล่างเป็น<strong>เหตุผลเดิมตอนตัดสินใจครั้งแรก</strong> เก็บไว้เป็น historical record เท่านั้น
+      </p>
     </div>
   </div>
 
@@ -157,19 +173,35 @@
         <p>เหมือน <strong>บัตรพนักงานใบเดียว</strong> ที่แตะแล้วเปิดได้ทุกประตู — ไม่ว่าจะเป็นห้องบัญชี, คลังสินค้า, ห้อง CRM หรือ ERP ไม่ต้องพกกุญแจหลายดอก และเมื่อยกเลิกสัญญาพนักงาน ยกเลิกบัตรใบเดียว ประตูทุกบานปิดพร้อมกัน</p>
       </div>
       <div class="flow" style="margin-top:20px; justify-content:center;">
-        <div class="flow-box">Login ครั้งเดียว<br><span style="font-size:10px;opacity:.8">auth.b1dx.com</span></div>
+        <div class="flow-box light">👤 พนักงาน</div>
         <div class="flow-arr">→</div>
-        <div class="flow-box light">ERP</div>
+        <div class="flow-box">หน้า Login<br><span style="font-size:10px;opacity:.8">auth.b1dx.com (Portal)</span></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box amber">🔐 Keycloak<br><span style="font-size:10px;opacity:.9">keycloak.benzapps.com</span></div>
+      </div>
+      <div style="text-align:center; color:#92400e; font-size:12px; margin:6px 0 4px; font-weight:600;">Keycloak คือ "เครื่องยนต์" ที่ตรวจรหัสผ่าน/OTP จริง + เก็บบัญชีผู้ใช้ + ออก token — auth.b1dx.com เป็นแค่หน้าตาที่พนักงานเห็น</div>
+      <div class="flow-arr down">↓ ออก token 1 ใบ ใช้เข้าได้ทุกระบบที่บริษัทซื้อ</div>
+      <div class="flow" style="justify-content:center;">
+        <div class="flow-box green">ERP</div>
         <div class="flow-arr">+</div>
-        <div class="flow-box light">WMS</div>
+        <div class="flow-box green">WMS</div>
         <div class="flow-arr">+</div>
-        <div class="flow-box light">OMS</div>
+        <div class="flow-box green">OMS</div>
         <div class="flow-arr">+</div>
-        <div class="flow-box light">FF</div>
+        <div class="flow-box green">FF</div>
         <div class="flow-arr">+</div>
-        <div class="flow-box light">...</div>
+        <div class="flow-box green">...</div>
       </div>
       <div style="text-align:center; color:#64748b; font-size:13px; margin-top:8px;">ไม่ต้อง login ซ้ำเมื่อสลับระบบ</div>
+
+      <h3 style="font-size:14px; color:#334155; margin:20px 0 10px;">แต่ละ Component ทำหน้าที่อะไร</h3>
+      <div class="icon-row">
+        <div class="icon-item"><span class="icon">👤</span><div><b>พนักงาน</b> — ผู้ใช้งาน เปิดแอปแล้วกด Login</div></div>
+        <div class="icon-item"><span class="icon">🖥️</span><div><b>auth.b1dx.com</b> (Portal / identity-ui) — หน้าตา Login ที่พนักงานเห็น + Launcher เลือกระบบหลัง login</div></div>
+        <div class="icon-item"><span class="icon">🔐</span><div><b>Keycloak</b> (keycloak.benzapps.com) — เก็บบัญชี/รหัสผ่านจริง ตรวจสอบตัวตน (password/OTP/social) ออก token (JWT) ทำ Single Sign-On + Single Logout</div></div>
+        <div class="icon-item"><span class="icon">🏢</span><div><b>ERP / WMS / OMS / FF / ...</b> — แอปปลายทาง รับ token จาก Keycloak ไปตรวจสิทธิ์การใช้งานของตัวเอง</div></div>
+      </div>
+      <div class="note" style="margin-top:14px;"><strong>สำคัญ:</strong> Keycloak เป็นระบบเดียวที่เก็บรหัสผ่านจริง — <code>auth.b1dx.com</code> และแอปทั้ง 8 ระบบไม่เก็บรหัสผ่านของใครเลย เปลี่ยน/รีเซ็ตรหัสผ่านที่ Keycloak จุดเดียว มีผลกับทุกระบบทันที</div>
     </div>
   </div>
 
@@ -190,13 +222,13 @@
       </div>
       <div class="card">
         <div style="font-size:13px; color:#64748b; margin-bottom:6px;">Implementation Stack</div>
-        <div style="font-size:20px; font-weight:800; color:#1e293b; margin-bottom:4px;">ASP.NET Identity + OpenIddict</div>
-        <div style="font-size:13px; color:#64748b; margin-bottom:16px;">บน .NET 10 (Microsoft)</div>
+        <div style="font-size:20px; font-weight:800; color:#1e293b; margin-bottom:4px;">Keycloak <span style="font-size:13px; font-weight:600; color:#94a3b8; text-decoration:line-through;">(เดิม: ASP.NET Identity + OpenIddict)</span></div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:16px;">Self-hosted · realm <code>b1dx</code> · ADR-009</div>
         <ul class="check-list">
-          <li>OpenIddict = OIDC Server library ระดับ Enterprise</li>
-          <li>ASP.NET Identity = User/Password management</li>
-          <li>Password hash เดิม migrate ได้โดยไม่ต้อง Reset</li>
-          <li>Open Source — ไม่มีค่า License รายเดือน</li>
+          <li>Keycloak = OIDC Server สำเร็จรูป ระดับ Enterprise (Red Hat)</li>
+          <li>Admin Console + Admin REST API สำหรับ user/client management</li>
+          <li>Open Source — ไม่มีค่า License รายเดือน (มี ops cost self-host)</li>
+          <li>identity-api เหลือแค่ management-plane (ไม่ใช่ OIDC server)</li>
         </ul>
       </div>
     </div>
@@ -218,10 +250,10 @@
         </thead>
         <tbody>
           <tr class="highlight">
-            <td>🏠 <strong>B1DX Identity Platform</strong><br><span style="font-size:11px;color:#6366f1">ระบบของเรา</span></td>
-            <td>B1DX (In-house)</td>
+            <td>🏠 <strong>B1DX Identity Platform</strong><br><span style="font-size:11px;color:#6366f1">ระบบของเรา — บน Keycloak</span></td>
+            <td>Keycloak (self-hosted)</td>
             <td><span class="badge badge-purple">OIDC + OAuth 2.0</span></td>
-            <td><span class="badge badge-green">ไม่มี License</span></td>
+            <td><span class="badge badge-green">ไม่มี License (self-host)</span></td>
             <td>8 ระบบ B1DX</td>
           </tr>
           <tr>
@@ -246,11 +278,11 @@
             <td>Startup ขนาดกลาง</td>
           </tr>
           <tr>
-            <td>🏛️ <strong>Keycloak</strong></td>
+            <td>🏛️ <strong>Keycloak</strong> ← เลือกใช้จริง</td>
             <td>Red Hat / Open Source</td>
             <td><span class="badge badge-blue">OIDC + SAML</span></td>
-            <td><span class="badge badge-green">Open Source</span><br><span style="font-size:11px;color:#64748b">(ต้อง migrate password)</span></td>
-            <td>ธนาคาร, หน่วยงานรัฐ</td>
+            <td><span class="badge badge-green">Open Source</span><br><span style="font-size:11px;color:#64748b">(password migrate ได้)</span></td>
+            <td>ธนาคาร, หน่วยงานรัฐ, B1DX</td>
           </tr>
           <tr>
             <td>🟢 <strong>Google Identity</strong></td>
@@ -515,9 +547,9 @@
     </div>
   </div>
 
-  <!-- WHY BUILD NOT BUY -->
+  <!-- WHY BUILD NOT BUY (historical) -->
   <div class="section">
-    <div class="section-title">ทำไมสร้างเอง ไม่ซื้อ Keycloak / Auth0 / Okta?</div>
+    <div class="section-title">📜 ทำไมสร้างเอง ไม่ซื้อ Keycloak / Auth0 / Okta? <span style="font-size:12px; font-weight:600; color:#dc2626;">(เหตุผลเดิม — ถูก reverse แล้ว ดู ADR-009)</span></div>
     <div class="card">
       <div class="two-col">
         <div>
@@ -578,22 +610,21 @@
           <tr><th>หัวข้อ</th><th>สถานะ</th><th>รายละเอียด</th></tr>
         </thead>
         <tbody>
-          <tr><td>Architecture Decision (ADR-005)</td><td><span class="badge badge-green">Accepted ✓</span></td><td>Owner ratified ครบทุก Decision (D1–D11, Q-A…Q-H) 2026-06-03</td></tr>
-          <tr><td>Protocol เลือก OIDC + OpenIddict</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>มาตรฐานสากล, reuse โค้ดเดิม ~70%</td></tr>
+          <tr><td>Architecture Decision (ADR-005)</td><td><span class="badge badge-gray">Superseded</span></td><td>Owner ratified 2026-06-03 (D1–D11, Q-A…Q-H) — ถูกแทนที่โดย ADR-009 เมื่อ 2026-06-18</td></tr>
+          <tr><td>Protocol เลือก OIDC + OpenIddict</td><td><span class="badge badge-gray">Superseded</span></td><td>เปลี่ยนเป็น OIDC ผ่าน <strong>Keycloak</strong> แทนการสร้าง OpenIddict server เอง</td></tr>
           <tr><td>Social Login 7 Providers</td><td><span class="badge badge-green">Scoped ✓</span></td><td>Google, Microsoft, Facebook, LinkedIn, X, GitHub, LINE</td></tr>
-          <tr><td>Domain Layout</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>auth.b1dx.com + *.b1dx.com (subdomain)</td></tr>
-          <tr><td>DB = identity_db แยก</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>แยก Logical DB ออกจาก oms_db ทันที</td></tr>
-          <tr><td>Tier-1 Security Review</td><td><span class="badge badge-amber">Pending ⏳</span></td><td>Required ก่อน Build — รอ Security Team Review</td></tr>
-          <tr><td>Cross-Product Buy-in</td><td><span class="badge badge-amber">Pending ⏳</span></td><td>รอ ERP/WMS/CRM/Connector/ALL-IN/DOCS teams</td></tr>
-          <tr><td>Build Start</td><td><span class="badge badge-gray">Gated 🔒</span></td><td>เริ่มได้เมื่อ Security Review + Buy-in ครบ</td></tr>
+          <tr><td>Domain Layout</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>auth.b1dx.com (launcher) + keycloak.benzapps.com (IdP)</td></tr>
+          <tr><td>DB = identity_db แยก</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>identity-api (management-plane) แยกจาก oms_db — Keycloak มี DB ของตัวเอง</td></tr>
+          <tr><td>Central IdP = Keycloak (ADR-009)</td><td><span class="badge badge-green">Accepted ✓</span></td><td>Owner confirmed 2026-06-18 — realm <code>b1dx</code> live</td></tr>
+          <tr><td>Cross-Product Rollout</td><td><span class="badge badge-amber">In Progress</span></td><td>OMS/FF live · ERP/WMS/CRM/Connector/ALL-IN/DOCS ทยอย register client</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <footer>
-    B1DX Identity Platform · Executive Brief · จัดทำโดยทีมสถาปัตยกรรม B1DX · มิถุนายน 2026<br>
-    อ้างอิง: ADR-005, Spec b1dx-identity-platform.md
+    B1DX Identity Platform · Executive Brief (historical, ดูคำเตือนด้านบน) · จัดทำโดยทีมสถาปัตยกรรม B1DX · มิถุนายน 2026 · แก้ไข 2026-07-11<br>
+    อ้างอิง: <a href="../adr/ADR-009-keycloak-adopted-central-idp.md">ADR-009</a> (current), ADR-005 (superseded), <a href="../guides/sso-developer-guide.html">SSO Developer Guide</a>
   </footer>
 
 </div>
