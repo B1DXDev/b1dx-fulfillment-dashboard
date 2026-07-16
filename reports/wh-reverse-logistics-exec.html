@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สรุปผู้บริหาร — แผนระบบคืนสินค้าแบบครบวงจร (Reverse Logistics)</title>
+<style>
+  :root {
+    --font: "Sarabun", "IBM Plex Sans Thai", -apple-system, "Segoe UI", Tahoma, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+    --paper: #F5F3EE;
+    --card: #FFFFFF;
+    --ink: #1E232C;
+    --soft: #565D6B;
+    --faint: #888E9A;
+    --line: #E3E0D7;
+    --navy: #1F3A5F;
+    --navy-ink: #16304F;
+    --teal: #1C6E63;
+    --gold: #A9781A;
+
+    --done: #2E7D5B;   --done-bg: #E6F1EB;
+    --ready: #1C6E63;  --ready-bg: #DDEEEB;
+    --v2: #2C5AA0;     --v2-bg: #E1EAF6;
+    --v21: #5A4A95;    --v21-bg: #E9E5F4;
+    --v22: #8A4A86;    --v22-bg: #F1E4EF;
+    --defer: #7B8290;  --defer-bg: #ECEBE7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font);
+         line-height: 1.62; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 900px; margin: 0 auto; padding: 40px 26px 72px; }
+  code { font-family: var(--mono); font-size: .88em; background: #EEEBE3; padding: 1px 5px; border-radius: 4px; }
+
+  .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+         border-bottom: 3px solid var(--navy); padding-bottom: 14px; }
+  .kicker { font-size: 13px; letter-spacing: .03em; color: var(--navy-ink); font-weight: 700; }
+  .kicker .lbl { background: var(--navy); color: #fff; padding: 2px 9px; border-radius: 4px; margin-right: 8px; }
+  .date { font-size: 13px; color: var(--faint); }
+  h1 { font-size: clamp(23px, 3.8vw, 32px); line-height: 1.22; margin: 20px 0 0; font-weight: 800; letter-spacing: -0.01em; }
+  .sub { color: var(--soft); font-size: 16px; margin: 8px 0 0; }
+
+  .tldr { margin-top: 24px; background: var(--card); border: 1px solid var(--line);
+          border-left: 6px solid var(--navy); border-radius: 12px; padding: 20px 24px;
+          box-shadow: 0 2px 14px rgba(30,35,44,.05); }
+  .tldr .tag { font-size: 12px; font-weight: 800; color: var(--navy-ink); letter-spacing: .06em; }
+  .tldr p { margin: 8px 0 0; font-size: 18px; line-height: 1.55; font-weight: 600; }
+  .tldr b { color: var(--teal); }
+
+  h2 { font-size: 21px; margin: 46px 0 4px; font-weight: 800; letter-spacing: -0.01em; }
+  h2 .em { color: var(--navy-ink); }
+  .lead { color: var(--soft); margin: 0 0 16px; font-size: 15px; }
+
+  /* principle cards */
+  .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .pc { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px;
+        box-shadow: 0 2px 10px rgba(30,35,44,.04); border-top: 4px solid var(--teal); }
+  .pc .ic { font-size: 22px; }
+  .pc h3 { margin: 6px 0 4px; font-size: 16px; font-weight: 800; }
+  .pc p { margin: 0; font-size: 14px; color: var(--soft); }
+
+  /* case groups */
+  .groups { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .grp { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+         box-shadow: 0 2px 10px rgba(30,35,44,.04); }
+  .grp h3 { margin: 0 0 3px; font-size: 15px; font-weight: 800; color: var(--navy-ink); }
+  .grp .gs { font-size: 12.5px; color: var(--faint); margin: 0 0 12px; }
+  .rcs { display: flex; flex-wrap: wrap; gap: 7px; }
+  .rc { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; padding: 4px 10px;
+        border-radius: 20px; border: 1px solid var(--line); font-weight: 600; }
+  .rc .ph { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 8px; }
+  .rc.done { background: var(--done-bg); } .rc.done .ph { background: var(--done); color:#fff; }
+  .rc.ready { background: var(--ready-bg); } .rc.ready .ph { background: var(--ready); color:#fff; }
+  .rc.v2 { background: var(--v2-bg); } .rc.v2 .ph { background: var(--v2); color:#fff; }
+  .rc.v21 { background: var(--v21-bg); } .rc.v21 .ph { background: var(--v21); color:#fff; }
+  .rc.v22 { background: var(--v22-bg); } .rc.v22 .ph { background: var(--v22); color:#fff; }
+  .rc.defer { background: var(--defer-bg); color: var(--soft); } .rc.defer .ph { background: var(--defer); color:#fff; }
+
+  /* roadmap */
+  .road { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: grid; grid-template-columns: 88px 1fr; gap: 18px; align-items: stretch; }
+  .step .rail { display: flex; flex-direction: column; align-items: center; }
+  .step .node { width: 62px; text-align: center; font-family: var(--mono); font-weight: 800; font-size: 15px;
+                color: #fff; background: var(--c, var(--navy)); border-radius: 8px; padding: 8px 4px; }
+  .step .line { width: 3px; flex: 1; background: var(--line); margin: 4px 0; }
+  .step:last-child .line { display: none; }
+  .step .body { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 18px;
+                box-shadow: 0 2px 10px rgba(30,35,44,.04); border-left: 4px solid var(--c, var(--navy)); }
+  .step .body h3 { margin: 0; font-size: 16.5px; font-weight: 800; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .step .body .st { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 20px; }
+  .step .body p { margin: 6px 0 0; font-size: 14.5px; color: var(--soft); }
+  .step .body .rcref { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: 6px; }
+  .step.done { --c: var(--done); } .step.ready { --c: var(--ready); }
+  .step.v2 { --c: var(--v2); } .step.v21 { --c: var(--v21); } .step.v22 { --c: var(--v22); }
+  .step.defer { --c: var(--defer); }
+  .st.g-done { background: var(--done-bg); color: var(--done); }
+  .st.g-ready { background: var(--ready-bg); color: var(--ready); }
+  .st.g-plan { background: #F1EEE6; color: var(--gold); }
+  .st.g-defer { background: var(--defer-bg); color: var(--soft); }
+
+  /* decisions */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card);
+              box-shadow: 0 2px 10px rgba(30,35,44,.04); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 12px 15px; vertical-align: top; border-bottom: 1px solid #F0EDE5; }
+  thead th { font-size: 12px; font-weight: 800; color: var(--soft); background: #FAF9F5; letter-spacing: .02em; }
+  tbody tr:last-child td { border-bottom: none; }
+  .qn { font-family: var(--mono); font-weight: 800; color: var(--navy-ink); white-space: nowrap; }
+  td b { color: var(--teal); }
+
+  /* two-col ready/defer */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .box { border-radius: 12px; padding: 18px 20px; }
+  .box.go { background: var(--ready-bg); border: 1px solid #C3E0DB; }
+  .box.hold { background: var(--defer-bg); border: 1px solid #DAD8D1; }
+  .box h3 { margin: 0 0 10px; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .box.go h3 { color: var(--ready); } .box.hold h3 { color: var(--soft); }
+  .box ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .box li { font-size: 14.5px; display: flex; gap: 9px; }
+  .box.go li::before { content: "▸"; color: var(--ready); }
+  .box.hold li::before { content: "⏸"; color: var(--faint); font-size: 12px; }
+  .box li .t { font-size: 12.5px; color: var(--faint); }
+
+  .foot { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--faint); }
+  .foot code { background: none; padding: 0; }
+
+  @media (max-width: 660px) {
+    .cards3, .groups, .split { grid-template-columns: 1fr; }
+    .step { grid-template-columns: 66px 1fr; gap: 12px; }
+    .step .node { width: 52px; }
+  }
+  @media print {
+    body { background:#fff; } .page { padding: 12px 0; }
+    .tldr,.pc,.grp,.step .body,.tbl-wrap,.box { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top">
+    <div class="kicker"><span class="lbl">สรุปผู้บริหาร</span>แผนระบบคืนสินค้าแบบครบวงจร · คลัง (WMS)</div>
+    <div class="date">Epic FF-WH-RVL · Spec v0.2 · 10 ก.ค. 2026</div>
+  </div>
+
+  <h1>ยกระบบคืนสินค้าจาก "1 เคส" ให้ครอบคลุมการคืนจริง 13 เคส — แบบไม่ต้องรื้อของเดิม</h1>
+  <p class="sub">แผนทำเป็นเฟส · การตัดสินใจเชิงธุรกิจปิดครบแล้ว · เฟสถัดไปพร้อมเริ่มทันที</p>
+
+  <div class="tldr">
+    <div class="tag">ภาพรวม</div>
+    <p>ระบบเดิมรองรับแค่ <b>ของตีกลับจากขนส่ง (RTO)</b>. แผนนี้ต่อยอดให้ครอบคลุมการคืนจริงทั้ง 13 แบบ
+       โดยออกแบบเป็น <b>โครงเดียวยืดหยุ่น</b> (แยกตาม ที่มา × ขอบเขต × ผลลัพธ์) —
+       ของเดิมที่สร้างไปแล้ว <b>ยังใช้ต่อได้ ไม่ต้องเขียนใหม่</b>. คำถามเชิงธุรกิจ 6 ข้อ<b>ปิดครบแล้ว</b> เฟสถัดไปจึงเริ่มได้เลย</p>
+  </div>
+
+  <!-- principles -->
+  <h2>หลักการ — <span class="em">ทำไมปลอดภัย</span></h2>
+  <div class="cards3">
+    <div class="pc"><div class="ic">🧩</div><h3>เพิ่มเข้าไป ไม่รื้อ</h3>
+      <p>ของเดิม (RTO) กลายเป็น 1 กรณีในโครงใหม่โดยอัตโนมัติ — ไม่มีงานที่ส่งแล้วต้องพัง</p></div>
+    <div class="pc"><div class="ic">🎯</div><h3>โครงเดียว ครบทุกเคส</h3>
+      <p>แยกด้วย 3 แกน (ที่มา/ขอบเขต/ผลลัพธ์) — เพิ่มเคสใหม่โดยไม่ต้องสร้างระบบซ้ำ</p></div>
+    <div class="pc"><div class="ic">🪜</div><h3>ทำทีละเฟส</h3>
+      <p>เรียงตามผลกระทบธุรกิจ — เริ่มจากที่ปริมาณมากสุด เลื่อนที่ยังไม่จำเป็นออก</p></div>
+  </div>
+
+  <!-- 13 cases -->
+  <h2>การคืนจริง <span class="em">13 เคส · 4 กลุ่ม</span></h2>
+  <p class="lead">แต่ละเคสถูกจัดเข้าเฟสตามความสำคัญ (สีบอกเฟส)</p>
+  <div class="groups">
+    <div class="grp"><h3>A · ก่อนส่งถึงลูกค้า</h3><p class="gs">ลูกค้ายังไม่ได้รับของ</p>
+      <div class="rcs">
+        <span class="rc done"><span class="ph">v1</span>RC-1 RTO ตีกลับ</span>
+        <span class="rc v2"><span class="ph">v2</span>RC-8 COD ปฏิเสธ</span>
+        <span class="rc ready"><span class="ph">v1.1</span>RC-9 คืนบางส่วน</span>
+        <span class="rc ready"><span class="ph">v1.1</span>RC-10 หายระหว่างส่ง</span>
+        <span class="rc v21"><span class="ph">v2.1</span>RC-11 ผิดคลัง</span>
+      </div></div>
+    <div class="grp"><h3>B · หลังส่งถึงลูกค้า</h3><p class="gs">ปริมาณคืนมากสุด</p>
+      <div class="rcs">
+        <span class="rc v2"><span class="ph">v2</span>RC-2 Marketplace RMA</span>
+        <span class="rc v22"><span class="ph">v2.2</span>RC-3 ของเสีย</span>
+        <span class="rc v22"><span class="ph">v2.2</span>RC-7 เปลี่ยนสินค้า</span>
+        <span class="rc v22"><span class="ph">v2.2</span>RC-12 คืนโกง</span>
+        <span class="rc v22"><span class="ph">v2.2</span>RC-13 ห้ามคืนสต็อก</span>
+      </div></div>
+    <div class="grp"><h3>C · ระดับคลัง B2B</h3><p class="gs">ไม่ใช่ออเดอร์เดียว</p>
+      <div class="rcs">
+        <span class="rc defer"><span class="ph">เลื่อน</span>RC-4 คืนค้าส่ง</span>
+        <span class="rc v21"><span class="ph">v2.1</span>RC-6 Recall (ออกแบบไว้)</span>
+      </div></div>
+    <div class="grp"><h3>D · คุณภาพ / หมดอายุ</h3><p class="gs">ผูกกับล็อตผลิต</p>
+      <div class="rcs">
+        <span class="rc v21"><span class="ph">v2.1</span>RC-5 หมดอายุ</span>
+        <span class="rc v22"><span class="ph">v2.2</span>RC-3 QC ไม่ผ่าน</span>
+      </div></div>
+  </div>
+
+  <!-- roadmap -->
+  <h2>แผนการทำ <span class="em">แบ่งเฟส</span></h2>
+  <p class="lead">เรียงตามลำดับสร้าง — สีเดียวกับป้ายเฟสด้านบน</p>
+  <div class="road">
+    <div class="step done"><div class="rail"><div class="node">v1</div><div class="line"></div></div>
+      <div class="body"><h3>ของตีกลับจากขนส่ง (RTO) <span class="st g-done">สร้างเสร็จแล้ว</span></h3>
+        <p>สแกนรับ → ตรวจสภาพ → คืนสต็อก หรือ เปิดเคสของมีปัญหา (NC)</p>
+        <div class="rcref">RC-1 · FF-WH-RETURN-001…005</div></div></div>
+
+    <div class="step ready"><div class="rail"><div class="node">v1.1</div><div class="line"></div></div>
+      <div class="body"><h3>เก็บงานพื้นฐานให้ครบ <span class="st g-ready">พร้อมเริ่มทันที</span></h3>
+        <p>เชื่อมสถานะระหว่างระบบคลัง (WMS) กับระบบออเดอร์ (OMS) แบบอัตโนมัติ + กันการแก้ชนกัน + คืนบางส่วน + สถานะ "ของหาย" — <b>ไม่ติดการตัดสินใจธุรกิจ เริ่มได้เลย</b></p>
+        <div class="rcref">RC-9, RC-10 · FF-WH-RVL-001</div></div></div>
+
+    <div class="step v2"><div class="rail"><div class="node">v2</div><div class="line"></div></div>
+      <div class="body"><h3>รับคืนผ่าน Marketplace (RMA) <span class="st g-plan">ลำดับถัดไป</span></h3>
+        <p>รับข้อมูลการคืนจาก Shopee / Lazada / TikTok เข้าระบบอัตโนมัติ (ผ่าน webhook เดิม) + ซิงก์สถานะคืนเงิน — <b>ปริมาณมากสุด จึงทำก่อน</b></p>
+        <div class="rcref">RC-2, RC-8 · FF-WH-RVL-002</div></div></div>
+
+    <div class="step v21"><div class="rail"><div class="node">v2.1</div><div class="line"></div></div>
+      <div class="body"><h3>สินค้าหมดอายุ + ผิดคลัง + นโยบายห้ามคืนสต็อก <span class="st g-plan">มีแผน</span></h3>
+        <p>รองรับการคืนที่ผูกกับล็อตผลิต (ของอาหาร/FMCG) + ตัวกันคืนสต็อกของที่เปิดแล้ว. งาน Recall <b>ออกแบบไว้พร้อม แต่ยังไม่สร้าง</b> จนกว่ามีข้อบังคับด้านกฎหมาย</p>
+        <div class="rcref">RC-5, RC-11 · RC-6 (ออกแบบไว้) · FF-WH-RVL-003</div></div></div>
+
+    <div class="step v22"><div class="rail"><div class="node">v2.2</div><div class="line"></div></div>
+      <div class="body"><h3>เปลี่ยนสินค้า + เคลมของเสีย + กันคืนโกง <span class="st g-plan">มีแผน</span></h3>
+        <p>ลิงก์การคืนกับออเดอร์ส่งทดแทน + ระบุผู้รับผิดชอบความเสียหาย (ขนส่ง/โรงงาน/ลูกค้า) + ปฏิเสธการคืนที่ทุจริต</p>
+        <div class="rcref">RC-3, RC-7, RC-12, RC-13 · FF-WH-RVL-004</div></div></div>
+
+    <div class="step defer"><div class="rail"><div class="node">เลื่อน</div></div>
+      <div class="body"><h3>คืนค้าส่ง / ฝากขาย (B2B) <span class="st g-defer">รอเงื่อนไข</span></h3>
+        <p>ออกใบลดหนี้แทนคืนเงิน — <b>สร้างเมื่อ B1DX มีคู่ค้า B2B จริง</b>. โครงระบบเผื่อไว้ให้แล้ว (ไม่ต้องรื้อตอนนั้น)</p>
+        <div class="rcref">RC-4 · backlog</div></div></div>
+  </div>
+
+  <!-- decisions -->
+  <h2>การตัดสินใจ <span class="em">ที่ปิดครบแล้ว (6 ข้อ)</span></h2>
+  <p class="lead">ปิดครบ 10 ก.ค. 2026 — Q2/Q3 ผู้บริหารยืนยัน · ที่เหลือเป็นการตัดสินเชิงเทคนิค</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>คำถาม</th><th>ตัดสินว่า</th><th>ผลต่อแผน</th></tr></thead>
+      <tbody>
+        <tr><td class="qn">ทำเคสไหนก่อน?</td><td><b>Marketplace RMA ก่อน</b> — ปริมาณสูงสุด + มีฐาน webhook อยู่แล้ว</td><td>v2 = RMA · หมดอายุ/recall = v2.1 · ค้าส่ง = เลื่อน</td></tr>
+        <tr><td class="qn">ทำ B2B / ฝากขายไหม?</td><td>✅ <b>มีแผนอนาคต</b> — ยังไม่มีตอนนี้</td><td>RC-4 เลื่อนไป backlog · แต่เผื่อโครงไว้แล้ว</td></tr>
+        <tr><td class="qn">Recall / หมดอายุ ด่วนไหม?</td><td>✅ <b>มีบ้าง ยังไม่ด่วน</b> — brand อาหารมี แต่ไม่มี deadline</td><td>หมดอายุ = v2.1 · Recall = ออกแบบไว้ ยังไม่สร้าง</td></tr>
+        <tr><td class="qn">เปลี่ยนสินค้า auto หรือมือ?</td><td><b>ทำมือก่อน</b> auto ทีหลัง</td><td>RC-7 v2.2 = ส่งทดแทนแบบมือ</td></tr>
+        <tr><td class="qn">นโยบายห้ามคืนสต็อก ละเอียดแค่ไหน?</td><td><b>ตั้งต่อหมวดสินค้า + เปิดปรับรายชิ้นได้</b></td><td>ตัวกันดึงขึ้นมาทำที่ v2.1</td></tr>
+        <tr><td class="qn">เชื่อมสถานะออเดอร์อัตโนมัติไหม?</td><td><b>อัตโนมัติ + เปิด/ปิดได้ต่อ brand</b></td><td>สะพาน WMS↔OMS ทำที่ v1.1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ready vs hold -->
+  <h2>สถานะ <span class="em">ตอนนี้</span></h2>
+  <div class="split">
+    <div class="box go"><h3>▶ เริ่มได้ทันที</h3>
+      <ul>
+        <li><div><b>เฟส v1.1</b> — เชื่อม WMS↔OMS + งานพื้นฐาน<div class="t">ไม่ติดการตัดสินใจธุรกิจใดๆ</div></div></li>
+        <li><div><b>เฟส v2</b> — รับ Marketplace RMA (ลำดับถัดจาก v1.1)<div class="t">ปริมาณคืนมากสุด</div></div></li>
+      </ul></div>
+    <div class="box hold"><h3>⏸ เลื่อนออก (รอเงื่อนไข)</h3>
+      <ul>
+        <li><div><b>คืนค้าส่ง B2B (RC-4)</b><div class="t">รอมีคู่ค้า B2B จริง</div></div></li>
+        <li><div><b>Recall เรียกคืนล็อต (RC-6)</b><div class="t">ออกแบบไว้แล้ว — รอข้อบังคับกฎหมายอาหาร</div></div></li>
+      </ul></div>
+  </div>
+
+  <div class="foot">
+    เอกสารสรุปผู้บริหาร · จาก <code>docs/specs/wh-reverse-logistics.md</code> v0.2 · Epic <code>FF-WH-RVL</code> (แยกจาก FF-WH-RETURN ที่สร้าง v1 RTO) · ทั้งหมดเป็นงานแบบเพิ่มเข้าไป ไม่กระทบระบบเดิม
+  </div>
+
+</div>
+</body>
+</html>

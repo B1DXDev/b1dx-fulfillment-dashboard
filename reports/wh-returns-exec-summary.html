@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สรุปผู้บริหาร — ระบบรับคืนสินค้า (WMS Returns)</title>
+<style>
+  :root {
+    --font: "Sarabun", "IBM Plex Sans Thai", -apple-system, "Segoe UI", Tahoma, sans-serif;
+    --paper: #F6F4EF;
+    --card: #FFFFFF;
+    --ink: #1E232C;
+    --soft: #5A6170;
+    --faint: #8A909C;
+    --line: #E4E1D8;
+    --navy: #1F3A5F;
+    --navy-ink: #16304F;
+    --gold: #B0791A;
+    --ok: #2E7D5B;
+    --warn: #B0761A;
+    --risk: #B7433A;
+    --ok-bg: #E6F1EB;
+    --warn-bg: #F6ECD6;
+    --risk-bg: #F8E4E0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--font); line-height: 1.65; font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 26px 72px; }
+
+  /* header */
+  .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+         border-bottom: 3px solid var(--navy); padding-bottom: 14px; }
+  .kicker { font-size: 13px; letter-spacing: .04em; color: var(--navy-ink); font-weight: 700; }
+  .kicker .lbl { background: var(--navy); color: #fff; padding: 2px 9px; border-radius: 4px; margin-right: 8px; }
+  .date { font-size: 13px; color: var(--faint); }
+  h1 { font-size: clamp(24px, 4vw, 33px); line-height: 1.2; margin: 20px 0 0; font-weight: 800; letter-spacing: -0.01em; }
+  .sub { color: var(--soft); font-size: 16px; margin: 8px 0 0; }
+
+  /* TL;DR */
+  .tldr {
+    margin-top: 26px; background: var(--card); border: 1px solid var(--line);
+    border-left: 6px solid var(--navy); border-radius: 12px; padding: 22px 24px;
+    box-shadow: 0 2px 14px rgba(30,35,44,.05);
+  }
+  .tldr .tag { font-size: 12px; font-weight: 800; color: var(--navy-ink); letter-spacing: .08em; }
+  .tldr p { margin: 8px 0 0; font-size: 18.5px; line-height: 1.55; font-weight: 600; }
+  .tldr b { color: var(--risk); }
+
+  /* score */
+  .score { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 14px; margin-top: 20px; }
+  .s {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 18px; text-align: center; box-shadow: 0 2px 10px rgba(30,35,44,.04);
+    border-top: 4px solid var(--edge, var(--navy));
+  }
+  .s.ok { --edge: var(--ok); } .s.warn { --edge: var(--warn); } .s.risk { --edge: var(--risk); }
+  .s .n { font-size: 44px; font-weight: 800; line-height: 1; color: var(--edge, var(--ink)); font-variant-numeric: tabular-nums; }
+  .s .n small { font-size: 20px; color: var(--faint); font-weight: 700; }
+  .s .t { font-size: 14px; color: var(--soft); margin-top: 8px; font-weight: 600; }
+
+  .bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-top: 18px; border: 1px solid var(--line); }
+  .bar .a { background: var(--ok); flex: 1; } .bar .b { background: var(--warn); flex: 3; } .bar .c { background: var(--risk); flex: 9; }
+  .barcap { font-size: 13.5px; color: var(--soft); margin-top: 8px; text-align: center; }
+
+  h2 { font-size: 21px; margin: 44px 0 4px; font-weight: 800; letter-spacing: -0.01em; }
+  h2 .em { color: var(--navy-ink); }
+  .lead { color: var(--soft); margin: 0 0 16px; font-size: 15px; }
+
+  /* gap cards */
+  .gaps { display: flex; flex-direction: column; gap: 14px; }
+  .gap {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; box-shadow: 0 2px 10px rgba(30,35,44,.04);
+    display: grid; grid-template-columns: 46px 1fr; gap: 4px 18px; align-items: start;
+  }
+  .gap .rank {
+    grid-row: 1 / span 3; width: 46px; height: 46px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff; background: var(--risk);
+  }
+  .gap h3 { margin: 0; font-size: 17.5px; font-weight: 800; }
+  .gap .what { margin: 2px 0 0; font-size: 14.5px; color: var(--soft); }
+  .gap .why { margin: 8px 0 0; font-size: 14.5px; }
+  .gap .why b { color: var(--risk); }
+  .risk-chip {
+    display: inline-block; font-size: 12px; font-weight: 800; color: var(--risk);
+    background: var(--risk-bg); padding: 2px 9px; border-radius: 20px; margin-top: 6px;
+  }
+
+  /* risk list */
+  .risks { background: var(--risk-bg); border: 1px solid #EBC6BF; border-radius: 12px; padding: 18px 22px; }
+  .risks ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .risks li { display: flex; gap: 12px; font-size: 15.5px; }
+  .risks li::before { content: "▲"; color: var(--risk); font-size: 12px; margin-top: 5px; }
+
+  /* recommendation */
+  .rec { background: var(--ok-bg); border: 1px solid #C4E0CE; border-radius: 12px; padding: 18px 22px; }
+  .rec p { margin: 0; font-size: 16px; }
+  .rec b { color: var(--ok); }
+
+  /* roadmap */
+  .road { display: flex; gap: 0; margin-top: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .ph { flex: 1; min-width: 120px; padding: 14px 12px; border-left: 3px solid var(--line); }
+  .ph:first-child { border-left-color: var(--ok); }
+  .ph .pn { font-weight: 800; font-size: 15px; }
+  .ph.done .pn { color: var(--ok); }
+  .ph .pd { font-size: 13px; color: var(--soft); margin-top: 4px; }
+  .ph .badge { font-size: 11px; font-weight: 800; color: var(--ok); background: var(--ok-bg); padding: 1px 7px; border-radius: 10px; }
+
+  /* decisions */
+  .dec { display: flex; flex-direction: column; gap: 12px; }
+  .d {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; box-shadow: 0 2px 10px rgba(30,35,44,.04);
+    display: grid; grid-template-columns: 30px 1fr; gap: 14px; align-items: start;
+  }
+  .d .q { width: 30px; height: 30px; border-radius: 8px; background: var(--navy); color: #fff;
+          display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; }
+  .d .qt { font-size: 16px; font-weight: 700; margin: 0; }
+  .d .qh { font-size: 13.5px; color: var(--faint); margin: 3px 0 0; }
+
+  .foot { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--faint); }
+
+  @media (max-width: 640px) {
+    .score { grid-template-columns: 1fr; }
+    .gap { grid-template-columns: 1fr; }
+    .gap .rank { grid-row: auto; }
+  }
+  @media print {
+    body { background: #fff; }
+    .tldr, .s, .gap, .risks, .rec, .d { box-shadow: none; }
+    .page { padding: 12px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top">
+    <div class="kicker"><span class="lbl">สรุปผู้บริหาร</span>ระบบรับคืนสินค้า · คลังสินค้า (WMS)</div>
+    <div class="date">9 ก.ค. 2026 · สถานะ Draft · ผลวิเคราะห์ความครอบคลุม</div>
+  </div>
+
+  <h1>ระบบรับคืนสินค้าที่ออกแบบไว้ รองรับได้จริงแค่ 1 ใน 13 รูปแบบ</h1>
+  <p class="sub">รูปแบบการคืนที่ <b>ปริมาณมากที่สุด</b> — ลูกค้าคืนผ่าน Shopee / Lazada / TikTok — ยังไม่มีทางเข้าระบบเลย</p>
+
+  <div class="tldr">
+    <div class="tag">ประเด็นสำคัญ</div>
+    <p>ระบบปัจจุบันออกแบบมาเพื่อเคสเดียว คือ <b>ของตีกลับจากขนส่ง (ส่งไม่สำเร็จ)</b> เท่านั้น
+       ส่วนการคืนจริงในธุรกิจ e-commerce + อาหาร อีก 12 แบบ ยังทำในระบบ<b>ไม่ได้</b> หรือได้แค่บางส่วน
+       — เสี่ยงต้องรื้อระบบใหม่ทันทีที่ปริมาณคืนจริงเข้ามา</p>
+  </div>
+
+  <div class="score">
+    <div class="s ok"><div class="n">1<small>/13</small></div><div class="t">รองรับเต็ม<br>(ของตีกลับขนส่ง)</div></div>
+    <div class="s warn"><div class="n">3<small>/13</small></div><div class="t">รองรับบางส่วน<br>(ฝืนใช้ของเดิม)</div></div>
+    <div class="s risk"><div class="n">9<small>/13</small></div><div class="t">ยังไม่มีทางเข้าระบบ</div></div>
+  </div>
+  <div class="bar" aria-hidden="true"><span class="a"></span><span class="b"></span><span class="c"></span></div>
+  <div class="barcap">■ รองรับเต็ม 1 &nbsp;·&nbsp; ■ บางส่วน 3 &nbsp;·&nbsp; ■ ยังไม่รองรับ 9</div>
+
+  <!-- 3 gaps -->
+  <h2>3 ช่องว่างที่<span class="em">กระทบธุรกิจมากที่สุด</span></h2>
+  <p class="lead">เรียงตามผลกระทบต่อรายได้และความเสี่ยง</p>
+  <div class="gaps">
+    <div class="gap">
+      <div class="rank">1</div>
+      <h3>คืนผ่าน Marketplace (ลูกค้าคืนหลังได้รับของ)</h3>
+      <p class="what">Shopee / Lazada / TikTok เปิดเคสคืน-คืนเงินเอง แล้วส่งของกลับมา</p>
+      <p class="why">ปริมาณ<b>มากที่สุด</b>ในการคืนจริง แต่ไม่มีทางเชื่อมเข้าระบบ — พนักงานคลังจะเห็นก็ต่อเมื่อพัสดุมาถึง โดยไม่มีข้อมูลผูกกับเลขคืนของ marketplace และ<b>กระทบยอดคืนเงิน (refund) ที่กระทบไม่ได้</b>
+      <span class="risk-chip">เสี่ยงรายได้ · เห็นภาพไม่ครบ</span></p>
+    </div>
+    <div class="gap">
+      <div class="rank">2</div>
+      <h3>คืนแบบค้าส่ง / ฝากขาย (B2B)</h3>
+      <p class="what">ร้านค้าคืนของขายไม่หมด / ดึงของฝากขายกลับ — เป็นล็อตใหญ่ ไม่ใช่ออเดอร์เดียว</p>
+      <p class="why">ระบบ<b>บังคับ</b>ให้ทุกการคืนต้องมีออเดอร์เดียว จึงบันทึกการคืนแบบค้าส่งไม่ได้เลย และควรจบด้วย<b>ใบลดหนี้ (credit note) ไม่ใช่คืนเงิน</b>
+      <span class="risk-chip">ทำในระบบไม่ได้</span></p>
+    </div>
+    <div class="gap">
+      <div class="rank">3</div>
+      <h3>สินค้าหมดอายุ / เรียกคืนทั้งล็อต (Recall)</h3>
+      <p class="what">สินค้าอาหาร/FMCG หมดอายุ หรือถูกเรียกคืนตามล็อต (เช่นแบรนด์ Sauce Thai)</p>
+      <p class="why">เป็นเรื่อง<b>ความปลอดภัยอาหาร + ข้อกฎหมาย</b> ต้องตามได้ว่า "ล็อตนี้ส่งไปออเดอร์ไหนบ้าง" แต่ระบบตามตามล็อตไม่ได้ = <b>เสี่ยงตรวจ compliance ไม่ผ่าน</b>
+      <span class="risk-chip">เสี่ยงกฎหมาย</span></p>
+    </div>
+  </div>
+
+  <!-- business risk -->
+  <h2>ทำไมต้องรีบ — <span class="em">ความเสี่ยงถ้าไม่แก้</span></h2>
+  <div class="risks">
+    <ul>
+      <li>การคืนสินค้าจริงส่วนใหญ่ (9 ใน 13 แบบ) ทำในระบบไม่ได้ → คลังต้องจัดการนอกระบบ ข้อมูลตกหล่น</li>
+      <li>อาหารหมดอายุ / การเรียกคืนล็อต ตามไม่ได้ → เสี่ยงด้านกฎหมายและความปลอดภัยผู้บริโภค</li>
+      <li>ระบบคลัง (WMS) กับระบบออเดอร์ (OMS) <b>ไม่เชื่อมสถานะกัน</b> → คีย์ข้อมูลซ้ำ 2 ที่ สถานะขัดกันเอง</li>
+      <li>ถ้าปล่อยไว้จนปริมาณคืน marketplace เข้ามาจริง → ต้อง<b>รื้อระบบใหม่</b> แพงกว่าและช้ากว่า</li>
+    </ul>
+  </div>
+
+  <!-- recommendation -->
+  <h2>ข้อเสนอ — <span class="em">แนวทางแก้</span></h2>
+  <div class="rec">
+    <p>ยกระดับจาก "ระบบคืนเคสเดียว" เป็น <b>ระบบรับคืนแบบครอบคลุม</b> ที่แยกตาม
+       <b>แหล่งที่มา × ขอบเขต × ผลลัพธ์</b> — ทำเป็น<b>เฟส</b> โดยของเดิม (ของตีกลับขนส่ง) <b>ไม่ต้องรื้อ</b> ยังใช้งานต่อได้ทันที</p>
+  </div>
+
+  <div class="road">
+    <div class="ph done"><div class="pn">v1 <span class="badge">ทำแล้ว</span></div><div class="pd">ของตีกลับขนส่ง (RTO)</div></div>
+    <div class="ph"><div class="pn">v1.1</div><div class="pd">เชื่อม WMS↔OMS + คืนบางส่วน</div></div>
+    <div class="ph"><div class="pn">v2</div><div class="pd">คืนผ่าน Marketplace (RMA)</div></div>
+    <div class="ph"><div class="pn">v2.1</div><div class="pd">ค้าส่ง / หมดอายุ / recall</div></div>
+    <div class="ph"><div class="pn">v2.2</div><div class="pd">เปลี่ยนสินค้า / กันคืนทุจริต</div></div>
+  </div>
+
+  <!-- decisions -->
+  <h2>สิ่งที่<span class="em">ต้องการการตัดสินใจจากผู้บริหาร</span></h2>
+  <p class="lead">3 คำถามธุรกิจที่กำหนดว่าจะทำเฟสไหนก่อน</p>
+  <div class="dec">
+    <div class="d"><div class="q">1</div><div>
+      <p class="qt">จะให้ความสำคัญกับการคืนผ่าน Marketplace ก่อนหรือไม่?</p>
+      <p class="qh">เป็นปริมาณมากที่สุด — ยืนยันว่าทำเป็นลำดับแรก</p></div></div>
+    <div class="d"><div class="q">2</div><div>
+      <p class="qt">B1DX มีโมเดลค้าส่ง / ฝากขาย (B2B) หรือขายปลีกล้วนๆ?</p>
+      <p class="qh">ตัดสินว่าต้องรองรับการคืนแบบค้าส่ง + ใบลดหนี้หรือไม่</p></div></div>
+    <div class="d"><div class="q">3</div><div>
+      <p class="qt">อาหาร: การเรียกคืน + หมดอายุ ต้องรองรับ compliance ตอนนี้ หรือทีหลัง?</p>
+      <p class="qh">ตัดสินความเร่งด่วนของงานตามล็อต (recall traceability)</p></div></div>
+  </div>
+
+  <div class="foot">
+    เอกสารสรุปผู้บริหาร · จากรายงานวิเคราะห์ <span style="font-family:monospace">docs/investigations/wh-returns-case-coverage.md</span> · Epic ที่เสนอ: FF-WH-RVL (WMS Reverse Logistics) · ยังไม่สร้าง GH issue — รอผู้บริหารจัดลำดับก่อน
+  </div>
+
+</div>
+</body>
+</html>
