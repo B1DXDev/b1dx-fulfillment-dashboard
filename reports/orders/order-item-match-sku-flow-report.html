@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Item ↔ SKU Matching — Flow &amp; Purpose Report</title>
+<style>
+  :root {
+    --blue: #4a9eed; --blue-lt: #a5d8ff; --blue-dark: #1e5f9e;
+    --purple: #8b5cf6; --purple-lt: #d0bfff; --purple-dark: #5b21b6;
+    --green: #22c55e; --green-lt: #b2f2bb; --green-dark: #15803d;
+    --amber: #f59e0b; --amber-lt: #fff3bf;
+    --red: #ef4444; --red-lt: #ffc9c9;
+    --teal: #14b8a6; --teal-lt: #c3fae8; --teal-dark: #0f766e;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+    --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: var(--gray-900); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%); color: #fff; padding: 40px 48px 32px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 15px; color: rgba(255,255,255,.7); margin-top: 6px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .header-meta span { font-size: 13px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1120px; margin: 0 auto; padding: 32px 24px 60px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── TABS ── */
+  .tabs { position: sticky; top: 0; z-index: 20; display: flex; gap: 4px; background: #fff; border-bottom: 1px solid var(--gray-200); padding: 0 24px; overflow-x: auto; box-shadow: 0 1px 0 rgba(0,0,0,.02); }
+  .tab-btn { border: none; background: none; cursor: pointer; padding: 16px 18px; font-size: 13.5px; font-weight: 600; color: var(--gray-500); white-space: nowrap; border-bottom: 3px solid transparent; transition: all .15s; font-family: inherit; }
+  .tab-btn:hover { color: var(--purple-dark); }
+  .tab-btn.active { color: var(--purple-dark); border-bottom-color: var(--purple); }
+  .panel { display: none; animation: fadeIn .2s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-500); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: block; width: 3px; height: 14px; border-radius: 2px; background: var(--purple); }
+
+  /* ── STAT CARDS ── */
+  .stat-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; border-left: 4px solid var(--purple); }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--gray-900); margin-top: 4px; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin: 32px 0 16px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+  .panel > .section-title:first-child { margin-top: 24px; }
+
+  /* ── ARCH OVERVIEW (3 repos) ── */
+  .arch-row { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+  @media (max-width: 800px) { .arch-row { grid-template-columns: 1fr; } .arch-arrow { transform: rotate(90deg); } }
+  .arch-box { border-radius: var(--radius); padding: 18px; color: #fff; box-shadow: var(--shadow); }
+  .arch-box h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .arch-box .repo { font-family: 'Consolas', monospace; font-size: 11px; opacity: .85; margin-bottom: 8px; display: block; }
+  .arch-box p { font-size: 12.5px; opacity: .92; }
+  .arch-box.b1 { background: linear-gradient(135deg,#2563eb,#1e40af); }
+  .arch-box.b2 { background: linear-gradient(135deg,#7c3aed,#5b21b6); }
+  .arch-box.b3 { background: linear-gradient(135deg,#059669,#065f46); }
+  .arch-arrow { display: flex; align-items: center; justify-content: center; color: var(--gray-500); font-size: 22px; }
+
+  /* ── FLOW STEPS (details/summary = native interactivity) ── */
+  .flow-phase { margin-bottom: 22px; }
+  .flow-phase-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .flow-phase-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .step { border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 8px; overflow: hidden; background: #fff; }
+  .step summary { cursor: pointer; list-style: none; padding: 12px 16px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13.5px; user-select: none; }
+  .step summary::-webkit-details-marker { display: none; }
+  .step summary .chev { margin-left: auto; transition: transform .2s; color: var(--gray-500); font-size: 12px; }
+  .step[open] summary .chev { transform: rotate(90deg); }
+  .step summary .n { width: 26px; height: 26px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .step-body { padding: 4px 16px 16px 54px; font-size: 13px; color: var(--gray-700); }
+  .step-body p { margin-bottom: 8px; }
+  .step-body .file { font-family: Consolas, monospace; font-size: 11.5px; background: var(--gray-100); color: var(--purple-dark); padding: 2px 6px; border-radius: 4px; }
+  code { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; background: var(--gray-100); padding: 2px 6px; border-radius: 4px; color: var(--purple-dark); }
+
+  /* ── CODE BLOCK w/ copy ── */
+  .code-block { position: relative; background: #1e1e2e; border-radius: 8px; margin: 10px 0; }
+  .code-block pre { padding: 14px 16px; overflow-x: auto; font-family: 'Consolas','Courier New',monospace; font-size: 12px; color: #cdd6f4; line-height: 1.6; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #cdd6f4; font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .copy-btn:hover { background: rgba(255,255,255,.18); }
+  .code-cmt { color: #7f849c; }
+  .code-str { color: #a6e3a1; }
+  .code-kw { color: #cba6f7; }
+
+  /* ── COMPONENT / SCHEMA TABLE ── */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { background: var(--gray-50); text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200); }
+  .comp-table td { padding: 11px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: var(--gray-50); }
+
+  /* ── MEANING CARDS (3 types of "matching") ── */
+  .meaning-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .mbtn { border: 1px solid var(--gray-200); background: #fff; padding: 8px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--gray-700); font-family: inherit; transition: all .15s; }
+  .mbtn.active { color: #fff; border-color: transparent; }
+  .mbtn[data-m="1"].active { background: var(--purple); }
+  .mbtn[data-m="2"].active { background: var(--blue); }
+  .mbtn[data-m="3"].active { background: var(--teal); }
+  .meaning-panel { display: none; }
+  .meaning-panel.active { display: block; }
+
+  /* ── TAG ── */
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .tag-blue { background: var(--blue-lt); color: var(--blue-dark); }
+  .tag-purple { background: var(--purple-lt); color: var(--purple-dark); }
+  .tag-green { background: var(--green-lt); color: var(--green-dark); }
+  .tag-red { background: var(--red-lt); color: #b91c1c; }
+  .tag-amber { background: var(--amber-lt); color: #92400e; }
+  .tag-teal { background: var(--teal-lt); color: var(--teal-dark); }
+
+  /* ── ALERT / DECISION ── */
+  .alert { padding: 14px 18px; border-radius: 8px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; margin: 12px 0; }
+  .alert-warn { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+  .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .alert-ok { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+
+  .decision-box { background: var(--amber-lt); border: 1px solid var(--amber); border-radius: 8px; padding: 14px 18px; }
+  .decision-box h4 { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 8px; }
+  .decision-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .decision-box li { font-size: 13px; color: #78350f; display: flex; gap: 8px; }
+  .decision-box li span.label { font-weight: 700; min-width: 80px; }
+
+  /* ── TOGGLE / FAB (back to top) ── */
+  .fab { position: fixed; bottom: 24px; right: 24px; background: var(--purple); color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 4px 14px rgba(139,92,246,.4); cursor: pointer; font-size: 18px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+  .fab.show { opacity: 1; pointer-events: auto; }
+
+  .footer { text-align: center; padding: 32px 24px; font-size: 12px; color: var(--gray-500); }
+</style>
+</head>
+<body>
+
+<!-- ─────────────── HEADER ─────────────── -->
+<div class="header">
+  <div class="header-badge">ORDER SYNC · SKU MATCHING</div>
+  <h1>Order Item ↔ SKU Matching — Flow &amp; Purpose Report</h1>
+  <div class="header-sub">รายการ order + จับคู่ SyncOrder → OMS · Webhook → Sync Worker → OMS Fulfillment API</div>
+  <div class="header-meta">
+    <span><strong>วันที่:</strong> 15 Jul 2026</span>
+    <span><strong>Repos:</strong> b1dx-marketplace-webhook · b1dx.omsorders.sync.worker · b1dx-oms-fulfillment-api</span>
+    <span><strong>อ้างอิง:</strong> FF-WEBHOOK-003/004/005/007 · FF-WH-RETURN-009</span>
+    <span><strong>Author:</strong> Nuchit (Claude Sonnet 5)</span>
+  </div>
+</div>
+
+<!-- ─────────────── TABS ─────────────── -->
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="overview">ภาพรวม</button>
+  <button class="tab-btn" data-tab="flow">Flow Diagram</button>
+  <button class="tab-btn" data-tab="purpose">จับคู่ทำเพื่ออะไร</button>
+  <button class="tab-btn" data-tab="meanings">3 ความหมายของ "Match"</button>
+  <button class="tab-btn" data-tab="schema">Schema Reference</button>
+  <button class="tab-btn" data-tab="changes">Recent Changes</button>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════ TAB: OVERVIEW ═══════════════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="grid-3" style="margin-top:8px;">
+      <div class="stat-card" style="border-color:var(--blue);">
+        <div class="stat-label">Repos ที่เกี่ยวข้อง</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub">Webhook (Go) · Sync Worker (.NET) · OMS BE (.NET)</div>
+      </div>
+      <div class="stat-card" style="border-color:var(--purple);">
+        <div class="stat-label">ความหมายของ "จับคู่"</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub">SKU-match / Order dedup / Return-match</div>
+      </div>
+      <div class="stat-card" style="border-color:var(--green);">
+        <div class="stat-label">Gate Rule</div>
+        <div class="stat-value">BR-02</div>
+        <div class="stat-sub">unmatched blocks 100→400 transition</div>
+      </div>
+    </div>
+
+    <div class="section-title">Objective</div>
+    <div class="card">
+      <p style="font-size:15px; line-height:1.8; color:var(--gray-700);">
+        เมื่อ order จากมาร์เก็ตเพลส (Lazada / Shopee / TikTok) sync เข้าสู่ OMS แล้ว แต่ละ order item
+        จะมาพร้อม <strong>seller SKU code</strong> ที่ผู้ขายตั้งเองบนแพลตฟอร์ม ซึ่ง OMS ยังไม่รู้ว่าตรงกับ
+        <strong>internal product</strong> ตัวไหน — ต้องผ่านขั้นตอน <strong>"จับคู่" (matching)</strong> ก่อน
+        order ถึงจะยืนยัน (confirm) และเข้าสู่กระบวนการคลัง/จัดส่งได้ รายงานนี้สรุป flow ตั้งแต่ webhook รับ order
+        จนถึงจับคู่ SKU สำเร็จใน OMS พร้อมอธิบายเหตุผลเชิงธุรกิจว่าทำไมต้องมีขั้นตอนนี้
+      </p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
+        <span class="tag tag-blue">Webhook Ingestion</span>
+        <span class="tag tag-purple">Marketplace Sync</span>
+        <span class="tag tag-green">SKU Auto-Match</span>
+        <span class="tag tag-amber">Manual Match Fallback</span>
+        <span class="tag tag-red">OAD Gate (BR-02)</span>
+      </div>
+    </div>
+
+    <div class="section-title">3 Repos — ใครทำอะไร</div>
+    <div class="arch-row">
+      <div class="arch-box b1">
+        <h4>1 · Webhook Receiver</h4>
+        <span class="repo">b1dx-marketplace-webhook (Go)</span>
+        <p>รับ webhook → เรียก Marketplace API ดึง order เต็ม → เขียนลง <code style="background:rgba(255,255,255,.15); color:#fff;">public.orders</code> / <code style="background:rgba(255,255,255,.15); color:#fff;">order_items</code> ของตัวเอง (staging DB)</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box b2">
+        <h4>2 · Sync Worker</h4>
+        <span class="repo">b1dx.omsorders.sync.worker (.NET)</span>
+        <p>Poll staging DB → parse → dedup check → upsert เข้า <code style="background:rgba(255,255,255,.15); color:#fff;">oms.orders/order_items</code> → <strong>auto-match SKU</strong></p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box b3">
+        <h4>3 · OMS Fulfillment API</h4>
+        <span class="repo">b1dx-oms-fulfillment-api (.NET)</span>
+        <p>เจ้าของ schema <code style="background:rgba(255,255,255,.15); color:#fff;">oms.*</code> · แสดงผลใน UI · manual match endpoint · gate การยืนยัน order (BR-02)</p>
+      </div>
+    </div>
+    <div class="alert alert-info">
+      <span>ℹ️</span>
+      <span><strong>หมายเหตุสำคัญ:</strong> ระหว่าง repo 1 → repo 2 ไม่มี RabbitMQ ส่งข้อมูล order — เป็น <strong>shared Postgres + polling + row-locking</strong> (<code>FOR UPDATE SKIP LOCKED</code>) RabbitMQ ใน webhook repo ใช้แค่สำหรับ ingest raw webhook payload เท่านั้น</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TAB: FLOW DIAGRAM ═══════════════════ -->
+  <div class="panel" id="panel-flow">
+    <div class="section-title">Step-by-step Flow (คลิกแต่ละ step เพื่อดูรายละเอียด)</div>
+
+    <!-- PHASE 1 -->
+    <div class="flow-phase">
+      <div class="flow-phase-title"><span class="flow-phase-dot" style="background:var(--blue);"></span> Phase 1 — Webhook Ingestion &amp; Staging</div>
+
+      <details class="step" open>
+        <summary><span class="n" style="background:var(--blue);">1</span> Marketplace ส่ง Webhook <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Gin handler รับ raw HTTP body → สร้าง <code>WebhookMessage{Platform, RawBody, OrderKey, EventKey}</code> → publish เข้า RabbitMQ exchange <code>webhooks</code> / queue <code>webhook.ingest</code> แล้วตอบ <strong>202 Accepted</strong> ทันที (ไม่ process sync ตรงนี้)</p>
+          <p><span class="file">internal/adapter/handler/webhook.go:37</span> · <span class="file">internal/adapter/queue/rabbitmq_publisher.go:94-104</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--blue);">2</span> Consumer ตรวจ Idempotency <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Consumer อ่าน message จาก queue → คำนวณ <code>ComputeExternalEventID = sha256(platform+body)</code> → เช็คซ้ำใน <code>webhook_events</code> (ตาราง dedup) หากซ้ำ → drop message</p>
+          <p><span class="file">internal/adapter/queue/rabbitmq_consumer.go:142</span> · <span class="file">internal/service/webhook_service.go:42</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--blue);">3</span> Trigger Order Sync + เรียก Marketplace API <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Resolve tenant/seller account เจ้าของ order → เรียก <code>SyncOrderByID()</code> ของ platform นั้นๆ → เรียก Marketplace API จริง (<code>GetOrderByID</code> + <code>GetOrderItems</code>) เพื่อดึงข้อมูล order แบบเต็ม</p>
+          <p><span class="file">internal/adapter/queue/rabbitmq_consumer.go:187</span> · <span class="file">internal/service/lazada_sync_service.go:181</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--blue);">4</span> เขียนลง Staging DB <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Upsert เข้า <code>public.orders</code> / <code>public.order_items</code> (DB ของ webhook repo เอง — เป็น staging/mirror layer) แต่ละ item เก็บ <code>sku</code> (seller SKU แสดงผล) และ <strong><code>sku_id</code></strong> (marketplace variant id — join key ไปหา <code>products.sku_id</code>) พร้อม <code>raw_data</code> (jsonb ดิบ)</p>
+          <p><span class="file">internal/adapter/repository/gorm_order.go</span> · <span class="file">internal/domain/entity/order.go:5-58</span></p>
+          <span class="tag tag-green">FF-WEBHOOK-004/005 แก้ไขล่าสุด</span>
+        </div>
+      </details>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="flow-phase">
+      <div class="flow-phase-title"><span class="flow-phase-dot" style="background:var(--purple);"></span> Phase 2 — Sync Worker: Upsert &amp; Auto-Match</div>
+
+      <details class="step" open>
+        <summary><span class="n" style="background:var(--purple);">5</span> Background Poller ตื่นตาม Interval <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p><code>MarketplaceSyncBackgroundService</code> ใช้ <code>PeriodicTimer</code> (interval จาก config) → เรียก <code>MarketplaceOrderSyncService.SyncAsync()</code></p>
+          <p><span class="file">Infrastructure/BackgroundJobs/MarketplaceSyncBackgroundService.cs</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--purple);">6</span> Claim Unsynced Orders (Checkpoint/Lease) <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Query <code>public.orders</code> ด้วย <code>FOR UPDATE SKIP LOCKED</code> claim batch ที่ <code>is_oms_sync IS NOT TRUE</code> แล้ว mark <code>oms_sync_status = 'processing'</code> พร้อม lease timeout — กัน worker หลายตัว process order ซ้ำกัน</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><span class="code-kw">SELECT</span> * <span class="code-kw">FROM</span> public.orders
+<span class="code-kw">WHERE</span> platform = ANY(@Platforms) <span class="code-kw">AND</span> is_oms_sync <span class="code-kw">IS NOT TRUE</span>
+  <span class="code-kw">AND</span> (oms_sync_status <span class="code-kw">IS NULL OR</span> oms_sync_status <span class="code-kw">IN</span> (<span class="code-str">'pending'</span>,<span class="code-str">'failed'</span>))
+<span class="code-kw">ORDER BY</span> created_at <span class="code-kw">NULLS FIRST</span>, id
+<span class="code-kw">FOR UPDATE SKIP LOCKED LIMIT</span> @BatchSize;
+<span class="code-cmt">-- แล้ว UPDATE ... SET oms_sync_status='processing', oms_sync_locked_until=now()+lease</span></pre>
+          </div>
+          <p><span class="file">Application/Services/MarketplaceOrderSyncService.cs:38-42</span> · <span class="file">Infrastructure/Persistence/Sql/MarketplaceSql.cs:42-72</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--purple);">7</span> Parse ตาม Platform <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p><code>IMarketplaceOrderParser</code> (<code>LazadaOrderParser</code> / <code>ShopeeOrderParser</code> / <code>TikTokOrderParser</code>) แปลง raw JSON + <code>order_items</code> เป็น <code>NormalizedOrder</code>/<code>NormalizedOrderItem</code></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--purple);">8</span> เช็คซ้ำ Order (Dedup Guard) <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p><code>FindExistingOrderAsync(platform, externalOrderId)</code> เทียบกับ <code>oms.orders</code> — ถ้าเจอแล้วใช้ <code>StatusRegressionGuard</code> กัน webhook มาช้าทำให้ status ถอยหลัง</p>
+          <p style="color:var(--gray-500); font-style:italic;">นี่คือ "matching" แบบที่ 2 (order dedup) — ไม่ใช่ SKU matching แบบที่คำถามหลักถามถึง ดูแท็บ "3 ความหมาย"</p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--purple);">9</span> Upsert เข้า OMS DB <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Dapper SQL transaction ตรงเข้า OMS Postgres: insert-or-update <code>oms.orders</code>, DELETE+INSERT <code>oms.order_items</code> และ <code>oms.order_addresses</code> · order number format: <code>MKT-{PLATFORM}-{externalOrderId}</code></p>
+          <p><span class="file">Infrastructure/Persistence/MarketplaceOrderRepository.cs:26-208</span></p>
+        </div>
+      </details>
+
+      <details class="step" open>
+        <summary><span class="n" style="background:var(--green);">10</span> SKU Auto-Match ★ <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p><code>AutoMatchOrderAsync()</code> เรียก <code>SkuMatchService.ResolveAsync()</code> เทียบ seller SKU code ของแต่ละ item กับตาราง <code>oms.sku_mappings</code> (โหลด cache ต่อ shop ต่อรอบ sync) — เจอ → set <code>matched_product_id</code> + <code>matched_at</code>; คำนวณ <code>match_status</code> ของทั้ง order ผ่าน <code>MatchStatusCalculator</code></p>
+          <div class="decision-box" style="margin-top:10px;">
+            <h4>ผลลัพธ์ match_status</h4>
+            <ul>
+              <li><span class="label" style="color:var(--green-dark);">matched</span> ทุก item เจอ mapping</li>
+              <li><span class="label" style="color:#92400e;">partial</span> เจอบางส่วน</li>
+              <li><span class="label" style="color:#b91c1c;">unmatched</span> ไม่เจอเลย / ไม่พบ oms_shop_id</li>
+            </ul>
+          </div>
+          <p style="margin-top:8px;"><span class="file">Application/Services/SkuMatchService.cs</span> · <span class="file">MarketplaceOrderSyncService.cs:250-288</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--purple);">11</span> Mark Synced / Failed กลับที่ Staging <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>สำเร็จ → <code>MarkSyncedAsync</code> set <code>public.orders.is_oms_sync = true</code>, <code>oms_sync_status = 'synced'</code> · ล้มเหลว → <code>MarkFailedAsync</code> + dead-letter หลังครบ <code>DeadLetterThreshold</code> ครั้ง</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="flow-phase">
+      <div class="flow-phase-title"><span class="flow-phase-dot" style="background:var(--green);"></span> Phase 3 — OMS BE: แสดงผล &amp; Manual Match Fallback</div>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--green);">12</span> Order แสดงใน OMS UI <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>Sync Worker เขียนตรงเข้า schema <code>oms.*</code> เดียวกับที่ OMS BE เป็นเจ้าของ (EF Core migrations) — ไม่มี HTTP call ระหว่าง worker → API ในเส้นทาง auto path นี้ · <code>GetOrdersQuery</code> / <code>GetOrderDetailQuery</code> อ่านแสดงผลใน UI</p>
+          <p><span class="file">Application/Order/GetOrdersQuery.cs</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--red);">13</span> Gate: BR-02 บล็อกการยืนยัน order <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>เมื่อพยายามเปลี่ยนสถานะ order จาก <strong>MatchPending (100) → Confirmed (400)</strong> ระบบเช็ค <code>order.MatchStatus</code> — ถ้า <code>unmatched</code> จะถูกปฏิเสธด้วย 409 ทันที</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><span class="code-cmt">// BR-02: matchStatus=unmatched blocks 100→400</span>
+<span class="code-kw">if</span> (toFss == FulfillmentSubStatus.Confirmed
+    && order.FulfillmentSubStatus == FulfillmentSubStatus.MatchPending)
+{
+    <span class="code-kw">if</span> (order.MatchStatus == <span class="code-str">"unmatched"</span>)
+        <span class="code-kw">return</span> ApplicationResult&lt;OrderTransitionOadResultDto&gt;.Failure(
+            <span class="code-str">"order_match_required"</span>,
+            <span class="code-str">"Order ยังไม่ได้ match — กรุณา match ก่อนยืนยัน"</span>, 409);
+}</pre>
+          </div>
+          <p><span class="file">Infrastructure/Services/OrderTransitionOadCommandHandler.cs:352-359</span></p>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary><span class="n" style="background:var(--amber);">14</span> Manual Match (Human Fallback) <span class="chev">▶</span></summary>
+        <div class="step-body">
+          <p>เจ้าหน้าที่ (<code>FfManager</code>/<code>BrandAdmin</code>/<code>PlatformAdmin</code>) เรียก <code>POST /api/oms/orders/{id}/items/match</code> เลือก internal product ให้ item ที่ unmatched → <code>MatchOrderItemsCommandHandler</code> เรียก <code>item.MatchToProduct()</code> → <strong>upsert กลับเข้า <code>oms.sku_mappings</code></strong> → order ถัดไปที่ใช้ SKU เดิม auto-match ได้เอง (ระบบเรียนรู้ทีละ mapping)</p>
+          <p><span class="file">Api/Endpoints/OrderEndpoints.cs:599-630</span> · <span class="file">Infrastructure/Services/MatchOrderItemsCommandHandler.cs</span></p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TAB: PURPOSE ═══════════════════ -->
+  <div class="panel" id="panel-purpose">
+    <div class="section-title">จับคู่ Order Item + SKU — ทำเพื่ออะไร</div>
+    <div class="card">
+      <p style="font-size:14.5px; line-height:1.9; color:var(--gray-700); margin-bottom:16px;">
+        Marketplace ส่ง order item มาด้วย <strong>seller SKU code ของแต่ละแพลตฟอร์มเอง</strong> (string อิสระที่ผู้ขายตั้งเอง)
+        ซึ่ง OMS ไม่รู้จักว่าตรงกับ <strong>internal product</strong> ตัวไหนในระบบ — ต้องจับคู่ก่อนถึงจะทำงานต่อได้
+      </p>
+
+      <div class="grid-2" style="align-items: stretch;">
+        <div class="card" style="box-shadow:none; border:1px solid var(--red-lt); background:#fff5f5;">
+          <div class="card-title" style="color:#b91c1c;">1 · Gate บังคับก่อนยืนยัน Order (BR-02)</div>
+          <p style="font-size:13px; color:var(--gray-700); line-height:1.75;">
+            ถ้า order item ไหน <code>match_status = unmatched</code> ระบบจะ<strong>ปฏิเสธการเปลี่ยนสถานะ</strong>
+            จาก MatchPending (100) → Confirmed (400) ทันที (HTTP 409) — order จะไปต่อสู่ขั้น allocate/pick/pack
+            ไม่ได้จนกว่าจะจับคู่ครบ
+          </p>
+        </div>
+        <div class="card" style="box-shadow:none; border:1px solid var(--blue-lt); background:#f0f8ff;">
+          <div class="card-title" style="color:var(--blue-dark);">2 · ผูก Order Item เข้ากับ Product Master จริง</div>
+          <p style="font-size:13px; color:var(--gray-700); line-height:1.75;">
+            เมื่อจับคู่แล้ว ระบบรู้ product/stock/attribute เบื้องหลัง SKU นั้นจริง — จำเป็นสำหรับ downstream
+            ทั้งหมด: ตัด stock, pick queue, ราคา, รายงาน เพราะ logic เหล่านี้ทำงานบน <strong>internal product ID</strong>
+            ไม่ใช่ seller SKU string ที่อาจไม่ตรงกับ catalog จริง
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none; border:1px solid var(--green-lt); background:#f0fdf4; margin-top:16px;">
+        <div class="card-title" style="color:var(--green-dark);">3 · Auto-Match ก่อน แล้ว Fallback เป็น Manual (ระบบ "เรียนรู้")</div>
+        <p style="font-size:13px; color:var(--gray-700); line-height:1.75; margin-bottom:10px;">
+          ทุก order ที่ sync เข้ามาจะพยายาม auto-match กับ <code>oms.sku_mappings</code> ก่อนเสมอ:
+        </p>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+          <span class="tag tag-green">เจอ mapping → matched อัตโนมัติ</span>
+          <span style="color:var(--gray-500);">→</span>
+          <span class="tag tag-amber">ไม่เจอ (SKU ใหม่) → unmatched/partial</span>
+          <span style="color:var(--gray-500);">→</span>
+          <span class="tag tag-blue">Manual match 1 ครั้ง</span>
+          <span style="color:var(--gray-500);">→</span>
+          <span class="tag tag-purple">บันทึกกลับ sku_mappings → auto-match ได้เองในอนาคต</span>
+        </div>
+      </div>
+
+      <div class="alert alert-ok" style="margin-top:20px;">
+        <span>✅</span>
+        <span><strong>สรุปสั้นๆ:</strong> จับคู่ = แปล "SKU ของผู้ขายบนแพลตฟอร์ม" ให้กลายเป็น "product จริงใน OMS"
+        ซึ่งเป็นเงื่อนไขบังคับก่อนที่ order จะยืนยันและเข้าสู่กระบวนการคลัง/จัดส่งได้</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TAB: MEANINGS (interactive switch) ═══════════════════ -->
+  <div class="panel" id="panel-meanings">
+    <div class="section-title">3 ความหมายของ "จับคู่ / Match" ในระบบนี้ — อย่าปนกัน</div>
+    <div class="card">
+      <div class="meaning-tabs">
+        <button class="mbtn active" data-m="1" onclick="showMeaning(1)">① SKU → Product Matching</button>
+        <button class="mbtn" data-m="2" onclick="showMeaning(2)">② Order Dedup / Idempotency</button>
+        <button class="mbtn" data-m="3" onclick="showMeaning(3)">③ Return → Order Matching</button>
+      </div>
+
+      <div class="meaning-panel active" id="meaning-1">
+        <table class="comp-table">
+          <tr><th style="width:180px;">อยู่ที่ไหน</th><td>Sync Worker (auto) + OMS BE (manual endpoint)</td></tr>
+          <tr><th>จับคู่อะไรกับอะไร</th><td>Seller SKU code ↔ Internal product ID</td></tr>
+          <tr><th>ตาราง/คอลัมน์</th><td><code>oms.sku_mappings</code> {tenant_id, shop_id, platform_sku_code → internal_product_id} · <code>order_items.matched_product_id/matched_at</code> · <code>orders.match_status</code></td></tr>
+          <tr><th>Logic</th><td><code>SkuMatchService</code> + <code>MatchStatusCalculator</code> (mirror กันทั้ง 2 repo)</td></tr>
+          <tr><th>เกิดขึ้นเมื่อ</th><td>ทุกครั้งที่ sync order เข้ามา (auto) หรือกดปุ่ม match มือใน OMS UI</td></tr>
+          <tr><th>ผลกระทบ</th><td>Gate BR-02 — <code>unmatched</code> บล็อกการยืนยัน order</td></tr>
+        </table>
+      </div>
+
+      <div class="meaning-panel" id="meaning-2">
+        <table class="comp-table">
+          <tr><th style="width:180px;">อยู่ที่ไหน</th><td>Sync Worker เท่านั้น</td></tr>
+          <tr><th>จับคู่อะไรกับอะไร</th><td>Order ที่กำลัง sync ↔ Order ที่มีอยู่แล้วใน OMS (กันสร้างซ้ำ)</td></tr>
+          <tr><th>ตาราง/คอลัมน์</th><td><code>oms.orders</code> — key: <code>platform + external_order_id</code> (fallback <code>order_no</code>)</td></tr>
+          <tr><th>Logic</th><td><code>FindExistingOrderAsync()</code> + <code>StatusRegressionGuard</code></td></tr>
+          <tr><th>เกิดขึ้นเมื่อ</th><td>ก่อน upsert order ทุกครั้ง (กัน retry/re-sync สร้าง order ซ้ำ)</td></tr>
+          <tr><th>หมายเหตุ</th><td>ไม่ถูกเรียกว่า "matching" ใน code — เป็น idempotency guard ไม่ใช่ business matching</td></tr>
+        </table>
+      </div>
+
+      <div class="meaning-panel" id="meaning-3">
+        <table class="comp-table">
+          <tr><th style="width:180px;">อยู่ที่ไหน</th><td>OMS BE — Warehouse Returns module (FF-WH-RETURN-009)</td></tr>
+          <tr><th>จับคู่อะไรกับอะไร</th><td>พัสดุคืน (physical scan) ↔ Order ที่มีสิทธิ์รับคืน</td></tr>
+          <tr><th>เงื่อนไข</th><td>Order ต้องอยู่สถานะ <code>560 ReturnInitiated</code> เท่านั้น + ยังไม่ถูก match กับ return อื่นที่ active อยู่</td></tr>
+          <tr><th>Logic</th><td><code>ScanInReturnHandler.cs</code> + endpoint <code>unmatch</code> สำหรับถอนการจับคู่</td></tr>
+          <tr><th>ความสัมพันธ์กับ SKU matching</th><td>ไม่เกี่ยวข้องกันเลย — เป็นคนละ feature ที่บังเอิญใช้คำว่า "match" เหมือนกัน</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TAB: SCHEMA ═══════════════════ -->
+  <div class="panel" id="panel-schema">
+    <div class="section-title">Webhook DB (staging) — public schema</div>
+    <div class="card">
+      <table class="comp-table">
+        <thead><tr><th>Table</th><th>Column</th><th>ความหมาย</th></tr></thead>
+        <tbody>
+          <tr><td><code>orders</code></td><td><code>is_oms_sync</code>, <code>oms_sync_status</code>, <code>oms_sync_locked_until</code></td><td>Checkpoint/claim-lease สำหรับ sync worker poll</td></tr>
+          <tr><td><code>order_items</code></td><td><code>sku</code></td><td>Seller SKU code (สำหรับแสดงผล)</td></tr>
+          <tr><td><code>order_items</code></td><td><code>sku_id</code> <span class="tag tag-green">FF-WEBHOOK-004/005</span></td><td>Marketplace variant id (string) — join key ไปหา <code>products.sku_id</code></td></tr>
+          <tr><td><code>order_items</code></td><td><code>raw_data</code> (jsonb)</td><td>Raw line-item JSON ต่อแพลตฟอร์ม</td></tr>
+          <tr><td><code>products</code></td><td><code>sku_id</code> <span class="tag tag-amber">renamed from variant_id</span></td><td>Unique key รวม <code>(platform, seller_account, external_id, sku_id)</code> — 1 แถวต่อ 1 SKU variant</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">OMS DB — oms schema</div>
+    <div class="card">
+      <table class="comp-table">
+        <thead><tr><th>Table</th><th>Column</th><th>ความหมาย</th></tr></thead>
+        <tbody>
+          <tr><td><code>orders</code></td><td><code>match_status</code></td><td><code>matched | partial | unmatched</code> — คำนวณจาก <code>MatchStatusCalculator</code></td></tr>
+          <tr><td><code>orders</code></td><td><code>oms_shop_id</code></td><td>Resolve จาก shop credential (COALESCE บน upsert)</td></tr>
+          <tr><td><code>order_items</code></td><td><code>matched_product_id</code></td><td>Internal product ที่จับคู่แล้ว (null = ยัง unmatched)</td></tr>
+          <tr><td><code>order_items</code></td><td><code>matched_at</code></td><td>เวลาที่จับคู่สำเร็จ (auto หรือ manual)</td></tr>
+          <tr><td><code>order_items</code></td><td><code>sku_id</code> (Guid?)</td><td>Internal SKU/product reference โดยตรง</td></tr>
+          <tr><td><code>sku_mappings</code></td><td><code>tenant_id, shop_id, platform_sku_code → internal_product_id</code></td><td>Lookup table หลักที่ทั้ง auto-match และ manual-match เขียน/อ่านร่วมกัน</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TAB: RECENT CHANGES ═══════════════════ -->
+  <div class="panel" id="panel-changes">
+    <div class="section-title">Plan/Fix ล่าสุดที่กระทบ Flow นี้ (14-15 Jul 2026)</div>
+    <div class="card">
+      <table class="comp-table">
+        <thead><tr><th style="width:150px;">Plan</th><th>สิ่งที่เปลี่ยน</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">FF-WEBHOOK-003</span></td>
+            <td>Webhook repo: product sync ยุบ multi-variant item เหลือแค่ <code>Skus[0]</code> — แก้เป็น 1 row/SKU สำหรับ Lazada+TikTok · unique key ใหม่ <code>(platform, seller_account, external_id, variant_id)</code> — ยืนยันว่าไม่มี FK จาก orders/order_items → products ดังนั้น order data ไม่กระทบ</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">FF-WEBHOOK-004</span></td>
+            <td>เพิ่ม <code>order_items.sku_id</code> + <code>raw_data</code> (jsonb) — เก็บต่อ line item ทั้ง Lazada/TikTok/Shopee · rename <code>products.variant_id → products.sku_id</code> เพื่อความสอดคล้อง join key</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">FF-WEBHOOK-005</span></td>
+            <td>Regression fix จาก 004 — Lazada <code>/order/items/get</code> คืน <code>sku_id</code> เป็น JSON string แต่ struct field เป็น <code>int64</code> → unmarshal fail ทุก order → แก้เป็น <code>string</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-amber">FF-WEBHOOK-007</span></td>
+            <td>Regression จาก 003 — dedupe routine key ไม่รวม <code>sku_id</code> → ลบ SKU variant เหลือตัวเดียวทุก deploy · แก้เป็น dedupe ด้วย full 4-column key</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-teal">FF-WH-RETURN-009</span></td>
+            <td>OMS BE Warehouse Returns — เพิ่ม order status eligibility (<code>560 ReturnInitiated</code> เท่านั้น) + exclusion order ที่ match แล้ว + <code>unmatch</code> endpoint (คนละ "matching" กับ SKU matching)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-warn">
+      <span>⚠️</span>
+      <span>Net effect: webhook repo's <code>order_items</code> ตอนนี้เก็บ <code>sku_id</code> + <code>raw_data</code> ครบทั้ง 3 platform แล้ว ซึ่งเป็น join key material ที่ sync worker parser ใช้ก่อนเข้า auto-match step</span>
+    </div>
+  </div>
+
+</div>
+
+<button class="fab" id="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="footer">
+  Generated 15 Jul 2026 · B1DX Fulfillment Workspace · สรุปจากการวิเคราะห์ b1dx-marketplace-webhook, b1dx.omsorders.sync.worker, b1dx-oms-fulfillment-api<br>
+  Report นี้เป็นเอกสารสรุปสถานะปัจจุบัน (snapshot) — โค้ดอ้างอิงอาจเปลี่ยนแปลงในอนาคต ตรวจสอบ source จริงก่อนอ้างอิงเพื่อ implement
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      window.scrollTo({top:0, behavior:'instant'});
+    });
+  });
+
+  // Meaning sub-tabs
+  function showMeaning(n) {
+    document.querySelectorAll('.mbtn').forEach(b => b.classList.toggle('active', b.dataset.m == n));
+    document.querySelectorAll('.meaning-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('meaning-' + n).classList.add('active');
+  }
+
+  // Copy code buttons
+  function copyCode(btn) {
+    const pre = btn.parentElement.querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = orig, 1500);
+    });
+  }
+
+  // Back-to-top FAB
+  const fab = document.getElementById('fab');
+  window.addEventListener('scroll', () => {
+    fab.classList.toggle('show', window.scrollY > 400);
+  });
+</script>
+
+</body>
+</html>

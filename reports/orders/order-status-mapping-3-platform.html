@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Status Mapping — Shopee · Lazada · TikTok → OMS</title>
+<style>
+  :root {
+    --surface-1: #fcfcfb; --page: #f0f2f5;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-muted: #898781;
+    --border: #e5e7eb; --gridline: #e1e0d9;
+    --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+
+    /* categorical — validated (dataviz skill: validate_palette.js PASS light+dark) */
+    --shopee: #eb6834;   --shopee-lt: #fde8dd;  --shopee-dark: #b64d22;
+    --lazada: #4a3aa7;   --lazada-lt: #e6e2f7;  --lazada-dark: #352a78;
+    --tiktok: #1baf7a;   --tiktok-lt: #d9f5e9;  --tiktok-dark: #127d57;
+
+    /* status palette — fixed, never themed */
+    --good: #0ca30c; --good-lt: #e3f7e3;
+    --warning: #c98500; --warning-lt: #fff3d9;
+    --serious: #ec835a; --serious-lt: #fdeae2;
+    --critical: #d03b3b; --critical-lt: #fbe4e4;
+    --neutral: #6b7280; --neutral-lt: #f3f4f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--page); color: var(--ink-1); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%); color: #fff; padding: 40px 48px 32px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 14.5px; color: rgba(255,255,255,.72); margin-top: 6px; max-width: 820px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 18px; flex-wrap: wrap; }
+  .header-meta span { font-size: 12.5px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+  .platform-chips { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .pchip { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; }
+  .pchip .dot { width: 9px; height: 9px; border-radius: 50%; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1180px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ── TABS ── */
+  .tabs { position: sticky; top: 0; z-index: 20; display: flex; gap: 4px; background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; overflow-x: auto; box-shadow: 0 1px 0 rgba(0,0,0,.02); }
+  .tab-btn { border: none; background: none; cursor: pointer; padding: 15px 16px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; border-bottom: 3px solid transparent; transition: all .15s; font-family: inherit; }
+  .tab-btn:hover { color: var(--lazada-dark); }
+  .tab-btn.active { color: var(--lazada-dark); border-bottom-color: var(--lazada); }
+  .panel { display: none; animation: fadeIn .2s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+
+  /* ── CARD ── */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; margin-bottom: 20px; }
+  .card-title { font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: block; width: 3px; height: 14px; border-radius: 2px; background: var(--lazada); }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+  .stat-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; border-left: 4px solid var(--lazada); }
+  .stat-label { font-size: 11.5px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--ink-1); margin-top: 4px; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+
+  .section-title { font-size: 17px; font-weight: 700; color: var(--ink-1); margin: 28px 0 14px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .panel > .section-title:first-child { margin-top: 20px; }
+
+  /* ── TOOLBAR ── */
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .search-box { flex: 1; min-width: 220px; position: relative; }
+  .search-box input { width: 100%; padding: 10px 14px 10px 34px; border: 1px solid var(--border); border-radius: 8px; font-size: 13.5px; font-family: inherit; background: #fff; }
+  .search-box input:focus { outline: none; border-color: var(--lazada); box-shadow: 0 0 0 3px rgba(74,58,167,.12); }
+  .search-box::before { content: '🔍'; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 12.5px; opacity: .5; }
+  .filter-chip { border: 1px solid var(--border); background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .15s; font-family: inherit; color: var(--ink-2); }
+  .filter-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .filter-chip.off { opacity: .35; }
+  .filter-chip:hover { border-color: var(--ink-muted); }
+  .reset-btn { border: none; background: var(--neutral-lt); border-radius: 8px; padding: 9px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-2); font-family: inherit; }
+  .reset-btn:hover { background: var(--border); }
+  .result-count { font-size: 12px; color: var(--ink-muted); margin-bottom: 10px; }
+
+  /* ── TABLE ── */
+  table.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  table.cmp thead th { background: #f6f5f3; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.cmp tbody td { padding: 12px; border-bottom: 1px solid var(--gridline); font-size: 13px; vertical-align: top; }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+  table.cmp tbody tr:hover { background: #fafafa; }
+  table.cmp tbody tr.hidden { display: none; }
+  .oms-code { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+  .code-badge { font-family: Consolas, monospace; font-size: 12px; padding: 2px 7px; border-radius: 5px; font-weight: 700; }
+  .code-terminal-good { background: var(--good-lt); color: var(--good); }
+  .code-terminal-crit { background: var(--critical-lt); color: var(--critical); }
+  .code-warn { background: var(--warning-lt); color: var(--warning); }
+  .code-neutral { background: var(--neutral-lt); color: var(--ink-2); }
+  .raw-pill { display: inline-block; font-family: Consolas, monospace; font-size: 11px; padding: 2px 7px; border-radius: 5px; margin: 2px 3px 2px 0; white-space: nowrap; }
+  .rp-shopee { background: var(--shopee-lt); color: var(--shopee-dark); }
+  .rp-lazada { background: var(--lazada-lt); color: var(--lazada-dark); }
+  .rp-tiktok { background: var(--tiktok-lt); color: var(--tiktok-dark); }
+  .na { color: var(--ink-muted); font-style: italic; font-size: 12px; }
+  .note-txt { font-size: 12px; color: var(--ink-muted); max-width: 260px; }
+  td.col-shopee, th.col-shopee { border-left: 2px solid var(--shopee-lt); }
+  td.col-lazada, th.col-lazada { border-left: 2px solid var(--lazada-lt); }
+  td.col-tiktok, th.col-tiktok { border-left: 2px solid var(--tiktok-lt); }
+
+  /* ── COVERAGE MAP ── */
+  .cov-grid { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+  .cov-row { display: grid; grid-template-columns: 210px repeat(3, 1fr); align-items: center; gap: 8px; padding: 9px 4px; border-bottom: 1px solid var(--gridline); }
+  .cov-row:last-child { border-bottom: none; }
+  .cov-row.head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); padding-bottom: 12px; }
+  .cov-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .cov-cell { display: flex; justify-content: center; }
+  .cov-dot { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: default; transition: transform .12s; position: relative; }
+  .cov-dot.filled:hover { transform: scale(1.15); }
+  .cov-dot.filled { color: #fff; font-weight: 700; cursor: pointer; }
+  .cov-dot.empty { background: var(--neutral-lt); color: var(--ink-muted); font-size: 11px; }
+  .cov-dot[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); background: #1a1a19; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: pre-line; z-index: 30; box-shadow: 0 4px 14px rgba(0,0,0,.25); font-family: Consolas, monospace; min-width: max-content; }
+  .cov-dot[data-tip]:hover::before { content: ''; position: absolute; bottom: 116%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1a1a19; z-index: 30; }
+  .cov-legend { display: flex; gap: 18px; margin-top: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); }
+  .cov-legend span { display: flex; align-items: center; gap: 6px; }
+  .cov-legend .sw { width: 14px; height: 14px; border-radius: 4px; }
+
+  /* ── PAYMENT TABLE ── */
+  .pay-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .pay-card h4 { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 12px; }
+  .pay-card h4 .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .pay-rule { display: grid; grid-template-columns: 1fr auto 110px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--gridline); font-size: 12.5px; }
+  .pay-rule:last-child { border-bottom: none; }
+  .pay-cond { font-family: Consolas, monospace; font-size: 11.5px; color: var(--ink-2); }
+  .pay-arrow { color: var(--ink-muted); }
+  .pay-result { font-weight: 700; font-size: 11.5px; padding: 3px 9px; border-radius: 6px; text-align: center; }
+  .pr-pending { background: var(--warning-lt); color: var(--warning); }
+  .pr-paid { background: var(--good-lt); color: var(--good); }
+  .pr-cod_pending { background: #fff3d9; color: #b8790c; }
+  .pr-cod_collected { background: var(--good-lt); color: var(--good); }
+  .pr-failed { background: var(--critical-lt); color: var(--critical); }
+  .pr-refunded { background: var(--serious-lt); color: #b0562f; }
+
+  /* ── NOTES / GAPS ── */
+  .gap-item { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 12px; display: flex; gap: 14px; border-left: 4px solid var(--warning); }
+  .gap-item.crit { border-left-color: var(--critical); }
+  .gap-item.info { border-left-color: var(--lazada); }
+  .gap-icon { font-size: 20px; flex-shrink: 0; }
+  .gap-title { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .gap-body { font-size: 12.5px; color: var(--ink-2); }
+  .gap-body code { background: var(--neutral-lt); padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+
+  /* ── SOURCE REF ── */
+  .src-ref { font-family: Consolas, monospace; font-size: 11px; color: var(--ink-muted); background: var(--neutral-lt); padding: 8px 12px; border-radius: 6px; margin-top: 4px; }
+
+  footer { text-align: center; padding: 30px 24px; font-size: 12px; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">B1DX FULFILLMENT · ORDER STATUS REPORT</div>
+  <h1>Order Status Mapping — Shopee · Lazada · TikTok → OMS</h1>
+  <p class="header-sub">เปรียบเทียบวิธีที่ marketplace แต่ละแพลตฟอร์มส่ง order status มาให้ sync worker แปลงเป็น <code>OrderStatus</code> ของ OMS (100–900) พร้อม payment_status derivation และจุดที่ platform ต่างกัน</p>
+  <div class="platform-chips">
+    <span class="pchip"><span class="dot" style="background:var(--shopee)"></span>Shopee</span>
+    <span class="pchip"><span class="dot" style="background:var(--lazada)"></span>Lazada</span>
+    <span class="pchip"><span class="dot" style="background:var(--tiktok)"></span>TikTok</span>
+  </div>
+  <div class="header-meta">
+    <span>Source: <strong>Shopee/Lazada/TikTokOrderParser.cs</strong> (spec v7, sync worker)</span>
+    <span>Repo: <strong>b1dx.omsorders.sync.worker</strong></span>
+    <span>OMS enum: <strong>docs/specs/order-state-machine.md</strong></span>
+    <span>ข้อมูล ณ: <strong>2026-07-16</strong> (อัปเดต: เทียบกับ Lazada official catalog แล้วพบ gap เพิ่ม)</span>
+    <span><a href="lazada-status-coverage-gap.html" style="color:#fff;text-decoration:underline">⚠️ Lazada 17-status gap + mapping worksheet →</a></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="overview">ภาพรวม</button>
+  <button class="tab-btn" data-tab="coverage">Coverage Map</button>
+  <button class="tab-btn" data-tab="table">ตารางเทียบเต็ม</button>
+  <button class="tab-btn" data-tab="payment">Payment Status</button>
+  <button class="tab-btn" data-tab="gaps">จุดต่างที่ควรรู้</button>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════ OVERVIEW ═══════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="grid-3">
+      <div class="stat-card" style="border-left-color:var(--shopee)">
+        <div class="stat-label">Shopee raw statuses</div>
+        <div class="stat-value">7</div>
+        <div class="stat-sub">UNPAID → CANCELLED · ครอบคลุม 6 OMS codes (200/490/500/550/700/750/800)</div>
+      </div>
+      <div class="stat-card" style="border-left-color:var(--critical)">
+        <div class="stat-label">Lazada raw statuses ⚠️</div>
+        <div class="stat-value">8 / 17</div>
+        <div class="stat-sub">ตาม Lazada Order Status Catalog (official) มี 17 สถานะ — parser รองรับแค่ 8 · อีก 9 ตกไป fallback 200 ⚠️ <a href="lazada-status-coverage-gap.html" style="color:var(--lazada-dark);font-weight:700">ดูรายละเอียด →</a></div>
+      </div>
+      <div class="stat-card" style="border-left-color:var(--tiktok)">
+        <div class="stat-label">TikTok raw statuses</div>
+        <div class="stat-value">9</div>
+        <div class="stat-sub">UNPAID → RETURN_REFUND · ครอบคลุม 7 OMS codes (200/490/500/600/700/800/900)</div>
+      </div>
+    </div>
+
+    <div class="section-title">OMS OrderStatus — 13 codes (reference)</div>
+    <div class="card">
+      <table class="cmp">
+        <thead><tr><th>Code</th><th>Name</th><th>ความหมาย</th><th>ประเภท</th></tr></thead>
+        <tbody>
+          <tr><td><span class="code-badge code-neutral">100</span></td><td>Draft</td><td>รอดำเนินการ</td><td class="na">OMS-internal เท่านั้น</td></tr>
+          <tr><td><span class="code-badge code-warn">200</span></td><td>PendingReview</td><td>รอยืนยัน</td><td>ทั้ง 3 platform + fallback ของ unknown status</td></tr>
+          <tr><td><span class="code-badge code-warn">300</span></td><td>Confirmed</td><td>ยืนยันแล้ว</td><td>Lazada เท่านั้น</td></tr>
+          <tr><td><span class="code-badge code-neutral">400</span></td><td>Processing</td><td>กำลังหยิบสินค้า</td><td class="na">OMS/WMS-internal เท่านั้น</td></tr>
+          <tr><td><span class="code-badge code-neutral">450</span></td><td>Packing</td><td>กำลังแพ็คสินค้า</td><td class="na">OMS/WMS-internal เท่านั้น</td></tr>
+          <tr><td><span class="code-badge code-warn">490</span></td><td>ReadyToShip</td><td>รอรับสินค้า</td><td>ทั้ง 3 platform</td></tr>
+          <tr><td><span class="code-badge code-warn">500</span></td><td>Shipped</td><td>อยู่ระหว่างจัดส่ง</td><td>ทั้ง 3 platform</td></tr>
+          <tr><td><span class="code-badge code-warn">550</span></td><td>OutForDelivery</td><td>กำลังจัดส่ง</td><td>Shopee เท่านั้น (อื่น ๆ มาจาก courier webhook)</td></tr>
+          <tr><td><span class="code-badge code-warn">600</span></td><td>Delivered</td><td>จัดส่งแล้ว</td><td>Lazada + TikTok</td></tr>
+          <tr><td><span class="code-badge code-terminal-good">700</span></td><td>Completed <b>TERMINAL</b></td><td>สำเร็จ</td><td>Shopee + TikTok</td></tr>
+          <tr><td><span class="code-badge code-warn">750</span></td><td>CancelRequested</td><td>รอยกเลิก</td><td>Shopee เท่านั้น</td></tr>
+          <tr><td><span class="code-badge code-terminal-crit">800</span></td><td>Cancelled <b>TERMINAL</b></td><td>ยกเลิกแล้ว</td><td>ทั้ง 3 platform</td></tr>
+          <tr><td><span class="code-badge code-terminal-crit">900</span></td><td>Returned <b>TERMINAL</b></td><td>คืนสินค้า</td><td>Lazada + TikTok</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Safety-net pattern (ทั้ง 3 platform เหมือนกัน)</div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--ink-2)">ถ้า parser เจอ raw status ที่ไม่รู้จัก (ไม่อยู่ใน switch case) — ทั้ง 3 parser จะ log <code>Warning</code> แล้ว fallback กลับไปที่ <span class="code-badge code-warn" style="font-size:11px">200 PendingReview</span> เสมอ (ไม่ throw exception) เพื่อไม่ให้ sync cycle ล้มทั้ง batch</p>
+      <div class="src-ref">ShopeeOrderParser.cs:195-200 · LazadaOrderParser.cs:267-272 · TikTokOrderParser.cs:169-174</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COVERAGE MAP ═══════════ -->
+  <div class="panel" id="panel-coverage">
+    <div class="section-title">Coverage Heatmap — OMS code ไหนมาจาก platform ไหนบ้าง</div>
+    <p style="font-size:12.5px;color:var(--ink-muted);margin-bottom:14px">ชี้ค้างที่จุดสีเพื่อดู raw status string จริง</p>
+    <div class="cov-grid">
+      <div class="cov-row head">
+        <div>OMS Status</div>
+        <div style="text-align:center">Shopee</div>
+        <div style="text-align:center">Lazada</div>
+        <div style="text-align:center">TikTok</div>
+      </div>
+      <!-- rows injected by JS from DATA -->
+      <div id="cov-body"></div>
+    </div>
+    <div class="cov-legend">
+      <span><span class="sw" style="background:var(--shopee)"></span>Shopee mapped</span>
+      <span><span class="sw" style="background:var(--lazada)"></span>Lazada mapped</span>
+      <span><span class="sw" style="background:var(--tiktok)"></span>TikTok mapped</span>
+      <span><span class="sw" style="background:var(--neutral-lt);border:1px solid var(--border)"></span>ไม่มี mapping จาก platform นี้</span>
+    </div>
+  </div>
+
+  <!-- ═══════════ FULL TABLE ═══════════ -->
+  <div class="panel" id="panel-table">
+    <div class="section-title">ตารางเทียบเต็ม — Raw Status → OMS Code</div>
+    <div class="toolbar">
+      <div class="search-box"><input type="text" id="searchInput" placeholder="ค้นหา status / code / ชื่อ OMS…"></div>
+      <button class="filter-chip" data-platform="shopee"><span class="dot" style="background:var(--shopee)"></span>Shopee</button>
+      <button class="filter-chip" data-platform="lazada"><span class="dot" style="background:var(--lazada)"></span>Lazada</button>
+      <button class="filter-chip" data-platform="tiktok"><span class="dot" style="background:var(--tiktok)"></span>TikTok</button>
+      <button class="reset-btn" id="resetBtn">↺ ล้างตัวกรอง</button>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th>OMS Code</th>
+          <th class="col-shopee">Shopee raw status</th>
+          <th class="col-lazada">Lazada raw status</th>
+          <th class="col-tiktok">TikTok raw status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ PAYMENT STATUS ═══════════ -->
+  <div class="panel" id="panel-payment">
+    <div class="section-title">Payment Status Derivation (แยกจาก OrderStatus)</div>
+    <p style="font-size:12.5px;color:var(--ink-muted);margin-bottom:16px">แต่ละ parser จะคำนวณ <code>payment_status</code> เพิ่มจาก raw status + COD flag ของออเดอร์ — เป็นคนละ field กับ <code>OrderStatus</code> (100-900)</p>
+
+    <div class="pay-card">
+      <h4><span class="sw" style="background:var(--shopee)"></span>Shopee</h4>
+      <div class="pay-rule"><span class="pay-cond">UNPAID / INVOICE_PENDING</span><span class="pay-arrow">→</span><span class="pay-result pr-pending">pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">READY_TO_SHIP/PROCESSED/SHIPPED/TO_CONFIRM_RECEIVE + COD</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_pending">cod_pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">READY_TO_SHIP/PROCESSED/SHIPPED/TO_CONFIRM_RECEIVE + non-COD</span><span class="pay-arrow">→</span><span class="pay-result pr-paid">paid</span></div>
+      <div class="pay-rule"><span class="pay-cond">COMPLETED + COD</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_collected">cod_collected</span></div>
+      <div class="pay-rule"><span class="pay-cond">COMPLETED + non-COD</span><span class="pay-arrow">→</span><span class="pay-result pr-paid">paid</span></div>
+      <div class="pay-rule"><span class="pay-cond">IN_CANCEL / CANCELLED</span><span class="pay-arrow">→</span><span class="pay-result pr-failed">failed</span></div>
+      <div class="pay-rule"><span class="pay-cond">unknown status (default)</span><span class="pay-arrow">→</span><span class="pay-result pr-pending">pending</span></div>
+      <div class="src-ref">ShopeeOrderParser.cs:202-213 — ไม่มี case ที่ return "refunded"</div>
+    </div>
+
+    <div class="pay-card">
+      <h4><span class="sw" style="background:var(--lazada)"></span>Lazada</h4>
+      <div class="pay-rule"><span class="pay-cond">canceled</span><span class="pay-arrow">→</span><span class="pay-result pr-failed">failed</span></div>
+      <div class="pay-rule"><span class="pay-cond">returned</span><span class="pay-arrow">→</span><span class="pay-result pr-refunded">refunded</span></div>
+      <div class="pay-rule"><span class="pay-cond">COD + delivered</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_collected">cod_collected</span></div>
+      <div class="pay-rule"><span class="pay-cond">COD + อื่น ๆ (ยังไม่ delivered)</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_pending">cod_pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">non-COD + pending/pending_payment/confirmed</span><span class="pay-arrow">→</span><span class="pay-result pr-pending">pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">non-COD + อื่น ๆ</span><span class="pay-arrow">→</span><span class="pay-result pr-paid">paid</span></div>
+      <div class="src-ref">LazadaOrderParser.cs:274-286</div>
+    </div>
+
+    <div class="pay-card">
+      <h4><span class="sw" style="background:var(--tiktok)"></span>TikTok</h4>
+      <div class="pay-rule"><span class="pay-cond">UNPAID / AWAITING_PAYMENT</span><span class="pay-arrow">→</span><span class="pay-result pr-pending">pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">CANCELLED / CANCELED</span><span class="pay-arrow">→</span><span class="pay-result pr-failed">failed</span></div>
+      <div class="pay-rule"><span class="pay-cond">RETURNED / RETURN_REFUND</span><span class="pay-arrow">→</span><span class="pay-result pr-refunded">refunded</span></div>
+      <div class="pay-rule"><span class="pay-cond">COD + (DELIVERED/COMPLETED)</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_collected">cod_collected</span></div>
+      <div class="pay-rule"><span class="pay-cond">COD + อื่น ๆ</span><span class="pay-arrow">→</span><span class="pay-result pr-cod_pending">cod_pending</span></div>
+      <div class="pay-rule"><span class="pay-cond">non-COD (ทุกสถานะที่ไม่ใช่ unpaid/cancelled/returned)</span><span class="pay-arrow">→</span><span class="pay-result pr-paid">paid</span></div>
+      <div class="src-ref">TikTokOrderParser.cs:176-184</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ GAPS ═══════════ -->
+  <div class="panel" id="panel-gaps">
+    <div class="section-title">จุดต่างที่ควรรู้ระหว่าง 3 platform</div>
+
+    <div class="gap-item crit">
+      <div class="gap-icon">⚠️</div>
+      <div>
+        <div class="gap-title">อัปเดต 2026-07-16: Lazada รองรับแค่ 8/17 สถานะทางการ — 8 ใน 9 ที่ขาดมีความเสี่ยง regression</div>
+        <div class="gap-body">Report นี้สรุปจากโค้ดที่มีอยู่เท่านั้น (7 status group ที่ handled) — ยังไม่เคยเทียบกับ <b>Lazada Order Status Catalog ฉบับทางการ (17 สถานะ)</b> พอเทียบแล้วพบว่า <code>repacked</code>, <code>ready_to_ship_pending</code>, <code>failed_delivery</code>, <code>shipped_back</code>, <code>shipped_back_success</code>, <code>shipped_back_failed</code>, <code>lost_by_3pl</code>, <code>damaged_by_3pl</code> ไม่มี case ใน <code>LazadaOrderParser.MapStatus()</code> เลย — ตกไป fallback <span class="code-badge code-warn" style="font-size:11px">200</span> เหมือน unknown status ทั่วไป ซึ่งถ้า order นั้น progress ไปไกลกว่า 200 แล้ว (490/500/600) จะถูกดึงสถานะกลับมา PendingReview ทันที นอกจากนี้ OMS มี <code>ReturnInitiated=560</code>/<code>ReturnReceived=630</code> รองรับ <code>shipped_back</code>/<code>shipped_back_success</code> อยู่แล้วแต่ parser ยังไม่ใช้ — รายละเอียดเต็ม + worksheet สำหรับ business review อยู่ที่ <a href="lazada-status-coverage-gap.html" style="color:var(--lazada-dark);font-weight:700">lazada-status-coverage-gap.html</a></div>
+      </div>
+    </div>
+
+    <div class="gap-item info">
+      <div class="gap-icon">🔀</div>
+      <div>
+        <div class="gap-title">Lazada เท่านั้นที่มี "Confirmed" (300) เป็น step แยก</div>
+        <div class="gap-body">Shopee และ TikTok ไม่ส่งสถานะ "ยืนยันออเดอร์" แยกจาก pending — กระโดดจาก 200 (PendingReview) ไป 490 (ReadyToShip) ตรง ๆ เมื่อร้านเริ่มแพ็ค ส่วน Lazada มี <code>confirmed</code> คั่นกลางก่อนเข้าสถานะแพ็ค</div>
+      </div>
+    </div>
+
+    <div class="gap-item info">
+      <div class="gap-icon">📦</div>
+      <div>
+        <div class="gap-title">Shopee เท่านั้นที่มี "OutForDelivery" (550) จาก marketplace โดยตรง</div>
+        <div class="gap-body">Shopee ส่ง <code>TO_CONFIRM_RECEIVE</code> ตรงมาที่ 550 — Lazada/TikTok ไม่มี raw status สำหรับ 550 เลย ต้องพึ่ง courier webhook (spx/jnt/flash/kex tracking event) เพื่อขยับ order ไปที่ 550 แทน (ดู <code>order-state-machine.md</code> § courier override)</div>
+      </div>
+    </div>
+
+    <div class="gap-item info">
+      <div class="gap-icon">✅</div>
+      <div>
+        <div class="gap-title">Lazada ไม่มี raw status ที่แปลว่า "Completed" (700)</div>
+        <div class="gap-body">Lazada parser จบสุดที่ <code>delivered → 600</code> เท่านั้น — ไม่มี case ไหน map ไป 700 ตรง ๆ ต่างจาก Shopee (<code>COMPLETED</code>) และ TikTok (<code>COMPLETED</code>) ที่มี terminal-success status ส่งมาจาก platform เอง แปลว่าออเดอร์ Lazada ต้องถูกปิดจบด้วย action ภายใน OMS (<code>complete</code>) แทน ไม่ใช่จาก webhook</div>
+      </div>
+    </div>
+
+    <div class="gap-item">
+      <div class="gap-icon">⏸️</div>
+      <div>
+        <div class="gap-title">Shopee เท่านั้นที่มี "CancelRequested" (750) แบบ interim</div>
+        <div class="gap-body">Shopee มี <code>IN_CANCEL</code> เป็นสถานะ "กำลังขอยกเลิก" ก่อนตัดจริงที่ <code>CANCELLED</code> — Lazada/TikTok ไม่มี interim state นี้ ยกเลิกแล้วตกไป 800 ทันที (ไม่มี "รอ approve" จาก marketplace)</div>
+      </div>
+    </div>
+
+    <div class="gap-item crit">
+      <div class="gap-icon">⚠️</div>
+      <div>
+        <div class="gap-title">Shopee ไม่มี "Returned" (900) mapping ในเวอร์ชันนี้</div>
+        <div class="gap-body">ต่างจาก Lazada (<code>returned</code>) และ TikTok (<code>RETURNED</code>/<code>RETURN_REFUND</code>) — Shopee parser เวอร์ชันปัจจุบันไม่มี case ไหน map ไป 900 หรือ <code>payment_status = refunded</code> เลย ถ้า Shopee ส่ง return event มาในอนาคต จะตกไปที่ fallback 200 + log warning แทน ควรตรวจสอบว่า Shopee API มี return status จริงหรือยัง แล้วเพิ่ม case ให้ parser</div>
+      </div>
+    </div>
+
+    <div class="gap-item">
+      <div class="gap-icon">🧩</div>
+      <div>
+        <div class="gap-title">TikTok รวม 3 raw status เข้า 490 เดียว</div>
+        <div class="gap-body"><code>ON_HOLD</code>, <code>AWAITING_SHIPMENT</code>, <code>READY_TO_SHIP</code> ทั้งหมด map ไป 490 (ReadyToShip) เหมือนกัน — เป็น platform เดียวที่รวม "ออเดอร์ค้าง/พักไว้" (ON_HOLD) เข้ากับ "พร้อมส่ง" กลุ่มเดียว ต่างจาก Shopee/Lazada ที่แยกชัดกว่า</div>
+      </div>
+    </div>
+
+    <div class="gap-item">
+      <div class="gap-icon">📄</div>
+      <div>
+        <div class="gap-title">Version label ไม่ตรงกันระหว่าง comment ในโค้ดกับ spec doc</div>
+        <div class="gap-body">Comment ในทั้ง 3 parser ระบุ <code>// Status mapping (spec v7)</code> แต่ <code>docs/specs/sync-order-marketplace.md</code> อ้างอิง "Status mapping per spec v13/v14" — เป็นแค่การอ้างอิง label ไม่ตรงกัน (mapping ตัวเลขที่ตรวจสอบจริงในโค้ดตรงกับที่ spec สรุปไว้บรรทัด 640-641) ยังไม่ยืนยันว่ากระทบ logic จริง แต่ถ้าจะแก้ spec/comment ให้ sync กันควรเช็คอีกที</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>B1DX Fulfillment Workspace · Order Status Mapping Report · generated 2026-07-15 · source: b1dx.omsorders.sync.worker (ShopeeOrderParser.cs / LazadaOrderParser.cs / TikTokOrderParser.cs), docs/specs/order-state-machine.md, docs/specs/sync-order-marketplace.md</footer>
+
+<script>
+const OMS_STATUS = {
+  100: {name:'Draft', cls:'code-neutral'},
+  200: {name:'PendingReview', cls:'code-warn'},
+  300: {name:'Confirmed', cls:'code-warn'},
+  400: {name:'Processing', cls:'code-neutral'},
+  450: {name:'Packing', cls:'code-neutral'},
+  490: {name:'ReadyToShip', cls:'code-warn'},
+  500: {name:'Shipped', cls:'code-warn'},
+  550: {name:'OutForDelivery', cls:'code-warn'},
+  600: {name:'Delivered', cls:'code-warn'},
+  700: {name:'Completed', cls:'code-terminal-good'},
+  750: {name:'CancelRequested', cls:'code-warn'},
+  800: {name:'Cancelled', cls:'code-terminal-crit'},
+  900: {name:'Returned', cls:'code-terminal-crit'},
+};
+
+// DATA — source: Shopee/Lazada/TikTokOrderParser.cs MapStatus()
+const DATA = [
+  { code:200, shopee:['UNPAID','INVOICE_PENDING'], lazada:['pending','pending_payment'], tiktok:['UNPAID','AWAITING_PAYMENT'], note:'จุดเริ่มต้นของทุก platform + fallback ของ unknown status (ทั้ง 3 parser)' },
+  { code:300, shopee:[], lazada:['confirmed'], tiktok:[], note:'Lazada เท่านั้นที่มี step ยืนยันแยกจาก pending' },
+  { code:490, shopee:['READY_TO_SHIP','PROCESSED'], lazada:['ready_to_ship','packed'], tiktok:['ON_HOLD','AWAITING_SHIPMENT','READY_TO_SHIP'], note:'TikTok รวม ON_HOLD เข้ากลุ่มนี้ด้วย' },
+  { code:500, shopee:['SHIPPED'], lazada:['shipped'], tiktok:['IN_TRANSIT','SHIPPED'], note:'—' },
+  { code:550, shopee:['TO_CONFIRM_RECEIVE'], lazada:[], tiktok:[], note:'Lazada/TikTok เข้าถึง 550 ผ่าน courier webhook เท่านั้น ไม่ใช่จาก platform status' },
+  { code:600, shopee:[], lazada:['delivered'], tiktok:['DELIVERED'], note:'Shopee เข้าถึง 600 ผ่าน courier webhook แทน (ไม่มี raw status ตรง)' },
+  { code:700, shopee:['COMPLETED'], lazada:[], tiktok:['COMPLETED'], note:'Lazada ไม่มี raw status สำหรับ terminal-success — ปิดจบด้วย OMS action แทน' },
+  { code:750, shopee:['IN_CANCEL'], lazada:[], tiktok:[], note:'Shopee เท่านั้นที่มี interim cancel-request state' },
+  { code:800, shopee:['CANCELLED'], lazada:['canceled'], tiktok:['CANCELLED','CANCELED'], note:'TikTok รับสะกดได้ 2 แบบ (US/UK spelling)' },
+  { code:900, shopee:[], lazada:['returned'], tiktok:['RETURNED','RETURN_REFUND'], note:'Shopee ไม่มี return mapping ในเวอร์ชันนี้' },
+];
+
+function pill(status, platform) {
+  return `<span class="raw-pill rp-${platform}">${status}</span>`;
+}
+function renderCell(list, platform) {
+  if (!list.length) return '<span class="na">— ไม่มี</span>';
+  return list.map(s => pill(s, platform)).join('');
+}
+
+// ── render full comparison table ──
+const tbody = document.getElementById('tableBody');
+DATA.forEach(row => {
+  const meta = OMS_STATUS[row.code];
+  const tr = document.createElement('tr');
+  tr.dataset.shopee = row.shopee.join(' ').toLowerCase();
+  tr.dataset.lazada = row.lazada.join(' ').toLowerCase();
+  tr.dataset.tiktok = row.tiktok.join(' ').toLowerCase();
+  tr.dataset.search = [row.code, meta.name, ...row.shopee, ...row.lazada, ...row.tiktok, row.note].join(' ').toLowerCase();
+  tr.innerHTML = `
+    <td><span class="oms-code"><span class="code-badge ${meta.cls}">${row.code}</span>${meta.name}</span></td>
+    <td class="col-shopee">${renderCell(row.shopee, 'shopee')}</td>
+    <td class="col-lazada">${renderCell(row.lazada, 'lazada')}</td>
+    <td class="col-tiktok">${renderCell(row.tiktok, 'tiktok')}</td>
+    <td class="note-txt">${row.note}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ── render coverage heatmap ──
+const covBody = document.getElementById('cov-body');
+const PLATFORM_COLOR = { shopee: 'var(--shopee)', lazada: 'var(--lazada)', tiktok: 'var(--tiktok)' };
+DATA.forEach(row => {
+  const meta = OMS_STATUS[row.code];
+  const div = document.createElement('div');
+  div.className = 'cov-row';
+  const cell = (platform) => {
+    const list = row[platform];
+    if (!list.length) return `<div class="cov-cell"><div class="cov-dot empty">–</div></div>`;
+    const tip = list.join('\\n');
+    return `<div class="cov-cell"><div class="cov-dot filled" style="background:${PLATFORM_COLOR[platform]}" data-tip="${tip}">${list.length}</div></div>`;
+  };
+  div.innerHTML = `
+    <div class="cov-label"><span class="code-badge ${meta.cls}" style="font-size:11px">${row.code}</span>${meta.name}</div>
+    ${cell('shopee')}
+    ${cell('lazada')}
+    ${cell('tiktok')}
+  `;
+  covBody.appendChild(div);
+});
+
+// ── tabs ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── search + platform filter (comparison table) ──
+const activeFilters = new Set();
+const searchInput = document.getElementById('searchInput');
+const resultCount = document.getElementById('resultCount');
+const rows = () => Array.from(tbody.querySelectorAll('tr'));
+
+function applyFilters() {
+  const q = searchInput.value.trim().toLowerCase();
+  let shown = 0;
+  rows().forEach(tr => {
+    const matchesSearch = !q || tr.dataset.search.includes(q);
+    const matchesPlatform = activeFilters.size === 0 ||
+      Array.from(activeFilters).some(p => tr.dataset[p] && tr.dataset[p].length > 0);
+    const visible = matchesSearch && matchesPlatform;
+    tr.classList.toggle('hidden', !visible);
+    if (visible) shown++;
+  });
+  resultCount.textContent = `แสดง ${shown} / ${rows().length} OMS status`;
+}
+
+searchInput.addEventListener('input', applyFilters);
+
+document.querySelectorAll('.filter-chip[data-platform]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const p = chip.dataset.platform;
+    if (activeFilters.has(p)) { activeFilters.delete(p); chip.classList.remove('off'); }
+    else {
+      // toggle on: if this is the first active filter, dim the others until also picked
+      activeFilters.add(p);
+    }
+    document.querySelectorAll('.filter-chip[data-platform]').forEach(c => {
+      c.classList.toggle('off', activeFilters.size > 0 && !activeFilters.has(c.dataset.platform));
+    });
+    applyFilters();
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  activeFilters.clear();
+  searchInput.value = '';
+  document.querySelectorAll('.filter-chip[data-platform]').forEach(c => c.classList.remove('off'));
+  applyFilters();
+});
+
+applyFilters();
+</script>
+
+</body>
+</html>

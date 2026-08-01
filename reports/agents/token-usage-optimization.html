@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Usage Optimization</title>
+<style>
+  :root {
+    --ground: #f6f8f8;
+    --panel: #ffffff;
+    --panel-2: #eef2f2;
+    --ink: #16211f;
+    --ink-soft: #4a5a57;
+    --ink-faint: #7c8a87;
+    --line: #d8e0de;
+    --line-soft: #e6ecea;
+    --accent: #0d8f7f;
+    --accent-ink: #0a6a5e;
+    --fast: #178a4c;
+    --fast-bg: #e4f3ea;
+    --micro: #0d6ea8;
+    --micro-bg: #dfeef8;
+    --gated: #b5760a;
+    --gated-bg: #f7edd8;
+    --high: #c0392b;
+    --high-bg: #f6e2df;
+    --shadow: 0 1px 2px rgba(20,40,38,.05), 0 4px 16px rgba(20,40,38,.05);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0d1413; --panel: #131c1b; --panel-2: #1a2524; --ink: #e7efed;
+      --ink-soft: #a7b6b3; --ink-faint: #6f7e7b; --line: #263533; --line-soft: #1e2b29;
+      --accent: #2dd4bf; --accent-ink: #5fe6d4; --fast: #47c785; --fast-bg: #12291e;
+      --micro: #4ba9db; --micro-bg: #12222c;
+      --gated: #e0a53a; --gated-bg: #2b2210; --high: #ef6b5c; --high-bg: #2c1815;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #f6f8f8; --panel: #ffffff; --panel-2: #eef2f2; --ink: #16211f;
+    --ink-soft: #4a5a57; --ink-faint: #7c8a87; --line: #d8e0de; --line-soft: #e6ecea;
+    --accent: #0d8f7f; --accent-ink: #0a6a5e; --fast: #178a4c; --fast-bg: #e4f3ea;
+    --micro: #0d6ea8; --micro-bg: #dfeef8;
+    --gated: #b5760a; --gated-bg: #f7edd8; --high: #c0392b; --high-bg: #f6e2df;
+    --shadow: 0 1px 2px rgba(20,40,38,.05), 0 4px 16px rgba(20,40,38,.05);
+  }
+  :root[data-theme="dark"] {
+    --ground: #0d1413; --panel: #131c1b; --panel-2: #1a2524; --ink: #e7efed;
+    --ink-soft: #a7b6b3; --ink-faint: #6f7e7b; --line: #263533; --line-soft: #1e2b29;
+    --accent: #2dd4bf; --accent-ink: #5fe6d4; --fast: #47c785; --fast-bg: #12291e;
+    --micro: #4ba9db; --micro-bg: #12222c;
+    --gated: #e0a53a; --gated-bg: #2b2210; --high: #ef6b5c; --high-bg: #2c1815;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem; }
+
+  header.top { margin-bottom: 2.5rem; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent-ink); font-weight: 600;
+    margin: 0 0 .7rem;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4.5vw, 3rem); line-height: 1.05; margin: 0 0 .6rem;
+    letter-spacing: -.02em; text-wrap: balance; font-weight: 720;
+  }
+  .lede { font-size: 1.06rem; color: var(--ink-soft); max-width: 64ch; margin: 0; }
+  .lede code { font-family: var(--mono); font-size: .85em; background: var(--panel-2); padding: .1em .4em; border-radius: 4px; }
+
+  .hero-target {
+    margin-top: 1.4rem; display: inline-flex; align-items: baseline; gap: .6rem;
+    background: var(--fast-bg); color: var(--fast); border: 1px solid color-mix(in srgb, var(--fast) 30%, transparent);
+    padding: .5rem 1rem; border-radius: 999px; font-family: var(--mono); font-size: .82rem; font-weight: 700;
+  }
+  .hero-target b { font-size: 1.1rem; }
+
+  section { margin-top: 2.75rem; }
+  h2 {
+    font-size: 1.15rem; letter-spacing: -.01em; margin: 0 0 .3rem;
+    display: flex; align-items: baseline; gap: .6rem;
+  }
+  h2 .n { font-family: var(--mono); font-size: .78rem; color: var(--accent-ink); font-weight: 600; }
+  .sub { color: var(--ink-faint); font-size: .9rem; margin: 0 0 1.2rem; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 1.4rem;
+  }
+  .diagram { padding: 1.6rem 1rem; overflow-x: auto; }
+  pre.mermaid { margin: 0; min-width: 480px; text-align: center; }
+
+  /* stat grid */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+  .stat .val { font-family: var(--mono); font-size: 1.9rem; font-weight: 700; color: var(--high); line-height: 1; }
+  .stat .lbl { font-size: .82rem; color: var(--ink-soft); margin-top: .4rem; }
+  .stat .bar { height: 6px; border-radius: 999px; background: var(--line-soft); margin-top: .7rem; overflow: hidden; }
+  .stat .bar > i { display: block; height: 100%; background: var(--high); border-radius: 999px; }
+
+  /* priority cards */
+  .plan { display: grid; gap: .9rem; }
+  .pri { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .pri > summary { list-style: none; cursor: pointer; padding: 1rem 1.2rem; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; }
+  .pri > summary::-webkit-details-marker { display: none; }
+  .pri .rank { font-family: var(--mono); font-size: .78rem; font-weight: 700; color: var(--accent-ink); background: var(--panel-2); border-radius: 999px; width: 1.8rem; height: 1.8rem; display: flex; align-items: center; justify-content: center; }
+  .pri .title { font-weight: 640; font-size: .98rem; }
+  .pri .impact-wrap { min-width: 160px; }
+  .pri .impact-lbl { font-family: var(--mono); font-size: .72rem; color: var(--fast); font-weight: 700; text-align: right; }
+  .pri .impact-bar { height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; margin-top: .3rem; }
+  .pri .impact-bar > i { display: block; height: 100%; background: var(--fast); border-radius: 999px; }
+  .pri .body { padding: 0 1.2rem 1.1rem; border-top: 1px solid var(--line-soft); }
+  .pri .body ul { margin: .8rem 0 0; padding-left: 1.2rem; font-size: .88rem; color: var(--ink-soft); }
+  .pri .body li { margin-bottom: .4rem; }
+  .pri .body li b { color: var(--ink); font-weight: 640; }
+  .pri .body .cite { margin-top: .7rem; font-family: var(--mono); font-size: .74rem; color: var(--ink-faint); }
+  .pri[open] > summary .chev { transform: rotate(90deg); }
+  .chev { transition: transform .15s ease; color: var(--ink-faint); font-size: .8rem; }
+
+  /* tables + matrix (shared with workflow report) */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; min-width: 560px; background: var(--panel); }
+  th, td { text-align: left; padding: .7rem .85rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-faint); font-weight: 600; background: var(--panel-2); position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+  td code, th code { font-family: var(--mono); font-size: .82em; color: var(--accent-ink); }
+  .matrix { display: grid; grid-template-columns: auto 1fr 1fr; gap: 2px; background: var(--line-soft); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); font-size: .82rem; }
+  .matrix > div { background: var(--panel); padding: .7rem .8rem; }
+  .matrix .hd { background: var(--panel-2); font-weight: 600; color: var(--ink-faint); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+  .matrix .rk { font-family: var(--mono); font-weight: 600; }
+  .mono { font-family: var(--mono); font-size: .95em; }
+  .op { color: var(--accent-ink); font-weight: 600; }
+
+  /* checklist */
+  .checklist-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .progress-wrap { display: flex; align-items: center; gap: .6rem; }
+  .progress-track { width: 160px; height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+  .progress-track > i { display: block; height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width .2s ease; }
+  #progress-pct { font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--accent-ink); min-width: 3ch; }
+  .checklist { display: grid; gap: .5rem; }
+  .checklist label {
+    display: flex; align-items: flex-start; gap: .7rem; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: .75rem .9rem; box-shadow: var(--shadow); cursor: pointer; font-size: .9rem; color: var(--ink-soft);
+  }
+  .checklist input { margin-top: .2rem; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .checklist label.done { opacity: .55; text-decoration: line-through; }
+  .checklist b { color: var(--ink); font-weight: 640; text-decoration: none; }
+  .reset-btn {
+    font-family: var(--mono); font-size: .72rem; background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--ink-faint); padding: .35em .8em; border-radius: 999px; cursor: pointer;
+  }
+  .reset-btn:hover { color: var(--ink); }
+
+  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: .8rem; }
+  footer code { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">B1DX · Agent Token Usage</p>
+    <h1>Token Usage Optimization</h1>
+    <p class="lede">วิเคราะห์จาก Claude Code usage panel (24h window) — 100% ของ usage มาจาก subagent, 90% อยู่ที่ context &gt;150k, 78% มาจาก session ที่ active 8+ ชม. Root cause ไม่ใช่ "ทำงานเยอะ" แต่ session ยาวเกิน + subagent model/effort ไม่ right-size ตาม <code>agents/workflow-router.md</code> ที่มีอยู่แล้ว.</p>
+    <div class="hero-target">Target reduction <b>50–70%</b> · ไม่ลด quality gate</div>
+  </header>
+
+  <section>
+    <h2><span class="n">USAGE</span> Breakdown — Last 24h</h2>
+    <p class="sub">Approximate, based on local sessions on this machine · แต่ละตัวเป็น independent characteristic ไม่ใช่ breakdown เดียวกัน</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="val">100%</div>
+        <div class="lbl">usage มาจาก subagent-heavy sessions</div>
+        <div class="bar"><i style="width:100%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="val">90%</div>
+        <div class="lbl">usage ที่ context &gt;150k tokens</div>
+        <div class="bar"><i style="width:90%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="val">78%</div>
+        <div class="lbl">usage จาก session active 8+ ชม.</div>
+        <div class="bar"><i style="width:78%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="val">39%</div>
+        <div class="lbl">ของ subagent usage มาจาก <code class="mono">fork</code> type</div>
+        <div class="bar"><i style="width:39%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">ROOT CAUSE</span> ทำไม token สูง</h2>
+    <p class="sub"><code class="mono">fork</code> subagent inherit context เต็มของ parent session — session ยิ่งยาว fork ยิ่งแพงตาม (ไม่ใช่ fork แพงเอง)</p>
+    <div class="card diagram">
+      <pre class="mermaid">
+flowchart TD
+  A["Session ลากยาวข้ามหลาย task<br>ไม่ /clear"]:::bad --> B["Context สะสม &gt;150k<br>(90% ของ usage)"]:::bad
+  B --> C{"Subagent type?"}
+  C -->|"fork<br>(/review ฯลฯ)"| D["Fork inherit context เต็ม<br>ทุก call จ่ายซ้ำ context เดิม"]:::high
+  C -->|"general-purpose /<br>Explore"| E["เริ่ม context ใหม่<br>จ่ายเฉพาะ prompt"]:::ok
+  D --> F["39% ของ subagent cost"]:::high
+  E --> G{"Task = pure search?"}
+  G -->|"ใช่ แต่เรียก general-purpose"| H["Overpay — เปลืองกว่า Explore<br>16% ของ subagent cost"]:::warn
+  G -->|"ไม่ใช่ genuine multi-step"| I["Explore/general-purpose ตรง scope"]:::ok
+  F --> J["รวม 100% subagent-heavy"]:::bad
+  H --> J
+
+  classDef bad fill:#f6e2df,stroke:#c0392b,color:#8f2419;
+  classDef high fill:#f6e2df,stroke:#c0392b,color:#8f2419;
+  classDef warn fill:#f7edd8,stroke:#b5760a,color:#7a4f07;
+  classDef ok fill:#e4f3ea,stroke:#178a4c,color:#0f5c33;
+      </pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">PLAN</span> 5 priorities เรียงตาม impact</h2>
+    <p class="sub">คลิกเพื่อขยายรายละเอียด · % เป็น estimate ต่อ lever ไม่ additive ตรงๆ แต่รวมกันถึง target 50–70%</p>
+    <div class="plan">
+
+      <details class="pri" open>
+        <summary>
+          <span class="rank">1</span>
+          <span class="title">Context Hygiene — ตัด session ที่ลากยาวข้าม task</span>
+          <span class="impact-wrap"><div class="impact-lbl">~30–40%</div><div class="impact-bar"><i style="width:38%"></i></div></span>
+          <span class="chev">▶</span>
+        </summary>
+        <div class="body">
+          <ul>
+            <li><b>จบ task → <code class="mono">/clear</code></b> ก่อนเริ่ม task ใหม่ที่ไม่เกี่ยวกัน — 90% >150k กับ 78% 8+ ชม. คือสัญญาณเดียวกัน</li>
+            <li><b>เช็ค context ก่อนรัน fork-heavy skill</b> (<code class="mono">/review</code>, ultrareview) — ถ้าบวมจาก exploration รอบก่อน ให้ <code class="mono">/clear</code> ก่อน ไม่งั้นทุก fork call แบก context เก่าไปฟรีๆ</li>
+            <li><b>ห้าม Read log/build-output/spec ยาวเข้า main context</b> — ให้ subagent อ่าน+สรุปกลับมาแทน</li>
+          </ul>
+          <p class="cite">อ้างอิง: <code>agents/_shared/token-efficiency.md</code> § Read &amp; Search, § Subagent Delegation</p>
+        </div>
+      </details>
+
+      <details class="pri">
+        <summary>
+          <span class="rank">2</span>
+          <span class="title">Subagent Right-Sizing — เลือก agent type + model ตาม scope จริง</span>
+          <span class="impact-wrap"><div class="impact-lbl">~15–20%</div><div class="impact-bar"><i style="width:20%"></i></div></span>
+          <span class="chev">▶</span>
+        </summary>
+        <div class="body">
+          <ul>
+            <li><b>Pure lookup/grep-scope → <code class="mono">Explore</code></b> ไม่ใช่ <code class="mono">general-purpose</code> (tool set เล็กกว่า = เบากว่าโดย design) — general-purpose กิน 16% ของ subagent cost</li>
+            <li><b>ทุก dispatch subagent</b> ต้อง map ผ่าน Effort Control Matrix จริง (ดู section ถัดไป) ไม่ปล่อย default opus/think-hard ให้งาน risk LOW</li>
+            <li><b>Research &lt;3 query</b> → ไม่ต้อง spawn agent เลย ใช้ Grep/Glob ตรงในเทิร์นหลัก</li>
+          </ul>
+          <p class="cite">อ้างอิง: <code>agents/workflow-router.md</code> § Effort Control Matrix (บรรทัด 255–277) · <code>agents/orchestrator.md</code> § 6.2.1</p>
+        </div>
+      </details>
+
+      <details class="pri">
+        <summary>
+          <span class="rank">3</span>
+          <span class="title">Tool / RTK Discipline</span>
+          <span class="impact-wrap"><div class="impact-lbl">~10–15%</div><div class="impact-bar"><i style="width:14%"></i></div></span>
+          <span class="chev">▶</span>
+        </summary>
+        <div class="body">
+          <ul>
+            <li><b>Cross-shell command</b> (<code class="mono">git</code>/<code class="mono">dotnet</code>/<code class="mono">gh</code>/<code class="mono">npm</code>) → ยิงผ่าน <code class="mono">Bash</code> tool เสมอ (RTK proxy เซฟ ~94% เฉพาะทางนี้) สงวน <code class="mono">PowerShell</code> เฉพาะที่ Bash ทำไม่ได้จริง</li>
+            <li><b>เช็ค compliance เป็นระยะ</b> — <code class="mono">rtk gain --failures</code> หา bare <code class="mono">head</code>/<code class="mono">tail</code>/<code class="mono">grep -r</code> ที่หลุด filter</li>
+            <li><b>ไฟล์ &gt;500 บรรทัด</b> → <code class="mono">Grep</code> หา section ก่อนเสมอ ห้าม <code class="mono">Read</code> เต็มไฟล์</li>
+          </ul>
+          <p class="cite">อ้างอิง: <code>agents/_shared/token-efficiency.md</code> § RTK, § Read &amp; Search</p>
+        </div>
+      </details>
+
+      <details class="pri">
+        <summary>
+          <span class="rank">4</span>
+          <span class="title">ตัดงานซ้ำ — dedup subagent spawn + re-derivation</span>
+          <span class="impact-wrap"><div class="impact-lbl">~5–10%</div><div class="impact-bar"><i style="width:9%"></i></div></span>
+          <span class="chev">▶</span>
+        </summary>
+        <div class="body">
+          <ul>
+            <li><b>ก่อน spawn subagent</b> เช็คว่ามี agent เรื่องเดียวกันรันอยู่ไหม → <code class="mono">SendMessage</code> ต่อแทน spawn ใหม่</li>
+            <li><b>ห้าม re-derive</b> fact ที่คุยไปแล้วในเทิร์นก่อน หรือ re-litigate decision ที่ user ตัดสินใจแล้ว</li>
+            <li><b>Batch independent tool call</b> ในเทิร์นเดียวเสมอ — ลด round-trip</li>
+          </ul>
+          <p class="cite">อ้างอิง: <code>agents/_shared/token-efficiency.md</code> § Subagent Delegation</p>
+        </div>
+      </details>
+
+      <details class="pri">
+        <summary>
+          <span class="rank">5</span>
+          <span class="title">Communication Compression</span>
+          <span class="impact-wrap"><div class="impact-lbl">active ✓</div><div class="impact-bar"><i style="width:100%;background:var(--micro)"></i></div></span>
+          <span class="chev">▶</span>
+        </summary>
+        <div class="body">
+          <ul>
+            <li><b>Pordee mode</b> (60–75% cut output tokens) ทำงานอยู่แล้ว — ตอบไทยกระชับ ตัด polite particle/hedging/preamble</li>
+            <li>ไม่ต้องทำอะไรเพิ่ม แต่เป็นตัว contribute ต่อเนื่องให้ baseline ต่ำกว่าเดิมทุก response</li>
+          </ul>
+          <p class="cite">อ้างอิง: skill <code>pordee:pordee</code></p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">EFFORT</span> Matrix ที่มีอยู่แล้ว — enforce ให้เข้ม</h2>
+    <p class="sub">Baseline สำหรับ Phase 2 build coders · gap ปัจจุบันคือ compliance ไม่ใช่ตัว rule (<code>agents/workflow-router.md</code>)</p>
+    <div class="matrix">
+      <div class="hd">risk / effort</div><div class="hd">thinking</div><div class="hd">model</div>
+      <div class="rk">LOW · XS–S</div><div class="mono">none</div><div class="mono op">sonnet</div>
+      <div class="rk">LOW · M</div><div class="mono">think</div><div class="mono op">sonnet</div>
+      <div class="rk">LOW · L</div><div class="mono">think-hard</div><div class="mono op">sonnet</div>
+      <div class="rk">LOW · XL</div><div class="mono">ultrathink</div><div class="mono op">sonnet</div>
+      <div class="rk">MEDIUM · XS–M</div><div class="mono">think-hard</div><div class="mono op">sonnet</div>
+      <div class="rk">MEDIUM · L–XL</div><div class="mono">ultrathink</div><div class="mono op">sonnet</div>
+      <div class="rk">HIGH · XS–M</div><div class="mono">think-hard</div><div class="mono op">sonnet</div>
+      <div class="rk">HIGH · L–XL</div><div class="mono">ultrathink</div><div class="mono op">sonnet</div>
+    </div>
+    <p class="sub" style="margin-top:.9rem">Update (FF-WORKSPACE-074): sonnet-only policy — ทุก agent + ทุก risk tier ใช้ <span class="mono">sonnet</span> เสมอ, ไม่มี opus escalation แล้ว (HIGH ชดเชยด้วย thinking level แทน) · ยกเว้นเดียว <span class="mono">classify = haiku, none</span> — ดู <code>agents/workflow-router.md</code> § Per-agent overrides</p>
+  </section>
+
+  <section>
+    <h2><span class="n">CHECKLIST</span> Action Items</h2>
+    <div class="checklist-head">
+      <p class="sub" style="margin:0">ติ๊กเมื่อทำแล้ว — persist ในเบราว์เซอร์นี้ (localStorage)</p>
+      <div class="progress-wrap">
+        <div class="progress-track"><i id="progress-bar"></i></div>
+        <span id="progress-pct">0%</span>
+        <button class="reset-btn" id="reset-checklist" type="button">reset</button>
+      </div>
+    </div>
+    <div class="checklist" id="checklist">
+      <label><input type="checkbox" data-k="c1"><span><b>/clear</b> ทุกครั้งที่จบ task ก่อนเริ่ม task ใหม่ที่ไม่เกี่ยวกัน</span></label>
+      <label><input type="checkbox" data-k="c2"><span>เช็ค context size ก่อนรัน <b>/review</b> หรือ ultrareview (fork-heavy)</span></label>
+      <label><input type="checkbox" data-k="c3"><span>ใช้ <b>Explore</b> แทน general-purpose สำหรับ pure search/lookup</span></label>
+      <label><input type="checkbox" data-k="c4"><span>ตรวจ dispatch subagent ทุกจุด map ผ่าน <b>Effort Control Matrix</b> จริง — sonnet-only (FF-WORKSPACE-074), ไม่ override เป็น opus เว้นแต่จำเป็นจริงๆ</span></label>
+      <label><input type="checkbox" data-k="c5"><span>ใช้ <b>Bash tool</b> (ไม่ใช่ PowerShell) สำหรับ git/dotnet/gh/npm ให้ RTK filter ทำงาน</span></label>
+      <label><input type="checkbox" data-k="c6"><span>รัน <b>rtk gain --failures</b> เช็ค bare command ที่หลุด filter เป็นระยะ</span></label>
+      <label><input type="checkbox" data-k="c7"><span>เช็คซ้ำก่อน spawn subagent ว่ามี agent เรื่องเดียวกันรันอยู่ไหม (ใช้ SendMessage ต่อ)</span></label>
+      <label><input type="checkbox" data-k="c8"><span>Log/build-output/spec ยาว → delegate ให้ subagent สรุป ไม่ Read เข้า main context</span></label>
+    </div>
+  </section>
+
+  <footer>
+    Source: Claude Code usage panel (24h window, local session) · <code>agents/workflow-router.md</code> § Effort Control Matrix · <code>agents/_shared/token-efficiency.md</code> · <code>agents/orchestrator.md</code> § 6.2. Target 50–70% reduction — re-measure ผ่าน <code>rtk gain</code> + usage panel หลัง apply 2 สัปดาห์.
+  </footer>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({startOnLoad:true,theme:"base",securityLevel:"loose",flowchart:{curve:"basis"}});
+</script>
+<script>
+(function () {
+  var STORAGE_KEY = "b1dx-token-opt-checklist";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#checklist input[type="checkbox"]'));
+  var bar = document.getElementById('progress-bar');
+  var pct = document.getElementById('progress-pct');
+  var resetBtn = document.getElementById('reset-checklist');
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function save(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  function render() {
+    var state = load();
+    var done = 0;
+    boxes.forEach(function (b) {
+      var k = b.getAttribute('data-k');
+      b.checked = !!state[k];
+      b.closest('label').classList.toggle('done', b.checked);
+      if (b.checked) done++;
+    });
+    var p = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+    bar.style.width = p + '%';
+    pct.textContent = p + '%';
+  }
+  boxes.forEach(function (b) {
+    b.addEventListener('change', function () {
+      var state = load();
+      state[b.getAttribute('data-k')] = b.checked;
+      save(state);
+      render();
+    });
+  });
+  resetBtn.addEventListener('click', function () {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

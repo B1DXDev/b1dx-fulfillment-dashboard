@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lazada Status Coverage Gap — 8/17 Mapped</title>
+<style>
+  :root {
+    --surface-1: #fcfcfb; --page: #f0f2f5;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-muted: #898781;
+    --border: #e5e7eb; --gridline: #e1e0d9;
+    --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+
+    --lazada: #4a3aa7; --lazada-lt: #e6e2f7; --lazada-dark: #352a78;
+
+    /* status palette — reused from order-status-mapping-3-platform.html (validated: dataviz skill) */
+    --good: #0ca30c; --good-lt: #e3f7e3;
+    --warning: #c98500; --warning-lt: #fff3d9;
+    --critical: #d03b3b; --critical-lt: #fbe4e4;
+    --neutral: #6b7280; --neutral-lt: #f3f4f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--page); color: var(--ink-1); line-height: 1.6; }
+
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%); color: #fff; padding: 40px 48px 32px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 14px; color: rgba(255,255,255,.72); margin-top: 6px; max-width: 860px; }
+  .header-meta { display: flex; gap: 22px; margin-top: 16px; flex-wrap: wrap; }
+  .header-meta span { font-size: 12.5px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 8px; }
+  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; border-left: 4px solid var(--lazada); }
+  .stat-card.crit { border-left-color: var(--critical); }
+  .stat-card.warn { border-left-color: var(--warning); }
+  .stat-card.good { border-left-color: var(--good); }
+  .stat-label { font-size: 11.5px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--ink-1); margin-top: 4px; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+
+  .section-title { font-size: 17px; font-weight: 700; color: var(--ink-1); margin: 30px 0 14px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 22px; margin-bottom: 20px; }
+
+  table.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  table.cmp thead th { background: #f6f5f3; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.cmp tbody td { padding: 12px; border-bottom: 1px solid var(--gridline); font-size: 13px; vertical-align: top; }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+  table.cmp tbody tr:hover { background: #fafafa; }
+  .status-raw { font-family: Consolas, monospace; font-weight: 700; font-size: 12.5px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .badge-good { background: var(--good-lt); color: var(--good); }
+  .badge-warn { background: var(--warning-lt); color: var(--warning); }
+  .badge-crit { background: var(--critical-lt); color: var(--critical); }
+  .code-badge { font-family: Consolas, monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; font-weight: 700; background: var(--neutral-lt); color: var(--ink-2); }
+  .code-badge.code-neutral { background: var(--neutral-lt); color: var(--ink-2); }
+  .code-badge.code-warn { background: var(--warning-lt); color: var(--warning); }
+  .code-badge.code-good { background: var(--good-lt); color: var(--good); }
+  .code-badge.code-crit { background: var(--critical-lt); color: var(--critical); }
+  .note-txt { font-size: 12px; color: var(--ink-2); max-width: 320px; }
+
+  .gap-item { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 12px; display: flex; gap: 14px; border-left: 4px solid var(--critical); }
+  .gap-item.info { border-left-color: var(--lazada); }
+  .gap-icon { font-size: 20px; flex-shrink: 0; }
+  .gap-title { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .gap-body { font-size: 12.5px; color: var(--ink-2); }
+  .gap-body code { background: var(--neutral-lt); padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+
+  .src-ref { font-family: Consolas, monospace; font-size: 11px; color: var(--ink-muted); background: var(--neutral-lt); padding: 8px 12px; border-radius: 6px; margin-top: 10px; }
+  footer { text-align: center; padding: 30px 24px; font-size: 12px; color: var(--ink-muted); }
+
+  /* ── B1DX order status reference table (OMS/FF/WMS combined) ── */
+  .relation-note { background: var(--lazada-lt); border-radius: var(--radius); padding: 14px 18px; font-size: 12.5px; color: var(--lazada-dark); margin-bottom: 20px; line-height: 1.7; }
+  .relation-note code { background: rgba(255,255,255,.5); padding: 1px 5px; border-radius: 4px; }
+  .search-box { flex: 1; min-width: 220px; position: relative; margin-bottom: 14px; }
+  .search-box input { width: 100%; padding: 10px 14px 10px 34px; border: 1px solid var(--border); border-radius: 8px; font-size: 13.5px; font-family: inherit; background: #fff; }
+  .search-box input:focus { outline: none; border-color: var(--lazada); box-shadow: 0 0 0 3px rgba(74,58,167,.12); }
+  .search-box::before { content: '🔍'; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 12.5px; opacity: .5; }
+  .result-count { font-size: 12px; color: var(--ink-muted); margin-bottom: 10px; }
+  .layer-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .layer-oms { background: var(--lazada-lt); color: var(--lazada-dark); }
+  .layer-ff { background: #d9f5e9; color: #127d57; }
+  .layer-wms { background: var(--warning-lt); color: var(--warning); }
+  table.cmp tbody tr.hidden { display: none; }
+
+  /* ── mapping worksheet ── */
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .btn { border: 1px solid var(--border); background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-2); font-family: inherit; }
+  .btn:hover { border-color: var(--lazada); color: var(--lazada-dark); }
+  .btn.primary { background: var(--lazada); color: #fff; border-color: var(--lazada); }
+  .btn.primary:hover { background: var(--lazada-dark); }
+  .save-indicator { font-size: 12px; color: var(--good); display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity .3s; }
+  .save-indicator.show { opacity: 1; }
+  table.ws select, table.ws input[type="text"] {
+    width: 100%; font-family: inherit; font-size: 12.5px; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px; background: #fff; color: var(--ink-1);
+  }
+  table.ws select:focus, table.ws input[type="text"]:focus { outline: none; border-color: var(--lazada); box-shadow: 0 0 0 2px rgba(74,58,167,.12); }
+  table.ws select.needs-review, table.ws input[type="text"].needs-review { border-color: var(--warning); background: var(--warning-lt); }
+  table.ws td.chk { text-align: center; }
+  table.ws input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--good); }
+  tr.reviewed { background: var(--good-lt) !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">B1DX FULFILLMENT · GAP ANALYSIS</div>
+  <h1>Lazada Status Coverage Gap — 8 / 17 mapped</h1>
+  <p class="header-sub">เทียบ Lazada Order Status Catalog (เอกสารทางการ 17 สถานะ) กับสิ่งที่ <code>LazadaOrderParser.MapStatus()</code> รองรับจริงในโค้ดปัจจุบัน — พบว่า 9 สถานะไม่มีการ mapping และ 8 ใน 9 มีความเสี่ยงทำให้สถานะ order ใน OMS ถอยหลัง (regression) แทนที่จะ error ชัดเจน · เพิ่ม OMS/FF/WMS status reference + mapping worksheet ให้ business ตรวจสอบแล้ว map เข้ามา</p>
+  <div class="header-meta">
+    <span>Source: <strong>LazadaOrderParser.cs</strong> (b1dx.omsorders.sync.worker)</span>
+    <span>OMS enum: <strong>OrderStatus.cs</strong> (b1dx-oms-fulfillment-api)</span>
+    <span>ข้อมูล ณ: <strong>2026-07-16</strong></span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="grid-4">
+    <div class="stat-card good">
+      <div class="stat-label">Handled</div>
+      <div class="stat-value">8 / 17</div>
+      <div class="stat-sub">มี case ตรงใน MapStatus() switch</div>
+    </div>
+    <div class="stat-card crit">
+      <div class="stat-label">Unmapped</div>
+      <div class="stat-value">9</div>
+      <div class="stat-sub">ตกไป fallback → 200 PendingReview + warning log</div>
+    </div>
+    <div class="stat-card crit">
+      <div class="stat-label">Regression risk</div>
+      <div class="stat-value">8</div>
+      <div class="stat-sub">สถานะที่เกิดหลัง order ผ่าน 300+ ไปแล้ว แต่ถูกดึงกลับไป 200</div>
+    </div>
+    <div class="stat-card warn">
+      <div class="stat-label">Unused OMS codes</div>
+      <div class="stat-value">3</div>
+      <div class="stat-sub">560/630/650 มีอยู่แล้วใน enum แต่ parser ไม่ได้ใช้</div>
+    </div>
+  </div>
+
+  <div class="section-title">ตารางเทียบเต็ม — 17 สถานะทางการของ Lazada</div>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th>Lazada Status</th>
+        <th>Category</th>
+        <th>Handled?</th>
+        <th>ผลลัพธ์ปัจจุบัน</th>
+        <th>หมายเหตุ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="status-raw">unpaid</td><td>Payment</td><td><span class="badge badge-warn">⚠️ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt">ตกไป fallback แต่บังเอิญได้ผลลัพธ์ถูกต้อง (unpaid ≈ pending) — ไม่มี regression risk</td></tr>
+      <tr><td class="status-raw">pending</td><td>Order Processing</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">200</span> PendingReview</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">packed</td><td>Fulfillment</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">490</span> ReadyToShip</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">repacked</td><td>Fulfillment</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — order ที่แพ็คไปแล้ว (490) ถูกดึงกลับไป PendingReview</td></tr>
+      <tr><td class="status-raw">ready_to_ship_pending</td><td>Fulfillment</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — เกิดหลัง SetRTS (ควรอยู่แถว 490) แต่ตกไป 200</td></tr>
+      <tr><td class="status-raw">ready_to_ship</td><td>Fulfillment</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">490</span> ReadyToShip</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">shipped</td><td>Delivery</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">500</span> Shipped</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">delivered</td><td>Delivery</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">600</span> Delivered</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">confirmed</td><td>Completion</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">300</span> Confirmed</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">failed_delivery</td><td>Exception</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — order ที่ shipped/delivered แล้วถูกดึงกลับไป PendingReview</td></tr>
+      <tr><td class="status-raw">shipped_back</td><td>Return Logistics</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — OMS มี <span class="code-badge">560</span> ReturnInitiated รองรับอยู่แล้วแต่ parser ไม่ใช้</td></tr>
+      <tr><td class="status-raw">shipped_back_success</td><td>Return Logistics</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — OMS มี <span class="code-badge">630</span> ReturnReceived รองรับอยู่แล้วแต่ parser ไม่ใช้</td></tr>
+      <tr><td class="status-raw">shipped_back_failed</td><td>Return Logistics</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — ไม่มี OMS code ที่ตรงกับกรณีนี้โดยตรง (ต้องออกแบบเพิ่ม)</td></tr>
+      <tr><td class="status-raw">returned</td><td>Reverse</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">900</span> Returned</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">canceled</td><td>Cancellation</td><td><span class="badge badge-good">✅ Handled</span></td><td><span class="code-badge">800</span> Cancelled</td><td class="note-txt">ok</td></tr>
+      <tr><td class="status-raw">lost_by_3pl</td><td>Exception</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — terminal exception ถูกดึงกลับไป PendingReview อย่างเงียบ ๆ</td></tr>
+      <tr><td class="status-raw">damaged_by_3pl</td><td>Exception</td><td><span class="badge badge-crit">❌ Unmapped</span></td><td><span class="code-badge">200</span> (fallback)</td><td class="note-txt"><b>Regression</b> — เหมือน lost_by_3pl</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">B1DX Order Status (OMS / FF / WMS) — Category Reference</div>
+  <p style="font-size:12.5px;color:var(--ink-muted);margin-bottom:14px">รวม status ทุกระดับของ B1DX ไว้ตารางเดียว <b>distinct ตาม Status + Category</b> (ไม่แยกคอลัมน์ OMS/FF/WMS แล้ว — ชื่อกับ Category เดียวกันจากคนละ layer ถูก merge เป็นแถวเดียว) ใส่คอลัมน์ <b>Category</b> ด้วย taxonomy เดียวกับตาราง Lazada ด้านบน เพื่อให้เทียบแถวต่อแถวง่ายขึ้นตอน map — ส่งตารางนี้ให้ business/WMS ตรวจสอบแล้วช่วยยืนยัน Category ให้ตรงจริง (คอลัมน์หมายเหตุจะบอกไว้ถ้า code เลขไม่ตรงกันระหว่าง layer)</p>
+
+  <div class="relation-note">
+    <b>ความสัมพันธ์ระหว่าง field:</b> <code>OrderStatus</code> (OMS) = สถานะหยาบที่ลูกค้า/มาร์เก็ตเพลสเห็น · <code>FulfillmentSubStatus</code> (FF) = sub-step ละเอียดของ Order Action Dialog (OAD) — เป็นคนละ field, orthogonal กับ <code>OrderStatus</code> (การกด action ใน OAD เขียนลง <code>FulfillmentSubStatus</code> เสมอ ไม่ใช่ <code>OrderStatus</code> โดยตรง — ดู ADR-002) · <code>FrStatus</code> = สถานะงานคลังต่อ 1 Fulfillment Request (อยู่ใน Order module ฝั่ง OMS แต่สะท้อนความคืบหน้าฝั่งคลัง) · <b>WMS ระดับ pick/pack session ยังไม่มี enum อย่างเป็นทางการ</b> (<code>PickSession.Status</code> string constants เท่านั้น — <code>PackSession</code> ไม่มี status field เลย) · <b>ข้อควรระวัง:</b> บาง code เลขซ้ำกันข้าม layer แต่ความหมายคนละเรื่อง (เช่น code 600 = Delivered ใน OMS แต่ = Returning ใน FF) — ดูคอลัมน์หมายเหตุของแถวนั้น ๆ</div>
+
+  <div class="search-box"><input type="text" id="refSearchInput" placeholder="ค้นหา status / category…"></div>
+  <div class="result-count" id="refResultCount"></div>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>B1DX Status</th>
+        <th>Category</th>
+        <th>หมายเหตุ</th>
+      </tr>
+    </thead>
+    <tbody id="refBody">
+      <tr><td><span class="code-badge code-neutral">100</span></td><td class="status-raw">Draft</td><td>Order Processing</td><td class="note-txt">OMS-internal เท่านั้น ยังไม่ยืนยันออเดอร์ — ⚠️ code 100 ซ้ำกับ FF MatchPending (คนละความหมาย)</td></tr>
+      <tr><td><span class="code-badge code-warn">200</span></td><td class="status-raw">PendingReview</td><td>Order Processing</td><td class="note-txt">รอยืนยัน — จุดเริ่มต้น + fallback ของ unknown status ทุก platform (OMS OrderStatus และ FF FulfillmentSubStatus ใช้ code 200 ตรงกัน)</td></tr>
+      <tr><td><span class="code-badge code-warn">300</span> / <span class="code-badge code-warn">400</span></td><td class="status-raw">Confirmed</td><td>Order Processing</td><td class="note-txt">⚠️ รหัสไม่ตรงกันข้าม layer: OMS OrderStatus = 300, FF FulfillmentSubStatus = 400 (แม้ชื่อและ category เหมือนกันทุกอย่าง) — ควรถามทีมว่าตั้งใจหรือ inconsistency</td></tr>
+      <tr><td><span class="code-badge code-neutral">400</span></td><td class="status-raw">Processing</td><td>Fulfillment</td><td class="note-txt">กำลังหยิบสินค้า, OMS-internal เท่านั้น — ⚠️ code 400 ซ้ำกับ FF Confirmed (คนละความหมาย)</td></tr>
+      <tr><td><span class="code-badge code-neutral">450</span> / <span class="code-badge code-neutral">—</span></td><td class="status-raw">Packing</td><td>Fulfillment</td><td class="note-txt">กำลังแพ็คสินค้า — OMS + FF FulfillmentSubStatus ใช้ code 450 ตรงกัน, FrStatus ก็มีค่า Packing ของตัวเอง (ไม่มีเลขรหัส)</td></tr>
+      <tr><td><span class="code-badge code-neutral">480</span></td><td class="status-raw">PackDone</td><td>Fulfillment</td><td class="note-txt">แพ็คเสร็จ รอปริ้น label (OMS + FF FulfillmentSubStatus ตรงกัน 480)</td></tr>
+      <tr><td><span class="code-badge code-warn">490</span></td><td class="status-raw">ReadyToShip</td><td>Fulfillment</td><td class="note-txt">รอ 3PL รับสินค้า — OMS OrderStatus เท่านั้น (FF ใช้ชื่อ LabelPrinted ที่ code 490 เดียวกัน)</td></tr>
+      <tr><td><span class="code-badge code-warn">500</span></td><td class="status-raw">Shipped</td><td>Delivery</td><td class="note-txt">อยู่ระหว่างจัดส่ง — OMS OrderStatus เท่านั้น (FF ใช้ชื่อ CourierPickedUp ที่ code 500 เดียวกัน)</td></tr>
+      <tr><td><span class="code-badge code-warn">550</span></td><td class="status-raw">OutForDelivery</td><td>Delivery</td><td class="note-txt">กำลังนำส่งถึงมือลูกค้า (OMS + FF FulfillmentSubStatus ตรงกัน 550)</td></tr>
+      <tr><td><span class="code-badge code-warn">560</span></td><td class="status-raw">ReturnInitiated</td><td>Return Logistics</td><td class="note-txt">คูเรียร์ตีกลับ เริ่ม flow คืนสินค้า — ตรงกับ Lazada <code>shipped_back</code> (OMS + FF ตรงกัน 560)</td></tr>
+      <tr><td><span class="code-badge code-warn">600</span></td><td class="status-raw">Delivered</td><td>Delivery</td><td class="note-txt">จัดส่งถึงลูกค้าแล้ว — OMS OrderStatus เท่านั้น — ⚠️ code 600 ซ้ำกับ FF Returning (คนละความหมายคนละ category)</td></tr>
+      <tr><td><span class="code-badge code-warn">630</span></td><td class="status-raw">ReturnReceived</td><td>Return Logistics</td><td class="note-txt">คลังรับพัสดุคืนแล้ว รออนุมัติ — ตรงกับ Lazada <code>shipped_back_success</code> (OMS + FF ตรงกัน 630)</td></tr>
+      <tr><td><span class="code-badge code-warn">650</span></td><td class="status-raw">ReturnApproved</td><td>Return Logistics</td><td class="note-txt">อนุมัติการคืนแล้ว (OMS + FF ตรงกัน 650) — action ภายใน OMS เท่านั้น ไม่มี Lazada status ตรง</td></tr>
+      <tr><td><span class="code-badge code-good">700</span> / <span class="code-badge code-good">—</span> / <span class="code-badge code-good">str</span></td><td class="status-raw">Completed <b>TERMINAL</b></td><td>Completion</td><td class="note-txt">สำเร็จ — OMS + FF FulfillmentSubStatus ตรงกัน 700, FrStatus และ WMS PickSession ก็มีค่า Completed ของตัวเอง (ไม่มีเลขรหัส)</td></tr>
+      <tr><td><span class="code-badge code-warn">750</span></td><td class="status-raw">CancelRequested</td><td>Cancellation</td><td class="note-txt">รอยกเลิก (OMS + FF FulfillmentSubStatus ตรงกัน 750)</td></tr>
+      <tr><td><span class="code-badge code-crit">800</span> / <span class="code-badge code-crit">—</span> / <span class="code-badge code-crit">str</span></td><td class="status-raw">Cancelled <b>TERMINAL</b></td><td>Cancellation</td><td class="note-txt">ยกเลิกแล้ว — OMS + FF FulfillmentSubStatus ตรงกัน 800, FrStatus และ WMS PickSession ก็มีค่า Cancelled ของตัวเอง (ไม่มีเลขรหัส)</td></tr>
+      <tr><td><span class="code-badge code-crit">900</span></td><td class="status-raw">Returned <b>TERMINAL</b></td><td>Reverse</td><td class="note-txt">คืนสินค้าสำเร็จ — OMS OrderStatus เท่านั้น</td></tr>
+
+      <tr><td><span class="code-badge code-neutral">100</span></td><td class="status-raw">MatchPending</td><td>Order Processing</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — รอจับคู่สต็อก — ⚠️ code 100 ซ้ำกับ OMS Draft (คนละความหมาย)</td></tr>
+      <tr><td><span class="code-badge code-warn">300</span></td><td class="status-raw">StockConfirmed</td><td>Order Processing</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — ยืนยันสต็อกพอแล้ว — ⚠️ code 300 ซ้ำกับ OMS Confirmed (คนละความหมาย)</td></tr>
+      <tr><td><span class="code-badge code-warn">490</span></td><td class="status-raw">LabelPrinted</td><td>Fulfillment</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — ปริ้น label แล้ว (code 490 เดียวกับ OMS ReadyToShip)</td></tr>
+      <tr><td><span class="code-badge code-warn">500</span></td><td class="status-raw">CourierPickedUp</td><td>Delivery</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — คูเรียร์รับพัสดุแล้ว (code 500 เดียวกับ OMS Shipped)</td></tr>
+      <tr><td><span class="code-badge code-warn">600</span></td><td class="status-raw">Returning</td><td>Return Logistics</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — อยู่ระหว่างส่งกลับคลัง — ⚠️ code 600 ซ้ำกับ OMS Delivered (คนละความหมายคนละ category)</td></tr>
+      <tr><td><span class="code-badge code-warn">620</span></td><td class="status-raw">ReceivedAtWh</td><td>Return Logistics</td><td class="note-txt">FF FulfillmentSubStatus เท่านั้น — คลังรับพัสดุคืนแล้ว</td></tr>
+
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">Pending <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Fulfillment</td><td class="note-txt">Fulfillment Request — รองาน ยังไม่ assign คลัง</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">Assigned <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Fulfillment</td><td class="note-txt">มอบหมายคลังแล้ว</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">Picking <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Fulfillment</td><td class="note-txt">กำลังหยิบสินค้า</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">Packed <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Fulfillment</td><td class="note-txt">แพ็คเสร็จแล้ว</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">Dispatched <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Delivery</td><td class="note-txt">ส่งออกจากคลังแล้ว</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">OnHold <span style="font-weight:400;color:var(--ink-muted)">(FrStatus)</span></td><td>Exception</td><td class="note-txt">พักงานชั่วคราว</td></tr>
+
+      <tr><td><span class="code-badge code-neutral">str</span></td><td class="status-raw">Active <span style="font-weight:400;color:var(--ink-muted)">(PickSession)</span></td><td>Fulfillment</td><td class="note-txt">⚠️ ไม่ใช่ enum ทางการ — string constant ระดับ session ไม่ใช่ระดับ order — กำลังหยิบสินค้า</td></tr>
+      <tr><td><span class="code-badge code-neutral">str</span></td><td class="status-raw">Paused <span style="font-weight:400;color:var(--ink-muted)">(PickSession)</span></td><td>Exception</td><td class="note-txt">⚠️ string constant — หยุดพักชั่วคราว — ใกล้เคียง Lazada <code>repacked</code> ที่สุดในบรรดา status ที่มีอยู่</td></tr>
+      <tr><td><span class="code-badge code-neutral">—</span></td><td class="status-raw">PackSession</td><td>Fulfillment</td><td class="note-txt">⚠️ <b>ไม่มี status field เลย</b> — track ผ่าน <code>CompletedAt</code> (nullable) เท่านั้น</td></tr>
+    </tbody>
+  </table>
+  <div class="src-ref" style="margin-top:10px">source: OrderStatus.cs · FulfillmentSubStatus.cs (ADR-002) · OrderEnums.cs (FrStatus) + FulfillmentRequest.cs · PickSession.cs (PickSessionStatuses) / PackSession.cs — ทั้งหมดใน b1dx-oms-fulfillment-api</div>
+
+  <div class="section-title">Mapping Worksheet — ส่งให้ Business ตรวจสอบแล้ว map เข้ามา</div>
+  <p style="font-size:12.5px;color:var(--ink-muted);margin-bottom:14px">แถวที่มีพื้นหลังสีเหลือง (<span class="badge badge-warn" style="font-size:11px">❓ ต้องระบุ</span>) คือ 9 สถานะที่โค้ดยังไม่รองรับ — กรุณาเลือก B1DX Status ที่ควร map ไป (dropdown รวม OMS/FF/WMS ทั้งหมดจากตารางด้านบน) แล้วติ๊ก "ตรวจสอบแล้ว" ต่อแถว ระบบจะบันทึกลง browser นี้อัตโนมัติ (ยังไม่ส่งกลับเข้าโค้ด — ต้องให้ dev เอาไปแก้ parser อีกที)</p>
+
+  <div class="toolbar">
+    <button class="btn" id="resetWs">↺ Reset worksheet (ล้างค่าที่กรอกไว้)</button>
+    <button class="btn primary" id="exportWs">⬇ Export เป็น CSV</button>
+    <span class="save-indicator" id="saveIndicator">✓ บันทึกไว้ใน browser แล้ว</span>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table class="cmp ws" id="wsTable">
+    <thead>
+      <tr>
+        <th>Lazada Status</th>
+        <th>Category</th>
+        <th>→ B1DX STATUS</th>
+        <th>ตรวจสอบแล้ว</th>
+      </tr>
+    </thead>
+    <tbody id="wsBody"></tbody>
+  </table>
+  </div>
+
+  <div class="section-title">จุดที่ควรแก้ก่อน</div>
+
+  <div class="gap-item">
+    <div class="gap-icon">⚠️</div>
+    <div>
+      <div class="gap-title">Fallback เดียวกันถูกใช้ทั้งกับ "unknown junk status" และ "known status ที่ยังไม่ได้ map"</div>
+      <div class="gap-body"><code>LogUnknownStatus()</code> ที่ <code>LazadaOrderParser.cs:267-272</code> return <code>200</code> เสมอไม่ว่าจะเจอ status แปลกจริง ๆ หรือ status ที่มีเอกสารรองรับแต่โค้ดยังไม่ได้เขียน case ให้ — ผลคือ order ที่ progress ไปไกลแล้ว (490/500/600) จะถูกดึงกลับไป PendingReview ทันทีที่ Lazada ส่ง 1 ใน 8 สถานะที่ขาด</div>
+    </div>
+  </div>
+
+  <div class="gap-item">
+    <div class="gap-icon">🔀</div>
+    <div>
+      <div class="gap-title">OMS มี return-flow codes อยู่แล้ว (560/630/650) แต่ Lazada parser ไม่ได้ใช้</div>
+      <div class="gap-body"><code>OrderStatus.cs</code> มี <code>ReturnInitiated=560</code>, <code>ReturnReceived=630</code>, <code>ReturnApproved=650</code> (เพิ่มมาจากงาน WH return-reconciliation) ซึ่งตรงกับ <code>shipped_back</code> / <code>shipped_back_success</code> ของ Lazada พอดี — เป็นแค่เรื่อง parser ยังไม่ sync ตาม enum ใหม่</div>
+    </div>
+  </div>
+
+  <div class="gap-item info">
+    <div class="gap-icon">📄</div>
+    <div>
+      <div class="gap-title">Report เดิม (order-status-mapping-3-platform.html) ไม่ครอบคลุม gap นี้</div>
+      <div class="gap-body">Report ก่อนหน้าสรุปจากโค้ดที่มีอยู่ (8 status ที่ handled) — ไม่ได้เทียบกับ official catalog 17 status ของ Lazada จึงไม่เห็น gap นี้มาก่อน</div>
+    </div>
+  </div>
+
+  <div class="src-ref">source: LazadaOrderParser.cs (MapStatus/LogUnknownStatus) — b1dx.omsorders.sync.worker · OrderStatus.cs — b1dx-oms-fulfillment-api · Lazada Order Status Catalog (official doc, provided by user 2026-07-16)</div>
+
+</div>
+
+<footer>B1DX Fulfillment Workspace · Lazada Status Coverage Gap Report · generated 2026-07-16</footer>
+
+<script>
+// ── unified B1DX status option list — mirrors the reference table above exactly, grouped by layer ──
+const B1DX_STATUS_GROUPS = [
+  { label: 'OMS — OrderStatus', items: [
+    [100,'Draft'],[200,'PendingReview'],[300,'Confirmed'],[400,'Processing'],[450,'Packing'],
+    [480,'PackDone'],[490,'ReadyToShip'],[500,'Shipped'],[550,'OutForDelivery'],[560,'ReturnInitiated'],
+    [600,'Delivered'],[630,'ReturnReceived'],[650,'ReturnApproved'],[700,'Completed'],
+    [750,'CancelRequested'],[800,'Cancelled'],[900,'Returned'],
+  ]},
+  { label: 'FF — FulfillmentSubStatus', items: [
+    [100,'MatchPending'],[200,'PendingReview'],[300,'StockConfirmed'],[400,'Confirmed'],[450,'Packing'],
+    [480,'PackDone'],[490,'LabelPrinted'],[500,'CourierPickedUp'],[550,'OutForDelivery'],[560,'ReturnInitiated'],
+    [600,'Returning'],[620,'ReceivedAtWh'],[630,'ReturnReceived'],[650,'ReturnApproved'],[700,'Completed'],
+    [750,'CancelRequested'],[800,'Cancelled'],
+  ]},
+  { label: 'FF — FrStatus (Fulfillment Request)', items: [
+    [null,'Pending'],[null,'Assigned'],[null,'Picking'],[null,'Packing'],[null,'Packed'],
+    [null,'Dispatched'],[null,'Completed'],[null,'Cancelled'],[null,'OnHold'],
+  ]},
+  { label: 'WMS — PickSession', items: [
+    [null,'Active'],[null,'Completed'],[null,'Paused'],[null,'Cancelled'],
+  ]},
+  { label: 'WMS — PackSession', items: [
+    [null,'(no status field)'],
+  ]},
+];
+// flatten to index-keyed options — value = flat index (stable, avoids code/name collisions across groups)
+const B1DX_STATUS_FLAT = [];
+B1DX_STATUS_GROUPS.forEach(g => g.items.forEach(([code, name]) => B1DX_STATUS_FLAT.push({ group: g.label, code, name })));
+
+function findB1dxIndex(groupLabel, name) {
+  return B1DX_STATUS_FLAT.findIndex(o => o.group === groupLabel && o.name === name);
+}
+
+// ── worksheet defaults — the 8 already-handled statuses keep their current OMS mapping (what the
+//    parser actually returns today); the 9 gap statuses are left blank except the 2 where an existing
+//    OMS code is an obvious fit (see "จุดที่ควรแก้ก่อน" below) — everything else needs a real
+//    business/dev decision, not a guess ──
+const WS_DEFAULTS = [
+  { status:'unpaid',                category:'Payment',           b1dx: findB1dxIndex('OMS — OrderStatus','PendingReview') },
+  { status:'pending',               category:'Order Processing',  b1dx: findB1dxIndex('OMS — OrderStatus','PendingReview') },
+  { status:'packed',                category:'Fulfillment',       b1dx: findB1dxIndex('OMS — OrderStatus','ReadyToShip') },
+  { status:'repacked',              category:'Fulfillment',       b1dx: -1 },
+  { status:'ready_to_ship_pending', category:'Fulfillment',       b1dx: -1 },
+  { status:'ready_to_ship',         category:'Fulfillment',       b1dx: findB1dxIndex('OMS — OrderStatus','ReadyToShip') },
+  { status:'shipped',               category:'Delivery',          b1dx: findB1dxIndex('OMS — OrderStatus','Shipped') },
+  { status:'delivered',             category:'Delivery',          b1dx: findB1dxIndex('OMS — OrderStatus','Delivered') },
+  { status:'confirmed',             category:'Completion',        b1dx: findB1dxIndex('OMS — OrderStatus','Confirmed') },
+  { status:'failed_delivery',       category:'Exception',         b1dx: -1 },
+  { status:'shipped_back',          category:'Return Logistics',  b1dx: findB1dxIndex('OMS — OrderStatus','ReturnInitiated') },
+  { status:'shipped_back_success',  category:'Return Logistics',  b1dx: findB1dxIndex('OMS — OrderStatus','ReturnReceived') },
+  { status:'shipped_back_failed',   category:'Return Logistics',  b1dx: -1 },
+  { status:'returned',              category:'Reverse',           b1dx: findB1dxIndex('OMS — OrderStatus','Returned') },
+  { status:'canceled',              category:'Cancellation',      b1dx: findB1dxIndex('OMS — OrderStatus','Cancelled') },
+  { status:'lost_by_3pl',           category:'Exception',         b1dx: -1 },
+  { status:'damaged_by_3pl',        category:'Exception',         b1dx: -1 },
+];
+
+const LS_KEY = 'b1dxLazadaStatusWorksheetV2';
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function b1dxOptionsHtml(selectedIdx) {
+  let html = `<option value="">— เลือก —</option>`;
+  B1DX_STATUS_GROUPS.forEach(g => {
+    html += `<optgroup label="${g.label}">`;
+    g.items.forEach(([code, name]) => {
+      const idx = findB1dxIndex(g.label, name);
+      const sel = String(selectedIdx) === String(idx) ? 'selected' : '';
+      const label = code !== null ? `${code} — ${name}` : name;
+      html += `<option value="${idx}" ${sel}>${label}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  return html;
+}
+
+function renderWorksheet() {
+  const saved = loadState();
+  const tbody = document.getElementById('wsBody');
+  tbody.innerHTML = '';
+  WS_DEFAULTS.forEach(row => {
+    const s = saved[row.status] || {};
+    const b1dx = s.b1dx !== undefined ? s.b1dx : (row.b1dx >= 0 ? row.b1dx : '');
+    const reviewed = s.reviewed !== undefined ? s.reviewed : false;
+
+    const tr = document.createElement('tr');
+    tr.dataset.status = row.status;
+    if (reviewed) tr.classList.add('reviewed');
+    tr.innerHTML = `
+      <td class="status-raw">${row.status}</td>
+      <td>${row.category}</td>
+      <td><select class="b1dx-sel" data-field="b1dx" autocomplete="off">${b1dxOptionsHtml(b1dx)}</select></td>
+      <td class="chk"><input type="checkbox" data-field="reviewed" autocomplete="off" ${reviewed ? 'checked' : ''}></td>
+    `;
+    tbody.appendChild(tr);
+    updateNeedsReview(tr);
+  });
+}
+
+function updateNeedsReview(tr) {
+  const el = tr.querySelector('.b1dx-sel');
+  el.classList.toggle('needs-review', el.value === '');
+}
+
+function persistRow(tr) {
+  const status = tr.dataset.status;
+  const state = loadState();
+  state[status] = {
+    b1dx: tr.querySelector('[data-field="b1dx"]').value,
+    reviewed: tr.querySelector('[data-field="reviewed"]').checked,
+  };
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  const ind = document.getElementById('saveIndicator');
+  ind.classList.add('show');
+  clearTimeout(persistRow._t);
+  persistRow._t = setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+document.getElementById('wsBody').addEventListener('input', (e) => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+  tr.classList.toggle('reviewed', tr.querySelector('[data-field="reviewed"]').checked);
+  updateNeedsReview(tr);
+  persistRow(tr);
+});
+document.getElementById('wsBody').addEventListener('change', (e) => {
+  const tr = e.target.closest('tr');
+  if (tr) persistRow(tr);
+});
+
+document.getElementById('resetWs').addEventListener('click', () => {
+  if (!confirm('ล้างค่าที่กรอกไว้ทั้งหมดในเครื่องนี้ กลับไปเป็นค่าเริ่มต้น?')) return;
+  localStorage.removeItem(LS_KEY);
+  renderWorksheet();
+});
+
+document.getElementById('exportWs').addEventListener('click', () => {
+  const rows = Array.from(document.querySelectorAll('#wsBody tr'));
+  const header = ['Lazada Status','Category','B1DX Status','Reviewed'];
+  const lines = [header.join(',')];
+  rows.forEach(tr => {
+    const status = tr.dataset.status;
+    const category = tr.children[1].textContent;
+    const sel = tr.querySelector('[data-field="b1dx"]');
+    const b1dx = sel.value ? sel.options[sel.selectedIndex].text : '';
+    const reviewed = tr.querySelector('[data-field="reviewed"]').checked ? 'yes' : 'no';
+    lines.push([status, category, `"${b1dx.replace(/"/g,'""')}"`, reviewed].join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'lazada-status-mapping-worksheet.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+renderWorksheet();
+
+// ── B1DX reference table search filter ──
+const refRows = () => Array.from(document.querySelectorAll('#refBody tr'));
+const refSearchInput = document.getElementById('refSearchInput');
+const refResultCount = document.getElementById('refResultCount');
+function applyRefFilter() {
+  const q = refSearchInput.value.trim().toLowerCase();
+  let shown = 0;
+  refRows().forEach(tr => {
+    const visible = !q || tr.textContent.toLowerCase().includes(q);
+    tr.classList.toggle('hidden', !visible);
+    if (visible) shown++;
+  });
+  refResultCount.textContent = `แสดง ${shown} / ${refRows().length} status`;
+}
+refSearchInput.addEventListener('input', applyRefFilter);
+applyRefFilter();
+</script>
+
+</body>
+</html>

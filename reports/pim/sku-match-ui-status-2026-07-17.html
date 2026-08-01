@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKU Match · Status Report</title>
+<meta name="description" content="สรุปสถานะงานจับคู่ SKU ด้วยคนผ่าน UI (Manual Match) — B1DX OMS Fulfillment" />
+<style>
+  :root {
+    --bg: #f4f5f1;
+    --surface: #ffffff;
+    --surface-sunk: #eef0ea;
+    --ink: #1b2420;
+    --muted: #5c665f;
+    --faint: #8b9590;
+    --border: #dbdfd7;
+    --border-strong: #c3c9bd;
+    --accent: #2e6f6e;
+    --accent-ink: #ffffff;
+    --accent-soft: #dceae7;
+    --accent-soft-border: #bcd8d3;
+    --good: #2f7a4f;
+    --good-soft: #e1f0e5;
+    --warn: #a06a1f;
+    --warn-soft: #f4e6cf;
+    --rust: #a5432f;
+    --rust-soft: #f3ded8;
+    --shadow: 0 1px 2px rgba(27, 36, 32, 0.06), 0 8px 24px -12px rgba(27, 36, 32, 0.18);
+    --font-mono: ui-monospace, "Cascadia Code", "Consolas", "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101b19;
+      --surface: #16241f;
+      --surface-sunk: #12201c;
+      --ink: #e8efea;
+      --muted: #93a39c;
+      --faint: #667e75;
+      --border: #253832;
+      --border-strong: #33493f;
+      --accent: #5fc9bc;
+      --accent-ink: #0b1a17;
+      --accent-soft: #1b3833;
+      --accent-soft-border: #2c5148;
+      --good: #7ed9a0;
+      --good-soft: #16301f;
+      --warn: #e6b567;
+      --warn-soft: #362a14;
+      --rust: #e3897a;
+      --rust-soft: #3a1f19;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 30px -12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101b19; --surface: #16241f; --surface-sunk: #12201c; --ink: #e8efea;
+    --muted: #93a39c; --faint: #667e75; --border: #253832; --border-strong: #33493f;
+    --accent: #5fc9bc; --accent-ink: #0b1a17; --accent-soft: #1b3833; --accent-soft-border: #2c5148;
+    --good: #7ed9a0; --good-soft: #16301f; --warn: #e6b567; --warn-soft: #362a14;
+    --rust: #e3897a; --rust-soft: #3a1f19;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 30px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f4f5f1; --surface: #ffffff; --surface-sunk: #eef0ea; --ink: #1b2420;
+    --muted: #5c665f; --faint: #8b9590; --border: #dbdfd7; --border-strong: #c3c9bd;
+    --accent: #2e6f6e; --accent-ink: #ffffff; --accent-soft: #dceae7; --accent-soft-border: #bcd8d3;
+    --good: #2f7a4f; --good-soft: #e1f0e5; --warn: #a06a1f; --warn-soft: #f4e6cf;
+    --rust: #a5432f; --rust-soft: #f3ded8;
+    --shadow: 0 1px 2px rgba(27, 36, 32, 0.06), 0 8px 24px -12px rgba(27, 36, 32, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: "Segoe UI", "Leelawadee UI", "Noto Sans Thai", "IBM Plex Sans Thai", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  .eyebrow::before { content: ""; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 40px); line-height: 1.18; letter-spacing: -0.01em;
+    margin: 0 0 14px; text-wrap: balance; font-weight: 700;
+  }
+  .dek { font-size: 17px; color: var(--muted); max-width: 62ch; margin: 0 0 28px; text-wrap: pretty; }
+
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 22px;
+    border-top: 1px solid var(--border); font-size: 13.5px; color: var(--muted);
+  }
+  .meta-row dt {
+    display: inline; color: var(--faint); text-transform: uppercase;
+    letter-spacing: 0.06em; font-size: 11px; margin-right: 6px;
+  }
+  .meta-row dd { display: inline; margin: 0; color: var(--ink); }
+  .meta-item { white-space: nowrap; }
+
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 56px;
+    margin-top: 48px; align-items: start;
+  }
+  @media (max-width: 760px) {
+    .layout { grid-template-columns: 1fr; gap: 40px; }
+    .page { padding: 40px 20px 64px; }
+  }
+
+  main { min-width: 0; }
+  section { margin-bottom: 52px; }
+  section:last-child { margin-bottom: 0; }
+
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint);
+    margin: 0 0 18px; display: flex; align-items: center; gap: 10px;
+  }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  p { margin: 0 0 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  .lede-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; box-shadow: var(--shadow); font-size: 15.5px; color: var(--ink);
+  }
+  .lede-box strong { color: var(--accent); }
+
+  /* ---------- Mermaid flow chart ---------- */
+  figure {
+    margin: 0; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .mermaid-wrap { padding: 20px; overflow-x: auto; }
+  .mermaid-wrap svg { max-width: 100%; }
+  figcaption {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    padding: 10px 20px; border-top: 1px solid var(--border); background: var(--surface-sunk);
+  }
+  .fc-legend {
+    display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0 16px; font-size: 12.5px; color: var(--muted);
+  }
+  .fc-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .fc-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid; }
+  .fc-legend i.auto { background: var(--accent-soft); border-color: var(--accent); }
+  .fc-legend i.gate { background: var(--warn-soft); border-color: var(--warn); }
+  .fc-legend i.ok { background: var(--good-soft); border-color: var(--good); }
+  .fc-legend i.err { background: var(--rust-soft); border-color: var(--rust); }
+
+  /* ---------- Pipeline strip ---------- */
+  .pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; counter-reset: step; }
+  @media (max-width: 900px) { .pipeline { grid-template-columns: 1fr; } }
+  .step { position: relative; padding: 18px 16px 16px 0; counter-increment: step; }
+  .pipeline .step:not(:last-child) { border-right: 1px dashed var(--border-strong); margin-right: 16px; }
+  @media (max-width: 900px) {
+    .pipeline .step:not(:last-child) {
+      border-right: none; border-bottom: 1px dashed var(--border-strong);
+      padding-bottom: 20px; margin-right: 0; margin-bottom: 16px;
+    }
+  }
+  .step-num {
+    font-family: var(--font-mono); font-size: 12px; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid var(--accent-soft-border);
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+  }
+  .step-num::before { content: counter(step); }
+  .step-actor { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--faint); margin-bottom: 4px; }
+  .step-title { font-weight: 600; font-size: 14.5px; margin-bottom: 6px; line-height: 1.35; }
+  .step-body { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .step-body code {
+    font-family: var(--font-mono); font-size: 12px; background: var(--surface-sunk);
+    padding: 1px 5px; border-radius: 4px; color: var(--ink);
+  }
+  .loopback {
+    margin-top: 18px; font-size: 13px; color: var(--muted); padding: 12px 14px;
+    background: var(--surface-sunk); border-left: 2px solid var(--accent); border-radius: 0 6px 6px 0;
+  }
+  .loopback strong { color: var(--ink); }
+
+  /* ---------- Permission chips ---------- */
+  .perm-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .perm-chip {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface); font-size: 13.5px;
+  }
+  .perm-chip .role { font-weight: 600; }
+  .perm-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .perm-chip.allowed .dot { background: var(--good); }
+  .perm-chip.denied .dot { background: var(--rust); }
+  .perm-chip.denied { color: var(--muted); }
+
+  /* ---------- Ledger table ---------- */
+  .table-wrap {
+    overflow-x: auto; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface); box-shadow: var(--shadow);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  thead th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--faint); font-weight: 600; padding: 12px 16px;
+    border-bottom: 1px solid var(--border); background: var(--surface-sunk);
+  }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  .ticket-id { font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+  .layer-name { color: var(--muted); }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+    border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .pill.done { background: var(--good-soft); color: var(--good); }
+  .pill.done::before { background: var(--good); }
+  .footnote-flag { font-family: var(--font-mono); color: var(--warn); font-size: 12px; margin-left: 4px; cursor: help; }
+
+  .callout {
+    margin-top: 16px; padding: 16px 18px; border-radius: 10px; font-size: 13.5px; line-height: 1.6;
+    border: 1px solid var(--warn-soft); background: var(--warn-soft); color: var(--ink);
+  }
+  .callout-title {
+    font-weight: 700; color: var(--warn); font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 6px;
+  }
+  .callout .mono { color: var(--ink); }
+
+  .scope-list {
+    list-style: none; margin: 0; padding: 0; display: grid;
+    grid-template-columns: repeat(2, 1fr); gap: 8px 20px;
+  }
+  @media (max-width: 560px) { .scope-list { grid-template-columns: 1fr; } }
+  .scope-list li { font-size: 14px; color: var(--muted); padding-left: 18px; position: relative; }
+  .scope-list li::before { content: "—"; position: absolute; left: 0; color: var(--faint); }
+
+  aside { position: sticky; top: 32px; display: flex; flex-direction: column; gap: 24px; }
+  @media (max-width: 760px) { aside { position: static; } }
+  .side-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .side-card h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint);
+    margin: 0 0 12px; font-weight: 600;
+  }
+  .side-fact { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
+  .side-fact:last-child { margin-bottom: 0; }
+  .side-fact .label { font-size: 12px; color: var(--faint); }
+  .side-fact .value { font-size: 14px; color: var(--ink); }
+  .side-fact .value a { word-break: break-word; }
+
+  .progress-stat { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .progress-stat .num { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--good); line-height: 1; }
+  .progress-stat .of { font-size: 13px; color: var(--muted); }
+  .progress-bar { height: 6px; border-radius: 999px; background: var(--surface-sunk); overflow: hidden; margin-bottom: 4px; }
+  .progress-bar-fill { height: 100%; background: var(--good); border-radius: 999px; width: 100%; }
+  .progress-note { font-size: 12px; color: var(--faint); }
+
+  footer {
+    margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="eyebrow">B1DX Fulfillment · Order Module</p>
+  <h1>จับคู่ SKU ด้วยคน (Manual Match) ผ่าน UI</h1>
+  <p class="dek">
+    Order ที่ SKU จาก marketplace ไม่ตรงกับ internal catalog เคยติด dead-end
+    — ไม่มี UI ให้แก้ ตอนนี้ทีมมีหน้าจอให้จับคู่มือ พร้อม auto-match รอบถัดไปจาก mapping ที่เคยสอนไว้
+  </p>
+  <dl class="meta-row">
+    <span class="meta-item"><dt>Spec</dt><dd class="mono">docs/specs/order-sku-match.md v1.0</dd></span>
+    <span class="meta-item"><dt>Owner</dt><dd>srattha</dd></span>
+    <span class="meta-item"><dt>Confirmed</dt><dd>2026-05-11</dd></span>
+    <span class="meta-item"><dt>ตรวจสอบล่าสุด</dt><dd>2026-07-17 (GH live)</dd></span>
+  </dl>
+
+  <div class="layout">
+    <main>
+
+      <section>
+        <h2>ปัญหาเดิม</h2>
+        <div class="lede-box">
+          <p>
+            Order สถานะ <strong>100 (รอจับคู่)</strong> ที่ SKU จาก marketplace ไม่ตรงกับ internal
+            product catalog ของ OMS จะถูกบล็อกจากการยืนยัน (transition 100→400) แต่ไม่มีทางแก้เอง —
+            ไม่มี Product table, ไม่มี SkuMapping, ไม่มี endpoint จับคู่, sync worker ก็ไม่ auto-resolve
+            ให้ และ FE ไม่มีจุดเปิดหน้าจับคู่เลย
+          </p>
+        </div>
+      </section>
+
+      <section id="flowchart">
+        <h2>Flow Chart — Auto-match + Manual-match รวม</h2>
+        <div class="fc-legend">
+          <span><i class="auto"></i>Sync worker / auto-resolve</span>
+          <span><i class="gate"></i>Gate / decision</span>
+          <span><i class="ok"></i>บันทึกสำเร็จ</span>
+          <span><i class="err"></i>Error response</span>
+        </div>
+        <figure>
+          <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart TD
+    WH["Marketplace Webhook"] --> SYNC["Sync Worker\nUpsertOrderAsync"]
+    SYNC --> RESOLVE{"SkuMapping\nresolve ครบไหม"}
+    RESOLVE -->|"ครบทุก item"| MSM["match_status = matched"]
+    RESOLVE -->|"บางส่วน"| MSP["match_status = partial"]
+    RESOLVE -->|"ไม่มีเลย"| MSU["match_status = unmatched"]
+
+    MSM --> BTNOK["ปุ่มในลิสต์: ✓ ยืนยัน"]
+    MSP --> BTNMATCH["ปุ่มในลิสต์: 🔗 Match SKU"]
+    MSU --> BTNMATCH
+
+    BTNMATCH --> GATE{"status=100 และ\nสิทธิ์ orders.match ?"}
+    GATE -->|"ไม่มีสิทธิ์"| HIDE["ปุ่มซ่อน (dash)"]
+    GATE -->|"มีสิทธิ์"| DIALOG["เปิด SkuMatchDialog"]
+
+    DIALOG --> PICK["เลือก internal product ต่อ item\nauto-suggest จาก sku_mappings เดิม"]
+    PICK --> SAVE["POST /orders/{id}/items/match"]
+
+    SAVE --> VALIDATE{"Backend validate"}
+    VALIDATE -->|"200"| WRITE["set matched_product_id + matched_at\nupsert sku_mappings"]
+    VALIDATE -->|"403 forbidden"| ERR1["toast: ไม่มีสิทธิ์"]
+    VALIDATE -->|"404 not_found"| ERR2["toast: ไม่พบ order"]
+    VALIDATE -->|"409 conflict"| ERR3["banner: ชนกัน + refresh"]
+
+    WRITE --> RECOMPUTE["Recompute match_status"]
+    RECOMPUTE -.->|"loop-back"| MSM
+    RECOMPUTE -.->|"loop-back"| MSP
+    RECOMPUTE --> BTNOK
+
+    classDef auto fill:#dceae7,stroke:#2e6f6e,color:#1b2420;
+    classDef gate fill:#f4e6cf,stroke:#a06a1f,color:#1b2420;
+    classDef err fill:#f3ded8,stroke:#a5432f,color:#1b2420;
+    classDef ok fill:#e1f0e5,stroke:#2f7a4f,color:#1b2420;
+    class SYNC,RESOLVE,MSM,MSP,MSU auto
+    class GATE,VALIDATE,BTNMATCH gate
+    class ERR1,ERR2,ERR3,HIDE err
+    class WRITE,RECOMPUTE,BTNOK ok
+</pre>
+          </div>
+          <figcaption>diagram — เขียว = auto-resolve จาก sync worker · เหลือง = decision gate · เขียวเข้ม = บันทึกสำเร็จ/recompute · แดง = error response (403/404/409)</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <h2>Flow การจับคู่ — เวอร์ชันทีม (6 ขั้นตอน)</h2>
+        <div class="pipeline">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">System / Sync</div>
+            <div class="step-title">Order เข้าระบบ</div>
+            <div class="step-body"><code>sku_code</code> จาก platform ดิบ · <code>match_status = unmatched</code></div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">Frontend</div>
+            <div class="step-title">ปุ่ม "🔗 Match SKU" โผล่</div>
+            <div class="step-body">เมื่อ status=100 + matchStatus ∈ unmatched/partial + สิทธิ์ <code>orders.match</code></div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">ทีม (มือกด)</div>
+            <div class="step-title">เปิด SkuMatchDialog</div>
+            <div class="step-body">เลือก internal product ต่อ item · auto-suggest จาก mapping เดิมถ้าเคยจับคู่ร้านนี้มาก่อน</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">Frontend</div>
+            <div class="step-title">Save → ส่งคำขอ</div>
+            <div class="step-body"><code>POST /orders/{id}/items/match</code></div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">Backend</div>
+            <div class="step-title">ตรวจสอบ + บันทึก</div>
+            <div class="step-body">validate role/ownership → set <code>matched_product_id</code> → upsert <code>sku_mappings</code></div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-actor">Backend</div>
+            <div class="step-title">Recompute match_status</div>
+            <div class="step-body">unmatched / partial / matched — ปุ่มในลิสต์เปลี่ยนตามทันที</div>
+          </div>
+        </div>
+        <div class="loopback">
+          <strong>Loop-back:</strong> mapping ที่ upsert ไว้ในขั้นตอน 5 ถูกใช้ auto-suggest ในขั้นตอน 3 ของครั้งถัดไป
+          — SKU เดิมจากร้านเดิมเติมให้อัตโนมัติ ไม่ต้องจับคู่มือซ้ำ · re-match ใช้ flow เดียวกัน overwrite ค่าเดิมได้เลย
+        </div>
+      </section>
+
+      <section>
+        <h2>สิทธิ์เข้าถึง — orders.match</h2>
+        <div class="perm-grid">
+          <span class="perm-chip allowed"><span class="dot"></span><span class="role">SuperAdmin</span></span>
+          <span class="perm-chip allowed"><span class="dot"></span><span class="role">BrandAdmin</span></span>
+          <span class="perm-chip allowed"><span class="dot"></span><span class="role">FfManager</span></span>
+          <span class="perm-chip denied"><span class="dot"></span><span class="role">FfMember</span> · request only</span>
+          <span class="perm-chip denied"><span class="dot"></span><span class="role">WhAdmin</span></span>
+          <span class="perm-chip denied"><span class="dot"></span><span class="role">WhWorker</span></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>สถานะ Implementation — 8 ticket</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Ticket</th><th>Layer</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="ticket-id">MATCH-SPEC-01</td><td class="layer-name">Spec</td><td><span class="pill done">Done</span></td></tr>
+              <tr><td class="ticket-id">MATCH-BE-00</td><td class="layer-name">Shop foundation</td><td><span class="pill done">Done</span></td></tr>
+              <tr><td class="ticket-id">MATCH-BE-01</td><td class="layer-name">Product / SkuMapping domain+infra</td><td><span class="pill done">Done</span></td></tr>
+              <tr><td class="ticket-id">MATCH-BE-02</td><td class="layer-name">API endpoint</td><td><span class="pill done">Done</span></td></tr>
+              <tr>
+                <td class="ticket-id">MATCH-WORKER-01</td>
+                <td class="layer-name">Auto-match (sync worker)</td>
+                <td><span class="pill done">Done</span><span class="footnote-flag" title="plan.md ยังเขียนว่า In Review — ดู callout ด้านล่าง">†</span></td>
+              </tr>
+              <tr><td class="ticket-id">MATCH-FE-01</td><td class="layer-name">SkuMatchDialog UI</td><td><span class="pill done">Done</span></td></tr>
+              <tr><td class="ticket-id">MATCH-FE-02</td><td class="layer-name">FE integration</td><td><span class="pill done">Done</span></td></tr>
+              <tr><td class="ticket-id">IMPROVE-MATCH-FIDELITY</td><td class="layer-name">Visual polish vs mockup</td><td><span class="pill done">Done</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <div class="callout-title">† plan.md ตกหล่น ไม่ตรงกับ GH</div>
+          <p style="margin:0">
+            <span class="mono">tasks/plans/MATCH-WORKER-01/plan.md</span> ยังเขียนสถานะ <span class="mono">In Review</span>
+            (บันทึกล่าสุด 2026-05-29) แต่ตรวจสอบสดผ่าน <span class="mono">gh</span> วันนี้: PR
+            <span class="mono">b1dx.omsorders.sync.worker#3</span> merge แล้ว 2026-06-06 และ issue
+            <span class="mono">#173</span> ปิดแล้ว 2026-06-07 (Project status = Done) — ตาม policy
+            post-merge ของ workspace ให้ยึด GH เป็น source of truth ไม่ใช่ plan.md
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Out of scope (deferred)</h2>
+        <ul class="scope-list">
+          <li>AI/fuzzy SKU suggest ("แนะนำ" button)</li>
+          <li>Shop CRUD UI</li>
+          <li>Product CRUD UI</li>
+          <li>SkuMapping CRUD / audit / unmap</li>
+          <li>Bulk match (หลาย orders พร้อมกัน)</li>
+          <li>Reverse lookup Product → ShopSku[]</li>
+          <li>Shop-level RBAC (row security)</li>
+          <li>Multi-shop re-assign credentials ผ่าน UI</li>
+        </ul>
+      </section>
+
+    </main>
+
+    <aside>
+      <div class="side-card">
+        <h3>ความคืบหน้า</h3>
+        <div class="progress-stat">
+          <span class="num">8</span>
+          <span class="of">/ 8 ticket done</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+        <div class="progress-note">Epic เสร็จสมบูรณ์ในระบบจริง</div>
+      </div>
+
+      <div class="side-card">
+        <h3>อ้างอิง</h3>
+        <div class="side-fact">
+          <span class="label">Spec</span>
+          <span class="value mono">docs/specs/order-sku-match.md</span>
+        </div>
+        <div class="side-fact">
+          <span class="label">Mockup</span>
+          <span class="value mono">sku_match_modal_improved.html</span>
+        </div>
+        <div class="side-fact">
+          <span class="label">GH Issue (worker)</span>
+          <span class="value mono">#173 — closed</span>
+        </div>
+        <div class="side-fact">
+          <span class="label">PR (worker)</span>
+          <span class="value mono">sync.worker#3 — merged 2026-06-06</span>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Risk ที่บันทึกไว้</h3>
+        <p style="margin:0; font-size:13px; color:var(--muted); line-height:1.55;">
+          Build แรกของ MATCH-WORKER-01 (2026-05-12) หลุดหาย — ไม่มี branch/commit เหลือ
+          ต้อง rebuild ใหม่ทั้งหมดโดย nuchit วันที่ 2026-05-29
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>รวบรวมจาก docs/specs + tasks/plans + GitHub (live) — B1DX Fulfillment Workspace</span>
+    <span>ตรวจสอบ 2026-07-17</span>
+  </footer>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#dceae7',
+      primaryBorderColor: '#2e6f6e',
+      primaryTextColor: '#1b2420',
+      lineColor: '#8b9590',
+      fontFamily: 'ui-sans-serif, "Segoe UI", "Leelawadee UI", system-ui, sans-serif'
+    }
+  });
+</script>
+
+</body>
+</html>

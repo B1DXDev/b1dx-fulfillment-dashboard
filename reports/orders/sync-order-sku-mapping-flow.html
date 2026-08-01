@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sync Order: Webhook → OMS — Step by Step (Phase 1-3)</title>
+<style>
+  :root {
+    --blue: #4a9eed; --blue-lt: #e7f2ff; --blue-dark: #1e5f9e;
+    --purple: #8b5cf6; --purple-lt: #f3effe; --purple-dark: #5b21b6;
+    --green: #22c55e; --green-lt: #eafbf0; --green-dark: #15803d;
+    --amber: #f59e0b; --amber-lt: #fff8e6; --amber-dark: #92400e;
+    --red: #ef4444; --red-lt: #fdeded; --red-dark: #b91c1c;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+    --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: var(--gray-900); line-height: 1.65; }
+
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%); color: #fff; padding: 40px 48px 34px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 27px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 15px; color: rgba(255,255,255,.72); margin-top: 8px; max-width: 760px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .header-meta span { font-size: 13px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .toc { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .toc a { text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; background: #fff; box-shadow: var(--shadow); color: var(--gray-700); }
+  .toc a:hover { color: var(--purple-dark); }
+
+  .arch-row { display: grid; grid-template-columns: 1fr 32px 1fr 32px 1fr; align-items: stretch; gap: 6px; margin-bottom: 28px; }
+  @media (max-width: 760px) { .arch-row { grid-template-columns: 1fr; } .arch-arrow { transform: rotate(90deg); padding: 4px 0; } }
+  .arch-box { border-radius: var(--radius); padding: 16px 18px; color: #fff; box-shadow: var(--shadow); }
+  .arch-box h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+  .arch-box .repo { font-family: 'Consolas', monospace; font-size: 10.5px; opacity: .85; margin-bottom: 6px; display: block; }
+  .arch-box p { font-size: 12px; opacity: .92; }
+  .arch-box.b1 { background: linear-gradient(135deg,#2563eb,#1e40af); }
+  .arch-box.b2 { background: linear-gradient(135deg,#7c3aed,#5b21b6); }
+  .arch-box.b3 { background: linear-gradient(135deg,#059669,#065f46); }
+  .arch-arrow { display: flex; align-items: center; justify-content: center; color: var(--gray-500); font-size: 20px; font-weight: 700; }
+
+  .note-row { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--gray-700); margin-bottom: 36px; display: flex; gap: 10px; align-items: flex-start; }
+
+  .phase { margin-bottom: 44px; scroll-margin-top: 16px; }
+  .phase-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .phase-badge { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; box-shadow: var(--shadow); }
+  .phase-head h2 { font-size: 19px; font-weight: 700; }
+  .phase-head .sub { font-size: 12.5px; color: var(--gray-500); margin-top: 2px; }
+  .phase-line { flex: 1; height: 2px; background: var(--gray-200); }
+
+  .steps { position: relative; padding-left: 26px; }
+  .steps::before { content: ''; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 2px; background: var(--gray-200); }
+
+  .step { position: relative; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 20px 16px 22px; margin-bottom: 14px; }
+  .step::before { content: attr(data-n); position: absolute; left: -26px; top: 18px; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px #f0f2f5; }
+  .step.blue::before { background: var(--blue); }
+  .step.purple::before { background: var(--purple); }
+  .step.green::before { background: var(--green); }
+  .step.red::before { background: var(--red); }
+  .step.amber::before { background: var(--amber); }
+
+  .step h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: 13.5px; color: var(--gray-700); margin-bottom: 6px; }
+  .step .file { font-family: Consolas, monospace; font-size: 11px; background: var(--gray-100); color: var(--purple-dark); padding: 2px 7px; border-radius: 5px; display: inline-block; margin-top: 4px; }
+  code { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; background: var(--gray-100); padding: 1px 6px; border-radius: 4px; color: var(--purple-dark); }
+
+  .result-box { margin-top: 10px; border-radius: 9px; overflow: hidden; border: 1px solid var(--gray-200); }
+  .result-row { display: flex; align-items: center; gap: 10px; padding: 8px 14px; font-size: 12.5px; border-top: 1px solid var(--gray-200); }
+  .result-row:first-child { border-top: none; background: var(--gray-50); font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: .04em; color: var(--gray-500); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.g { background: var(--green); } .dot.a { background: var(--amber); } .dot.r { background: var(--red); }
+
+  .callout { border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 8px; display: flex; gap: 10px; align-items: flex-start; }
+  .callout.warn { background: var(--amber-lt); border: 1px solid #fcd34d; color: var(--amber-dark); }
+  .callout.info { background: var(--blue-lt); border: 1px solid #bfdbfe; color: var(--blue-dark); }
+  .callout.danger { background: var(--red-lt); border: 1px solid #fca5a5; color: var(--red-dark); }
+
+  .summary-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-top: 8px; }
+  .summary-card h2 { font-size: 18px; margin-bottom: 14px; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table th { text-align: left; background: var(--gray-50); padding: 9px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200); }
+  .summary-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+  .summary-table tr:last-child td { border-bottom: none; }
+
+  .footer { text-align: center; padding: 30px 24px; font-size: 12px; color: var(--gray-500); }
+
+  .flowchart-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+  .flowchart-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); margin-bottom: 12px; }
+  .mermaid { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">SYNC ORDER · SKU MAPPING</div>
+  <h1>Sync Order: Webhook → OMS — Step by Step</h1>
+  <div class="header-sub">อธิบายทีละขั้นตอน ตั้งแต่ marketplace ส่ง webhook จนถึง order ยืนยันได้ใน OMS — เวอร์ชันอ่านง่าย ไม่ต้องคลิกเปิด</div>
+  <div class="header-meta">
+    <span><strong>วันที่:</strong> 16 Jul 2026</span>
+    <span><strong>Repos:</strong> b1dx-marketplace-webhook · b1dx.omsorders.sync.worker · b1dx-oms-fulfillment-api</span>
+    <span><strong>อ้างอิงเต็ม:</strong> order-item-match-sku-flow-report.html</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <a href="#overview">ภาพรวม 3 Repo</a>
+    <a href="#phase1">Phase 1 — Webhook</a>
+    <a href="#phase2">Phase 2 — Sync Worker</a>
+    <a href="#phase2-flowchart">Flowchart Phase 2</a>
+    <a href="#sku-match-zoom">🔍 เจาะ Step 10: SKU Match</a>
+    <a href="#phase3">Phase 3 — OMS BE</a>
+    <a href="#edit-flow">⚠️ Order ถูกแก้ไข (Edit)</a>
+    <a href="#summary">สรุปผลลัพธ์</a>
+  </div>
+
+  <div id="overview" class="arch-row">
+    <div class="arch-box b1">
+      <h4>1 · Webhook Receiver</h4>
+      <span class="repo">b1dx-marketplace-webhook (Go)</span>
+      <p>รับ webhook → ดึง order เต็มจาก Marketplace API → เก็บลง staging DB ของตัวเอง</p>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box b2">
+      <h4>2 · Sync Worker</h4>
+      <span class="repo">b1dx.omsorders.sync.worker (.NET)</span>
+      <p>Poll staging DB → upsert เข้า OMS → จับคู่ SKU อัตโนมัติ</p>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box b3">
+      <h4>3 · OMS Fulfillment API</h4>
+      <span class="repo">b1dx-oms-fulfillment-api (.NET)</span>
+      <p>แสดงผลใน UI · กันยืนยัน order ที่ยังไม่ match · ให้คนช่วย match มือ</p>
+    </div>
+  </div>
+
+  <div class="note-row">
+    <span>ℹ️</span>
+    <span><strong>จุดสำคัญ:</strong> ระหว่าง repo 1 → repo 2 <u>ไม่มี RabbitMQ ส่ง order</u> — เป็น shared Postgres + polling (<code>FOR UPDATE SKIP LOCKED</code>) แทน RabbitMQ ใน webhook repo ใช้แค่ ingest raw webhook payload เท่านั้น</span>
+  </div>
+
+  <!-- ═══════════ PHASE 1 ═══════════ -->
+  <div class="phase" id="phase1">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--blue);">1</div>
+      <div>
+        <h2>Phase 1 — Webhook รับ order เข้ามา &amp; เก็บพัก (Staging)</h2>
+        <div class="sub">b1dx-marketplace-webhook (Go)</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step blue" data-n="1">
+        <h3>Marketplace ส่ง Webhook มาหาเรา</h3>
+        <p>Shopee/Lazada/TikTok ยิง event (order สร้างใหม่/เปลี่ยนสถานะ) มาที่ endpoint ของเรา → รับ raw body ปุ๊บ → โยนเข้าคิว RabbitMQ ทันที แล้วตอบกลับ <strong>202 Accepted</strong> ทันที (ไม่รอ process ให้เสร็จ)</p>
+        <span class="file">internal/adapter/handler/webhook.go:37</span>
+      </div>
+
+      <div class="step blue" data-n="2">
+        <h3>เช็คว่าเคยได้รับ event นี้ไปแล้วหรือยัง (Idempotency)</h3>
+        <p>คำนวณลายเซ็น <code>sha256(platform + body)</code> เทียบกับตาราง <code>webhook_events</code> — ถ้าเคยเห็นแล้ว (marketplace ส่งซ้ำ) → ทิ้งเลย ไม่ process ซ้ำ</p>
+        <span class="file">internal/service/webhook_service.go:42</span>
+      </div>
+
+      <div class="step blue" data-n="3">
+        <h3>เรียก Marketplace API ดึง Order ฉบับเต็ม</h3>
+        <p>Webhook ส่งมาแค่ "มี event นะ" ไม่ได้แนบข้อมูลเต็ม — ระบบต้อง resolve ว่า order นี้ของ shop/tenant ไหน แล้วเรียก <code>GetOrderByID</code> + <code>GetOrderItems</code> กลับไปถามแพลตฟอร์มเพื่อดึงรายละเอียด order เต็มๆ</p>
+        <span class="file">internal/service/lazada_sync_service.go:181</span>
+      </div>
+
+      <div class="step blue" data-n="4">
+        <h3>เขียนลง Staging DB ของ Webhook เอง</h3>
+        <p>บันทึกลง <code>public.orders</code> / <code>public.order_items</code> (คนละ DB กับ OMS — เป็นแค่จุดพักข้อมูล) แต่ละ item เก็บทั้ง <code>sku</code> (โค้ดที่ผู้ขายตั้งเอง ใช้แสดงผล) และ <strong><code>sku_id</code></strong> (variant id ของมาร์เก็ตเพลส — ใช้เป็น join key จริงตอนจับคู่ในขั้นถัดไป) พร้อม <code>raw_data</code> เก็บ JSON ดิบไว้เผื่อ debug</p>
+        <span class="file">internal/domain/entity/order.go:5-58</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PHASE 2 ═══════════ -->
+  <div class="phase" id="phase2">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--purple);">2</div>
+      <div>
+        <h2>Phase 2 — Sync Worker: ดูด order เข้า OMS &amp; จับคู่ SKU</h2>
+        <div class="sub">b1dx.omsorders.sync.worker (.NET)</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="flowchart-card" id="phase2-flowchart">
+      <h3>Flowchart — Phase 2 เต็มกระบวนการ (step 5-11 + branch/loop)</h3>
+      <div class="mermaid">
+flowchart TD
+    A(["⏱ Background Poller wakes<br/>PeriodicTimer interval"]) --> B["Claim unsynced orders<br/>FOR UPDATE SKIP LOCKED<br/>mark oms_sync_status='processing'"]
+    B --> C{"Any orders<br/>claimed?"}
+    C -->|"No"| Z1(["Sleep until next tick"])
+    Z1 -.-> A
+    C -->|"Yes"| D["Parse per platform<br/>Lazada / Shopee / TikTok Parser<br/>→ NormalizedOrder"]
+    D --> E{"Order already exists<br/>in oms.orders?<br/>(platform + externalOrderId)"}
+    E -->|"Yes"| F["StatusRegressionGuard<br/>prevent status rollback"]
+    E -->|"No — new order"| G["Upsert oms.orders / order_items<br/>/ order_addresses<br/>(single transaction)"]
+    F --> G
+    G --> H{{"★ SKU Auto-Match<br/>SkuMatchService.ResolveAsync()<br/>compare seller SKU vs oms.sku_mappings"}}
+    H --> I1["matched"]
+    H --> I2["partial"]
+    H --> I3["unmatched"]
+    I1 --> J["Mark result back to staging"]
+    I2 --> J
+    I3 --> J
+    J --> K{"Sync marked<br/>successful?"}
+    K -->|"Yes"| L["public.orders.is_oms_sync = true"]
+    L --> M(["→ Phase 3: order visible in OMS,<br/>match_status gates confirmation (BR-02)"])
+    K -->|"No"| N["Mark failed<br/>increment retry count"]
+    N --> O{"retry count ≥<br/>DeadLetterThreshold?"}
+    O -->|"Yes"| P[["Dead-letter"]]
+    O -->|"No"| B
+
+    classDef start fill:#e7f2ff,stroke:#1e5f9e,stroke-width:1.5px,color:#1e3a5f;
+    classDef step fill:#f3effe,stroke:#5b21b6,stroke-width:1.5px,color:#3b1a63;
+    classDef decision fill:#fff8e6,stroke:#b45309,stroke-width:1.5px,color:#78350f;
+    classDef match fill:#eafbf0,stroke:#15803d,stroke-width:2.5px,color:#14532d;
+    classDef good fill:#eafbf0,stroke:#15803d,stroke-width:1.5px,color:#14532d;
+    classDef bad fill:#fdeded,stroke:#b91c1c,stroke-width:1.5px,color:#7f1d1d;
+    classDef nextphase fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d,stroke-dasharray: 4 3;
+
+    class A,Z1 start;
+    class B,D,F,G,J,N step;
+    class C,E,K,O decision;
+    class H match;
+    class I1 good;
+    class I2 decision;
+    class I3 bad;
+    class L good;
+    class M nextphase;
+    class P bad;
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step purple" data-n="5">
+        <h3>Background Worker ตื่นตามรอบเวลา</h3>
+        <p><code>MarketplaceSyncBackgroundService</code> ใช้ timer ปลุกตัวเองตาม interval ที่ตั้งค่าไว้ → เรียก <code>SyncAsync()</code> เพื่อเริ่มรอบ sync ใหม่</p>
+        <span class="file">Infrastructure/BackgroundJobs/MarketplaceSyncBackgroundService.cs</span>
+      </div>
+
+      <div class="step purple" data-n="6">
+        <h3>เลือก Order ที่ยังไม่ Sync มาทำ (กันแย่งงานกัน)</h3>
+        <p>Query <code>public.orders</code> ที่ยังไม่ sync ด้วย <code>FOR UPDATE SKIP LOCKED</code> — ถ้ามี worker หลายตัวรันพร้อมกัน แต่ละตัวจะหยิบคนละ order ไม่ชนกัน แล้ว mark ว่า <code>processing</code> ไว้ก่อน</p>
+        <span class="file">Application/Services/MarketplaceOrderSyncService.cs:38-42</span>
+      </div>
+
+      <div class="step purple" data-n="7">
+        <h3>แปลงข้อมูลตามแพลตฟอร์ม</h3>
+        <p>แต่ละแพลตฟอร์มส่ง JSON คนละรูปแบบ — <code>LazadaOrderParser</code> / <code>ShopeeOrderParser</code> / <code>TikTokOrderParser</code> แปลงให้เป็นรูปแบบกลางเดียวกัน (<code>NormalizedOrder</code>) ก่อนใช้งานต่อ</p>
+      </div>
+
+      <div class="step purple" data-n="8">
+        <h3>เช็ค Order ซ้ำ (Dedup — คนละเรื่องกับ SKU Matching!)</h3>
+        <p>เทียบ <code>(platform, externalOrderId)</code> กับ <code>oms.orders</code> ที่มีอยู่แล้ว — ถ้าเจอ order เดิม ใช้ <code>StatusRegressionGuard</code> กันไม่ให้สถานะ order ถอยหลัง (เผื่อ webhook มาถึงช้ากว่าที่ควร)</p>
+        <div class="callout info">💡 นี่คือ "matching" แบบ order dedup ไม่ใช่ SKU matching ที่พูดถึงใน step 10 — สองอย่างนี้แยกกันคนละหน้าที่</div>
+      </div>
+
+      <div class="step purple" data-n="9">
+        <h3>บันทึกเข้า OMS Database จริง</h3>
+        <p>Insert-or-update <code>oms.orders</code>, ล้างแล้วเขียนใหม่ <code>oms.order_items</code> และ <code>oms.order_addresses</code> ผ่าน transaction เดียว · order number จะถูกตั้งชื่อรูปแบบ <code>MKT-{PLATFORM}-{externalOrderId}</code></p>
+        <span class="file">Infrastructure/Persistence/MarketplaceOrderRepository.cs:26-208</span>
+      </div>
+
+      <div class="step green" data-n="10">
+        <h3>★ จับคู่ SKU อัตโนมัติ (หัวใจของ Flow นี้)</h3>
+        <p><code>SkuMatchService.ResolveAsync()</code> เอา seller SKU code ของแต่ละ item ไปเทียบกับตาราง <code>oms.sku_mappings</code> (mapping ที่เคย match ไว้แล้ว) — เจอ → บันทึก <code>matched_product_id</code> + <code>matched_at</code> ให้ item นั้น จากนั้นคำนวณผลรวมทั้ง order เป็น <code>match_status</code>:</p>
+        <div class="result-box">
+          <div class="result-row"><span>สถานะ</span><span>ความหมาย</span></div>
+          <div class="result-row"><span class="dot g"></span><strong>matched</strong><span style="margin-left:auto; color:var(--gray-700);">ทุก item เจอ mapping แล้ว</span></div>
+          <div class="result-row"><span class="dot a"></span><strong>partial</strong><span style="margin-left:auto; color:var(--gray-700);">เจอ mapping แค่บางส่วน</span></div>
+          <div class="result-row"><span class="dot r"></span><strong>unmatched</strong><span style="margin-left:auto; color:var(--gray-700);">ไม่เจอเลย หรือหา oms_shop_id ไม่เจอ</span></div>
+        </div>
+        <p style="margin-top:10px;"><span class="file">Application/Services/SkuMatchService.cs</span> <span class="file">MarketplaceOrderSyncService.cs:250-288</span></p>
+      </div>
+
+      <div class="step purple" data-n="11">
+        <h3>อัปเดตสถานะกลับไปที่ Staging</h3>
+        <p>สำเร็จ → set <code>public.orders.is_oms_sync = true</code> (จะได้ไม่ถูกหยิบมาทำซ้ำ) · ล้มเหลว → mark failed แล้วนับ retry ถ้าเกิน threshold จะเข้า dead-letter</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ZOOM-IN: SKU MATCH (STEP 10) ═══════════ -->
+  <div class="phase" id="sku-match-zoom">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--green);">🔍</div>
+      <div>
+        <h2>เจาะเฉพาะ Step 10 — ข้างในของ SKU Auto-Match จริงๆ เป็นยังไง</h2>
+        <div class="sub">SkuMatchService.ResolveAsync() + MatchStatusCalculator — ทีละบรรทัดตามโค้ดจริง</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="note-row" style="border-left:4px solid var(--green);">
+      <span>🔎</span>
+      <span><strong>สรุปก่อนดู flowchart:</strong> การจับคู่เป็น <strong>exact string lookup</strong> ล้วนๆ — คีย์คือ <code>(tenant_id, shop_id, platform_sku_code)</code> ที่มี unique index รับประกันไม่มีจับคู่ซ้ำซ้อน <strong>ไม่มี fuzzy/barcode/ชื่อสินค้า fallback ใดๆ ทั้งสิ้น</strong> และไม่มี confidence score — เจอก็คือเจอ ไม่เจอก็คือไม่เจอ นอกจากนี้ cache ของ mapping โหลดแค่ครั้งเดียวต่อ shop ต่อรอบ sync (ไม่มี TTL) และ <strong>manual match ที่คนทำไว้จะไม่มีวันถูก auto-match ทับ</strong> เพราะเขียนแบบมีเงื่อนไข <code>WHERE matched_product_id IS NULL</code> เท่านั้น</span>
+    </div>
+
+    <div class="flowchart-card">
+      <h3>Flowchart — SkuMatchService.ResolveAsync() + MatchStatusCalculator</h3>
+      <div class="mermaid">
+flowchart TD
+    A(["AutoMatchOrderAsync ถูกเรียก<br/>หลังจาก upsert order (Step 9)"]) --> B{"credential.OmsShopId<br/>เป็น Guid จริงไหม?<br/>(shop ผูกกับ OMS shop แล้วหรือยัง)"}
+    B -->|"ไม่ผูก (null)"| C["ข้าม resolution ทั้งหมด<br/>log: auto_match_skipped<br/>reason=oms_shop_not_linked"]
+    C --> D["ApplyAutoMatchAsync(Empty)"]
+    D --> ZEND(["จบ — match_status = unmatched<br/>(ไม่แตะ SkuMatchService เลย)"])
+    B -->|"ผูกแล้ว"| E["เรียก SkuMatchService.ResolveAsync<br/>(items, tenantId, shopId)"]
+
+    subgraph SKU["ภายใน SkuMatchService.ResolveAsync"]
+    E --> F{"items.Count == 0?"}
+    F -->|"ใช่"| G(["return SkuMatchResult.Empty"])
+    F -->|"ไม่ใช่"| H["โหลด cache mapping ของ (tenantId,shopId)<br/>ConcurrentDictionary&lt;key, Lazy&lt;Task&gt;&gt;"]
+    H --> I{"เคยโหลด shop นี้<br/>ในรอบ sync batch นี้แล้วหรือยัง?"}
+    I -->|"ยัง"| J["Query oms.sku_mappings<br/>WHERE tenant_id=@T AND shop_id=@S<br/>→ Dictionary&lt;platform_sku_code, internal_product_id&gt;<br/>(โหลดทีเดียวทั้ง shop)"]
+    I -->|"เคยแล้ว"| K["ใช้ Dictionary เดิม<br/>(Lazy กัน order คู่ขนาน shop เดียวกันโหลดซ้ำ)"]
+    J --> LOOP
+    K --> LOOP["foreach item ตัวถัดไปในออเดอร์"]
+    LOOP --> CE{"item.SkuCode<br/>ว่างเปล่า/null?"}
+    CE -->|"ใช่"| SE["ข้าม (continue)<br/>ไม่เข้า matched ไม่เข้า unmatched<br/>— กลายเป็น null ตอนสร้าง matchedProductIds"]
+    SE --> NX
+    CE -->|"ไม่ใช่"| CD{"sku นี้เคยประมวลผล<br/>ในออเดอร์นี้ไปแล้วหรือยัง?<br/>(SKU ซ้ำในออเดอร์เดียวกัน)"}
+    CD -->|"เคยแล้ว"| SD["ข้าม (continue) — idempotent dedupe"]
+    SD --> NX
+    CD -->|"ยังไม่เคย"| LK{"Dictionary.TryGetValue(sku)"}
+    LK -->|"เจอ (hit)"| HIT["matched[sku] = internal_product_id"]
+    HIT --> NX
+    LK -->|"ไม่เจอ (miss)"| MISS["unmatched.Add(sku)"]
+    MISS --> NX
+    NX{"ยังมี item เหลืออีกไหม?"}
+    NX -->|"มี"| LOOP
+    NX -->|"หมดแล้ว"| DONE(["return MatchedBySku dict<br/>+ Unmatched list"])
+    end
+
+    G --> U
+    DONE --> U["สร้าง matchedProductIds ต่อ item<br/>hit → productId, miss/null-sku/dup → null"]
+    U --> V["MatchStatusCalculator.Calculate()<br/>total = matchedProductIds.Count<br/>matched = count ที่ HasValue"]
+    V --> W{"total == 0?<br/>(ไม่มี item เลย)"}
+    W -->|"ใช่"| X["unmatched"]
+    W -->|"ไม่ใช่"| Y{"matched == total?"}
+    Y -->|"ใช่ — ครบทุก item"| Z["matched"]
+    Y -->|"ไม่ใช่"| AA{"matched == 0?"}
+    AA -->|"ใช่ — ไม่เจอเลยสักตัว"| AB["unmatched"]
+    AA -->|"ไม่ใช่ — เจอบางส่วน"| AC["partial"]
+
+    X --> AD["ApplyAutoMatchAsync<br/>เขียน matched_product_id/matched_at<br/>เฉพาะแถวที่ matched_product_id IS NULL เท่านั้น<br/>🔒 manual match ชนะเสมอ — auto ไม่มีวันทับ"]
+    Z --> AD
+    AB --> AD
+    AC --> AD
+    AD --> AE(["Update oms.orders.match_status"])
+
+    classDef trig fill:#e7f2ff,stroke:#1e5f9e,color:#1e3a5f;
+    classDef step fill:#f3effe,stroke:#5b21b6,color:#3b1a63;
+    classDef decision fill:#fff8e6,stroke:#b45309,color:#78350f;
+    classDef risk fill:#fdeded,stroke:#b91c1c,color:#7f1d1d,stroke-width:2px;
+    classDef ok fill:#eafbf0,stroke:#15803d,color:#14532d;
+    classDef wait fill:#f3f4f6,stroke:#6b7280,color:#374151,stroke-dasharray: 3 2;
+
+    class A trig;
+    class B,F,I,CE,CD,LK,NX,W,Y,AA decision;
+    class C,D,E,H,J,K,LOOP,U,V,AD step;
+    class SE,SD wait;
+    class HIT,Z,DONE,AE ok;
+    class MISS,X,AB,ZEND risk;
+    class AC decision;
+      </div>
+    </div>
+
+    <div class="summary-card" style="margin-top:0;">
+      <h2 style="font-size:15px;">Edge case ที่ยืนยันจากโค้ดจริง</h2>
+      <table class="summary-table">
+        <tr><th>#</th><th>เคส</th><th>เกิดอะไรขึ้น</th><th>อ้างอิง</th></tr>
+        <tr><td>1</td><td><strong>Seller SKU ว่างเปล่า/null</strong></td><td>ถูกข้ามเงียบๆ ตั้งแต่ต้น — ไม่นับเป็น matched และไม่นับเป็น unmatched ใน dictionary แต่ตอนคำนวณ <code>matchedProductIds</code> จะกลายเป็น <code>null</code> เหมือน miss ปกติ (กระทบ match_status เหมือนกัน)</td><td><code>SkuMatchService.cs:35-36</code></td></tr>
+        <tr><td>2</td><td><strong>SKU ซ้ำกันในออเดอร์เดียวกัน</strong></td><td>ตัวที่สองเป็นต้นไปถูกข้าม (continue) — idempotent ไม่ query/เขียนซ้ำ</td><td><code>SkuMatchService.cs:38-39</code></td></tr>
+        <tr><td>3</td><td><strong>Shop ยังไม่ผูก OMS shop (oms_shop_id null)</strong></td><td>ไม่แตะ <code>SkuMatchService</code> เลยแม้แต่น้อย — สรุปเป็น unmatched ทันทีตั้งแต่ชั้น <code>AutoMatchOrderAsync</code></td><td><code>MarketplaceOrderSyncService.cs:267-278</code></td></tr>
+        <tr><td>4</td><td><strong>Mapping เดียวกันมีหลายแถว (ambiguous)</strong></td><td><strong>เป็นไปไม่ได้ในทางปฏิบัติ</strong> — unique index บน <code>(tenant_id, shop_id, platform_sku_code)</code> กันไว้ตั้งแต่ระดับ DB</td><td><code>AddProductAndSkuMapping.cs:83-88</code></td></tr>
+        <tr><td>5</td><td><strong>Mapping ถูก "ปิด"/soft-delete</strong></td><td><strong>ไม่มี concept นี้อยู่จริง</strong> — ตาราง <code>oms.sku_mappings</code> ไม่มีคอลัมน์ <code>is_active</code>/<code>deleted_at</code> เลย มีแค่ "มีแถว" กับ "ไม่มีแถว"</td><td><code>AddProductAndSkuMapping.cs:36-62</code></td></tr>
+        <tr><td>6</td><td><strong>Fuzzy/barcode/ชื่อสินค้า fallback</strong></td><td><strong>ไม่มี</strong> — กลยุทธ์เดียวคือ exact dictionary lookup ของ <code>platform_sku_code</code> เท่านั้น ไม่มี confidence score ใดๆ</td><td><code>SkuMatchService.cs:41-44</code></td></tr>
+      </table>
+      <div class="callout info" style="margin-top:14px;">
+        💡 <span>Cache ของ mapping (<code>ConcurrentDictionary&lt;(tenantId,shopId), Lazy&lt;Task&gt;&gt;</code>) เป็นแบบ <strong>scoped ต่อรอบ sync batch เดียว</strong> ไม่มี TTL แยกต่างหาก — ถ้าเจ้าหน้าที่เพิ่ง manual match SKU ใหม่ระหว่างที่ sync batch กำลังรันอยู่ order อื่นใน batch เดียวกันที่ shop เดียวกันจะ<strong>ไม่เห็น mapping ใหม่นั้น</strong>จนกว่าจะเป็นรอบ sync ถัดไป</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PHASE 3 ═══════════ -->
+  <div class="phase" id="phase3">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--green);">3</div>
+      <div>
+        <h2>Phase 3 — OMS: แสดงผล, กัน order ที่ยังไม่ match &amp; ให้คนช่วย match</h2>
+        <div class="sub">b1dx-oms-fulfillment-api (.NET)</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step green" data-n="12">
+        <h3>Order โผล่ในหน้าจอ OMS ทันที</h3>
+        <p>Sync Worker เขียนข้อมูลตรงเข้า schema <code>oms.*</code> เดียวกับที่ OMS API เป็นเจ้าของ — ไม่มีการเรียก HTTP ระหว่าง worker กับ API ในเส้นทางนี้ พอข้อมูลอยู่ใน DB แล้ว หน้าจอ order list/detail ก็อ่านเห็นได้เลย</p>
+        <span class="file">Application/Order/GetOrdersQuery.cs</span>
+      </div>
+
+      <div class="step red" data-n="13">
+        <h3>ประตูกั้น: Order ที่ยังไม่ Match ยืนยันไม่ได้ (BR-02)</h3>
+        <p>ตอนพยายามเปลี่ยนสถานะ order จาก <strong>รอจับคู่ (100)</strong> → <strong>ยืนยันแล้ว (400)</strong> ระบบเช็ค <code>match_status</code> ก่อนเสมอ — ถ้าเป็น <code>unmatched</code> จะถูกปฏิเสธด้วย HTTP 409 ทันที ป้องกันไม่ให้ order ที่ยังไม่รู้ว่าเป็นสินค้าอะไรหลุดเข้าคลัง/จัดส่ง</p>
+        <span class="file">Infrastructure/Services/OrderTransitionOadCommandHandler.cs:352-359</span>
+      </div>
+
+      <div class="step amber" data-n="14">
+        <h3>คนช่วย Match มือ (Fallback) — แล้วระบบจำไว้ใช้ครั้งต่อไป</h3>
+        <p>เจ้าหน้าที่ (FF Manager / Brand Admin / Platform Admin) เปิด order ที่ unmatched → เลือก internal product ที่ตรงกันเอง ผ่าน <code>POST /api/oms/orders/{id}/items/match</code> → ระบบ upsert mapping ใหม่กลับเข้า <code>oms.sku_mappings</code> ทันที → <strong>order ถัดไปที่ใช้ SKU เดิม จะ auto-match ได้เองโดยไม่ต้องทำมืออีก</strong> (ระบบเรียนรู้ทีละ mapping)</p>
+        <span class="file">Api/Endpoints/OrderEndpoints.cs:599-630</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ EDIT / UPDATE FLOW ═══════════ -->
+  <div class="phase" id="edit-flow">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--red);">⚠</div>
+      <div>
+        <h2>Edge Case — ถ้าฝั่ง Webhook มีการแก้ไข Order (Edit/Update)</h2>
+        <div class="sub">order เดิมที่เคย sync ไปแล้ว ถูกแก้ที่อยู่/จำนวน/สถานะบน marketplace แล้วส่ง webhook มาใหม่</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="note-row" style="border-left:4px solid var(--red);">
+      <span>🔎</span>
+      <span><strong>สรุปสั้นๆ ก่อนดู flowchart:</strong> ทั้ง 2 repo <u>ไม่มีโค้ดแยกระหว่าง "create" กับ "update" เลย</u> — webhook แก้ไขเดินโค้ดเส้นเดียวกับตอน order ใหม่ทุกประการ ผลคือ <code>order_items</code> / <code>order_addresses</code> ถูกลบแล้วสร้างใหม่เสมอ (ไม่มี diff) และ <code>matched_product_id</code> ถูกล้างเป็น NULL แล้วจับคู่ SKU ใหม่ทั้งหมดทุกครั้งที่มีการแก้ไข แม้ order จะ Confirmed/กำลังจัดเตรียมอยู่แล้วก็ตาม</span>
+    </div>
+
+    <div class="flowchart-card">
+      <h3>Flowchart — สิ่งที่เกิดขึ้นจริงเมื่อ Order ถูกแก้ไขบน Marketplace</h3>
+      <div class="mermaid">
+flowchart TD
+    A(["✏️ Seller/buyer แก้ไข order บน marketplace<br/>(ที่อยู่ / จำนวน / สถานะ)"]) --> B["Marketplace ส่ง webhook มาซ้ำ<br/>order ID เดิม แต่ body เปลี่ยน"]
+    B --> C{"sha256(platform+body)<br/>เคยเห็นมาก่อนไหม?"}
+    C -->|"เจอซ้ำเป๊ะ"| Z1(["ทิ้ง — ไม่ใช่การแก้ไขจริง"])
+    C -->|"body เปลี่ยน → ไม่ซ้ำ"| D["เรียก Marketplace API ใหม่ทั้งชุด<br/>GetOrderByID + GetOrderItems"]
+    D --> E["webhook (Go) เขียนที่ table: public.orders<br/>ON CONFLICT DO UPDATE (blind upsert)<br/>DELETE+INSERT order_items ทุกครั้ง<br/>bump คอลัมน์ last_synced_at = now()"]
+    E --> F{"Sync Worker (.NET) poll<br/>อ่านตารางเดียวกัน table: public.orders<br/>เทียบ last_synced_at (webhook เขียน)<br/>vs last_oms_synced_at (sync worker เขียน)<br/>ห่างกัน &gt; 1 ชั่วโมง?"}
+    F -->|"ยังไม่ครบ 1 ชม."| Z2(["รอ — การแก้ไขยังไม่ถูกหยิบมาทำ<br/>(หน่วงได้ถึง ~1 ชม.)"])
+    Z2 -.-> F
+    F -->|"ครบแล้ว"| G["Claim แถวนี้อีกครั้ง<br/>FOR UPDATE SKIP LOCKED"]
+    G --> H["Parse ตาม platform → NormalizedOrder"]
+    H --> I["FindExistingOrderAsync<br/>เจอ order เดิมใน oms.orders"]
+    I --> J["StatusRegressionGuard<br/>เช็คแค่ order.status คอลัมน์เดียว<br/>(ไปข้างหน้าผ่าน / ถอยหลังบล็อก / terminal ล็อกถาวร)"]
+    J --> K["Update header fields<br/>ส่วนใหญ่ COALESCE(ใหม่, เดิม)<br/>ยกเว้น buyer_username/special_instructions ทับตรงๆ"]
+    K --> L["🔴 DELETE + INSERT<br/>oms.order_items + oms.order_addresses<br/>(ไม่มีเงื่อนไข — เหมือน create ทุกประการ)"]
+    L --> M["matched_product_id ถูกล้างเป็น NULL<br/>ทุก item"]
+    M --> N["SKU Auto-Match รันใหม่ทั้งหมด<br/>ไม่มี diff ว่า item ไหนเปลี่ยนจริง"]
+    N --> O{"Order ไปไกลกว่า MatchPending แล้วหรือยัง?<br/>(Confirmed / Processing / กำลังหยิบ-แพ็ค)"}
+    O -->|"ไปไกลแล้ว"| P["🔴 RISK: qty_fulfilled, item_status,<br/>ความคืบหน้าที่หยิบ/แพ็คไปแล้ว ถูกรีเซ็ต<br/>— ไม่มี guard ป้องกันจุดนี้"]
+    O -->|"ยังอยู่ MatchPending"| Q["ปกติ — เหมือนจับคู่ครั้งแรก"]
+    P --> R(["Mark synced<br/>is_oms_sync = true"])
+    Q --> R
+
+    classDef trig fill:#e7f2ff,stroke:#1e5f9e,color:#1e3a5f;
+    classDef step fill:#f3effe,stroke:#5b21b6,color:#3b1a63;
+    classDef decision fill:#fff8e6,stroke:#b45309,color:#78350f;
+    classDef risk fill:#fdeded,stroke:#b91c1c,color:#7f1d1d,stroke-width:2.5px;
+    classDef ok fill:#eafbf0,stroke:#15803d,color:#14532d;
+    classDef wait fill:#f3f4f6,stroke:#6b7280,color:#374151,stroke-dasharray: 3 2;
+
+    class A trig;
+    class B,D,E,G,H,I,J,K,N step;
+    class C,F,O decision;
+    class Z1,Z2 wait;
+    class L,M,P risk;
+    class Q,R ok;
+      </div>
+    </div>
+
+    <div class="summary-card" style="margin-top:0;">
+      <h2 style="font-size:15px;">Gap ที่พบ (จากการอ่านโค้ดจริง)</h2>
+      <table class="summary-table">
+        <tr><th>#</th><th>ปัญหา</th><th>ผลกระทบ</th><th>อ้างอิง</th></tr>
+        <tr><td>1</td><td><strong>ไม่มี guard กันความคืบหน้า fulfillment</strong></td><td>Order ที่ถูกหยิบ/แพ็คไปแล้ว ถ้ามี edit webhook เข้ามา <code>oms.order_items</code> จะถูกลบสร้างใหม่ รีเซ็ต <code>qty_fulfilled</code>/<code>item_status</code>/<code>matched_product_id</code> ทั้งหมด</td><td><code>MarketplaceOrderRepository.cs:187-262</code></td></tr>
+        <tr><td>2</td><td><strong>หน่วงเวลาได้ถึง 1 ชม.</strong></td><td>Edit ไม่ถูกหยิบมา process ทันที ต้องรอคอลัมน์ <code>last_synced_at</code> (ฝั่ง webhook เขียน) ห่างจาก <code>last_oms_synced_at</code> (ฝั่ง sync worker เขียน) เกิน 1 ชม. — ทั้งคู่อยู่บนตารางเดียวกัน <code>public.orders</code> (webhook DB) — ไม่ real-time</td><td><code>MarketplaceSql.cs:42-95</code></td></tr>
+        <tr><td>3</td><td><strong>SKU match ล้างทิ้งทุกครั้ง</strong></td><td>ไม่มีการ diff ว่า item ไหนเปลี่ยนจริง — จับคู่ใหม่หมดทุก item แม้จะเคย match มือไปแล้วก็ตาม</td><td><code>MarketplaceSql.cs:327-329</code></td></tr>
+        <tr><td>4</td><td><strong>Dead code: <code>OrderConflictPolicy</code></strong></td><td>มี class/interface สำหรับ conflict policy อยู่แล้วแต่ไม่ถูกเรียกใช้จริงใน <code>MarketplaceOrderSyncService</code> — ดูเหมือนของที่ยังไม่ต่อสาย</td><td><code>Application/Services/OrderConflictPolicy.cs</code></td></tr>
+      </table>
+      <div class="callout danger" style="margin-top:14px;">
+        🔴 <span><strong>คำแนะนำถ้าจะแก้:</strong> Gap #1 คือความเสี่ยงจริงที่สุด — ควรเพิ่มเงื่อนไขก่อน DELETE+INSERT item ว่า order ยัง <code>MatchPending</code> อยู่หรือไม่ ถ้าไปไกลกว่านั้นแล้วควร diff เฉพาะ field ที่เปลี่ยน (เช่น address) แทนการ replace item ทั้งหมด</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SUMMARY ═══════════ -->
+  <div class="summary-card" id="summary">
+    <h2>สรุปสั้นๆ</h2>
+    <table class="summary-table">
+      <tr><th>Phase</th><th>ทำอะไร</th><th>เก็บข้อมูลที่ไหน</th></tr>
+      <tr><td><strong>1. Webhook</strong></td><td>รับ event → ดึง order เต็มจาก marketplace API</td><td>Staging DB ของ webhook repo (<code>public.orders</code>)</td></tr>
+      <tr><td><strong>2. Sync Worker</strong></td><td>Poll → parse → upsert เข้า OMS → จับคู่ SKU อัตโนมัติ</td><td>OMS DB จริง (<code>oms.orders</code>, <code>oms.sku_mappings</code>)</td></tr>
+      <tr><td><strong>3. OMS API</strong></td><td>แสดงผล → กันยืนยัน order ที่ยังไม่ match → รับ match มือ</td><td><code>oms.*</code> เดียวกัน (ไม่มี DB แยก)</td></tr>
+    </table>
+    <div class="callout warn" style="margin-top:16px;">
+      ⚠️ <span><strong>อย่าสับสน:</strong> Step 8 (order dedup) กับ Step 10 (SKU matching) เป็นคำว่า "match" คนละความหมายกัน — dedup กันไม่ให้ order เดิมถูกสร้างซ้ำ, SKU matching คือจับคู่ seller SKU กับ internal product</span>
+    </div>
+  </div>
+
+  <div class="footer">อ้างอิงรายละเอียดเชิงลึก + code snippet เพิ่มเติม → <code>order-item-match-sku-flow-report.html</code> (ไฟล์เดียวกัน ในโฟลเดอร์นี้) · Flowchart rendered by <a href="https://mermaid.js.org">Mermaid.js</a></div>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    securityLevel: 'loose',
+    themeVariables: {
+      background: '#ffffff',
+      primaryColor: '#f3effe',
+      primaryTextColor: '#111827',
+      primaryBorderColor: '#8b5cf6',
+      lineColor: '#8b5cf6',
+      secondaryColor: '#e7f2ff',
+      tertiaryColor: '#fff8e6',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', htmlLabels: true }
+  });
+</script>
+</body>
+</html>

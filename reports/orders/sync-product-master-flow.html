@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sync Product Master → Marketplace Channel — Flow</title>
+<style>
+  :root {
+    --blue: #4a9eed; --blue-lt: #e7f2ff; --blue-dark: #1e5f9e;
+    --purple: #8b5cf6; --purple-lt: #f3effe; --purple-dark: #5b21b6;
+    --green: #22c55e; --green-lt: #eafbf0; --green-dark: #15803d;
+    --amber: #f59e0b; --amber-lt: #fff8e6; --amber-dark: #92400e;
+    --red: #ef4444; --red-lt: #fdeded; --red-dark: #b91c1c;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+    --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: var(--gray-900); line-height: 1.65; }
+
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%); color: #fff; padding: 40px 48px 34px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: .05em; margin-bottom: 14px; }
+  .header h1 { font-size: 27px; font-weight: 700; letter-spacing: -.01em; }
+  .header-sub { font-size: 15px; color: rgba(255,255,255,.72); margin-top: 8px; max-width: 760px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .header-meta span { font-size: 13px; color: rgba(255,255,255,.75); }
+  .header-meta strong { color: #fff; }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .toc { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .toc a { text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; background: #fff; box-shadow: var(--shadow); color: var(--gray-700); }
+  .toc a:hover { color: var(--purple-dark); }
+
+  .arch-row { display: grid; grid-template-columns: 1fr 32px 1fr 32px 1fr; align-items: stretch; gap: 6px; margin-bottom: 28px; }
+  @media (max-width: 760px) { .arch-row { grid-template-columns: 1fr; } .arch-arrow { transform: rotate(90deg); padding: 4px 0; } }
+  .arch-box { border-radius: var(--radius); padding: 16px 18px; color: #fff; box-shadow: var(--shadow); }
+  .arch-box h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+  .arch-box .repo { font-family: 'Consolas', monospace; font-size: 10.5px; opacity: .85; margin-bottom: 6px; display: block; }
+  .arch-box p { font-size: 12px; opacity: .92; }
+  .arch-box.b1 { background: linear-gradient(135deg,#2563eb,#1e40af); }
+  .arch-box.b2 { background: linear-gradient(135deg,#7c3aed,#5b21b6); }
+  .arch-box.b3 { background: linear-gradient(135deg,#ea580c,#9a3412); }
+  .arch-arrow { display: flex; align-items: center; justify-content: center; color: var(--gray-500); font-size: 20px; font-weight: 700; }
+
+  .note-row { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--gray-700); margin-bottom: 36px; display: flex; gap: 10px; align-items: flex-start; }
+
+  .phase { margin-bottom: 44px; scroll-margin-top: 16px; }
+  .phase-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .phase-badge { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; box-shadow: var(--shadow); }
+  .phase-head h2 { font-size: 19px; font-weight: 700; }
+  .phase-head .sub { font-size: 12.5px; color: var(--gray-500); margin-top: 2px; }
+  .phase-line { flex: 1; height: 2px; background: var(--gray-200); }
+
+  .steps { position: relative; padding-left: 26px; }
+  .steps::before { content: ''; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 2px; background: var(--gray-200); }
+
+  .step { position: relative; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 20px 16px 22px; margin-bottom: 14px; }
+  .step::before { content: attr(data-n); position: absolute; left: -26px; top: 18px; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px #f0f2f5; }
+  .step.blue::before { background: var(--blue); }
+  .step.purple::before { background: var(--purple); }
+  .step.orange::before { background: #ea580c; }
+  .step.red::before { background: var(--red); }
+  .step.amber::before { background: var(--amber); }
+
+  .step h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: 13.5px; color: var(--gray-700); margin-bottom: 6px; }
+  .step .file { font-family: Consolas, monospace; font-size: 11px; background: var(--gray-100); color: var(--purple-dark); padding: 2px 7px; border-radius: 5px; display: inline-block; margin-top: 4px; }
+  code { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; background: var(--gray-100); padding: 1px 6px; border-radius: 4px; color: var(--purple-dark); }
+
+  .callout { border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 8px; display: flex; gap: 10px; align-items: flex-start; }
+  .callout.warn { background: var(--amber-lt); border: 1px solid #fcd34d; color: var(--amber-dark); }
+  .callout.info { background: var(--blue-lt); border: 1px solid #bfdbfe; color: var(--blue-dark); }
+  .callout.danger { background: var(--red-lt); border: 1px solid #fca5a5; color: var(--red-dark); }
+
+  .flowchart-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+  .flowchart-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); margin-bottom: 12px; }
+  .mermaid { overflow-x: auto; }
+
+  .summary-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-top: 8px; }
+  .summary-card h2 { font-size: 18px; margin-bottom: 14px; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table th { text-align: left; background: var(--gray-50); padding: 9px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200); }
+  .summary-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+  .summary-table tr:last-child td { border-bottom: none; }
+
+  .footer { text-align: center; padding: 30px 24px; font-size: 12px; color: var(--gray-500); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">PRODUCT MASTER · CHANNEL SYNC</div>
+  <h1>Sync Product Master → Marketplace Channel — Flow</h1>
+  <div class="header-sub">ทิศทาง "ขาออก" (outbound push) — เมื่อ PIM/OMS มีการแก้ราคา/สต๊อก/ข้อมูลสินค้า แล้วต้องดันไปอัปเดตที่ Shopee/Lazada/TikTok — คนละทิศกับ order sync (ที่เป็นขาเข้า)</div>
+  <div class="header-meta">
+    <span><strong>วันที่:</strong> 16 Jul 2026</span>
+    <span><strong>Repos:</strong> b1dx-oms-fulfillment-api (PIM/trigger) · b1dx-channel-sync-worker (.NET, push)</span>
+    <span><strong>อ้างอิง:</strong> product-master-channel-sync.md · channel-sync-worker-contract.md · ADR-012</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <a href="#overview">ภาพรวม</a>
+    <a href="#phase1">Phase 1 — Trigger</a>
+    <a href="#phase2">Phase 2 — Worker Push</a>
+    <a href="#phase3">Phase 3 — ผลลัพธ์</a>
+    <a href="#flowchart">Flowchart เต็ม</a>
+    <a href="#gaps">⚠️ Gap ที่พบจริงในโค้ด</a>
+  </div>
+
+  <div id="overview" class="arch-row">
+    <div class="arch-box b1">
+      <h4>1 · PIM / OMS BE</h4>
+      <span class="repo">b1dx-oms-fulfillment-api (.NET)</span>
+      <p>เจ้าของข้อมูล product/price/stock · trigger การ sync (manual publish หรือ event) → เขียน outbox</p>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box b2">
+      <h4>2 · Channel Sync Worker</h4>
+      <span class="repo">b1dx-channel-sync-worker (.NET)</span>
+      <p>Poll outbox → reload ข้อมูลสด → แปลง payload ตาม platform → ยิง API</p>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box b3">
+      <h4>3 · Marketplace API</h4>
+      <span class="repo">Shopee · Lazada · TikTok Shop</span>
+      <p>รับ update_item / price / stock — ตอบกลับสำเร็จ/ล้มเหลวตาม business code ของแต่ละแพลตฟอร์ม</p>
+    </div>
+  </div>
+
+  <div class="note-row" style="border-left:4px solid var(--blue);">
+    <span>ℹ️</span>
+    <span><strong>คนละเรื่องกับ order sync:</strong> flow นี้ "ดัน" (push) ข้อมูล product ออกไปหา marketplace — ตรงข้ามกับ order sync ที่ "ดึง" (pull) order เข้ามา repo ที่เกี่ยวข้องก็คนละตัว (<code>b1dx-channel-sync-worker</code> ไม่ใช่ <code>b1dx-marketplace-webhook</code>/<code>b1dx.omsorders.sync.worker</code>) — ผลของ flow นี้ (<code>channel_mappings.last_synced_at</code>) คือค่าที่ Product Reconciliation เอาไปเทียบหา drift ทีหลัง</span>
+  </div>
+
+  <!-- ═══════════ PHASE 1 ═══════════ -->
+  <div class="phase" id="phase1">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--blue);">1</div>
+      <div>
+        <h2>Phase 1 — อะไรทำให้เกิดการ Sync (Trigger)</h2>
+        <div class="sub">b1dx-oms-fulfillment-api (PIM)</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step blue" data-n="1">
+        <h3>Manual — กดปุ่ม Publish เอง</h3>
+        <p>เจ้าหน้าที่เรียก <code>POST /api/product-master/products/{id}/channels/{shopId}/publish</code> หลังผ่าน readiness gate (เช่น รูป/ราคา/สต๊อกครบ) แล้ว</p>
+        <span class="file">product-master-channel-sync.md §9</span>
+      </div>
+
+      <div class="step blue" data-n="2">
+        <h3>Event-driven — ข้อมูลใน PIM เปลี่ยนแบบอัตโนมัติ</h3>
+        <p>Domain event เช่น <code>ProductPriceChanged</code>, <code>ProductStockChanged</code>, เปิด/ปิดการมองเห็นสินค้า ฯลฯ ตาม trigger table ของ spec — เกิดขึ้นเองโดยไม่ต้องมีคนกด</p>
+        <span class="file">ChannelSync.Worker/Domain/Enums/SyncEventType.cs:3-11</span>
+      </div>
+
+      <div class="step blue" data-n="3">
+        <h3>เขียนลง Outbox ในธุรกรรมเดียวกับการแก้ไข</h3>
+        <p>ทั้ง 2 เส้นทางข้างบน insert แถวใหม่ลงตาราง <code>channel_sync_outboxes</code> ภายใน transaction เดียวกับที่แก้ราคา/สต๊อก — รับประกันว่าไม่มีการแก้ไขไหนหลุดไม่ถูกคิว sync</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PHASE 2 ═══════════ -->
+  <div class="phase" id="phase2">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:var(--purple);">2</div>
+      <div>
+        <h2>Phase 2 — Worker: Claim, โหลดข้อมูลสด, แปลง, ยิง API</h2>
+        <div class="sub">b1dx-channel-sync-worker (.NET)</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step purple" data-n="4">
+        <h3>Background Poller ตื่นทุก 10 วินาที</h3>
+        <p><code>ChannelSyncBackgroundService.ExecuteAsync</code> poll ตาม <code>PollingSeconds</code> (default 10s) แล้วเรียก <code>ClaimPendingAsync</code></p>
+        <span class="file">Infrastructure/BackgroundJobs/ChannelSyncBackgroundService.cs:35-91</span>
+      </div>
+
+      <div class="step purple" data-n="5">
+        <h3>Claim งานจาก Outbox</h3>
+        <p><code>UPDATE...SELECT FOR UPDATE SKIP LOCKED</code> เหมือน pattern เดียวกับ order sync worker</p>
+        <div class="callout warn">⚠️ Spec บอกให้ <code>ORDER BY priority ASC, created_at ASC</code> แต่โค้ดจริงมีแค่ <code>ORDER BY created_at</code> — คอลัมน์ <code>priority</code> ยังไม่ถูกใช้เรียงคิวจริง</div>
+        <span class="file">Infrastructure/Persistence/Repositories/OutboxRepository.cs:15-38</span>
+      </div>
+
+      <div class="step purple" data-n="6">
+        <h3>รันหลายงานพร้อมกัน (จำกัดจำนวน)</h3>
+        <p>จำกัดด้วย <code>SemaphoreSlim(MaxDegreeOfParallelism)</code> (default 4) — แต่ละงานยิง HTTP call ของตัวเอง</p>
+      </div>
+
+      <div class="step purple" data-n="7">
+        <h3>โหลดข้อมูลสดจาก OMS DB ก่อนส่งจริง</h3>
+        <p><code>ChannelSyncService.ProcessJobAsync</code> โหลด product/price/stock ล่าสุดผ่าน <code>IProductDataRepository.GetAsync</code> — <code>payload_json</code> ใน outbox เป็นแค่ context ว่า "มีอะไรเปลี่ยน" ไม่ใช่ข้อมูลที่จะส่งจริง</p>
+        <div class="callout danger">🔴 <strong>Bug ที่ยืนยันแล้วในโค้ด:</strong> <code>ProductDataRepository.GetAsync</code> คืนค่า <code>PlatformAttributes</code> เป็น dict ว่างเปล่าเสมอ — ทำให้ TikTok 3-attribute cap / Shopee tier-index / Lazada saleProp <strong>ไม่เคยถูกส่งจริง</strong> ในทุก push วันนี้ (นี่คือเหตุผลหลักที่ต้องมี Product Reconciliation)</div>
+        <span class="file">Infrastructure/Persistence/Repositories/ProductDataRepository.cs:41</span>
+      </div>
+
+      <div class="step purple" data-n="8">
+        <h3>แปลง Payload ตาม Platform (Adapter Pattern)</h3>
+        <p>แต่ละ <code>IMarketplaceAdapter</code> สร้าง body ของตัวเอง จากข้อมูลกลางชุดเดียวกัน (<code>ProductPushPayload</code>):</p>
+        <ul style="margin:8px 0 0 18px; font-size:13px; color:var(--gray-700);">
+          <li><strong>Shopee</strong> — payload แบบ <code>update_item</code> อิง <code>tier_index</code></li>
+          <li><strong>Lazada</strong> — nested <code>Request.Product.Skus[]</code> — spec บอกให้ normalize <code>saleProp</code> เป็นตัวเล็กแต่โค้ดยังไม่ทำ</li>
+          <li><strong>TikTok</strong> — ตัด attribute ให้เหลือ 3 ตัว พร้อม log warning</li>
+        </ul>
+        <span class="file">Infrastructure/Adapters/{Shopee,Lazada,TikTok}/*Adapter.cs</span>
+      </div>
+
+      <div class="step purple" data-n="9">
+        <h3>ยิง Marketplace API — ทีละ SKU ไม่ batch</h3>
+        <p>1 HTTP call ต่อ 1 SKU (ไม่ได้ใช้ bulk endpoint ที่บางแพลตฟอร์มรองรับ) · ไม่ 2xx → throw <code>MarketplaceApiException</code> · 2xx แต่ business code error (Shopee <code>error!=0</code> / Lazada <code>code!="0"</code> / TikTok <code>code!=0</code>) → คืน <code>AdapterResult(Success:false)</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PHASE 3 ═══════════ -->
+  <div class="phase" id="phase3">
+    <div class="phase-head">
+      <div class="phase-badge" style="background:#ea580c;">3</div>
+      <div>
+        <h2>Phase 3 — จัดการผลลัพธ์ &amp; ส่งต่อ Reconciliation</h2>
+        <div class="sub">b1dx-channel-sync-worker</div>
+      </div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step orange" data-n="10">
+        <h3>สำเร็จ → อัปเดต channel_mappings</h3>
+        <p>Set <code>sync_status='synced'</code>, <code>last_synced_at=now()</code> — <strong>ค่านี้แหละที่ Product Reconciliation เอาไปเทียบหา drift ทีหลัง</strong></p>
+        <span class="file">ChannelSyncService.cs:104,139 · ChannelMappingRepository.cs:14-26</span>
+      </div>
+
+      <div class="step orange" data-n="11">
+        <h3>ล้มเหลว → Retry แบบถอยหลัง แล้ว Dead-letter</h3>
+        <p><code>HandleFailureAsync</code> ตั้ง retry schedule <strong>1 นาที → 4 นาที → 16 นาที</strong> ครบ 4 ครั้งแล้วยังไม่สำเร็จ → dead-letter</p>
+        <span class="file">ChannelSyncService.cs:15-20, 130-148</span>
+      </div>
+
+      <div class="step orange" data-n="12">
+        <h3>บันทึกผลเสมอ ไม่ว่าสำเร็จหรือไม่</h3>
+        <p>เขียนแถวลง <code>channel_sync_logs</code> ใน <code>finally</code> block ทุกครั้ง — เก็บ audit trail ของทุกความพยายาม push</p>
+        <span class="file">ChannelSyncService.cs:124-127</span>
+      </div>
+
+      <div class="step orange" data-n="13">
+        <h3>Dead-lettered → ส่งต่อให้ Product Reconciliation</h3>
+        <p>Job ที่ dead-letter แล้ว ไม่มี "ทางที่สอง" แยกไปเอง — ถูกหยิบต่อโดย Product Reconciliation flow (BR-02/BR-03) ซึ่งใช้กลไก outbox ชุดเดียวกันในการ auto-repair/ส่งให้คนตรวจ</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FLOWCHART ═══════════ -->
+  <div class="flowchart-card" id="flowchart">
+    <h3>Flowchart — เต็มกระบวนการ (Trigger → Push → Result → Reconciliation)</h3>
+    <div class="mermaid">
+flowchart TD
+    A1(["🖱️ Manual: POST .../channels/{shopId}/publish<br/>(ผ่าน readiness gate แล้ว)"]) --> C["Insert row → channel_sync_outboxes<br/>(transaction เดียวกับการแก้ไข)"]
+    A2(["⚡ Auto: Domain event<br/>ProductPriceChanged / StockChanged / ..."]) --> C
+    C --> D["ChannelSyncBackgroundService<br/>poll ทุก PollingSeconds (default 10s)"]
+    D --> E["ClaimPendingAsync<br/>FOR UPDATE SKIP LOCKED<br/>⚠️ ORDER BY created_at เท่านั้น (ไม่ได้ตาม priority ตาม spec)"]
+    E --> F["รันพร้อมกัน — จำกัดด้วย<br/>SemaphoreSlim MaxDegreeOfParallelism (default 4)"]
+    F --> G["โหลดข้อมูลสดจาก OMS DB<br/>IProductDataRepository.GetAsync()<br/>🔴 PlatformAttributes ว่างเปล่าเสมอ (bug ยืนยันแล้ว)"]
+    G --> H{"เลือก Adapter ตาม platform"}
+    H -->|"Shopee"| I1["ShopeeAdapter<br/>tier_index-based update_item"]
+    H -->|"Lazada"| I2["LazadaAdapter<br/>Request.Product.Skus[]<br/>⚠️ ไม่ normalize saleProp ตาม spec"]
+    H -->|"TikTok"| I3["TikTokAdapter<br/>ตัด attribute เหลือ 3 + log warning"]
+    I1 --> J["เรียก Marketplace API<br/>1 HTTP call ต่อ 1 SKU — ไม่ batch"]
+    I2 --> J
+    I3 --> J
+    J --> K{"Response สำเร็จ?<br/>(2xx + business code ok)"}
+    K -->|"สำเร็จ"| L["Update channel_mappings<br/>sync_status='synced', last_synced_at=now()"]
+    L --> M["เขียน channel_sync_logs (success)"]
+    M --> N(["✅ Done — last_synced_at คือค่าที่<br/>Product Reconciliation เทียบหา drift ทีหลัง"])
+    K -->|"ล้มเหลว"| O["HandleFailureAsync<br/>retry schedule: 1m → 4m → 16m"]
+    O --> P{"ครบ 4 ครั้งแล้ว?"}
+    P -->|"ยังไม่ครบ"| Q(["รอรอบ retry ถัดไป"])
+    Q -.-> E
+    P -->|"ครบ 4 ครั้ง"| R["🔴 Dead-letter"]
+    R --> S["เขียน channel_sync_logs (failed)"]
+    S --> T(["→ Product Reconciliation (BR-02/BR-03)<br/>auto-repair หรือส่งคนตรวจ"])
+
+    classDef trig fill:#e7f2ff,stroke:#1e5f9e,color:#1e3a5f;
+    classDef step fill:#f3effe,stroke:#5b21b6,color:#3b1a63;
+    classDef decision fill:#fff8e6,stroke:#b45309,color:#78350f;
+    classDef risk fill:#fdeded,stroke:#b91c1c,color:#7f1d1d,stroke-width:2.5px;
+    classDef ok fill:#eafbf0,stroke:#15803d,color:#14532d;
+    classDef wait fill:#f3f4f6,stroke:#6b7280,color:#374151,stroke-dasharray: 3 2;
+
+    class A1,A2 trig;
+    class C,D,F,J,L,M,O,S step;
+    class E,G,R risk;
+    class H,K,P decision;
+    class I1,I2,I3 step;
+    class N,T ok;
+    class Q wait;
+    </div>
+  </div>
+
+  <!-- ═══════════ GAPS ═══════════ -->
+  <div class="summary-card" id="gaps">
+    <h2 style="font-size:15px;">⚠️ Gap ที่พบจริงในโค้ด (เทียบกับ Spec)</h2>
+    <table class="summary-table">
+      <tr><th>#</th><th>ปัญหา</th><th>ผลกระทบ</th><th>อ้างอิง</th></tr>
+      <tr><td>1</td><td><strong>🔴 PlatformAttributes ว่างเปล่าเสมอ</strong></td><td>TikTok 3-attribute cap / Shopee tier-index / Lazada saleProp <strong>ไม่เคยถูกส่งจริง</strong> — ทุก push วันนี้ผิดเงียบๆ โดยไม่มี error ให้เห็น</td><td><code>ProductDataRepository.cs:41</code></td></tr>
+      <tr><td>2</td><td><strong>Priority column ไม่ถูกใช้</strong></td><td>Spec ให้เรียงคิวตาม priority ก่อน created_at แต่โค้ดเรียงตาม created_at อย่างเดียว — งาน priority สูงไม่ได้ถูกหยิบก่อนจริง</td><td><code>OutboxRepository.cs:27</code> vs contract §2</td></tr>
+      <tr><td>3</td><td><strong>ยังไม่มี rate limiter</strong></td><td>ADR-012 ระบุว่า channel-sync-worker ควรมี local limiter แบบเดียวกับ omsorders.sync.worker แต่ grep ทั้ง repo ไม่พบ limiter class เลย — เสี่ยงโดน marketplace throttle ตอน sync พร้อมกันหลาย SKU</td><td>ADR-012 line 100 (design) — ยังไม่ implement</td></tr>
+      <tr><td>4</td><td><strong>Credential broker ยังไม่ต่อสาย</strong></td><td>Contract ระบุ flow ผ่าน OMS-broker HMAC แต่โค้ดยังดึง <code>ShopAccessToken</code> ตรงจาก <code>payload_json</code> — มี comment ในโค้ดเองว่า "until credential broker (PIM-WORKER-01) is wired"</td><td><code>ChannelSyncService.cs:59-60</code></td></tr>
+      <tr><td>5</td><td><strong>Lazada saleProp ไม่ normalize</strong></td><td>Spec ให้แปลงเป็นตัวพิมพ์เล็กก่อนส่ง แต่ <code>LazadaAdapter</code> ยังไม่ทำ — อาจทำให้ Lazada ปฏิเสธ payload บางกรณี</td><td><code>LazadaAdapter.cs:51-70</code> vs spec §3</td></tr>
+    </table>
+    <div class="callout danger" style="margin-top:14px;">
+      🔴 <span><strong>เร่งด่วนที่สุด:</strong> Gap #1 คือรากของปัญหาที่ทำให้ต้องสร้าง Product Reconciliation ทั้ง spec ขึ้นมา — ถ้าแก้ <code>ProductDataRepository.GetAsync</code> ให้คืนค่า attributes จริง ปัญหา drift ที่เกิดจาก push ผิดจะลดลงเยอะโดยไม่ต้องพึ่ง reconciliation คอยจับ</span>
+    </div>
+  </div>
+
+  <div class="footer">อ้างอิงเพิ่มเติม → <code>docs/specs/product-master-channel-sync.md</code> · <code>docs/specs/channel-sync-worker-contract.md</code> · <code>docs/adr/ADR-012-marketplace-credential-broker-and-reconciliation-ownership.md</code> · Flowchart rendered by <a href="https://mermaid.js.org">Mermaid.js</a></div>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    securityLevel: 'loose',
+    themeVariables: {
+      background: '#ffffff',
+      primaryColor: '#f3effe',
+      primaryTextColor: '#111827',
+      primaryBorderColor: '#8b5cf6',
+      lineColor: '#8b5cf6',
+      secondaryColor: '#e7f2ff',
+      tertiaryColor: '#fff8e6',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', htmlLabels: true }
+  });
+</script>
+</body>
+</html>

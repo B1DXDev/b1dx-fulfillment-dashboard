@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B1DX Agent Workflow</title>
+<style>
+  :root {
+    --ground: #f6f8f8;
+    --panel: #ffffff;
+    --panel-2: #eef2f2;
+    --ink: #16211f;
+    --ink-soft: #4a5a57;
+    --ink-faint: #7c8a87;
+    --line: #d8e0de;
+    --line-soft: #e6ecea;
+    --accent: #0d8f7f;
+    --accent-ink: #0a6a5e;
+    --fast: #178a4c;
+    --fast-bg: #e4f3ea;
+    --micro: #0d6ea8;
+    --micro-bg: #dfeef8;
+    --gated: #b5760a;
+    --gated-bg: #f7edd8;
+    --high: #c0392b;
+    --high-bg: #f6e2df;
+    --shadow: 0 1px 2px rgba(20,40,38,.05), 0 4px 16px rgba(20,40,38,.05);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0d1413;
+      --panel: #131c1b;
+      --panel-2: #1a2524;
+      --ink: #e7efed;
+      --ink-soft: #a7b6b3;
+      --ink-faint: #6f7e7b;
+      --line: #263533;
+      --line-soft: #1e2b29;
+      --accent: #2dd4bf;
+      --accent-ink: #5fe6d4;
+      --fast: #47c785;
+      --fast-bg: #12291e;
+      --micro: #4ba9db;
+      --micro-bg: #12222c;
+      --gated: #e0a53a;
+      --gated-bg: #2b2210;
+      --high: #ef6b5c;
+      --high-bg: #2c1815;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #f6f8f8; --panel: #ffffff; --panel-2: #eef2f2; --ink: #16211f;
+    --ink-soft: #4a5a57; --ink-faint: #7c8a87; --line: #d8e0de; --line-soft: #e6ecea;
+    --accent: #0d8f7f; --accent-ink: #0a6a5e; --fast: #178a4c; --fast-bg: #e4f3ea;
+    --micro: #0d6ea8; --micro-bg: #dfeef8;
+    --gated: #b5760a; --gated-bg: #f7edd8; --high: #c0392b; --high-bg: #f6e2df;
+    --shadow: 0 1px 2px rgba(20,40,38,.05), 0 4px 16px rgba(20,40,38,.05);
+  }
+  :root[data-theme="dark"] {
+    --ground: #0d1413; --panel: #131c1b; --panel-2: #1a2524; --ink: #e7efed;
+    --ink-soft: #a7b6b3; --ink-faint: #6f7e7b; --line: #263533; --line-soft: #1e2b29;
+    --accent: #2dd4bf; --accent-ink: #5fe6d4; --fast: #47c785; --fast-bg: #12291e;
+    --micro: #4ba9db; --micro-bg: #12222c;
+    --gated: #e0a53a; --gated-bg: #2b2210; --high: #ef6b5c; --high-bg: #2c1815;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem; }
+
+  header.top { margin-bottom: 2.5rem; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent-ink); font-weight: 600;
+    margin: 0 0 .7rem;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4.5vw, 3rem); line-height: 1.05; margin: 0 0 .6rem;
+    letter-spacing: -.02em; text-wrap: balance; font-weight: 720;
+  }
+  .lede { font-size: 1.06rem; color: var(--ink-soft); max-width: 60ch; margin: 0; }
+  .lede code { font-family: var(--mono); font-size: .85em; background: var(--panel-2); padding: .1em .4em; border-radius: 4px; }
+
+  section { margin-top: 2.75rem; }
+  h2 {
+    font-size: 1.15rem; letter-spacing: -.01em; margin: 0 0 .3rem;
+    display: flex; align-items: baseline; gap: .6rem;
+  }
+  h2 .n { font-family: var(--mono); font-size: .78rem; color: var(--accent-ink); font-weight: 600; }
+  .sub { color: var(--ink-faint); font-size: .9rem; margin: 0 0 1.2rem; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 1.4rem;
+  }
+  .diagram { padding: 1.6rem 1rem; overflow-x: auto; }
+  pre.mermaid { margin: 0; min-width: 480px; text-align: center; }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin-top: 1rem; }
+  .chip {
+    font-family: var(--mono); font-size: .72rem; font-weight: 600;
+    padding: .28em .7em; border-radius: 999px; display: inline-flex; align-items: center; gap: .45em;
+    border: 1px solid transparent;
+  }
+  .chip.fast { color: var(--fast); background: var(--fast-bg); border-color: color-mix(in srgb, var(--fast) 25%, transparent); }
+  .chip.micro { color: var(--micro); background: var(--micro-bg); border-color: color-mix(in srgb, var(--micro) 25%, transparent); }
+  .chip.gated { color: var(--gated); background: var(--gated-bg); border-color: color-mix(in srgb, var(--gated) 25%, transparent); }
+  .chip.high { color: var(--high); background: var(--high-bg); border-color: color-mix(in srgb, var(--high) 28%, transparent); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* tables */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; min-width: 560px; background: var(--panel); }
+  th, td { text-align: left; padding: .7rem .85rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-faint); font-weight: 600; background: var(--panel-2); position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+  td code, th code { font-family: var(--mono); font-size: .82em; color: var(--accent-ink); }
+  .route { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .tag { font-family: var(--mono); font-size: .7rem; font-weight: 600; padding: .12em .5em; border-radius: 5px; white-space: nowrap; }
+  .tag.f { color: var(--fast); background: var(--fast-bg); }
+  .tag.m { color: var(--micro); background: var(--micro-bg); }
+  .tag.g { color: var(--gated); background: var(--gated-bg); }
+  .tag.h { color: var(--high); background: var(--high-bg); }
+  .tag.l { color: var(--ink-soft); background: var(--panel-2); }
+
+  /* effort grid */
+  .matrix { display: grid; grid-template-columns: auto 1fr 1fr; gap: 2px; background: var(--line-soft); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); font-size: .82rem; }
+  .matrix > div { background: var(--panel); padding: .7rem .8rem; }
+  .matrix .hd { background: var(--panel-2); font-weight: 600; color: var(--ink-faint); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+  .matrix .rk { font-family: var(--mono); font-weight: 600; }
+  .mono { font-family: var(--mono); font-size: .95em; }
+  .op { color: var(--accent-ink); font-weight: 600; }
+
+  /* agent roster */
+  .agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
+  .agent { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .7rem .8rem; box-shadow: var(--shadow); }
+  .agent .nm { font-weight: 640; font-size: .9rem; }
+  .agent .rl { font-size: .78rem; color: var(--ink-faint); margin-top: .15rem; }
+  .agent .st { font-family: var(--mono); font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-ink); margin-top: .4rem; }
+
+  /* tuning notes */
+  .notes { display: grid; gap: .7rem; }
+  .note { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .85rem 1rem; box-shadow: var(--shadow); }
+  .note .id { font-family: var(--mono); font-size: .74rem; font-weight: 700; color: var(--accent-ink); white-space: nowrap; padding-top: .1rem; }
+  .note .tx { font-size: .88rem; color: var(--ink-soft); }
+  .note .tx b { color: var(--ink); font-weight: 640; }
+
+  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: .8rem; }
+  footer code { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">B1DX · Multi-repo orchestration</p>
+    <h1>Agent Build Workflow</h1>
+    <p class="lede">วิธีที่ workspace แปลง <code>build</code> trigger เป็น shipped PR — classify &rarr; gate &rarr; dispatch coders &rarr; verify. โครงจาก <code>agents/workflow-router.md</code> + <code>orchestrator.md</code>, จูน context-load + speed ผ่าน FF-WORKSPACE-060&ndash;065.</p>
+  </header>
+
+  <section>
+    <h2><span class="n">FLOW</span> Pipeline — Phase 0 → 3</h2>
+    <p class="sub">ทุก task ผ่าน classify ก่อนเสมอ · gate path แตกตาม (route × risk × confidence)</p>
+    <div class="card diagram">
+      <pre class="mermaid">
+flowchart TD
+  T["User: 'build' trigger"]:::trig --> P0
+  P0["Phase 0 · CLASSIFY<br>route · risk · confidence · effort"]:::phase --> GATE{"Gate Path"}
+  GATE -->|FAST| MCHK{"MICRO eligible?<br>route×risk=LOW×effort XS/S<br>×confidence≥0.85×surface safe"}
+  GATE -->|GATED| G["Present plan → plan-reviewer<br>wait 'go' → build"]:::gated
+  G --> P1
+  MCHK -->|no| F["Present plan<br>commit plan.md → build"]:::fast
+  MCHK -->|yes| M["Present plan<br>commit plan.md → build"]:::micro
+  F --> P1["Phase 1 · Design<br>Architect → Spec Writer"]:::phase
+  P1 --> P15["Phase 1.5 · Scaffold<br>UI Tester · test.skip stubs"]:::phase
+  P15 --> P2["Phase 2 · Build (parallel)<br>BE · FE · Sync · Webhook coders"]:::build
+  M --> P2M["Phase 2 · Build (solo coder)<br>skip 1.5 scaffold + Reviewer subagent<br>self-verify + self-review inline"]:::build
+  P2 --> RISK{"risk = HIGH?"}
+  RISK -->|yes| SEC["Phase 2.5<br>Security Reviewer gate"]:::high
+  RISK -->|no| P3
+  SEC --> P3
+  P3["Phase 3 · Verify<br>UI Tester run · Reviewer gate"]:::phase --> OUT["stage → user commits / pushes / PR"]:::trig
+  P2M --> OUT
+
+  classDef phase fill:#0d8f7f22,stroke:#0d8f7f,color:#0a6a5e;
+  classDef build fill:#0d8f7f33,stroke:#0d8f7f,color:#0a6a5e;
+  classDef fast fill:#e4f3ea,stroke:#178a4c,color:#0f5c33;
+  classDef micro fill:#dfeef8,stroke:#0d6ea8,color:#0a4e78;
+  classDef gated fill:#f7edd8,stroke:#b5760a,color:#7a4f07;
+  classDef high fill:#f6e2df,stroke:#c0392b,color:#8f2419;
+  classDef trig fill:#eef2f2,stroke:#7c8a87,color:#4a5a57;
+      </pre>
+    </div>
+    <div class="legend">
+      <span class="chip fast"><span class="dot"></span>FAST — present → build, ไม่หยุด</span>
+      <span class="chip micro"><span class="dot"></span>MICRO — sub-tier ของ FAST (รวม sync-webhook, FF-065), ข้าม UI Tester + Reviewer subagent</span>
+      <span class="chip gated"><span class="dot"></span>GATED — plan-reviewer + รอ <code style="font-family:var(--mono)">go</code></span>
+      <span class="chip high"><span class="dot"></span>HIGH risk — Security Reviewer บังคับ (ยกเว้น carve-out non-migration ที่ไม่ใช่ surface trigger)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">ROUTES</span> Dynamic dispatch table</h2>
+    <p class="sub">classify map task → 1 ใน 7 routes · แต่ละ route กำหนด agents ที่ spawn / skip + gate default</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Route</th><th>Trigger</th><th>Required agents</th><th>Gate (risk LOW)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="route">bug-fix</td><td>fix / regression / "ทำไม X ไม่ทำงาน"</td><td><b>investigator</b> (root cause) → coders → verify</td><td><span class="tag f">FAST</span> · <span class="tag m">MICRO</span> ถ้า effort XS/S + conf≥0.85</td></tr>
+          <tr><td class="route">ui-only</td><td>แก้ layout / style / mockup mismatch</td><td>fe-coder · ui-tester</td><td><span class="tag f">FAST</span> · <span class="tag m">MICRO</span> ถ้า effort XS/S + conf≥0.85</td></tr>
+          <tr><td class="route">sync-webhook</td><td>ERP sync · marketplace · RabbitMQ</td><td>sync-worker / webhook-coder</td><td><span class="tag f">FAST</span> · <span class="tag m">MICRO</span> ถ้า risk=LOW จริง (config/log-level เท่านั้น, FF-065)</td></tr>
+          <tr><td class="route">chore-docs</td><td>README · config · refactor no-behavior</td><td>orchestrator direct</td><td><span class="tag f">FAST</span> · <span class="tag m">MICRO</span> ถ้า effort XS/S + conf≥0.85</td></tr>
+          <tr><td class="route">spike</td><td>research · POC · feasibility</td><td>orchestrator only (no code)</td><td><span class="tag f">FAST</span></td></tr>
+          <tr><td class="route">feature</td><td>new feature · new endpoint · spec ใหม่</td><td>full pipeline (Phase 0→3)</td><td><span class="tag f">FAST</span> ถ้า conf≥0.85<br/><span class="tag g">GATED</span> ไม่งั้น</td></tr>
+          <tr><td class="route">migration</td><td>DB schema · add/drop column · EF migration</td><td>architect (always) · be-coder · <b>security-reviewer</b> (ยกเว้น additive tier)</td><td><span class="tag g">GATED</span> เสมอ + <span class="tag h">HIGH</span> (structural/destructive) หรือ MEDIUM (additive/reversible, FF-065)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub" style="margin-top:.6rem">† <span class="route">bug-fix</span> data-mutation risk default = MEDIUM/GATED — carve-out → LOW/FAST ถ้า single-guard fix + regression test บน guard นั้น + confidence≥0.85 + ไม่แตะ security surface (FF-WORKSPACE-065, audit trail ใน plan.md)</p>
+  </section>
+
+  <section>
+    <h2><span class="n">EFFORT</span> Adaptive thinking &amp; model tier</h2>
+    <p class="sub">classify derive (risk × effort) → thinking level + model ของ build coders · gate/design agents มี per-agent override</p>
+    <div class="matrix">
+      <div class="hd">risk / effort</div><div class="hd">thinking</div><div class="hd">model</div>
+      <div class="rk">LOW · XS–S</div><div class="mono">none</div><div class="mono op">sonnet</div>
+      <div class="rk">LOW · M–L</div><div class="mono">think → think-hard</div><div class="mono op">sonnet</div>
+      <div class="rk">LOW · XL</div><div class="mono">ultrathink</div><div class="mono op">sonnet</div>
+      <div class="rk">MEDIUM</div><div class="mono">think-hard → ultrathink</div><div class="mono op">sonnet</div>
+      <div class="rk">HIGH</div><div class="mono">think-hard → ultrathink</div><div class="mono op">sonnet</div>
+    </div>
+    <p class="sub" style="margin-top:.9rem">Sonnet-only policy (FF-WORKSPACE-074, supersedes FF-WORKSPACE-012) — ทุก agent + ทุก risk tier ใช้ <span class="mono">sonnet</span> เสมอ ไม่มี opus escalation แล้ว, HIGH ชดเชยด้วย <span class="mono">thinking_level</span> แทน · ยกเว้นเดียว <span class="mono">classify = haiku</span></p>
+  </section>
+
+  <section>
+    <h2><span class="n">ROSTER</span> 13 agents</h2>
+    <p class="sub">pipeline: Investigator → BA → Orchestrator → [Architect → Spec Writer] → Coders → UI Tester → Reviewer</p>
+    <div class="agents">
+      <div class="agent"><div class="nm">Investigator</div><div class="rl">root-cause · UX audit</div><div class="st">Discover</div></div>
+      <div class="agent"><div class="nm">BA</div><div class="rl">user story · Gherkin AC</div><div class="st">Define</div></div>
+      <div class="agent"><div class="nm">Orchestrator</div><div class="rl">plan · dispatch · track</div><div class="st">Plan</div></div>
+      <div class="agent"><div class="nm">Architect</div><div class="rl">data model · API contract</div><div class="st">Design</div></div>
+      <div class="agent"><div class="nm">Spec Writer</div><div class="rl">task checklist · spec</div><div class="st">Design</div></div>
+      <div class="agent"><div class="nm">Plan Reviewer</div><div class="rl">APPROVE / REVISE / STOP</div><div class="st">Gate</div></div>
+      <div class="agent"><div class="nm">BE Coder</div><div class="rl">.NET 10 · Domain→Api</div><div class="st">Build</div></div>
+      <div class="agent"><div class="nm">FE Coder</div><div class="rl">Next.js 15 · hook→page</div><div class="st">Build</div></div>
+      <div class="agent"><div class="nm">Sync Worker</div><div class="rl">ERP→OMS sync</div><div class="st">Build</div></div>
+      <div class="agent"><div class="nm">Webhook Coder</div><div class="rl">Go · Gin · RabbitMQ</div><div class="st">Build</div></div>
+      <div class="agent"><div class="nm">UI Tester</div><div class="rl">E2E scaffold + run</div><div class="st">Verify ×2</div></div>
+      <div class="agent"><div class="nm">Security Reviewer</div><div class="rl">auth · tenant · secret</div><div class="st">Gate</div></div>
+      <div class="agent"><div class="nm">Reviewer</div><div class="rl">code + mockup fidelity</div><div class="st">Gate</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">TUNING</span> Context-load &amp; Speed — วันนี้ (060–065)</h2>
+    <p class="sub">ตัด context bloat = ตัวคูณ latency/token ต่อ build · quality gate ไม่ลด (verified ที่ agent surface)</p>
+    <div class="notes">
+      <div class="note"><div class="id">060</div><div class="tx"><b>Per-role reading</b> — เลิก "ทุก agent อ่านครบ 5 ไฟล์" → matrix ต่อ role. orchestrator/ba → <span class="mono">sonnet</span> บน route เบา. <span style="color:var(--fast)">ui-tester −1,293/spawn</span></div></div>
+      <div class="note"><div class="id">061</div><div class="tx"><b>Prompt slim</b> — ย่อ 4 agent prompt ยักษ์ → core + on-demand appendix. <span style="color:var(--fast)">−1,388 บรรทัด (−25%)</span></div></div>
+      <div class="note"><div class="id">062</div><div class="tx"><b>Contract → code</b> — reconcile pagination <span class="mono">{items,page,pageSize,totalCount}</span> + error <span class="mono">httpstatuses.com + errorCode</span> ให้ตรง code จริง (doc 2 เวอร์ชันขัดกัน). ปิด FE/BE integration bug</div></div>
+      <div class="note"><div class="id">063</div><div class="tx"><b>FE/BE split + gate</b> — clean-code แยก C#/TS/Go · §13 query-cache → fe-design · api/fe-design header on-demand. <span style="color:var(--fast)">reviewer −106KB/single-stack PR · coder −250/load</span></div></div>
+      <div class="note"><div class="id">064</div><div class="tx"><b>MICRO tier</b> — sub-tier ของ FAST สำหรับ bug-fix/ui-only/chore-docs ที่ risk=LOW + effort XS/S + confidence≥0.85 + ไม่แตะ security surface: ข้าม UI Tester (scaffold+run) + Reviewer subagent ทั้งคู่ — coder self-verify + self-review (<code>/review --effort medium</code>) แทน. เพิ่ม carve-out skip security-reviewer สำหรับ non-migration HIGH ที่ไม่ได้มาจาก 4 surface trigger (migration + surface-trigger HIGH ยังบังคับเสมอ). <span style="color:var(--micro)">agent hand-off น้อยลง ต่องานเล็กจริงๆ — quality gate (build/test/review) ไม่ถูกตัด แค่ไม่ hand-off เป็น subagent แยก</span></div></div>
+      <div class="note"><div class="id">065</div><div class="tx"><b>Gate dedup + risk-tier carve-outs</b> — ลบ Plan Gate procedure ที่ restate ซ้ำ 2 ที่ (orchestrator.md ↔ workflow-protocol.md) + reading-list ที่ซ้ำใน 9 agent files, zero behavior change; แก้ plan-reviewer false-positive ("ไม่มี" + เหตุผล ไม่ใช่ blank); cap investigator round + plan prose สำหรับ XS/S effort เท่านั้น. เพิ่มเงื่อนไข carve-out ใหม่ 4 จุด: bug-fix data-mutation MEDIUM→LOW (root cause เดี่ยว + regression test + confidence≥0.85), MICRO รับ <span class="mono">sync-webhook</span>, MICRO-M sub-tier (bug-fix effort M, confidence≥0.90, ≤2 repos, เก็บ incremental reviewer ไว้), Migration Risk Tiers (additive/reversible = MEDIUM ไม่บังคับ security-reviewer). <span style="color:var(--fast)">ทุก carve-out เก็บ GATED human review + architect schema review + regression test ไว้ครบ — ตัดเฉพาะ ceremony ที่ซ้ำซ้อน ไม่ตัด gate ที่จับ bug จริง</span></div></div>
+    </div>
+  </section>
+
+  <footer>
+    Source of truth: <code>agents/workflow-router.md</code> (routes · gate · effort) · <code>agents/orchestrator.md</code> (phases · dispatch) · <code>CLAUDE.md</code> (hard gates). Application code อยู่ sibling repos (BE .NET · FE Next.js · Sync .NET · Webhook Go · Identity).
+  </footer>
+</div>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({startOnLoad:true,theme:"base",securityLevel:"loose",flowchart:{curve:"basis"}});
+</script>
+</body>
+</html>
