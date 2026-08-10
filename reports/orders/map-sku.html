@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKU Matching — ตัวอย่างข้อมูลจริง (Shop Scoping)</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --card: #f9fafb;
+    --accent: #2563eb;
+    --green: #059669;
+    --green-bg: #ecfdf5;
+    --amber: #b45309;
+    --amber-bg: #fffbeb;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --code-bg: #f3f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --fg: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #2a2e37;
+      --card: #171a21;
+      --accent: #60a5fa;
+      --green: #34d399;
+      --green-bg: #052e22;
+      --amber: #fbbf24;
+      --amber-bg: #2c2107;
+      --red: #f87171;
+      --red-bg: #2d1414;
+      --code-bg: #1c1f27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", Sarabun, sans-serif;
+    line-height: 1.6;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  header { margin-bottom: 2rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 0.9rem; }
+  .meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; font-size: 0.8rem; color: var(--muted); }
+  .meta span { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.75rem; }
+  h2 { font-size: 1.1rem; margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 0.95rem; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  p { margin: 0.5rem 0; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 0.75rem 0 1.25rem;
+    overflow-x: auto;
+    display: block;
+  }
+  thead, tbody { display: table; width: 100%; table-layout: fixed; }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.65rem;
+    text-align: left;
+    word-break: break-word;
+  }
+  th {
+    background: var(--card);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  td.mono, th.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.8rem; }
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+  }
+  .tag-a { background: var(--green-bg); color: var(--green); }
+  .tag-b { background: var(--amber-bg); color: var(--amber); }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.85rem;
+  }
+  .flow .arrow { color: var(--muted); }
+  .source-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+  }
+  @media (max-width: 640px) {
+    .compare { grid-template-columns: 1fr; }
+  }
+  .compare-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+  }
+  .compare-card h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .compare-card.mapping h4 { color: var(--accent); }
+  .compare-card.matched h4 { color: var(--green); }
+  .compare-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.85rem;
+  }
+  .compare-card li { margin: 0.3rem 0; }
+  .analogy {
+    background: var(--amber-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    margin: 1rem 0;
+  }
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1rem 0;
+  }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>SKU Matching — ตัวอย่างข้อมูลจริง (Shop Scoping)</h1>
+  <p class="subtitle">เคส: Shop A กับ Shop B ใช้ <code>platform_sku_code</code> เดียวกันแต่หมายถึงคนละสินค้า — ตามข้อ test #4 ของ MATCH-WORKER-01</p>
+  <div class="meta">
+    <span>Epic: SKU Matching (MATCH-SPEC-01 … MATCH-WORKER-01)</span>
+    <span>สถานะ epic: Done ทั้งหมด</span>
+    <span>วันที่สรุป: 2026-08-10</span>
+  </div>
+</header>
+
+<div class="callout">
+  <strong>สรุปสั้น:</strong> คำถามหลักคือ "พิมพ์จากรายการไหน" — คำตอบคือ
+  <strong>ทุกเอกสารที่พิมพ์ (Picking Slip / Shipping Label) อ่านจาก <code>order_items</code> โดยตรง
+  ไม่เคย query <code>sku_mappings</code> ตอนพิมพ์เลย</strong> — <code>sku_mappings</code> ถูกใช้แค่ตอน
+  resolve ครั้งแรก (auto-match หรือ manual match) แล้วผลลัพธ์ (<code>matched_product_id</code>) ถูกเขียน
+  กลับลง <code>order_items</code> ทันที ทุก flow ถัดไปจึงไม่ต้อง join กับ <code>sku_mappings</code> อีก
+</div>
+
+<h2>1. Flow รวม — จาก mapping ไปจนถึงพิมพ์</h2>
+<div class="flow">
+  <div class="step">sku_mappings<br><span class="source-note">(shop_id + platform_sku_code → internal_product_id)</span></div>
+  <div class="arrow">→ resolve →</div>
+  <div class="step">order_items<br><span class="source-note">(matched_product_id เขียนกลับ)</span></div>
+  <div class="arrow">→ อ่านตรง →</div>
+  <div class="step">Picking Slip / Shipping Label<br><span class="source-note">(พิมพ์จาก order_items เท่านั้น)</span></div>
+</div>
+
+<h2>2. oms.sku_mappings — mapping ผูกกับ shop คนละแถวเสมอ</h2>
+<p>Key จริงของตารางนี้คือ <code>(shop_id, platform_sku_code)</code> ไม่ใช่ <code>platform_sku_code</code> เดี่ยวๆ
+เพราะร้านคนละร้านตั้งรหัสสินค้าซ้ำกันได้โดยบังเอิญ</p>
+
+<pre><code>SELECT id, shop_id, platform_sku_code, internal_product_id, created_at
+FROM oms.sku_mappings
+WHERE platform_sku_code = 'SP-001';</code></pre>
+
+<table>
+<thead>
+<tr><th>id</th><th>shop_id</th><th class="mono">platform_sku_code</th><th class="mono">internal_product_id</th><th>created_at</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="mono">m-001</td>
+  <td><span class="tag tag-a">Shop A</span><br><span class="mono source-note">11111111-…</span></td>
+  <td class="mono">SP-001</td>
+  <td class="mono">prod-กระเป๋า</td>
+  <td>2026-08-01</td>
+</tr>
+<tr>
+  <td class="mono">m-002</td>
+  <td><span class="tag tag-b">Shop B</span><br><span class="mono source-note">22222222-…</span></td>
+  <td class="mono">SP-001</td>
+  <td class="mono">prod-รองเท้า</td>
+  <td>2026-08-03</td>
+</tr>
+</tbody>
+</table>
+
+<h2>3. orders + order_items — ผลลัพธ์หลัง auto-match resolve แล้ว</h2>
+<pre><code>SELECT o.order_no, o.oms_shop_id, oi.sku_code, oi.matched_product_id, p.name
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.matched_product_id
+WHERE oi.sku_code = 'SP-001';</code></pre>
+
+<table>
+<thead>
+<tr><th>order_no</th><th>oms_shop_id</th><th class="mono">sku_code</th><th class="mono">matched_product_id</th><th>name (product)</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="mono">ORD-1001</td>
+  <td><span class="tag tag-a">Shop A</span></td>
+  <td class="mono">SP-001</td>
+  <td class="mono">prod-กระเป๋า</td>
+  <td><strong>กระเป๋าหนัง Tote</strong></td>
+</tr>
+<tr>
+  <td class="mono">ORD-2005</td>
+  <td><span class="tag tag-b">Shop B</span></td>
+  <td class="mono">SP-001</td>
+  <td class="mono">prod-รองเท้า</td>
+  <td><strong>รองเท้าผ้าใบ Canvas</strong></td>
+</tr>
+</tbody>
+</table>
+
+<h2>4. รายการที่พิมพ์จริง — อ่านจาก order_items ตรงๆ</h2>
+<p>ทั้ง Picking Slip และ Shipping Label ไม่ query <code>sku_mappings</code> เลย
+เพราะ <code>matched_product_id</code> ถูก resolve และเขียนลง <code>order_items</code> ไปตั้งแต่ก่อนพิมพ์แล้ว</p>
+
+<table>
+<thead>
+<tr><th>เอกสาร</th><th>Handler / โค้ดจริง</th><th>Source table</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Shipping Label</td>
+  <td class="mono source-note">GetShippingLabelHandler.cs:64-68<br>db.OrderItems.Select(i =&gt; new { i.ProductName, i.QtyOrdered })</td>
+  <td class="mono">order_items</td>
+</tr>
+<tr>
+  <td>Picking Slip</td>
+  <td class="mono source-note">CreatePickingSlipHandler.cs:176-181<br>ใช้ item.SkuCode + matchedProductId จาก order item ตรงๆ</td>
+  <td class="mono">order_items</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>ผลลัพธ์ปฏิบัติ:</strong></p>
+<ul>
+  <li><strong>ORD-1001</strong> (Shop A) → พิมพ์ picking slip ระบุ <strong>"กระเป๋าหนัง Tote"</strong></li>
+  <li><strong>ORD-2005</strong> (Shop B) → พิมพ์ picking slip ระบุ <strong>"รองเท้าผ้าใบ Canvas"</strong></li>
+</ul>
+<p>แม้ <code>sku_code</code> ทั้งสอง order จะเป็น <code>SP-001</code> เหมือนกันเป๊ะ พนักงานคลังจะไม่มีทางหยิบผิดสินค้า
+เพราะ resolve ที่ถูกต้อง (แยกตาม <code>shop_id</code>) เกิดขึ้นและถูกบันทึกไว้ล่วงหน้าแล้ว ก่อนถึงขั้นตอนพิมพ์</p>
+
+<h2>5. matched_product_id vs sku_mappings — คนละหน้าที่ คนละอายุการใช้งาน</h2>
+
+<div class="compare">
+  <div class="compare-card matched">
+    <h4>order_items.matched_product_id</h4>
+    <ul>
+      <li>อยู่ใน order item <strong>แต่ละแถว</strong></li>
+      <li>ผูกกับ 1 order item เดียวเท่านั้น</li>
+      <li>เป็น <strong>สำเนาที่ freeze ไว้</strong> ตอน resolve เสร็จ</li>
+      <li>ใช้ตลอดไป แต่เฉพาะ order ใบนั้น</li>
+      <li>ทุกอย่างที่ทำกับ order ใบนั้น (Pick/Pack/พิมพ์) อ่านจากตรงนี้</li>
+    </ul>
+  </div>
+  <div class="compare-card mapping">
+    <h4>sku_mappings</h4>
+    <ul>
+      <li>ตารางแยกต่างหาก ไม่ผูกกับ order ใดๆ</li>
+      <li>Key คือ <code>(shop_id, platform_sku_code)</code></li>
+      <li>เป็น <strong>ต้นทางของกฎ</strong> (source of truth)</li>
+      <li>ใช้ซ้ำได้กับ order <strong>ในอนาคตทุกใบ</strong> ที่ SKU เดิม/ร้านเดิม</li>
+      <li>Auto-match service อ่านตารางนี้ตอน sync order ใหม่เข้ามา</li>
+    </ul>
+  </div>
+</div>
+
+<div class="analogy">
+  <strong>เทียบกับชีวิตจริง:</strong> <code>sku_mappings</code> คือ <em>สมุดโน้ตแปะหน้าคลัง</em>
+  เขียนไว้ว่า "ป้าย SP-001 จากซัพพลายเออร์ A = กระเป๋าหนัง Tote" — เขียนครั้งเดียว ใช้ดูได้ทุกครั้งที่ของ
+  SP-001 จากซัพพลายเออร์ A เข้ามาใหม่ ส่วน <code>matched_product_id</code> คือ <em>ป้ายที่แปะบนกล่องพัสดุใบนั้นโดยเฉพาะ</em>
+  — หลังเปิดสมุดโน้ตดูแล้วรู้ว่าคือกระเป๋า ก็เขียน "กระเป๋าหนัง Tote" แปะไว้บนกล่องนั้นเลย
+  พนักงานคนต่อไปที่มาหยิบของ ไม่ต้องเปิดสมุดโน้ตอีก อ่านจากป้ายบนกล่องได้ทันที
+</div>
+
+<h3>ทำไมต้องมีทั้งคู่ ไม่ใช้แค่ตัวเดียว</h3>
+<p><strong>ถ้ามีแค่ sku_mappings อย่างเดียว</strong> (ไม่มี matched_product_id): ทุกครั้งที่พิมพ์ picking slip
+ต้อง join กับ sku_mappings ใหม่ทุกครั้ง และถ้า user แก้ mapping ทีหลัง order เก่าที่พิมพ์ไปแล้วจะเปลี่ยนสินค้า
+ตามไปด้วยแบบไม่ควบคุม — <strong>อันตราย</strong> เพราะ order ที่แพ็คไปแล้วไม่ควรเปลี่ยนสินค้าย้อนหลัง</p>
+<p><strong>ถ้ามีแค่ matched_product_id อย่างเดียว</strong> (ไม่มี sku_mappings): ทุก order ใหม่ที่เข้ามาต้องให้ user
+manual match <strong>ซ้ำทุกครั้ง</strong> แม้จะเป็น SKU เดิมจากร้านเดิมที่เพิ่ง match ไปเมื่อวาน — ไม่มี auto-match เลย</p>
+
+<h3>เชื่อมกันตรงไหน</h3>
+<div class="diagram">sku_mappings                          order_items
+┌─────────────────────────┐          ┌──────────────────────────┐
+│ shop_id: A               │  resolve │ order_id: ORD-1001         │
+│ platform_sku_code: SP-001│ ───────► │ sku_code: SP-001           │
+│ internal_product_id: X   │  (copy)  │ matched_product_id: X  ◄── │ เขียนค่าจาก sku_mappings
+└─────────────────────────┘          └──────────────────────────┘   เข้ามาตอน resolve เสร็จ
+      (กฎ ใช้ซ้ำได้)                        (ผลลัพธ์ ตายตัวต่อ order)</div>
+
+<p><code>sku_mappings</code> เป็น <strong>ต้นทาง</strong> ของค่า ส่วน <code>order_items.matched_product_id</code>
+เป็น <strong>สำเนาที่ freeze ไว้</strong> — พอ resolve เสร็จแล้วสองตัวนี้แยกอิสระจากกันทันที แก้ <code>sku_mappings</code>
+ทีหลังไม่กระทบ order เก่าที่ resolve ไปแล้ว มีผลแค่กับ order <strong>ใหม่</strong> ที่จะ sync เข้ามาต่อจากนี้เท่านั้น</p>
+
+<footer>
+  อ้างอิงจากโค้ดจริงใน <code>b1dx-oms-fulfillment-api</code> (ตรวจสอบ 2026-08-10):
+  ProductRepository.cs · MatchOrderItemsCommandHandler.cs · GetShippingLabelHandler.cs · CreatePickingSlipHandler.cs<br>
+  Epic อ้างอิง: MATCH-SPEC-01 · MATCH-BE-00/01/02 · MATCH-FE-01/02 · MATCH-WORKER-01 (ทั้งหมด Done)<br>
+  Guide เต็ม: <code>docs/guides/SKU-Matching-Flow-Auto-Manual.html</code>
+</footer>
+
+</div>
+</body>
+</html>
