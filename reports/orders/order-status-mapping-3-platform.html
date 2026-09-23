@@ -334,8 +334,8 @@
     <div class="gap-item info">
       <div class="gap-icon">🔀</div>
       <div>
-        <div class="gap-title">Lazada เท่านั้นที่มี "Confirmed" (300) เป็น step แยก</div>
-        <div class="gap-body">Shopee และ TikTok ไม่ส่งสถานะ "ยืนยันออเดอร์" แยกจาก pending — กระโดดจาก 200 (PendingReview) ไป 490 (ReadyToShip) ตรง ๆ เมื่อร้านเริ่มแพ็ค ส่วน Lazada มี <code>confirmed</code> คั่นกลางก่อนเข้าสถานะแพ็ค</div>
+        <div class="gap-title">Lazada มี "Confirmed" (300) เป็น raw-status step แยก — TikTok ไม่มี, Shopee เข้าถึง 300 ทางอ้อมผ่าน UNPAID (FF-SYNC-039)</div>
+        <div class="gap-body">TikTok ไม่ส่งสถานะ "ยืนยันออเดอร์" แยกจาก pending — กระโดดจาก 200 (PendingReview) ไป 490 (ReadyToShip)/400 (Processing) ตรง ๆ ส่วน Lazada มี <code>confirmed</code> คั่นกลางก่อนเข้าสถานะแพ็ค — Shopee (หลัง FF-SYNC-039) เข้าถึง 300 ผ่าน <code>UNPAID</code> เอง (คนละความหมายกับ Lazada <code>confirmed</code>: ของ Shopee คือ "ยังไม่จ่ายเงินแต่ confirm ออเดอร์แล้ว" ไม่ใช่ "ยืนยันพร้อมแพ็ค")</div>
       </div>
     </div>
 
@@ -363,11 +363,11 @@
       </div>
     </div>
 
-    <div class="gap-item crit">
-      <div class="gap-icon">⚠️</div>
+    <div class="gap-item">
+      <div class="gap-icon">✅</div>
       <div>
-        <div class="gap-title">Shopee ไม่มี "Returned" (900) mapping ในเวอร์ชันนี้</div>
-        <div class="gap-body">ต่างจาก Lazada (<code>returned</code>) และ TikTok (<code>RETURNED</code>/<code>RETURN_REFUND</code>) — Shopee parser เวอร์ชันปัจจุบันไม่มี case ไหน map ไป 900 หรือ <code>payment_status = refunded</code> เลย ถ้า Shopee ส่ง return event มาในอนาคต จะตกไปที่ fallback 200 + log warning แทน ควรตรวจสอบว่า Shopee API มี return status จริงหรือยัง แล้วเพิ่ม case ให้ parser</div>
+        <div class="gap-title">อัปเดต FF-SYNC-039: Shopee <code>TO_RETURN</code> retarget จาก 560 (ReturnInitiated) ไป 610 (ToReturn, สถานะใหม่) — ยังไม่มี raw status ที่ map ตรงไป 900 (terminal)</div>
+        <div class="gap-body">FF-SYNC-037 เคย map <code>TO_RETURN</code> ไป <code>ReturnInitiated</code> (560) เทียบเท่า Lazada <code>shipped_back</code> — แต่ 560 หมายถึง "พัสดุถูกขนส่งตีกลับเองระหว่างทาง" ซึ่งเป็นคนละเหตุการณ์กับ <code>TO_RETURN</code> จริงๆ ที่หมายถึง "ผู้ซื้อยื่นคำขอคืนสินค้าเอง" FF-SYNC-039 จึงแก้ target เป็นสถานะใหม่ <code>ToReturn</code> (610) แทน — เลข 610 นี้ตรงกับ FE placeholder เดิมที่ค้างไว้ตั้งแต่ 2026-07-09 (BA-confirmed table, "customer-CLAIM") ที่ไม่เคยมี backend transition มาก่อน ยืนยันแล้วว่าเป็นเหตุการณ์เดียวกัน (ผู้ซื้อยื่นคำขอคืน = กด CLAIM) จึงรวมเป็นสถานะเดียว ไม่ใช่คนละความหมาย 610 ยังไม่ terminal — ปิดจบต้องผ่าน 630 (ReturnReceived) → 650 (ReturnApproved) → 900 (Returned) เหมือน Lazada/TikTok ที่มี raw status ปิดจบตรงไป 900 (<code>returned</code>/<code>RETURNED</code>/<code>RETURN_REFUND</code>) แต่ Shopee ยังไม่มี raw status เทียบเท่านั้น</div>
       </div>
     </div>
 
@@ -402,7 +402,9 @@ const OMS_STATUS = {
   490: {name:'ReadyToShip', cls:'code-warn'},
   500: {name:'Shipped', cls:'code-warn'},
   550: {name:'OutForDelivery', cls:'code-warn'},
+  560: {name:'ReturnInitiated', cls:'code-warn'},
   600: {name:'Delivered', cls:'code-warn'},
+  610: {name:'ToReturn', cls:'code-warn'},
   700: {name:'Completed', cls:'code-terminal-good'},
   750: {name:'CancelRequested', cls:'code-warn'},
   800: {name:'Cancelled', cls:'code-terminal-crit'},
@@ -411,16 +413,18 @@ const OMS_STATUS = {
 
 // DATA — source: Shopee/Lazada/TikTokOrderParser.cs MapStatus()
 const DATA = [
-  { code:200, shopee:['UNPAID','INVOICE_PENDING'], lazada:['pending','pending_payment'], tiktok:['UNPAID','AWAITING_PAYMENT'], note:'จุดเริ่มต้นของทุก platform + fallback ของ unknown status (ทั้ง 3 parser)' },
-  { code:300, shopee:[], lazada:['confirmed'], tiktok:[], note:'Lazada เท่านั้นที่มี step ยืนยันแยกจาก pending' },
-  { code:490, shopee:['READY_TO_SHIP','PROCESSED'], lazada:['ready_to_ship','packed'], tiktok:['ON_HOLD','AWAITING_SHIPMENT','READY_TO_SHIP'], note:'TikTok รวม ON_HOLD เข้ากลุ่มนี้ด้วย' },
+  { code:200, shopee:['INVOICE_PENDING'], lazada:['pending','pending_payment'], tiktok:['UNPAID','AWAITING_PAYMENT'], note:'FF-SYNC-039 — Shopee UNPAID ย้ายไป 300 (ดูแถว 300) ไม่ได้อยู่ที่ 200 อีกต่อไป; INVOICE_PENDING (region-specific, ไม่ใช่ 1 ใน 10 official value) ยังคงอยู่ 200 เหมือนเดิม · เป็น fallback ของ unknown status ทั้ง 3 parser' },
+  { code:300, shopee:['UNPAID'], lazada:['confirmed'], tiktok:[], note:'FF-SYNC-039 — Shopee UNPAID ย้ายมาจาก 200 (ตั้งใจ ยืนยันจาก user แม้จะข้าม PendingReview) · Lazada confirmed คือ step ยืนยันแยกจาก pending' },
+  { code:400, shopee:['READY_TO_SHIP'], lazada:[], tiktok:['AWAITING_SHIPMENT'], note:'FF-SYNC-039 — Shopee READY_TO_SHIP ย้ายมาจาก 490: หมายถึงยังไม่ได้เลขติดตามพัสดุจากขนส่ง อยู่ระหว่าง pick-pack เท่านั้น ไม่ใช่ "พร้อมส่งจริง" (ต่างจาก PROCESSED ที่มีเลขติดตามแล้ว — ดูแถว 490) · TikTok AWAITING_SHIPMENT อยู่ที่นี่มาก่อนแล้ว (FF-SYNC-024) ไม่เกี่ยวกับ ticket นี้' },
+  { code:490, shopee:['PROCESSED','RETRY_SHIP'], lazada:['ready_to_ship','packed'], tiktok:['ON_HOLD','READY_TO_SHIP'], note:'FF-SYNC-039 — Shopee READY_TO_SHIP ย้ายออกไป 400 (ดูแถว 400); PROCESSED คือจุดที่มีเลขติดตามพัสดุจากขนส่งแล้ว ปริ้นใบปะหน้าได้ · TikTok รวม ON_HOLD เข้ากลุ่มนี้ด้วย · FF-SYNC-037 เพิ่ม RETRY_SHIP — ตาม official flow diagram แตกจาก READY_TO_SHIP เอง (3PL รับพัสดุไม่สำเร็จ) แล้ววนกลับเข้ากลุ่มนี้ ไม่เคยหลุดจากกลุ่มนี้จริง' },
   { code:500, shopee:['SHIPPED'], lazada:['shipped'], tiktok:['IN_TRANSIT','SHIPPED'], note:'—' },
-  { code:550, shopee:['TO_CONFIRM_RECEIVE'], lazada:[], tiktok:[], note:'Lazada/TikTok เข้าถึง 550 ผ่าน courier webhook เท่านั้น ไม่ใช่จาก platform status' },
-  { code:600, shopee:[], lazada:['delivered'], tiktok:['DELIVERED'], note:'Shopee เข้าถึง 600 ผ่าน courier webhook แทน (ไม่มี raw status ตรง)' },
+  { code:550, shopee:[], lazada:[], tiktok:[], note:'ไม่มี platform ไหน map raw status ตรงมาที่ 550 อีกต่อไป (FF-SYNC-039 ย้าย Shopee TO_CONFIRM_RECEIVE ไป 600) — เข้าถึงผ่าน courier webhook เท่านั้น' },
+  { code:600, shopee:['TO_CONFIRM_RECEIVE'], lazada:['delivered'], tiktok:['DELIVERED'], note:'FF-SYNC-039 — Shopee TO_CONFIRM_RECEIVE ย้ายมาจาก 550 · Lazada/TikTok เข้าถึง 600 ผ่าน courier webhook เช่นเดิม' },
+  { code:610, shopee:['TO_RETURN'], lazada:[], tiktok:[], note:'FF-SYNC-039 — Shopee TO_RETURN retarget จาก 560 (ReturnInitiated, FF-SYNC-037) ไป 610 (ToReturn, สถานะใหม่): 560 หมายถึงพัสดุถูกขนส่งตีกลับระหว่างทาง ส่วน 610 หมายถึงผู้ซื้อยื่นคำขอคืนสินค้าเอง อยู่ระหว่างดำเนินการ — คนละเหตุการณ์กัน 610 ยังรวมความหมายเดียวกับ FE customer-CLAIM placeholder เดิม (BA-confirmed 2026-07-09) ที่ไม่เคยมี backend transition มาก่อน' },
   { code:700, shopee:['COMPLETED'], lazada:[], tiktok:['COMPLETED'], note:'Lazada ไม่มี raw status สำหรับ terminal-success — ปิดจบด้วย OMS action แทน' },
   { code:750, shopee:['IN_CANCEL'], lazada:[], tiktok:[], note:'Shopee เท่านั้นที่มี interim cancel-request state' },
   { code:800, shopee:['CANCELLED'], lazada:['canceled'], tiktok:['CANCELLED','CANCELED'], note:'TikTok รับสะกดได้ 2 แบบ (US/UK spelling)' },
-  { code:900, shopee:[], lazada:['returned'], tiktok:['RETURNED','RETURN_REFUND'], note:'Shopee ไม่มี return mapping ในเวอร์ชันนี้' },
+  { code:900, shopee:[], lazada:['returned'], tiktok:['RETURNED','RETURN_REFUND'], note:'Shopee ยังไม่มี raw status ที่ map ตรงไป 900 (terminal) — TO_RETURN (610 ตั้งแต่ FF-SYNC-039) เป็นได้แค่ระหว่างดำเนินการ ปิดจบต้องผ่าน 630→650→900 ด้วย OMS action' },
 ];
 
 function pill(status, platform) {

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopee Order Status Report</title>
+<style>
+:root {
+  --bg:#f4f7fb; --card:#fff; --ink:#172033; --muted:#5e6b7a;
+  --line:#dfe7f1; --primary:#ee4d2d; --accent:#ff9f1c; --soft:#fff1ed;
+  --success:#137a4b; --danger:#b42318; --warning:#a15c00;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+header{background:linear-gradient(135deg,#a8321c,#ee4d2d);color:#fff;padding:56px 24px}
+.wrap{max-width:1180px;margin:auto}
+header h1{margin:0 0 10px;font-size:clamp(30px,5vw,52px);line-height:1.1}
+header p{margin:0;max-width:850px;color:#ffece6;font-size:18px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:7px 12px;border-radius:999px}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:18px;overflow:auto;padding:12px 24px}
+nav a{white-space:nowrap;text-decoration:none;color:var(--ink);font-weight:650}
+main{padding:30px 24px 60px}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin:20px 0;box-shadow:0 8px 28px rgba(29,45,80,.06)}
+h2{margin-top:0;font-size:28px}
+h3{margin-top:28px}
+.callout{border-left:5px solid var(--primary);background:var(--soft);padding:16px 18px;border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.kpi{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fbfdff}
+.kpi strong{display:block;font-size:30px;color:var(--primary)}
+table{width:100%;border-collapse:collapse;margin-top:14px}
+th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f7f9fc;font-size:14px}
+code{background:#fff1ed;padding:2px 7px;border-radius:6px;color:#a8321c}
+.flow{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0f172a;color:#e5eefc;padding:20px;border-radius:14px;overflow:auto;white-space:pre}
+.small{font-size:14px;color:var(--muted)}
+.tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#fff1ed;color:#a8321c;margin-right:6px}
+.footer{color:var(--muted);text-align:center;padding:22px}
+.oms-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#eef3fa;color:#153c8a}
+.gap-item{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.gap-item:first-child{border-top:none}
+.gap-icon{font-size:20px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}section{padding:20px}th,td{padding:10px 8px;font-size:14px}}
+@media print{nav{display:none}body{background:#fff}section{box-shadow:none;break-inside:avoid}header{padding:30px 20px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Shopee Order Status Report</h1>
+    <p>รายงานสรุป Order Status Flow, Happy Path, Exception Flow (RETRY_SHIP / TO_RETURN / IN_CANCEL) และ OMS Mapping — อ้างอิง Shopee Open API v2 Order Management §10 Data Definition + official order-flow diagram</p>
+    <div class="meta">
+      <span class="badge">Scope: Order Status (Header-level)</span>
+      <span class="badge">Audience: OMS / Sync Worker / Fulfillment Team</span>
+      <span class="badge">Related: FF-SYNC-037</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#summary">Executive Summary</a>
+    <a href="#status">Status Catalog</a>
+    <a href="#flows">Status Flows</a>
+    <a href="#mapping">OMS Mapping</a>
+    <a href="#gaps">Known Gaps</a>
+    <a href="#references">References</a>
+  </div>
+</nav>
+
+<main class="wrap">
+<section id="summary">
+  <h2>1. Executive Summary</h2>
+  <div class="grid">
+    <div class="kpi"><strong>10</strong>สถานะทางการตาม Shopee Open API v2 §10 Data Definition</div>
+    <div class="kpi"><strong>3</strong>กลุ่ม Flow หลัก: Happy Path, Cancel Flow, Return Flow</div>
+  </div>
+  <p class="callout"><b>ข้อสรุปสำคัญ:</b> <code>PROCESSED</code> ไม่ใช่ "ขนส่งมารับพัสดุแล้ว" — เป็นแค่จุดที่ <b>ร้านกดยืนยันจัดส่ง</b> (เรียก <code>ship_order API</code>) โดย TrackingNo อาจยังไม่ออก พนักงานขนส่งมารับพัสดุจริงคือขั้นถัดไป (<code>SHIPPED</code>) และ <code>RETRY_SHIP</code> แตกออกจาก <code>READY_TO_SHIP</code> โดยตรง (3PL รับพัสดุไม่สำเร็จ) ไม่ใช่ post-dispatch delivery failure — สองจุดนี้เคยทำให้ FF-SYNC-037 ตัดสินใจ OMS mapping ผิดในรอบแรก (ดู § Known Gaps)</p>
+</section>
+
+<section id="status">
+  <h2>2. Shopee Order Status Catalog (10 ค่าทางการ)</h2>
+  <table>
+    <thead><tr><th>Status</th><th>Category</th><th>ความหมาย</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td><code>UNPAID</code></td><td>Payment</td><td>ยังไม่ชำระเงิน</td><td>จุดเริ่มต้นของทุกออเดอร์</td></tr>
+      <tr><td><code>READY_TO_SHIP</code></td><td>Fulfillment</td><td>พร้อมจัดส่ง รอร้านกดยืนยัน</td><td>เข้าถึงได้จาก UNPAID (ชำระเงินสำเร็จ) หรือวนกลับจาก RETRY_SHIP</td></tr>
+      <tr><td><code>PROCESSED</code></td><td>Fulfillment</td><td>ร้านกดจัดส่งแล้ว (<code>ship_order API</code>) รอ 3PL มารับจริง</td><td>TrackingNo อาจยังไม่ถูกสร้าง ณ จุดนี้</td></tr>
+      <tr><td><code>RETRY_SHIP</code></td><td>Fulfillment (Exception)</td><td>3PL เข้ารับพัสดุไม่สำเร็จ ต้องนัดรับใหม่</td><td>แตกจาก READY_TO_SHIP โดยตรง วนกลับเข้า READY_TO_SHIP — ไม่ใช่ post-dispatch failure</td></tr>
+      <tr><td><code>SHIPPED</code></td><td>Delivery</td><td>พนักงานขนส่งมารับพัสดุจริงแล้ว</td><td>มีเอกสารจัดส่งแนบ (ต่างจาก PROCESSED ที่ยังไม่มีคนมารับ)</td></tr>
+      <tr><td><code>TO_CONFIRM_RECEIVE</code></td><td>Delivery</td><td>รอผู้ซื้อยืนยันได้รับสินค้า</td><td>อาจ auto-confirm หลังพ้นระยะเวลาที่กำหนด</td></tr>
+      <tr><td><code>COMPLETED</code></td><td>Completion</td><td>คำสั่งซื้อเสร็จสมบูรณ์</td><td>Terminal — สถานะปลายทางของ successful flow</td></tr>
+      <tr><td><code>IN_CANCEL</code></td><td>Cancellation</td><td>อยู่ระหว่างขอยกเลิก รออนุมัติ</td><td>Interim state ก่อนตัดจริงที่ CANCELLED — เฉพาะ Shopee เท่านั้นที่มี state นี้</td></tr>
+      <tr><td><code>CANCELLED</code></td><td>Cancellation</td><td>ยกเลิกคำสั่งซื้อแล้ว</td><td>Terminal — เกิดจากผู้ซื้อ/ผู้ขาย/ระบบ auto-cancel (ไม่จัดส่งทันเวลา) หรือพัสดุสูญหาย</td></tr>
+      <tr><td><code>TO_RETURN</code></td><td>Reverse</td><td>ผู้ซื้อขอคืนเงิน/คืนสินค้า อยู่ระหว่างดำเนินการ</td><td>เกิดหลัง SHIPPED — ยังไม่ terminal จนกว่าจะอนุมัติ (ปิดจบที่ COMPLETED หรือเข้ากระบวนการไกล่เกลี่ยถ้ามีข้อพิพาท)</td></tr>
+    </tbody>
+  </table>
+  <p class="small">หมายเหตุ: <code>INVOICE_PENDING</code> (map → OMS 200 เหมือน UNPAID) พบในโค้ด/production data แต่<b>ไม่ใช่ 1 ใน 10 ค่าทางการ</b> ตาม §10 — สันนิษฐานว่าเป็นสถานะเฉพาะบางภูมิภาค ไม่ใช่การพิมพ์ผิด (FF-SYNC-037)</p>
+</section>
+
+<section id="flows">
+  <h2>3. Status Flow</h2>
+
+  <h3>3.1 Happy Path</h3>
+  <div class="flow">UNPAID
+  ↓ ① ลูกค้ายืนยันชำระเงินสำเร็จ
+READY_TO_SHIP
+  ↓ ④ ร้านกดจัดส่ง — เรียก ship_order API (TrackingNo อาจยังไม่ออก)
+PROCESSED
+  ↓ ⑥ พนักงานขนส่งมารับพัสดุจริง + มีเอกสารจัดส่งแนบ
+SHIPPED
+  ↓ ผู้ซื้อยืนยันได้รับสินค้า (หรือ auto-confirm)
+TO_CONFIRM_RECEIVE
+  ↓
+COMPLETED</div>
+
+  <h3>3.2 Retry-Ship Flow (pickup failure — ไม่ใช่ post-dispatch failure)</h3>
+  <div class="flow">READY_TO_SHIP
+  ↓ ⑦ 3PL เข้ารับพัสดุไม่สำเร็จ ต้องนัดรับใหม่
+RETRY_SHIP
+  ↓ นัดรับใหม่สำเร็จ (วนกลับเข้าจุดเดิม)
+READY_TO_SHIP  ← กลับเข้า flow ปกติ ยังไม่เคย "ออกจากร้าน" จริง</div>
+
+  <h3>3.3 Cancel Flow</h3>
+  <div class="flow">READY_TO_SHIP / PROCESSED
+  ↓ ② ③ ผู้ซื้อ/ผู้ขายขอยกเลิก, หรือร้านไม่จัดส่งทันเวลา (auto-cancel)
+IN_CANCEL  (อยู่ระหว่างขอยกเลิก)
+  ↓
+CANCELLED
+
+SHIPPED
+  ↓ ⑤ พัสดุสูญหายระหว่างจัดส่ง — Shopee auto-cancel
+CANCELLED
+
+(ทุกสถานะก่อน SHIPPED)
+  ↓ ⑨ ผู้ซื้อขอยกเลิก ต้องรอผู้ขายอนุมัติ
+IN_CANCEL
+  ├─ ผู้ขายปฏิเสธ → กลับสถานะเดิมก่อนขอยกเลิก
+  └─ ผู้ขายอนุมัติ/เพิกเฉย → CANCELLED</div>
+
+  <h3>3.4 Return Flow</h3>
+  <div class="flow">SHIPPED
+  ↓ ⑧ ผู้ซื้อส่งคำขอคืนสินค้า/คืนเงิน
+TO_RETURN  (อยู่ระหว่างดำเนินการ — ยังไม่ terminal)
+  ↓ อนุมัติคำขอคืนแล้ว (มีข้อพิพาท → เข้ากระบวนการไกล่เกลี่ยแยกก่อนปิดจบ)
+COMPLETED</div>
+</section>
+
+<section id="mapping">
+  <h2>4. OMS Mapping (current — FF-SYNC-037)</h2>
+  <table>
+    <thead><tr><th>Shopee status</th><th>OMS code</th><th>เหตุผล</th></tr></thead>
+    <tbody>
+      <tr><td><code>UNPAID</code></td><td><span class="oms-pill">200 PendingReview</span></td><td>—</td></tr>
+      <tr><td><code>INVOICE_PENDING</code></td><td><span class="oms-pill">200 PendingReview</span></td><td>ไม่ใช่ 1 ใน 10 ค่าทางการ — รวมกลุ่มกับ UNPAID</td></tr>
+      <tr><td><code>READY_TO_SHIP</code></td><td><span class="oms-pill">490 ReadyToShip</span></td><td>—</td></tr>
+      <tr><td><code>PROCESSED</code></td><td><span class="oms-pill">490 ReadyToShip</span></td><td>รวมกลุ่มกับ READY_TO_SHIP — OMS ยังไม่มี substate แยก "กดจัดส่งแล้ว รอรับ" ดู § Known Gaps</td></tr>
+      <tr><td><code>RETRY_SHIP</code></td><td><span class="oms-pill">490 ReadyToShip</span></td><td>FF-SYNC-037 — แตกจาก READY_TO_SHIP เอง วนกลับเข้าจุดเดิม ไม่เคย physically shipped จึงไม่ใช่ 555 FailedDelivery</td></tr>
+      <tr><td><code>SHIPPED</code></td><td><span class="oms-pill">500 Shipped</span></td><td>—</td></tr>
+      <tr><td><code>TO_CONFIRM_RECEIVE</code></td><td><span class="oms-pill">550 OutForDelivery</span></td><td>ชื่อ OMS enum ไม่ตรงความหมายเป๊ะ (ดู § Known Gaps) แต่ตำแหน่งลำดับถูกต้อง</td></tr>
+      <tr><td><code>COMPLETED</code></td><td><span class="oms-pill">700 Completed</span></td><td>—</td></tr>
+      <tr><td><code>IN_CANCEL</code></td><td><span class="oms-pill">750 CancelRequested</span></td><td>—</td></tr>
+      <tr><td><code>CANCELLED</code></td><td><span class="oms-pill">800 Cancelled</span></td><td>—</td></tr>
+      <tr><td><code>TO_RETURN</code></td><td><span class="oms-pill">560 ReturnInitiated</span></td><td>FF-SYNC-037 — ยังไม่ terminal จึงไม่ใช่ 900 Returned; เทียบเท่า Lazada <code>shipped_back</code> → 560</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="gaps">
+  <h2>5. Known Gaps (pre-existing — นอกขอบเขต FF-SYNC-037)</h2>
+
+  <div class="gap-item">
+    <div class="gap-icon">⚠️</div>
+    <div>
+      <b>READY_TO_SHIP / PROCESSED / RETRY_SHIP รวมอยู่ที่ OMS 490 เดียวกัน</b>
+      <p class="small">ตาม flow จริง <code>PROCESSED</code> ขยับหน้าไปกว่า <code>READY_TO_SHIP</code>/<code>RETRY_SHIP</code> หนึ่งขั้น (ร้านกดเรียกขนส่งไปแล้ว) แต่ OMS ยังไม่มี substate แยก ops จึงมองจาก OMS ไม่เห็นความต่างระหว่าง "ยังไม่กดอะไรเลย" กับ "กดเรียกขนส่งแล้ว รอ 3PL มารับ" — ถ้าต้องการแยก ต้องเพิ่ม OMS status code ใหม่ (เช่น ระหว่าง 490-500) เป็นงานแยกต่างหาก</p>
+    </div>
+  </div>
+
+  <div class="gap-item">
+    <div class="gap-icon">⚠️</div>
+    <div>
+      <b>TO_CONFIRM_RECEIVE → OMS 550 "OutForDelivery" ชื่อไม่ตรงความหมาย</b>
+      <p class="small"><code>TO_CONFIRM_RECEIVE</code> คือ "รอผู้ซื้อยืนยันว่าได้รับสินค้าแล้ว" (ใกล้ COMPLETED) แต่ OMS enum ชื่อ <code>OutForDelivery</code> สื่อว่า "กำลังนำส่ง" — ตำแหน่งลำดับใน flow ยังถูกต้อง (อยู่ระหว่าง SHIPPED กับ COMPLETED) ไม่กระทบ business logic เพราะ OMS ไม่ได้ผูก action ตามชื่อ enum โดยตรง แต่เป็นจุดที่ทำให้สับสนตอนอ่านโค้ด</p>
+    </div>
+  </div>
+
+  <div class="gap-item">
+    <div class="gap-icon">✅</div>
+    <div>
+      <b>[แก้แล้ว] RETRY_SHIP / TO_RETURN เคย mapping-miss เงียบ</b>
+      <p class="small">ก่อน FF-SYNC-037 ทั้งสองสถานะไม่มี case ใน seeder เลย ตกไปที่ <code>oms.orders_status_mapping_misses</code> แบบ no-op (หลัง FF-SYNC-008 ไม่ fallback ไป 200 แต่ค้างสถานะเดิมเงียบๆ) — อันตรายเฉพาะเคส RETRY_SHIP เพราะออเดอร์จะดูเหมือนจัดส่งปกติทั้งที่ 3PL รับพัสดุไม่สำเร็จ ตอนนี้แก้แล้วตามตารางด้านบน</p>
+    </div>
+  </div>
+</section>
+
+<section id="references">
+  <h2>6. References</h2>
+  <ul>
+    <li>Shopee Open API v2 Order Management doc (Last Updated 2025-09-24) §10 Data Definition</li>
+    <li>Shopee official order-flow diagram (ผู้ใช้อัปโหลด, 2026-09-09) — ยืนยันตำแหน่ง RETRY_SHIP/TO_RETURN/PROCESSED ใน flow</li>
+    <li><a href="order-status-mapping-3-platform.html">order-status-mapping-3-platform.html</a> — cross-platform comparison (Shopee/Lazada/TikTok)</li>
+    <li>GH Issue <a href="https://github.com/B1DXDev/b1dx-fulfillment-workspace/issues/1811">#1811</a> — FF-SYNC-037</li>
+    <li><code>{be}/src/B1dx.OmsFulfillment.Infrastructure/Seed/OrdersStatusMappingConfigSeeder.cs</code></li>
+    <li><code>{be}/src/B1dx.OmsFulfillment.Domain/Modules/Order/OrderStatus.cs</code></li>
+  </ul>
+</section>
+</main>
+
+<div class="footer">B1DX Fulfillment · Shopee Order Status Report · สร้างเมื่อ 2026-09-09</div>
+</body>
+</html>
