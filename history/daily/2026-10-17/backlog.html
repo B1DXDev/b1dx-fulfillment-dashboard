@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Backlog — b1dx OMS Fulfillment</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #263549;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --indigo: #6366f1;
+    --indigo-dark: #4f46e5;
+    --teal: #14b8a6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --orange: #f97316;
+    --p1: #ef4444;
+    --p1-bg: rgba(239,68,68,.12);
+    --p2: #f97316;
+    --p2-bg: rgba(249,115,22,.12);
+    --p3: #6366f1;
+    --p3-bg: rgba(99,102,241,.12);
+    --status-backlog: #475569;
+    --status-sprint: #0ea5e9;
+    --status-done: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: #e0e7ff; }
+  header .subtitle { font-size: .8rem; color: var(--text-muted); margin-top: .15rem; }
+
+  /* KPI Cards */
+  .kpi-bar { max-width: 1280px; margin: 1.5rem auto 0; padding: 0 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.2rem; flex: 1 1 140px; min-width: 120px; }
+  .kpi .num { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .kpi .label { font-size: .75rem; color: var(--text-muted); margin-top: .3rem; }
+  .kpi.total .num { color: var(--indigo); }
+  .kpi.p1 .num { color: var(--p1); }
+  .kpi.p2 .num { color: var(--p2); }
+  .kpi.p3 .num { color: var(--p3); }
+  .kpi.sprint .num { color: var(--status-sprint); }
+  .kpi.done .num { color: var(--status-done); }
+
+  /* Progress bar */
+  .progress-wrap { max-width: 1280px; margin: 1rem auto 0; padding: 0 2rem; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--indigo)); border-radius: 99px; transition: width .4s ease; }
+  .progress-label { font-size: .75rem; color: var(--text-muted); margin-top: .4rem; text-align: right; }
+
+  /* Filters */
+  .filter-bar { max-width: 1280px; margin: 1.5rem auto 0; padding: 0 2rem; display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+  .filter-bar label { font-size: .8rem; color: var(--text-muted); margin-right: .25rem; }
+  .filter-group { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .chip {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+    padding: .3rem .8rem; border-radius: 99px; font-size: .8rem; cursor: pointer;
+    transition: all .15s; user-select: none;
+  }
+  .chip:hover { border-color: var(--indigo); color: var(--text); }
+  .chip.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+  .chip.p1.active { background: var(--p1); border-color: var(--p1); }
+  .chip.p2.active { background: var(--p2); border-color: var(--p2); }
+  .chip.p3.active { background: var(--p3); border-color: var(--p3); }
+  .sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 .25rem; }
+  .search-wrap { margin-left: auto; }
+  .search-wrap input {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: .35rem .8rem; border-radius: 8px; font-size: .85rem; width: 220px; outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--indigo); }
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  /* Main Content */
+  .main { max-width: 1280px; margin: 1.5rem auto 4rem; padding: 0 2rem; }
+
+  /* Group */
+  .group { margin-bottom: 2rem; }
+  .group-header {
+    display: flex; align-items: center; gap: .75rem; padding: .6rem 1rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: .75rem; cursor: pointer; user-select: none;
+    transition: background .15s;
+  }
+  .group-header:hover { background: var(--surface2); }
+  .group-title { font-size: .95rem; font-weight: 600; color: var(--text); flex: 1; }
+  .group-count { font-size: .75rem; color: var(--text-muted); background: var(--surface2); padding: .2rem .6rem; border-radius: 99px; }
+  .group-arrow { color: var(--text-muted); font-size: .85rem; transition: transform .2s; }
+  .group.collapsed .group-arrow { transform: rotate(-90deg); }
+  .group-body { display: flex; flex-direction: column; gap: .6rem; }
+  .group.collapsed .group-body { display: none; }
+
+  /* Feature Card */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.2rem; display: flex; gap: 1rem; align-items: flex-start;
+    transition: border-color .15s, opacity .2s;
+    position: relative;
+  }
+  .card:hover { border-color: #4f5e7a; }
+  .card.hidden { display: none; }
+  .card.done-style { opacity: .55; }
+  .card.done-style .card-title { text-decoration: line-through; }
+
+  .card-left { display: flex; flex-direction: column; gap: .5rem; align-items: center; min-width: 52px; }
+  .priority-badge {
+    font-size: .7rem; font-weight: 700; padding: .2rem .5rem; border-radius: 6px;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .priority-badge.P1 { color: var(--p1); background: var(--p1-bg); }
+  .priority-badge.P2 { color: var(--p2); background: var(--p2-bg); }
+  .priority-badge.P3 { color: var(--p3); background: var(--p3-bg); }
+
+  .card-body { flex: 1; min-width: 0; }
+  .card-title { font-size: .95rem; font-weight: 600; color: var(--text); margin-bottom: .3rem; }
+  .card-goal { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+  .card-meta { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .6rem; align-items: center; }
+  .tag {
+    font-size: .72rem; padding: .15rem .5rem; border-radius: 5px;
+    background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+  }
+  .tag.spec { color: var(--teal); border-color: rgba(20,184,166,.3); background: rgba(20,184,166,.08); }
+  .tag.be-only { color: #a78bfa; border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.08); }
+  .card-note { font-size: .78rem; color: #64748b; margin-top: .4rem; font-style: italic; }
+
+  /* Status Control */
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; min-width: 130px; }
+  .status-btn {
+    font-size: .75rem; padding: .3rem .7rem; border-radius: 8px; border: 1px solid;
+    cursor: pointer; font-weight: 600; transition: all .15s; white-space: nowrap;
+    background: transparent;
+  }
+  .status-btn.backlog { color: var(--status-backlog); border-color: var(--status-backlog); }
+  .status-btn.backlog:hover { background: rgba(71,85,105,.2); }
+  .status-btn.sprint { color: var(--status-sprint); border-color: var(--status-sprint); }
+  .status-btn.sprint:hover { background: rgba(14,165,233,.15); }
+  .status-btn.done { color: var(--status-done); border-color: var(--status-done); }
+  .status-btn.done:hover { background: rgba(34,197,94,.15); }
+  .status-cycle { display: flex; gap: .35rem; }
+  .cycle-dot {
+    width: 8px; height: 8px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform .15s;
+  }
+  .cycle-dot:hover { transform: scale(1.3); }
+  .cycle-dot.backlog { background: var(--status-backlog); }
+  .cycle-dot.sprint { background: var(--status-sprint); }
+  .cycle-dot.done { background: var(--status-done); }
+  .cycle-dot.active { border-color: white; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: .9rem; }
+
+  /* Tooltip */
+  [title] { cursor: help; }
+
+  /* Footer */
+  footer { text-align: center; padding: 1.5rem; font-size: .75rem; color: #334155; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>📋 Product Backlog — b1dx OMS Fulfillment</h1>
+      <div class="subtitle">อัพเดทล่าสุด: 2026-03-27 · คลิกที่ status เพื่อเปลี่ยน · บันทึกอัตโนมัติใน browser</div>
+    </div>
+    <button onclick="resetAll()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:.4rem .9rem;border-radius:8px;cursor:pointer;font-size:.8rem;" title="รีเซ็ต status ทั้งหมดกลับเป็น Backlog">↺ Reset</button>
+  </div>
+</header>
+
+<div class="kpi-bar" id="kpiBar">
+  <div class="kpi total"><div class="num" id="kpiTotal">0</div><div class="label">Total Features</div></div>
+  <div class="kpi p1"><div class="num" id="kpiP1">0</div><div class="label">P1 Core</div></div>
+  <div class="kpi p2"><div class="num" id="kpiP2">0</div><div class="label">P2 Important</div></div>
+  <div class="kpi p3"><div class="num" id="kpiP3">0</div><div class="label">P3 Nice-to-have</div></div>
+  <div class="kpi sprint"><div class="num" id="kpiSprint">0</div><div class="label">In Sprint</div></div>
+  <div class="kpi done"><div class="num" id="kpiDone">0</div><div class="label">Done</div></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 0 done</div>
+</div>
+
+<div class="filter-bar">
+  <label>Priority:</label>
+  <div class="filter-group" id="filterPriority">
+    <div class="chip active" data-val="all">All</div>
+    <div class="chip p1" data-val="P1">P1 Core</div>
+    <div class="chip p2" data-val="P2">P2 Important</div>
+    <div class="chip p3" data-val="P3">P3 Nice-to-have</div>
+  </div>
+  <div class="sep"></div>
+  <label>Status:</label>
+  <div class="filter-group" id="filterStatus">
+    <div class="chip active" data-val="all">All</div>
+    <div class="chip" data-val="backlog">📋 Backlog</div>
+    <div class="chip" data-val="sprint">🔄 In Sprint</div>
+    <div class="chip" data-val="done">✅ Done</div>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="🔍 ค้นหา feature..." oninput="applyFilters()">
+  </div>
+</div>
+
+<div class="main" id="mainContent"></div>
+
+<footer>b1dx OMS Fulfillment · Product Backlog · Status saved in localStorage</footer>
+
+<script>
+const STORAGE_KEY = 'b1dx_backlog_status';
+
+const GROUPS = [
+  {
+    id: 'g1', title: 'GROUP 1 — Auth Foundation', priority: 'P1',
+    features: [
+      {
+        id: 'auth-flow', title: 'Auth Flow — Login, OTP, Select Role', priority: 'P1',
+        goal: 'ผู้ใช้ login ด้วย email/password → verify OTP → เลือก Role → เข้าสู่ระบบ',
+        screens: ['login', 'otp', 'role'],
+        spec: 'docs/specs/auth-flow.md',
+        notes: 'Token strategy — access token in-memory, refresh token httpOnly cookie',
+        defaultStatus: 'sprint'
+      },
+      {
+        id: 'forgot-password', title: 'Forgot / Reset Password', priority: 'P1',
+        goal: 'ผู้ใช้ขอรีเซ็ตรหัสผ่านผ่าน email',
+        screens: ['forgot', 'reset', 'success'],
+        notes: 'reset token single-use, expire ภายใน 15 นาที',
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g2', title: 'GROUP 2 — Order Management', priority: 'P1',
+    features: [
+      {
+        id: 'order-list', title: 'Order List + KPI Dashboard', priority: 'P1',
+        goal: 'แสดงรายการ Order พร้อม KPI cards (ยอดรวม, pending, shipped ฯลฯ)',
+        screens: ['dashboard', 'orders'],
+        spec: 'docs/specs/order-management.md',
+        notes: 'pagination server-side, filter by status/brand/warehouse, search by order no.',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'order-detail', title: 'Order Detail', priority: 'P1',
+        goal: 'ดูรายละเอียด Order ครบถ้วน — items, timeline, status, actions',
+        screens: ['detail'],
+        notes: 'แสดง audit trail ของ order นั้นๆ',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'status-flow', title: 'Status Flow (Workflow Engine)', priority: 'P1',
+        goal: 'กำหนด workflow การเปลี่ยน status ของ Order แต่ละ type',
+        screens: ['flow'],
+        notes: 'visual state machine, กำหนด allowed transitions',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'bulk-ops', title: 'Bulk Operations', priority: 'P2',
+        goal: 'จัดการ Order หลายรายการพร้อมกัน (approve, cancel, export)',
+        screens: ['bulkops'],
+        notes: 'max 100 orders ต่อ batch',
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g3', title: 'GROUP 3 — Access Control', priority: 'P1',
+    features: [
+      {
+        id: 'user-management', title: 'User Management (Add / Edit / Detail)', priority: 'P1',
+        goal: 'Admin จัดการ User ในระบบ — เพิ่ม, แก้ไข, ดูรายละเอียด, deactivate',
+        screens: ['ac-users'],
+        spec: 'docs/specs/user-management.md',
+        specReady: true,
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'rbac', title: 'Roles & RBAC + Permission Matrix', priority: 'P1',
+        goal: 'กำหนด Role และ Permission ต่อ Resource/Action',
+        screens: ['ac-rbac', 'ac-perm'],
+        spec: 'docs/specs/rbac.md',
+        specReady: true,
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'status-perm', title: 'Status Permissions', priority: 'P2',
+        goal: 'กำหนดว่า Role ไหนทำ action อะไรกับ Order status ได้บ้าง',
+        screens: ['ac-stperm'],
+        notes: 'permission matrix ระดับ status transition',
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g4', title: 'GROUP 4 — Warehouse WMS', priority: 'P2',
+    features: [
+      {
+        id: 'inbound', title: 'Inbound Management', priority: 'P2',
+        goal: 'รับสินค้าเข้า warehouse — scan, verify, putaway',
+        screens: ['inbound'],
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'pickpack', title: 'Pick / Pack', priority: 'P2',
+        goal: 'หยิบและแพ็คสินค้าตาม Order — print label, confirm',
+        screens: ['pickpack'],
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'returns', title: 'Returns & Non-Conforming', priority: 'P2',
+        goal: 'จัดการสินค้าคืน และสินค้าที่ไม่ผ่าน QC',
+        screens: ['returns'],
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'cyclecount', title: 'Cycle Count (Stock Verification)', priority: 'P2',
+        goal: 'นับสต็อกจริง เทียบกับ system และ reconcile',
+        screens: ['cyclecount'],
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g5', title: 'GROUP 5 — Admin & Reporting', priority: 'P2',
+    features: [
+      {
+        id: 'reports', title: 'Reports & Analytics', priority: 'P2',
+        goal: 'รายงานสรุป order, inventory, performance ตาม period/brand/warehouse',
+        screens: ['reports'],
+        notes: 'chart + export CSV/Excel, filter date range',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'audit-log', title: 'Audit Log', priority: 'P2',
+        goal: 'บันทึกทุก action ที่เกิดในระบบ — who did what, when',
+        screens: ['audit'],
+        notes: 'immutable, searchable, retention 90 วัน',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'lifecycle', title: 'Order Lifecycle Timeline', priority: 'P2',
+        goal: 'แสดง timeline ของ Order ตั้งแต่สร้างจนปิด',
+        screens: ['lifecycle'],
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g6', title: 'GROUP 6 — Billing', priority: 'P3',
+    features: [
+      {
+        id: 'billing', title: 'Billing & Invoices', priority: 'P3',
+        goal: 'สรุปค่าใช้จ่าย, ออก invoice, tracking การชำระ',
+        screens: ['billing'],
+        notes: 'รอ payment gateway integration ก่อน',
+        defaultStatus: 'backlog'
+      }
+    ]
+  },
+  {
+    id: 'g7', title: 'GROUP 7 — Features นอก Mockup', priority: 'P2',
+    features: [
+      {
+        id: 'email-notify', title: 'Email / Notification Service', priority: 'P2',
+        goal: 'ส่ง email / push notification เมื่อ event สำคัญเกิดขึ้น',
+        beOnly: true,
+        notes: 'background queue, retry, template-based',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'webhook', title: 'Webhook Outbound', priority: 'P2',
+        goal: 'ส่ง event ออกไปยัง external system เมื่อ order status เปลี่ยน',
+        beOnly: true,
+        notes: 'signature verification, retry with backoff, delivery log',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'tenant-settings', title: 'Tenant Settings', priority: 'P2',
+        goal: 'Admin ตั้งค่าระดับ tenant — timezone, currency, branding, feature flags',
+        notes: 'BE + FE (หน้า Settings)',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'api-keys', title: 'API Keys / Integrations', priority: 'P3',
+        goal: 'สร้างและจัดการ API Key สำหรับ external integration',
+        notes: 'BE + FE',
+        defaultStatus: 'backlog'
+      },
+      {
+        id: 'i18n', title: 'Multi-language / i18n', priority: 'P3',
+        goal: 'รองรับ TH/EN ครบทุก screen',
+        notes: 'เริ่มทำควบคู่ทุก feature — FE (ส่วนใหญ่) + BE (error messages)',
+        defaultStatus: 'backlog'
+      }
+    ]
+  }
+];
+
+// State
+let statusMap = {};
+let filterPriority = 'all';
+let filterStatus = 'all';
+
+const STATUSES = ['backlog', 'sprint', 'done'];
+const STATUS_LABELS = { backlog: '📋 Backlog', sprint: '🔄 In Sprint', done: '✅ Done' };
+const STATUS_NEXT = { backlog: 'sprint', sprint: 'done', done: 'backlog' };
+
+function loadStatus() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) statusMap = JSON.parse(saved);
+  } catch(e) {}
+  // Fill defaults
+  GROUPS.forEach(g => g.features.forEach(f => {
+    if (!statusMap[f.id]) statusMap[f.id] = f.defaultStatus || 'backlog';
+  }));
+}
+
+function saveStatus() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(statusMap)); } catch(e) {}
+}
+
+function resetAll() {
+  if (!confirm('รีเซ็ต status ทั้งหมดกลับเป็น Backlog?')) return;
+  GROUPS.forEach(g => g.features.forEach(f => { statusMap[f.id] = f.defaultStatus || 'backlog'; }));
+  saveStatus();
+  render();
+}
+
+function cycleStatus(id) {
+  const cur = statusMap[id] || 'backlog';
+  statusMap[id] = STATUS_NEXT[cur];
+  saveStatus();
+  updateCard(id);
+  updateKPIs();
+}
+
+function setStatus(id, val) {
+  statusMap[id] = val;
+  saveStatus();
+  updateCard(id);
+  updateKPIs();
+}
+
+function updateCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (!card) return;
+  const status = statusMap[id] || 'backlog';
+  // Update button
+  const btn = card.querySelector('.status-btn');
+  btn.className = 'status-btn ' + status;
+  btn.textContent = STATUS_LABELS[status];
+  // Update dots
+  card.querySelectorAll('.cycle-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.s === status);
+  });
+  // Done style
+  card.classList.toggle('done-style', status === 'done');
+  // Apply filter visibility
+  applyCardVisibility(card, id);
+}
+
+function applyCardVisibility(card, id) {
+  const f = getAllFeatures().find(x => x.id === id);
+  if (!f) return;
+  const status = statusMap[id] || 'backlog';
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const matchPri = filterPriority === 'all' || f.priority === filterPriority;
+  const matchSt = filterStatus === 'all' || status === filterStatus;
+  const matchSearch = !search ||
+    f.title.toLowerCase().includes(search) ||
+    f.goal.toLowerCase().includes(search) ||
+    (f.screens || []).join(' ').includes(search);
+  card.classList.toggle('hidden', !(matchPri && matchSt && matchSearch));
+}
+
+function getAllFeatures() {
+  return GROUPS.flatMap(g => g.features);
+}
+
+function applyFilters() {
+  getAllFeatures().forEach(f => {
+    const card = document.getElementById('card-' + f.id);
+    if (card) applyCardVisibility(card, f.id);
+  });
+  // Hide empty groups
+  GROUPS.forEach(g => {
+    const groupEl = document.getElementById('group-' + g.id);
+    if (!groupEl) return;
+    const visibleCards = groupEl.querySelectorAll('.card:not(.hidden)').length;
+    groupEl.style.display = visibleCards === 0 ? 'none' : '';
+  });
+  updateKPIs();
+}
+
+function updateKPIs() {
+  const all = getAllFeatures();
+  const counts = { P1: 0, P2: 0, P3: 0, sprint: 0, done: 0 };
+  all.forEach(f => {
+    counts[f.priority]++;
+    const s = statusMap[f.id] || 'backlog';
+    if (s === 'sprint') counts.sprint++;
+    if (s === 'done') counts.done++;
+  });
+  document.getElementById('kpiTotal').textContent = all.length;
+  document.getElementById('kpiP1').textContent = counts.P1;
+  document.getElementById('kpiP2').textContent = counts.P2;
+  document.getElementById('kpiP3').textContent = counts.P3;
+  document.getElementById('kpiSprint').textContent = counts.sprint;
+  document.getElementById('kpiDone').textContent = counts.done;
+  const pct = all.length ? Math.round(counts.done / all.length * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${counts.done} / ${all.length} done (${pct}%)`;
+}
+
+function toggleGroup(id) {
+  const el = document.getElementById('group-' + id);
+  el.classList.toggle('collapsed');
+}
+
+function renderCard(f) {
+  const status = statusMap[f.id] || 'backlog';
+  const screens = (f.screens || []).map(s => `<span class="tag">${s}</span>`).join('');
+  const specTag = f.spec ? `<span class="tag spec" title="${f.spec}">${f.specReady ? '✅ Spec' : '📄 Spec'}</span>` : '';
+  const beOnlyTag = f.beOnly ? `<span class="tag be-only">BE only</span>` : '';
+  const noteHtml = f.notes ? `<div class="card-note">💡 ${f.notes}</div>` : '';
+  const dots = STATUSES.map(s =>
+    `<div class="cycle-dot ${s}${s === status ? ' active' : ''}" data-s="${s}" title="${STATUS_LABELS[s]}" onclick="setStatus('${f.id}','${s}')"></div>`
+  ).join('');
+
+  return `
+    <div class="card${status === 'done' ? ' done-style' : ''}" id="card-${f.id}">
+      <div class="card-left">
+        <span class="priority-badge ${f.priority}">${f.priority}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${f.title}</div>
+        <div class="card-goal">${f.goal}</div>
+        <div class="card-meta">${screens}${specTag}${beOnlyTag}</div>
+        ${noteHtml}
+      </div>
+      <div class="card-right">
+        <button class="status-btn ${status}" onclick="cycleStatus('${f.id}')" title="คลิกเพื่อเปลี่ยน status">${STATUS_LABELS[status]}</button>
+        <div class="status-cycle">${dots}</div>
+      </div>
+    </div>`;
+}
+
+function render() {
+  const main = document.getElementById('mainContent');
+  main.innerHTML = GROUPS.map(g => `
+    <div class="group" id="group-${g.id}">
+      <div class="group-header" onclick="toggleGroup('${g.id}')">
+        <span class="priority-badge ${g.priority}" style="font-size:.7rem">${g.priority}</span>
+        <span class="group-title">${g.title}</span>
+        <span class="group-count">${g.features.length} features</span>
+        <span class="group-arrow">▾</span>
+      </div>
+      <div class="group-body">
+        ${g.features.map(f => renderCard(f)).join('')}
+      </div>
+    </div>
+  `).join('');
+  applyFilters();
+  updateKPIs();
+}
+
+// Filter chip logic
+document.getElementById('filterPriority').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#filterPriority .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  filterPriority = chip.dataset.val;
+  applyFilters();
+});
+
+document.getElementById('filterStatus').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#filterStatus .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  filterStatus = chip.dataset.val;
+  applyFilters();
+});
+
+// Init
+loadStatus();
+render();
+</script>
+
+<!-- Time-travel dropdown (REPORT-HISTORY-03) — hidden if /history/index.json fetch fails (file://) -->
+<div id="histDropdown" style="position:fixed;top:14px;right:14px;z-index:9999;display:none;font-family:'Segoe UI',system-ui,sans-serif;background:rgba(30,41,59,.95);backdrop-filter:blur(8px);border:1px solid #475569;border-radius:10px;padding:6px 10px;box-shadow:0 4px 16px rgba(0,0,0,.3);font-size:.78rem;color:#e2e8f0">
+  <label for="histSel" style="margin-right:6px">📅 View as of</label>
+  <select id="histSel" style="font:inherit;color:inherit;background:transparent;border:none;outline:none;cursor:pointer;padding:2px 4px"></select>
+</div>
+<script>
+(async () => {
+  // Base-path detection — works on root deploy + sub-path deploy (GitHub Pages) + localhost
+  const getBase = () => {
+    const m = location.pathname.match(/(.*?)\/history\//);
+    if (m) return m[1] + '/';
+    return location.pathname.replace(/\/[^/]*$/, '/') || '/';
+  };
+  const BASE = getBase();
+  try {
+    const res = await fetch(BASE + 'history/index.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const idx = await res.json();
+    const dailyList = Array.isArray(idx.daily) ? idx.daily : [];
+    if (!dailyList.length) return;
+    const sel = document.getElementById('histSel');
+    const wrap = document.getElementById('histDropdown');
+    const m = location.pathname.match(/\/history\/daily\/([^/]+)\//);
+    const current = m ? m[1] : 'today';
+    const file = location.pathname.endsWith('progress.html') ? 'progress.html'
+               : location.pathname.endsWith('executive-summary.html') ? 'executive-summary.html'
+               : 'backlog.html';
+    sel.appendChild(new Option('Today (latest)', 'today'));
+    [...dailyList].reverse().forEach(d => {
+      const opt = new Option(d, d);
+      if (d === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    if (current === 'today') sel.value = 'today';
+    sel.addEventListener('change', (e) => {
+      const v = e.target.value;
+      location.href = v === 'today' ? BASE + file : BASE + 'history/daily/' + v + '/' + file;
+    });
+    wrap.style.display = 'block';
+  } catch (_) { /* file:// or missing index → hidden */ }
+})();
+</script>
+</body>
+</html>
