@@ -269,7 +269,7 @@
     </div>
     <div>
       <div class="hero-title">ERP × <span>Keycloak</span><br>Register App + Login Flow</div>
-      <div class="hero-sub">คู่มือ register client <code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">b1dx-erp</code> เข้า Keycloak (<code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">keycloak.benzapps.com</code>) + OIDC login flow แบบ interactive สำหรับ dev ที่ยังไม่คุ้นกับ Keycloak</div>
+      <div class="hero-sub">คู่มือ register client <code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">b1dx-erp</code> เข้า Keycloak (<code style="background:rgba(255,255,255,.12);color:#e0e7ff;border-color:rgba(255,255,255,.2);">keycloak.b1dx.com</code>) + OIDC login flow แบบ interactive สำหรับ dev ที่ยังไม่คุ้นกับ Keycloak</div>
     </div>
   </div>
 
@@ -298,7 +298,7 @@
       <div class="cards" style="margin-top:18px;">
         <div class="card indigo">
           <div class="card-header"><span class="card-icon">🌐</span><div><div class="card-title">Keycloak Server</div><div class="card-sub">Central IdP</div></div></div>
-          <div class="card-body"><p><code>https://keycloak.benzapps.com</code> — Admin Console ที่ <code>/admin/</code></p></div>
+          <div class="card-body"><p><code>https://keycloak.b1dx.com</code> — Admin Console ที่ <code>/admin/</code></p></div>
         </div>
         <div class="card indigo">
           <div class="card-header"><span class="card-icon">🏷️</span><div><div class="card-title">Realm</div><div class="card-sub">Shared ทั้ง 8 ระบบ</div></div></div>
@@ -334,7 +334,7 @@
           <input type="checkbox" class="step-check" data-step="1">
           <div>
             <div class="step-title"><span class="step-n">01</span>Login Admin Console</div>
-            <div class="step-desc">เปิด <code>https://keycloak.benzapps.com/admin/</code> → login ด้วย account ที่มีสิทธิ์ realm admin → เลือก realm <code>b1dx</code> ที่มุมซ้ายบน (ไม่ใช่ <code>master</code>)</div>
+            <div class="step-desc">เปิด <code>https://keycloak.b1dx.com/admin/</code> → login ด้วย account ที่มีสิทธิ์ realm admin → เลือก realm <code>b1dx</code> ที่มุมซ้ายบน (ไม่ใช่ <code>master</code>)</div>
           </div>
         </li>
         <li class="step-card">
@@ -435,7 +435,7 @@
 
       <div class="code-wrap">
         <div class="code-label"><span><span class="lang">env</span> · .env.local (dev)</span><button class="copy-btn" data-copy="env-dev">Copy</button></div>
-        <pre id="env-dev"><span class="key">KEYCLOAK_URL</span>=<span class="val">https://keycloak.benzapps.com</span>
+        <pre id="env-dev"><span class="key">KEYCLOAK_URL</span>=<span class="val">https://keycloak.b1dx.com</span>
 <span class="key">KEYCLOAK_REALM</span>=<span class="val">b1dx</span>
 <span class="key">KEYCLOAK_CLIENT_ID</span>=<span class="val">b1dx-erp</span>
 <span class="key">KEYCLOAK_CLIENT_SECRET</span>=<span class="val">{secret จากแท็บ Credentials}</span>
@@ -512,7 +512,7 @@ sequenceDiagram
       </details>
       <details class="faq-item">
         <summary>Login สำเร็จแต่ ERP validate token ไม่ผ่าน</summary>
-        <div class="faq-body">เช็ค issuer URL ที่ ERP ใช้ validate ต้องตรงกับ <code>https://keycloak.benzapps.com/realms/b1dx</code> เป๊ะ ๆ (ผิด scheme/trailing slash ก็ fail) และเช็คว่า clock บนเครื่อง dev sync ตรงเวลาจริง (JWT exp/iat sensitive กับ clock skew)</div>
+        <div class="faq-body">เช็ค issuer URL ที่ ERP ใช้ validate ต้องตรงกับ <code>https://keycloak.b1dx.com/realms/b1dx</code> เป๊ะ ๆ (ผิด scheme/trailing slash ก็ fail) และเช็คว่า clock บนเครื่อง dev sync ตรงเวลาจริง (JWT exp/iat sensitive กับ clock skew)</div>
       </details>
       <details class="faq-item">
         <summary>Login สำเร็จแต่ user ไม่มีสิทธิ์ใช้ฟีเจอร์ใน ERP</summary>

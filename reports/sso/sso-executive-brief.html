@@ -177,7 +177,7 @@
         <div class="flow-arr">→</div>
         <div class="flow-box">หน้า Login<br><span style="font-size:10px;opacity:.8">auth.b1dx.com (Portal)</span></div>
         <div class="flow-arr">→</div>
-        <div class="flow-box amber">🔐 Keycloak<br><span style="font-size:10px;opacity:.9">keycloak.benzapps.com</span></div>
+        <div class="flow-box amber">🔐 Keycloak<br><span style="font-size:10px;opacity:.9">keycloak.b1dx.com</span></div>
       </div>
       <div style="text-align:center; color:#92400e; font-size:12px; margin:6px 0 4px; font-weight:600;">Keycloak คือ "เครื่องยนต์" ที่ตรวจรหัสผ่าน/OTP จริง + เก็บบัญชีผู้ใช้ + ออก token — auth.b1dx.com เป็นแค่หน้าตาที่พนักงานเห็น</div>
       <div class="flow-arr down">↓ ออก token 1 ใบ ใช้เข้าได้ทุกระบบที่บริษัทซื้อ</div>
@@ -198,7 +198,7 @@
       <div class="icon-row">
         <div class="icon-item"><span class="icon">👤</span><div><b>พนักงาน</b> — ผู้ใช้งาน เปิดแอปแล้วกด Login</div></div>
         <div class="icon-item"><span class="icon">🖥️</span><div><b>auth.b1dx.com</b> (Portal / identity-ui) — หน้าตา Login ที่พนักงานเห็น + Launcher เลือกระบบหลัง login</div></div>
-        <div class="icon-item"><span class="icon">🔐</span><div><b>Keycloak</b> (keycloak.benzapps.com) — เก็บบัญชี/รหัสผ่านจริง ตรวจสอบตัวตน (password/OTP/social) ออก token (JWT) ทำ Single Sign-On + Single Logout</div></div>
+        <div class="icon-item"><span class="icon">🔐</span><div><b>Keycloak</b> (keycloak.b1dx.com) — เก็บบัญชี/รหัสผ่านจริง ตรวจสอบตัวตน (password/OTP/social) ออก token (JWT) ทำ Single Sign-On + Single Logout</div></div>
         <div class="icon-item"><span class="icon">🏢</span><div><b>ERP / WMS / OMS / FF / ...</b> — แอปปลายทาง รับ token จาก Keycloak ไปตรวจสิทธิ์การใช้งานของตัวเอง</div></div>
       </div>
       <div class="note" style="margin-top:14px;"><strong>สำคัญ:</strong> Keycloak เป็นระบบเดียวที่เก็บรหัสผ่านจริง — <code>auth.b1dx.com</code> และแอปทั้ง 8 ระบบไม่เก็บรหัสผ่านของใครเลย เปลี่ยน/รีเซ็ตรหัสผ่านที่ Keycloak จุดเดียว มีผลกับทุกระบบทันที</div>
@@ -613,7 +613,7 @@
           <tr><td>Architecture Decision (ADR-005)</td><td><span class="badge badge-gray">Superseded</span></td><td>Owner ratified 2026-06-03 (D1–D11, Q-A…Q-H) — ถูกแทนที่โดย ADR-009 เมื่อ 2026-06-18</td></tr>
           <tr><td>Protocol เลือก OIDC + OpenIddict</td><td><span class="badge badge-gray">Superseded</span></td><td>เปลี่ยนเป็น OIDC ผ่าน <strong>Keycloak</strong> แทนการสร้าง OpenIddict server เอง</td></tr>
           <tr><td>Social Login 7 Providers</td><td><span class="badge badge-green">Scoped ✓</span></td><td>Google, Microsoft, Facebook, LinkedIn, X, GitHub, LINE</td></tr>
-          <tr><td>Domain Layout</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>auth.b1dx.com (launcher) + keycloak.benzapps.com (IdP)</td></tr>
+          <tr><td>Domain Layout</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>auth.b1dx.com (launcher) + keycloak.b1dx.com (IdP)</td></tr>
           <tr><td>DB = identity_db แยก</td><td><span class="badge badge-green">Confirmed ✓</span></td><td>identity-api (management-plane) แยกจาก oms_db — Keycloak มี DB ของตัวเอง</td></tr>
           <tr><td>Central IdP = Keycloak (ADR-009)</td><td><span class="badge badge-green">Accepted ✓</span></td><td>Owner confirmed 2026-06-18 — realm <code>b1dx</code> live</td></tr>
           <tr><td>Cross-Product Rollout</td><td><span class="badge badge-amber">In Progress</span></td><td>OMS/FF live · ERP/WMS/CRM/Connector/ALL-IN/DOCS ทยอย register client</td></tr>
